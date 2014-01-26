@@ -1,11 +1,11 @@
-Auryn v0.3
-==========
+Auryn 
+=====
 
-This is the README file that comes with your download of Auryn v0.3
+This is the README file that comes with your version of Auryn.
 
 Auryn is a source package used to create highly specialized and optimzed code
 to simulate recurrent spiking neural networks with spike timing dependent
-plasticity. It comes with the GPLv3 (please see COPYING).
+plasticity (STDP). It comes with the GPLv3 (please see COPYING).
 
 
 Documentation
@@ -37,7 +37,10 @@ compile.
 
 
 
--- Friedemann Zenke, Dec 8 2013
+-- Friedemann Zenke, Jan 26 2014
+
+
+
 
 
 Copyright 2014 Friedemann Zenke.
