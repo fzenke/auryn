@@ -1,0 +1,12 @@
+# Lines starting with '#' are considered comments.
+# Ignore objects and archives.
+*.[oa]
+# Ignore docs
+docs/*
+# Ignore stuff in the build dirs except the makefiles
+build/*
+!build/lcncluster/Makefile
+!build/lcnsunc1/Makefile
+!build/home/Makefile
+!build/debug/Makefile
+!build/tug/Makefile

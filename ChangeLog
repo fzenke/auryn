@@ -1,0 +1,9 @@
+2014-01-20 Friedemann Zenke <friedemann.zenke@epfl.ch> 
+ 
+ * Added release information version v0.3.
+ * Changed custom written MPI code to MPI_Allgather
+ with adaptive receive buffer size.
+ * Fixes a bug in SyncBuffer that was effecting
+ short term plasticity.
+ * Several bugfixes.
+

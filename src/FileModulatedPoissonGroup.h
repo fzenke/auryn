@@ -1,0 +1,61 @@
+/* 
+* Copyright 2014 Friedemann Zenke
+*
+* This file is part of Auryn, a simulation package for plastic
+* spiking neural networks.
+* 
+* Auryn is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+* 
+* Auryn is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+* 
+* You should have received a copy of the GNU General Public License
+* along with Auryn.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#ifndef FILEMODULATEDGROUP_H_
+#define FILEMODULATEDGROUP_H_
+
+#include "auryn_definitions.h"
+#include "System.h"
+#include "SpikingGroup.h"
+#include "PoissonGroup.h"
+
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/uniform_int.hpp>
+#include <boost/random/variate_generator.hpp>
+#include <boost/random/exponential_distribution.hpp>
+
+using namespace std;
+
+/*! \brief A special Poisson generator that reads its instantaneous
+ * firing rate from a tiser file. Datapoints in the rate file are
+ * interpolated linearly.
+ */
+class FileModulatedPoissonGroup : public PoissonGroup
+{
+private:
+	AurynTime ftime;
+	AurynTime ltime;
+	AurynDouble rate_m;
+	AurynDouble rate_n;
+
+	char buffer[255];
+	bool stimulus_active;
+
+	ifstream inputfile;
+
+	void init ( string filename );
+	
+public:
+	FileModulatedPoissonGroup(NeuronID n, string filename );
+	virtual ~FileModulatedPoissonGroup();
+	virtual void evolve();
+};
+
+#endif /*FILEMODULATEDGROUP_H_*/

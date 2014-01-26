@@ -1,0 +1,41 @@
+SRCDIR=../../src
+SIMDIR=../../sim
+
+TESTFILES = test_traces mpi_latency 
+SIMFILES = sim_background sim_tim_orig sim_fel sim_fel2 sim_fel3 sim_tim_big sim_prethr sim_learning sim_inh_sml sim_inh_big sim_ghom sim_testbench sim_bg_stim sim_bg_coinc sim_bg_quad sim_learning2 sim_bg_het sim_ln_het sim_ln_inh sim_eta sim_ln_2p sim_ln_1p sim_ln_2pf sim_ln_2p_v1 sim_ln_1p_v2 sim_epsc sim_bg_big sim_bg_self sim_bg_plin sim_bg_scaling sim_wulf sim_inj sim_corr sim_benchmark sim_inh_dense sim_bg_pext sim_bg_higaininhib sim_bg_sync sim_bg_3rd sim_3rd_feedforward sim_balance sim_bg_exp
+
+OBJ_GENERIC = SpikeDelay.o Logger.o LinearTrace.o EulerTrace.o SimpleMatrix.o SyncBuffer.o PatternStimulator.o
+OBJ_NEURONGROUPS = $(patsubst %.cpp,%.o,$(notdir $(wildcard ../../src/*Group.cpp)))
+OBJ_CONNECTIONS = $(patsubst %.cpp,%.o,$(notdir $(wildcard ../../src/*Connection.cpp)))
+OBJ_MONITORS =  $(patsubst %.cpp,%.o,$(notdir $(wildcard ../../src/*Monitor.cpp))) $(patsubst %.cpp,%.o,$(notdir $(wildcard ../../src/*Checker.cpp)))
+OBJECTS = auryn_definitions.o auryn_global.o System.o $(OBJ_GENERIC) $(OBJ_NEURONGROUPS) $(OBJ_CONNECTIONS) $(OBJ_MONITORS)  
+
+main: sim_background sim_epsp sim_poisson sim_dense sim_isp_orig sim_isp_big sim_coba_benchmark
+
+all: simulations tests
+
+simulations: $(SIMFILES)
+
+test:
+	echo $(OBJ_CONNECTIONS)
+
+tests: $(TESTFILES)
+
+sim_%: sim_%.o $(OBJECTS) 
+	$(CC) $(CFLAGS) $< $(OBJECTS) $(LDFLAGS) -o $(subst .o,,$<)
+
+mpi_latency: $(SIMDIR)/mpi_latency.c
+	$(CC) $(CFLAGS) $(LDFLAGS) $< -o mpi_latency 
+
+test_%: test_%.o $(OBJECTS) 
+	$(CC) $(CFLAGS) $< $(OBJECTS) $(LDFLAGS) -o $(subst .o,,$<)
+
+%.o : $(SRCDIR)/%.cpp
+	$(CC) $(CFLAGS) -c $<
+
+%.o : $(SIMDIR)/%.cpp
+	$(CC) $(CFLAGS) -c $<
+
+clean:
+	rm -f sim_* test_* *~ *.o core a.out *.log $(SIMFILES)
+
