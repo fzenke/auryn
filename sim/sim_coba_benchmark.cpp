@@ -187,7 +187,7 @@ int main(int ac,char *av[]) {
 		logger->msg(msg,PROGRESS,true);
 
 		PoissonGroup * poisson= new PoissonGroup(200,10);
-		poisson->seed(132341); 
+		poisson->seed(257); 
 		// this will give the same seed on each rank,
 		// but since the group should be locked to a single
 		// rank we do not care.
