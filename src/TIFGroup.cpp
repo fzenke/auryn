@@ -83,7 +83,7 @@ void TIFGroup::evolve()
 {
 	for (NeuronID i = 0 ; i < get_rank_size() ; ++i ) {
     	if (t_ref[i]==0) {
-			AurynDouble dg_mem = ( (e_rest-t_mem[i]) 
+			const AurynFloat dg_mem = ( (e_rest-t_mem[i]) 
 					- t_g_ampa[i] * t_mem[i]
 					- t_g_gaba[i] * (t_mem[i]-e_rev)
 					+ t_bg_cur[i] );

@@ -50,7 +50,7 @@ protected:
 	SpikingGroup * src;
 	NeuronGroup * dst;
 	TransmitterType trans;
-	float * target;
+	AurynFloat * target;
 
 public:
 	Connection();

@@ -22,7 +22,7 @@
 
 void SymmetricSTDPConnection::init(AurynFloat eta, AurynFloat kappa, AurynFloat tau_stdp, AurynWeight maxweight)
 {
-	w_max = maxweight;
+	set_max_weight(maxweight);
 	learning_rate = eta;
 	target = kappa;
 	kappa_fudge = 2*target*tau_stdp;

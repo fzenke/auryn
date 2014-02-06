@@ -124,7 +124,7 @@ void SparseConnection::init()
 	else skip_diagonal = false;
 
 	if ( !has_been_seeded ) { // seed it only once 
-		int rseed = communicator->rank() ;
+		int rseed = 12345*communicator->rank() ;
 		seed(rseed);
 	}
 
@@ -423,23 +423,26 @@ void SparseConnection::sanity_check()
 	AurynFloat * sum = new AurynFloat[dst->get_size()];
 	for ( NeuronID i = 0 ; i < dst->get_size() ; ++i ) sum[i] = 0.0;
 
+	NeuronID * ind = w->get_ind_begin(); // first element of index array
+	AurynWeight * data = w->get_data_begin();
 	for ( NeuronID i = 0 ; i < src->get_size() ; ++i ) {
 		for (NeuronID * c = w->get_row_begin(i) ; 
 				c != w->get_row_end(i) ; 
 				++c ) {
-			NeuronID * ind = w->get_ind_begin(); // first element of index array
-			AurynWeight * data = w->get_data_begin();
 			AurynWeight value = data[c-ind]; 
 			sum[*c] += value;
 		}
 	}
 
 	NeuronID unconnected_count = 0 ;
+	double total_weight = 0;
 	for ( NeuronID i = 0 ; i < dst->get_size() ; ++i ) {
-		// if ( sum[i] == 0 && ((i)%communicator->size()-communicator->rank())==0 ) 
+		total_weight += sum[i];
 		if ( sum[i] == 0 && dst->localrank(i) ) 
 			unconnected_count++;
 	}
+
+	logger->parameter("sanity_check:total weight",total_weight);
 
 	if ( unconnected_count ) { 
 		stringstream oss;
@@ -450,6 +453,8 @@ void SparseConnection::sanity_check()
 			<< " unconnected neurons.";
 		logger->msg(oss.str(),WARNING);
 	}
+
+	// transmit test 
 
 	delete sum;
 }
@@ -729,7 +734,7 @@ void SparseConnection::put_pattern( type_pattern * pattern1, type_pattern * patt
 
 void SparseConnection::load_patterns( string filename, AurynWeight strength, bool overwrite, bool chainmode )
 {
-	load_patterns( filename, strength, 10, overwrite, chainmode );
+	load_patterns( filename, strength, 1000000, overwrite, chainmode );
 }
 
 void SparseConnection::load_patterns( string filename, AurynWeight strength, int n, bool overwrite, bool chainmode )

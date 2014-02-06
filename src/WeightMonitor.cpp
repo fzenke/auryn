@@ -249,7 +249,7 @@ void WeightMonitor::propagate()
 {
 	if ( src->get_destination()->evolve_locally() ) {
 		if (sys->get_clock()%ssize==0) {
-			outfile << dt*(sys->get_clock()) << " ";
+			outfile << fixed << dt*(sys->get_clock()) << scientific << " ";
 			for (vector<AurynWeight*>::iterator iter = element_list->begin() ; iter != element_list->end() ; ++iter)
 				outfile << *(*iter) << " ";
 			outfile << "\n";

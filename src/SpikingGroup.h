@@ -25,6 +25,7 @@
 // #include "SpikeContainer.h"
 #include "SpikeDelay.h"
 #include "EulerTrace.h"
+#include "LinearTrace.h"
 
 #include <boost/archive/text_oarchive.hpp> 
 #include <boost/archive/text_iarchive.hpp> 
@@ -80,10 +81,10 @@ private:
 
 protected:
 	/*! Pretraces */
-	vector<EulerTrace *> pretraces;
+	vector<PRE_TRACE_MODEL *> pretraces;
 
 	/*! Posttraces */
-	vector<EulerTrace *> posttraces;
+	vector<DEFAULT_TRACE_MODEL *> posttraces;
 
 	/*! Identifying name for object */
 	string group_name;
@@ -100,8 +101,8 @@ protected:
     int delay_size;
 	static AurynTime * clock_ptr;
 
-	void load_input_line(NeuronID i, const char * buf);
-	string get_output_line(NeuronID i);
+	virtual void load_input_line(NeuronID i, const char * buf);
+	virtual string get_output_line(NeuronID i);
 	
 public:
 	SpikeDelay * delay;
@@ -163,12 +164,12 @@ public:
 	/*! Returns a pre trace with time constant x 
 	 * Checks first if an instance of a trace exists and returns it
 	 * otherwise creates a new instance first */
-	EulerTrace * get_pre_trace( AurynFloat x );
+	PRE_TRACE_MODEL * get_pre_trace( AurynFloat x );
 
 	/*! Returns a post trace with time constant x 
 	 * Checks first if an instance of a trace exists and returns it
 	 * otherwise creates a new instance first */
-	EulerTrace * get_post_trace( AurynFloat x );
+	DEFAULT_TRACE_MODEL * get_post_trace( AurynFloat x );
 
 	void push_spike(NeuronID spike);
 

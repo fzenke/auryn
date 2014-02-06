@@ -185,10 +185,10 @@ public:
 	virtual bool load_from_file(const char * filename);
 	virtual bool load_from_file(string filename);
 
-	void set_min_weight(AurynWeight minimum_weight);
+	virtual void set_min_weight(AurynWeight minimum_weight);
 	AurynWeight get_min_weight();
 
-	void set_max_weight(AurynWeight minimum_weight);
+	virtual void set_max_weight(AurynWeight maximum_weight);
 	AurynWeight get_max_weight();
 
 	/*! Returns a vector of ConnectionsID of a block specified by the arguments */

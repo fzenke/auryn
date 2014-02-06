@@ -30,7 +30,7 @@ void StimulusGroup::init(string filename, StimulusGroupModeType stimulusmode, st
 	ttl = new AurynTime [get_rank_size()];
 	activity = new AurynFloat [get_rank_size()];
 	set_baserate(baserate);
-	poisson_gen.seed(communicator->rank());
+	poisson_gen.seed(162346*communicator->rank());
 	
 
 	mean_off_period = 1.0 ;

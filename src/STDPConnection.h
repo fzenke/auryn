@@ -27,28 +27,34 @@
 #include "LinearTrace.h"
 #include "SpikeDelay.h"
 
-#define TRACE EulerTrace
 
 using namespace std;
 
 
-/*! \brief Double STDP All-to-All Connection
+/*! \brief Doublet STDP All-to-All as implemented in NEST as stdp_synapse_hom 
  *
- * This class implements a STDP connection with two time constants.
+ * This class implements a range of doublet STDP rules.
+ *
  */
 class STDPConnection : public DuplexConnection
 {
 
 private:
-	void init(AurynFloat eta, AurynFloat maxweight);
+	AurynFloat learning_rate;
+
+	AurynFloat param_lambda;
+	AurynFloat param_alpha;
+
+	AurynFloat param_mu_plus;
+	AurynFloat param_mu_minus;
+
+	void init(AurynFloat lambda, AurynFloat maxweight);
 	void init_shortcuts();
 
 protected:
 
-	AurynFloat tau_pre1;
-	AurynFloat tau_pre2;
-	AurynFloat tau_post1;
-	AurynFloat tau_post2;
+	AurynFloat tau_plus;
+	AurynFloat tau_minus;
 
 	NeuronID * fwd_ind; 
 	AurynWeight * fwd_data;
@@ -56,28 +62,20 @@ protected:
 	NeuronID * bkw_ind; 
 	AurynWeight ** bkw_data;
 
-	AurynDouble hom_fudge;
+	PRE_TRACE_MODEL * tr_pre;
+	DEFAULT_TRACE_MODEL * tr_post;
 
-	TRACE * tr_pre1;
-	TRACE * tr_pre2;
-	TRACE * tr_post1;
-	TRACE * tr_post2,;
+
+	AurynFloat fudge_pot;
+	AurynFloat fudge_dep;
+
 
 	void propagate_forward();
 	void propagate_backward();
-	void sort_spikes();
-	AurynWeight dw_pre(NeuronID post);
-	AurynWeight dw_post(NeuronID pre, NeuronID post);
+
+	void compute_fudge_factors();
 
 public:
-	AurynFloat Apre;
-	AurynFloat Bpre;
-
-	AurynFloat Apost;
-	AurynFloat Bpost;
-
-	AurynFloat w_min;
-	AurynFloat w_max;
 
 	bool stdp_active;
 
@@ -86,25 +84,28 @@ public:
 
 	STDPConnection(SpikingGroup * source, NeuronGroup * destination, 
 			const char * filename, 
-			AurynFloat eta=1, 
-			AurynFloat maxweight=1. , 
+			AurynFloat lambda=1e-5, 
+			AurynFloat maxweight=0.1 , 
 			TransmitterType transmitter=GLUT);
 
 	STDPConnection(SpikingGroup * source, NeuronGroup * destination, 
 			AurynWeight weight, AurynFloat sparseness=0.05, 
-			AurynFloat eta=1, 
-			AurynFloat maxweight=1. , 
+			AurynFloat lambda=0.01, 
+			AurynFloat maxweight=100. , 
 			TransmitterType transmitter=GLUT,
 			string name = "STDPConnection" );
+
+	void set_alpha(AurynFloat a);
+	void set_lambda(AurynFloat l);
+
+	void set_mu_plus(AurynFloat m);
+	void set_mu_minus(AurynFloat m);
+
+	void set_max_weight(AurynWeight w);
 
 	virtual ~STDPConnection();
 	virtual void finalize();
 	void free();
-
-	void set_min_weight(AurynWeight min);
-	void set_max_weight(AurynWeight max);
-
-	AurynWeight get_wmin();
 
 	virtual void propagate();
 	virtual void evolve();

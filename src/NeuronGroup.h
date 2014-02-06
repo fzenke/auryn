@@ -87,8 +87,12 @@ public:
 	AurynState get_nmda(NeuronID i);
 	void set_nmda(NeuronID i,AurynState val);
 	gsl_vector_float * get_nmda_ptr();
+
 	void random_mem(AurynState mean, AurynState sigma);
+	void random_uniform_mem(AurynState lo, AurynState hi);
+
 	void random_nmda(AurynState mean, AurynState sigma);
+
 	virtual void init_state();
 
 	void print_mem();

@@ -20,20 +20,17 @@
 
 #include "LinearTrace.h"
 
-void LinearTrace::init(NeuronID n, AurynFloat timeconstant)
+void LinearTrace::init(NeuronID n, AurynFloat timeconstant,AurynTime * clk)
 {
 	size = n;
 	tau = timeconstant;
 	tau_auryntime = (AurynTime) (timeconstant/dt);
 	zerointerval = 5*tau_auryntime;
 
-	stringstream oss;
-	oss << "LinearTrace: tau="<< tau << "s, zerotime "<< zerotime_auryntime << " steps";
-	logger->msg(oss.str(),NOTIFICATION);
+	zerotime_auryntime = zerointerval;
 
-	zerotime_auryntime = 0;
-
-	clock = sys->get_clock_ptr();
+	// clock = sys->get_clock_ptr();
+	clock = clk;
 	state = new AurynFloat[size];
 	timestamp = new AurynTime[size];
 	for (NeuronID i = 0 ; i < size ; ++i ) 
@@ -56,9 +53,9 @@ void LinearTrace::free()
 	delete [] explut;
 }
 
-LinearTrace::LinearTrace(NeuronID n, AurynFloat timeconstant)
+LinearTrace::LinearTrace(NeuronID n, AurynFloat timeconstant, AurynTime * clk)
 {
-	init(n,timeconstant);
+	init(n,timeconstant,clk);
 }
 
 LinearTrace::~LinearTrace()
@@ -95,7 +92,7 @@ AurynFloat LinearTrace::get_tau()
 	return tau;
 }
 
-void LinearTrace::update(NeuronID i)
+inline void LinearTrace::update(NeuronID i)
 {
 	int timediff = *clock - timestamp[i];
 	if ( timediff >= 0 )
@@ -119,6 +116,7 @@ void LinearTrace::inc(NeuronID i)
 
 AurynFloat LinearTrace::get(NeuronID i)
 {
+	// if ( timestamp[i] == zerotime_auryntime ) return state[i];
 	update(i);
 	timestamp[i] = zerotime_auryntime;
 	return state[i];
@@ -127,5 +125,5 @@ AurynFloat LinearTrace::get(NeuronID i)
 
 void LinearTrace::evolve() 
 {
-	zerotime_auryntime = *clock+zerointerval;
+	zerotime_auryntime = *clock+1+zerointerval;
 }

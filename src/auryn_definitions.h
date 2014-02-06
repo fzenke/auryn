@@ -77,6 +77,20 @@ const double dt = 1e-4;
  */
 #define DEFAULT_MINDISTRIBUTEDSIZE 32
 
+
+/*! These precompiler directives control
+ * what type of synaptic traces Auryn
+ * implements for STDP models.
+ */
+#define DEFAULT_TRACE_MODEL EulerTrace
+#define PRE_TRACE_MODEL EulerTrace
+// To switch to LinearTrace as default 
+// pre_trace model uncomment the following 
+// lines:
+#define PRE_TRACE_MODEL_LINTRACE dummy
+#undef  PRE_TRACE_MODEL
+#define PRE_TRACE_MODEL LinearTrace
+
 /*! Specifies the different transmitter types 
  * that Auryn knows. */
 enum TransmitterType { 

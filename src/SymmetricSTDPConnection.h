@@ -44,8 +44,8 @@ public:
 	AurynFloat kappa_fudge;
 	AurynWeight w_max;
 
-	EulerTrace * tr_pre;
-	EulerTrace * tr_post;
+	PRE_TRACE_MODEL * tr_pre;
+	DEFAULT_TRACE_MODEL * tr_post;
 
 	inline AurynWeight dw_pre(NeuronID post);
 	inline AurynWeight dw_post(NeuronID pre);

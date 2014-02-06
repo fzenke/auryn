@@ -22,7 +22,6 @@
 #define LINEARTRACE_H_
 
 #include "auryn_definitions.h"
-#include "System.h"
 
 using namespace std;
 
@@ -38,26 +37,23 @@ private:
 	AurynTime zerotime_auryntime;
 	AurynTime * timestamp;
 	AurynTime * clock;
-	void init(NeuronID n, AurynFloat timeconstant);
+	void init(NeuronID n, AurynFloat timeconstant, AurynTime * clk);
 	void free();
 
 public:
-	LinearTrace(NeuronID n, AurynFloat timeconstant);
+	LinearTrace(NeuronID n, AurynFloat timeconstant, AurynTime * clk);
 	virtual ~LinearTrace();
 	void set(NeuronID i , AurynFloat value);
 	void setall( AurynFloat value);
 	void add(NeuronID i , AurynFloat value);
 	void inc(NeuronID i);
-	void update(NeuronID i);
+	inline void update(NeuronID i);
 	void evolve();
 	AurynFloat get_tau();
 	AurynFloat get(NeuronID i);
 	AurynFloat * get_state_ptr();
 };
 
-
-
-extern System * sys;
 
 #endif /*LINEARTRACE_H_*/
 

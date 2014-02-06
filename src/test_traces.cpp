@@ -41,12 +41,9 @@ int main(int ac, char* av[])
 
 	double tau = 20e-3;
 	EulerTrace * tr_euler = new EulerTrace(2,tau);
-	LinearTrace * tr_linear = new LinearTrace(2,tau);
+	LinearTrace * tr_linear = new LinearTrace(2,tau,sys->get_clock_ptr());
 
 	for ( int i = 0 ; i < 10000 ; ++i ) {
-		sys->step();
-		tr_euler->evolve();
-		tr_linear->evolve();
 		if ( i % 332 == 0 ) { 
 			tr_euler->inc(0);
 			tr_linear->inc(0);
@@ -54,14 +51,18 @@ int main(int ac, char* av[])
 		if ( i % 100 == 0 ) {
 			cout << i*1e-4 << " " << tr_euler->get(0) 
 						   << " " << tr_linear->get(0) 
+						   << " " << tr_euler->get(0) 
+						   << " " << tr_linear->get(0) 
 				 << endl;
 		}
+
+		tr_euler->evolve();
+		tr_linear->evolve();
+
+		sys->step();
 	}
 
 	for ( int i = 10000 ; i < 200000 ; ++i ) {
-		sys->step();
-		tr_euler->evolve();
-		tr_linear->evolve();
 		if ( i % 1024 == 0 ) { 
 			tr_euler->inc(0);
 			tr_linear->inc(0);
@@ -69,8 +70,13 @@ int main(int ac, char* av[])
 		if ( i % 1050 == 0 ) {
 			cout << i*1e-4 << " " << tr_euler->get(0) 
 						   << " " << tr_linear->get(0) 
+						   << " " << tr_euler->get(0) 
+						   << " " << tr_linear->get(0) 
 				 << endl;
 		}
+		tr_euler->evolve();
+		tr_linear->evolve();
+		sys->step();
 	}
 
 	return 0;

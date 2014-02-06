@@ -53,8 +53,8 @@ private:
 
 	AurynDouble tau_stdp;
 	
-	EulerTrace * tr_pre;
-	EulerTrace * tr_post;
+	PRE_TRACE_MODEL * tr_pre;
+	DEFAULT_TRACE_MODEL * tr_post;
 
 	NeuronID * fwd_ind; 
 	AurynWeight * fwd_data;

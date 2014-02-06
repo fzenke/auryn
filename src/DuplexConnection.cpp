@@ -91,6 +91,14 @@ DuplexConnection::~DuplexConnection()
 
 void DuplexConnection::compute_reverse_matrix()
 {
+
+	if ( fwd->get_datasize() < bkw->get_datasize() ) {
+		bkw->clear();
+	} else {
+		logger->msg("Bkw buffer too small reallocating..." ,NOTIFICATION);
+		bkw->resize_buffer_and_clear(fwd->get_datasize());
+	}
+
 	stringstream oss;
 	oss << "DuplexConnection: ("<< get_name() << "): Computing backward matrix ...";
 	logger->msg(oss.str(),NOTIFICATION);

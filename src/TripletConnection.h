@@ -64,10 +64,10 @@ protected:
 
 	AurynDouble hom_fudge;
 
-	TRACE * tr_pre;
-	TRACE * tr_post;
-	TRACE * tr_post2,;
-	TRACE * tr_post_hom;
+	PRE_TRACE_MODEL * tr_pre;
+	DEFAULT_TRACE_MODEL * tr_post;
+	DEFAULT_TRACE_MODEL * tr_post2,;
+	DEFAULT_TRACE_MODEL * tr_post_hom;
 
 	void propagate_forward();
 	void propagate_backward();

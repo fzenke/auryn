@@ -53,8 +53,6 @@ protected:
 	void integrate_linear_nmda_synapses();
 	void integrate_membrane();
 	void check_thresholds();
-	string get_output_line(NeuronID i);
-	void load_input_line(NeuronID i, const char * buf);
 public:
 	AurynFloat dg_adapt1;
 

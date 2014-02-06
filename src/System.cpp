@@ -336,16 +336,17 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 		evolve();
 		propagate();
 
-
 		if (!monitor(checking))
 			return false;
 
-
 		evolve_independent(); // used to run in parallel to the sync (and could still in principle)
-
+		// what is important for event based integration such as done in LinearTrace that this stays
+		// on the same side of step() otherwise the results will be wrong (or evolve in LinearTrace has
+		// to be adapted.
+		
 		step();	
 
-		if ( mpicom->size()>1 && get_clock()%(MINDELAY) == 0 ) {
+		if ( mpicom->size()>1 && (get_clock())%(MINDELAY) == 0 ) {
 			sync();
 		} 
 

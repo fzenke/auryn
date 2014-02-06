@@ -144,9 +144,9 @@ void SpikingGroup::lock_range( double rank_fraction )
 void SpikingGroup::free()
 {
 	delete delay;
-	for ( int i = 0 ; i < pretraces.size() ; ++i )
+	for ( NeuronID i = 0 ; i < pretraces.size() ; ++i )
 		delete pretraces[i];
-	for ( int i = 0 ; i < posttraces.size() ; ++i )
+	for ( NeuronID i = 0 ; i < posttraces.size() ; ++i )
 		delete posttraces[i];
 
 	for ( map<string,gsl_vector_float *>::const_iterator iter = state_vector.begin() ; 
@@ -301,7 +301,7 @@ void SpikingGroup::set_delay( int d )
 	// attribs = delay->get_attributes_immediate();
 }
 
-EulerTrace * SpikingGroup::get_pre_trace( AurynFloat x ) 
+PRE_TRACE_MODEL * SpikingGroup::get_pre_trace( AurynFloat x ) 
 {
 	for ( int i = 0 ; i < pretraces.size() ; i++ ) {
 		if ( pretraces[i]->get_tau() == x ) {
@@ -312,14 +312,18 @@ EulerTrace * SpikingGroup::get_pre_trace( AurynFloat x )
 		}
 	}
 
-	EulerTrace * tmp = new EulerTrace(get_pre_size(),x);
+#ifndef PRE_TRACE_MODEL_LINTRACE
+	DEFAULT_TRACE_MODEL * tmp = new DEFAULT_TRACE_MODEL(get_pre_size(),x);
+#else
+	PRE_TRACE_MODEL * tmp = new PRE_TRACE_MODEL(get_pre_size(),x,clock_ptr);
+#endif
 	pretraces.push_back(tmp);
 	return tmp;
 }
 
-EulerTrace * SpikingGroup::get_post_trace( AurynFloat x ) 
+DEFAULT_TRACE_MODEL * SpikingGroup::get_post_trace( AurynFloat x ) 
 {
-	for ( int i = 0 ; i < posttraces.size() ; i++ ) {
+	for ( NeuronID i = 0 ; i < posttraces.size() ; i++ ) {
 		if ( posttraces[i]->get_tau() == x ) {
 			stringstream oss;
 			oss << get_name() << ":: Sharing post trace with " << x << "s timeconstant." ;
@@ -329,7 +333,7 @@ EulerTrace * SpikingGroup::get_post_trace( AurynFloat x )
 	}
 
 
-	EulerTrace * tmp = new EulerTrace(get_post_size(),x);
+	DEFAULT_TRACE_MODEL * tmp = new DEFAULT_TRACE_MODEL(get_post_size(),x);
 	posttraces.push_back(tmp);
 	return tmp;
 }
@@ -337,7 +341,7 @@ EulerTrace * SpikingGroup::get_post_trace( AurynFloat x )
 void SpikingGroup::evolve_traces()
 {
 
-	for ( int i = 0 ; i < pretraces.size() ; i++ ) { // loop over all traces 
+	for ( NeuronID i = 0 ; i < pretraces.size() ; i++ ) { // loop over all traces 
 		for (SpikeContainer::const_iterator spike = get_spikes()->begin() ; // spike = pre_spike
 				spike != get_spikes()->end() ; 
 				++spike ) {
@@ -347,7 +351,7 @@ void SpikingGroup::evolve_traces()
 		pretraces[i]->evolve();
 	}
 
-	for ( int i = 0 ; i < posttraces.size() ; i++ ) {
+	for ( NeuronID i = 0 ; i < posttraces.size() ; i++ ) {
 		for (SpikeContainer::const_iterator spike = get_spikes_immediate()->begin() ; 
 				spike != get_spikes_immediate()->end() ; 
 				++spike ) {
@@ -371,8 +375,8 @@ string SpikingGroup::get_name()
 
 bool SpikingGroup::localrank(NeuronID i) {
 	bool t = ( (i-communicator->rank()+locked_rank)%locked_range==0 )
-		 && (unsigned int) communicator->rank() >= locked_rank
-		 && (unsigned int) communicator->rank() < (locked_rank+locked_range)
+		 && (int) communicator->rank() >= locked_rank
+		 && (int) communicator->rank() < (locked_rank+locked_range)
 		 && i < get_size(); // TODO what if I remove the last condition ?
 	return t; 
 }
@@ -430,7 +434,7 @@ bool SpikingGroup::load_from_file(const char * filename)
 		throw AurynOpenFileException();
 	}
 
-	unsigned int count = 0;
+	NeuronID count = 0;
 	char buffer[1024];
 
 	infile.getline (buffer,1024); // skipping header TODO once could make this logic a bit smarter
@@ -481,9 +485,9 @@ string SpikingGroup::get_output_line(NeuronID i)
 		oss << scientific << gsl_vector_float_get( iter->second, i ) << " ";
 	}
 
-	for ( int k = 0 ; k < pretraces.size() ; k++ ) { 
+	for ( NeuronID k = 0 ; k < pretraces.size() ; k++ ) { 
 		// TODO this is actually a bug and only a part of the pretrace gets saved this way
-		for ( int l = 0 ; l < get_locked_range() ; ++l ) {
+		for ( NeuronID l = 0 ; l < get_locked_range() ; ++l ) {
 			NeuronID t = get_locked_range()*(i)+l;
 			if ( t < get_size() ) 
 				oss << pretraces[k]->get(t) << " ";
@@ -492,7 +496,7 @@ string SpikingGroup::get_output_line(NeuronID i)
 		}
 	}
 
-	for ( int k = 0 ; k < posttraces.size() ; k++ ) {
+	for ( NeuronID k = 0 ; k < posttraces.size() ; k++ ) {
 		oss << posttraces[k]->get(i) << " ";
 	}
 
