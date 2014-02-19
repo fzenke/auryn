@@ -115,7 +115,7 @@ TripletConnection::~TripletConnection()
 void TripletConnection::set_hom_trace(AurynFloat freq)
 {
 	if ( dst->get_post_size() > 0 ) 
-		tr_post_hom->setall(freq*tr_post_hom->get_tau());
+		tr_post_hom->set_all(freq*tr_post_hom->get_tau());
 }
 
 
@@ -146,7 +146,7 @@ void TripletConnection::propagate_forward()
 {
 	for (SpikeContainer::const_iterator spike = src->get_spikes()->begin() ; // spike = pre_spike
 			spike != src->get_spikes()->end() ; ++spike ) {
-		for (NeuronID * c = w->get_row_begin(*spike) ; c != w->get_row_end(*spike) ; ++c ) { // c = post index
+		for (const NeuronID * c = w->get_row_begin(*spike) ; c != w->get_row_end(*spike) ; ++c ) { // c = post index
 			AurynWeight value = fwd_data[c-fwd_ind]; 
 			transmit( *c , value );
 			if ( stdp_active ) {
@@ -168,8 +168,8 @@ void TripletConnection::propagate_backward()
 		for (SpikeContainer::const_iterator spike = dst->get_spikes_immediate()->begin() ; // spike = post_spike
 				spike != spikes_end ; ++spike ) {
 			NeuronID translated_spike = dst->global2rank(*spike); // only to be used for post traces
-			for (NeuronID * c = bkw->get_row_begin(*spike) ; c != bkw->get_row_end(*spike) ; ++c ) {
-				_mm_prefetch(bkw_data[c-bkw_ind+1],  _MM_HINT_NTA); // tested this and this and NTA directly here gave the best performance on the SUN
+			for (const NeuronID * c = bkw->get_row_begin(*spike) ; c != bkw->get_row_end(*spike) ; ++c ) {
+				_mm_prefetch(bkw_data[c-bkw_ind+2],  _MM_HINT_NTA); 
 				*bkw_data[c-bkw_ind] = *bkw_data[c-bkw_ind] + dw_post(*c,translated_spike);
 				if (*bkw_data[c-bkw_ind]>get_max_weight()) *bkw_data[c-bkw_ind]=get_max_weight();
 			}

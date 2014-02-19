@@ -177,11 +177,22 @@ public:
 
 	virtual void prune();
 
+	AurynLong dryrun_from_file(string filename);
 	bool write_to_file(ForwardMatrix * m, const char * filename );
-	bool load_from_file(ForwardMatrix * m, const char * filename );
+	bool load_from_file(ForwardMatrix * m, const char * filename, AurynLong data_size = 0 );
 
 	virtual bool write_to_file(const char * filename);
 	virtual bool write_to_file(string filename);
+
+	/*! \brief Loads weight matrix from a single file
+	 *
+	 * Since a single file might contain a lot more elements than memory required this
+	 * function performs a dry run during which it counts the required number of 
+	 * elements. This function should be optimized to avoid on large clusters the complete
+	 * hammering of the fileserver. An idea would be to let one rank do all the work
+	 * and distribute the established file-counts to all the stations
+	 */
+	virtual bool load_from_complete_file(string filename);
 	virtual bool load_from_file(const char * filename);
 	virtual bool load_from_file(string filename);
 

@@ -161,3 +161,18 @@ void STPConnection::propagate()
 	}
 }
 
+void STPConnection::set_tau_f(AurynFloat tauf) {
+	tau_f = tauf;
+}
+
+void STPConnection::set_tau_d(AurynFloat taud) {
+	tau_d = taud;
+}
+
+void STPConnection::set_ujump(AurynFloat r) {
+	Ujump = r;
+}
+
+void STPConnection::set_urest(AurynFloat r) {
+	Urest = r;
+}

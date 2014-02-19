@@ -54,6 +54,9 @@ private:
 
 	int off_pattern;
 
+	/*! Background Poisson field pointer */
+	NeuronID bgx;
+
 	/*! pseudo random number generators */
 	static boost::mt19937 poisson_gen; 
 
@@ -107,6 +110,10 @@ public:
 	/*! Determines if the Group is using random activation intervals */
 	bool randomintervals;
 
+	/*! Play random Poisson noise with this rate on all channels 
+	 * when no stim is active. */
+	AurynDouble background_rate;
+
 	/*! Default constructor */
 	StimulusGroup(NeuronID n, string filename, string outputfile = "", StimulusGroupModeType stimulusmode=RANDOM, AurynFloat baserate=0.0 );
 
@@ -134,11 +141,6 @@ public:
 	void set_pattern_activity( unsigned int i );
 	void set_pattern_activity( unsigned int i, AurynFloat setval );
 	void set_active_pattern( unsigned int i );
-
-	/*! Select one pattern that is active during the off period.
-	 *  If set there is always a pattern active if set.
-	 *  Set to negative value to disable. */
-	void set_off_pattern( int i );
 
 	void set_next_action_time(double time);
 

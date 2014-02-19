@@ -43,6 +43,9 @@ void StimulusGroup::init(string filename, StimulusGroupModeType stimulusmode, st
 	scale = 2.0;
 	randomintervals = true;
 
+	background_rate = 0.0;
+	bgx  = 0 ;
+
 	binary_patterns = false;
 
 	if ( !outputfile.empty() ) 
@@ -144,15 +147,30 @@ void StimulusGroup::evolve()
 {
 	if ( !active ) return;
 
-	// detect and push spikes
-	boost::exponential_distribution<> dist(BASERATE);
-	boost::variate_generator<boost::mt19937&, boost::exponential_distribution<> > die(poisson_gen, dist);
-	for ( NeuronID i = 0 ; i < get_rank_size() ; ++i )
-	{
-		if ( ttl[i] < sys->get_clock() && activity[i]>0.0 )
+	if ( stimulus_active ) {
+		// detect and push spikes
+		boost::exponential_distribution<> dist(BASERATE);
+		boost::variate_generator<boost::mt19937&, boost::exponential_distribution<> > die(poisson_gen, dist);
+		for ( NeuronID i = 0 ; i < get_rank_size() ; ++i )
 		{
-			push_spike ( i );
-			ttl[i] = sys->get_clock() + (AurynTime)((AurynFloat)die()/((activity[i]+base_rate)*dt));
+			if ( ttl[i] < sys->get_clock() && activity[i]>0.0 )
+			{
+				push_spike ( i );
+				ttl[i] = sys->get_clock() + (AurynTime)((AurynFloat)die()/((activity[i]+base_rate)*dt));
+			}
+		}
+	} else {
+		if ( background_rate ) {
+			boost::exponential_distribution<> dist(background_rate);
+			boost::variate_generator<boost::mt19937&, boost::exponential_distribution<> > die(poisson_gen, dist);
+
+			while ( bgx < get_rank_size() ) {
+				push_spike ( bgx );
+				AurynDouble r = die();
+				bgx += 1+(NeuronID)(r/dt); 
+			}
+			bgx -= get_rank_size();
+
 		}
 	}
 
@@ -161,11 +179,7 @@ void StimulusGroup::evolve()
 		write_sequence_file(dt*(sys->get_clock()));
 
 		if ( stimulus_active ) {
-			if ( off_pattern >= 0 ) {
-				set_active_pattern( off_pattern ); // turn on "off-stimulus"
-				cur_stim_index = off_pattern;
-			} else
-				set_all( 0.0 ); // turn off currently active stimulus 
+			set_all( 0.0 ); // turn off currently active stimulus 
 			stimulus_active = false ;
 
 			if ( randomintervals ) {
@@ -177,6 +191,7 @@ void StimulusGroup::evolve()
 			}
 		} else {
 			if ( active ) {
+
 				// choose stimulus
 				switch ( stimulus_order ) {
 					case MANUAL:
@@ -412,14 +427,3 @@ vector<type_pattern> * StimulusGroup::get_patterns()
 void StimulusGroup::set_next_action_time( double time ) {
 	next_action_time = sys->get_clock() + time/dt;
 }
-
-void StimulusGroup::set_off_pattern( int i )
-{
-	if ( i < stimuli.size() ) {
-		off_pattern = i;
-		stringstream oss;
-		oss << "StimulusGroup:: Switches off pattern " << off_pattern << ". ";
-		logger->msg(oss.str(),NOTIFICATION);
-	}
-}
-

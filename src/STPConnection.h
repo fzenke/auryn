@@ -30,25 +30,31 @@ using namespace std;
 
 class STPConnection : public SparseConnection
 {
-	private:
-		// STP parameters (maybe this should all move to a container)
-		gsl_vector_float * state_x;
-		gsl_vector_float * state_u;
-		gsl_vector_float * state_temp;
+private:
+	// STP parameters (maybe this should all move to a container)
+	gsl_vector_float * state_x;
+	gsl_vector_float * state_u;
+	gsl_vector_float * state_temp;
 
-
-
-public:
 	double tau_d;
 	double tau_f;
 	double Urest;
 	double Ujump;
+
+
+public:
 
 	STPConnection(const char * filename);
 	STPConnection(NeuronID rows, NeuronID cols);
 	STPConnection(SpikingGroup * source, NeuronGroup * destination, TransmitterType transmitter=GLUT);
 	STPConnection(SpikingGroup * source, NeuronGroup * destination, const char * filename , TransmitterType transmitter=GLUT);
 	STPConnection(SpikingGroup * source, NeuronGroup * destination, AurynWeight weight, AurynFloat sparseness=0.05, TransmitterType transmitter=GLUT, string name="STPConnection");
+
+	void set_tau_d(AurynFloat taud);
+	void set_tau_f(AurynFloat tauf);
+	void set_ujump(AurynFloat r);
+	void set_urest(AurynFloat r);
+
 	virtual ~STPConnection();
 	virtual void propagate();
 	void push_attributes();

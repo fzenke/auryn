@@ -51,7 +51,7 @@ void FileModulatedPoissonGroup::evolve()
 	AurynDouble r ;
 
 	// if there are datapoints in the rate file update linear interpolation
-	while (ftime <= sys->get_clock() && inputfile.getline(buffer, 256) ) {
+	while (ftime < sys->get_clock() && inputfile.getline(buffer, 256) ) {
 		istringstream line ( buffer );
 
 		// save first interpolation point

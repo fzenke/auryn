@@ -20,9 +20,9 @@
 
 #include "StateMonitor.h"
 
-StateMonitor::StateMonitor(NeuronGroup * source, NeuronID id, string statename, string filename, AurynTime stepsize)  
+StateMonitor::StateMonitor(NeuronGroup * source, NeuronID id, string statename, string filename, AurynDouble sampling_interval)  
 {
-	init(source,id,statename,filename,stepsize);
+	init(source,id,statename,filename,sampling_interval/dt);
 }
 
 StateMonitor::~StateMonitor()

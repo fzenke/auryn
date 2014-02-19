@@ -307,6 +307,9 @@ void SparseConnection::connect_block_random(AurynWeight weight, float sparseness
 
 	AurynLong idim = (hi_row-lo_row);
 	AurynLong jdim = (hi_col-lo_col)/s;
+	if ( (hi_col-lo_col)%s > r ) { // some ranks have one more "carry" neuron
+		jdim += 1;
+	}
     AurynLong x = (AurynLong) die();
     AurynLong stop = idim*jdim;
     AurynLong count = 0;
@@ -315,12 +318,10 @@ void SparseConnection::connect_block_random(AurynWeight weight, float sparseness
     while ( x < stop )
       {
 		i = lo_row+x/jdim;
-		j = lo_col - lo_col%s + s*(x%jdim) + r; // be carfule with this line ... it already was the cause of a lot of headaches
+		j = lo_col + s*(x%jdim) + r; // be carfule with this line ... it already was the cause of a lot of headaches
 		if ( (j >= lo_col) && (!skip_diag || i!=j)) {
 			try {
 				if ( push_back(i,j,weight) )
-					
-					
 					count++;
 			}
 			catch ( AurynMatrixPushBackException )
@@ -405,7 +406,7 @@ void SparseConnection::propagate()
 	for (SpikeContainer::const_iterator spike = src->get_spikes()->begin() ;
 			spike != src->get_spikes()->end() ; 
 			++spike ) {
-		for (NeuronID * c = w->get_row_begin(*spike) ; 
+		for (const NeuronID * c = w->get_row_begin(*spike) ; 
 				c != w->get_row_end(*spike) ; 
 				++c ) {
 			NeuronID * ind = w->get_ind_begin(); // first element of index array
@@ -438,8 +439,16 @@ void SparseConnection::sanity_check()
 	double total_weight = 0;
 	for ( NeuronID i = 0 ; i < dst->get_size() ; ++i ) {
 		total_weight += sum[i];
-		if ( sum[i] == 0 && dst->localrank(i) ) 
+		if ( sum[i] == 0 && dst->localrank(i) ) {
 			unconnected_count++;
+			stringstream oss;
+			oss << "Sanity check: Neuron "
+				<< i 
+				<< " local (" 
+				<< dst->global2rank(i) 
+				<< ") has no inputs." ;
+			logger->msg(oss.str(),WARNING);
+		}
 	}
 
 	logger->parameter("sanity_check:total weight",total_weight);
@@ -454,15 +463,44 @@ void SparseConnection::sanity_check()
 		logger->msg(oss.str(),WARNING);
 	}
 
-	// transmit test 
-
 	delete sum;
+
+	//  row count - outputs
+
+	AurynFloat * sum_rows = new AurynFloat[src->get_size()];
+	for ( NeuronID i = 0 ; i < src->get_size() ; ++i ) sum_rows[i] = 0.0;
+
+	for ( NeuronID i = 0 ; i < src->get_size() ; ++i ) {
+		for (NeuronID * c = w->get_row_begin(i) ; 
+				c != w->get_row_end(i) ; 
+				++c ) {
+			AurynWeight value = data[c-ind]; 
+			sum_rows[i] += value;
+		}
+	}
+
+	for ( NeuronID i = 0 ; i < src->get_size() ; ++i ) {
+		if ( sum_rows[i] == 0  ) {
+			stringstream oss;
+			oss << "Sanity check: Neuron "
+			 << i 
+			 << " local (" 
+			 << src->global2rank(i) 
+			 << ") has no outputs on this rank. This might be normal when run distributed." ;
+			logger->msg(oss.str(),DEBUG);
+			if ( w->get_row_begin(i) != w->get_row_end(i) ) {
+				logger->msg("wmat inconsistency",ERROR);
+			}
+		}
+	}
+
+
+	delete sum_rows;
 }
 
 void SparseConnection::stats(AurynFloat &mean, AurynFloat &std)
 {
 	NeuronID count = 0;
-	AurynFloat t = 0;
 	AurynFloat sum = 0;
 	AurynFloat sum2 = 0;
 	// for ( NeuronID i = 0 ; i < get_m_rows() ; ++i ) 
@@ -562,15 +600,64 @@ bool SparseConnection::write_to_file(ForwardMatrix * m, const char * filename )
 
 bool SparseConnection::write_to_file(const char * filename)
 {
-	return write_to_file(w,filename);
+	return write_to_file(string(filename));
 }
 
 bool SparseConnection::write_to_file(string filename)
 {
-	return write_to_file(filename.c_str());
+	return write_to_file(w,filename.c_str());
 }
 
-bool SparseConnection::load_from_file(ForwardMatrix * m,const char * filename)
+AurynLong SparseConnection::dryrun_from_file(string filename)
+{
+	if ( !dst->evolve_locally() ) return 0;
+
+	char buffer[256];
+	ifstream infile (filename.c_str());
+	if (!infile) {
+		stringstream oss;
+		oss << "Can't open input file " << filename;
+		logger->msg(oss.str(),ERROR);
+		throw AurynOpenFileException();
+	}
+
+	NeuronID i,j;
+	AurynLong k;
+	unsigned int count = 0;
+	unsigned int pushback_count = 0;
+	float val;
+
+	// read connection details
+	infile.getline (buffer,255); count++;
+	string header("%%MatrixMarket matrix coordinate real general");
+	if (header.compare(buffer)!=0)
+	{
+		stringstream oss;
+		oss << "Input format not recognized.";
+		logger->msg(oss.str(),ERROR);
+		return false;
+	}
+	while ( buffer[0]=='%' ) {
+	  infile.getline (buffer,255);
+	  count++;
+	}
+
+	sscanf (buffer,"%u %u %lu",&i,&j,&k);
+
+	while ( infile.getline (buffer,255) )
+	{
+		count++;
+		sscanf (buffer,"%u %u %e",&i,&j,&val);
+		if ( (i-1) < src->get_size() && dst->localrank(j-1) )
+			pushback_count++;
+	}
+
+	infile.close();
+
+	return pushback_count;
+}
+
+bool SparseConnection::load_from_file(ForwardMatrix * m, const char * filename, AurynLong data_size )
 {
 	if ( !dst->evolve_locally() ) return true;
 
@@ -608,6 +695,10 @@ bool SparseConnection::load_from_file(ForwardMatrix * m,const char * filename)
 
 	sscanf (buffer,"%u %u %lu",&i,&j,&k);
 	set_size(i,j);
+
+	if ( data_size ) { 
+		k = data_size;
+	}
 
 	if ( m->get_datasize() > k ) {
 		m->clear();
@@ -674,14 +765,25 @@ bool SparseConnection::load_from_file(ForwardMatrix * m,const char * filename)
 	return true;
 }
 
-bool SparseConnection::load_from_file(const char * filename)
+bool SparseConnection::load_from_complete_file(string filename)
 {
-	return load_from_file(w,filename);
+	AurynLong datasize = dryrun_from_file(filename);
+	stringstream oss;
+	oss << "Loading from complete file. Element count: "
+		<< datasize 
+		<< ".";
+	logger->msg(oss.str(),NOTIFICATION);
+	return load_from_file(w,filename.c_str(),datasize);
 }
 
 bool SparseConnection::load_from_file(string filename)
 {
-	return load_from_file(filename.c_str());
+	return load_from_file(w,filename.c_str());
+}
+
+bool SparseConnection::load_from_file(const char * filename)
+{
+	return load_from_file(string(filename));
 }
 
 bool SparseConnection::init_from_file(const char * filename)

@@ -22,7 +22,7 @@
 #define RATEMODULATEDCONNECTION_H_
 
 #include "auryn_definitions.h"
-#include "DuplexConnection.h"
+#include "SparseConnection.h"
 #include "SimpleMatrix.cpp"
 
 #include <boost/random/mersenne_twister.hpp>
@@ -42,44 +42,29 @@ typedef SimpleMatrix<AurynWeight*> BackwardMatrix;
 //  Negative exponants are possible. Default behavior is optimized for GABA-ergic connections
 //  (i.e. positive exponent of 2 increases connection strength if the rate is higher).
 //*/
-class RateModulatedConnection : public DuplexConnection
+class RateModulatedConnection : public SparseConnection
 {
 private:
-	AurynDouble rate_estimate;
 	AurynDouble rate_estimate_tau;
 	AurynDouble rate_estimate_decay_mul;
 	AurynDouble rate_modulation_mul;
+
+	AurynDouble rate_modulation_scale;
 	SpikingGroup * rate_modulating_group;
-
-	AurynDouble tau_stdp;
-	
-	PRE_TRACE_MODEL * tr_pre;
-	DEFAULT_TRACE_MODEL * tr_post;
-
-	NeuronID * fwd_ind; 
-	AurynWeight * fwd_data;
-
-	NeuronID * bkw_ind; 
-	AurynWeight ** bkw_data;
 
 	void init();
 	void free();
 
 
-	AurynWeight dw_pre(NeuronID post);
-	AurynWeight dw_post(NeuronID pre);
-
 public:
 	/*! Controls the strength and sign of the response in the integral controller */
 	AurynDouble eta;
 	bool stdp_active;
-	/*! Defines the rate target at which the modulation factor is 1 */ AurynDouble rate_target; /*! Defines the modulation exponent. */ AurynDouble rate_modulation_exponent; 
-
-	/*! Minimum allowed weight value */
-	AurynFloat w_min;
-
-	/*! Maximally allowed weight value */
-	AurynFloat w_max;
+	AurynDouble rate_estimate;
+	/*! Defines the rate target at which the modulation factor is 1 */ 
+	AurynDouble rate_target; 
+	/*! Defines the modulation exponent. */ 
+	AurynDouble rate_modulation_exponent; 
 
 	RateModulatedConnection(const char * filename);
 	RateModulatedConnection(NeuronID rows, NeuronID cols);
@@ -101,11 +86,15 @@ public:
 			string name="RateModulatedConnection");
 	virtual ~RateModulatedConnection();
 
-	void init_shortcuts();
+	virtual void stats(AurynFloat &mean, AurynFloat &std);
+
 	void propagate_forward();
-	void propagate_backward();
 	void propagate();
+	void evolve();
 	void set_modulating_group(SpikingGroup * group);
+
+	virtual bool load_from_file(string filename);
+	virtual bool write_to_file(string filename);
 };
 
 #endif /*RATEMODULATEDCONNECTION_H_*/

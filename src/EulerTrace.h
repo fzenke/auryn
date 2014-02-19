@@ -60,7 +60,7 @@ public:
 	 * \param value The actual value to set the trace to.*/
 	void set(NeuronID i , AurynFloat value);
 	/*! Set all traces to same value */
-	void setall( AurynFloat value);
+	void set_all( AurynFloat value);
 	/*! Add gsl_vector_float to state vector
 	 * \param values gsl_vector_float to add
 	 */
@@ -93,10 +93,12 @@ public:
 	void follow();
 	/*! Get decay time constant */
 	AurynFloat get_tau();
-	/*! Get trace value of trace 
+	/*! Get trace value of trace. 
+	 * Since this is functions is called a lot
+	 * we inline it manually.
 	 * \param i index of trace to get
 	 */ 
-	AurynFloat get(NeuronID i);
+	inline AurynFloat get(NeuronID i);
 	/*! Get trace value of trace dived by tau
 	 * \param i index of trace to get
 	 */ 
@@ -105,7 +107,10 @@ public:
 	gsl_vector_float * get_state_ptr();
 };
 
-
+inline AurynFloat EulerTrace::get(NeuronID i)
+{
+	return state->data[i];
+}
 
 #endif /*EULERTRACE_H_*/
 

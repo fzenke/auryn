@@ -87,9 +87,9 @@ const double dt = 1e-4;
 // To switch to LinearTrace as default 
 // pre_trace model uncomment the following 
 // lines:
-#define PRE_TRACE_MODEL_LINTRACE dummy
-#undef  PRE_TRACE_MODEL
-#define PRE_TRACE_MODEL LinearTrace
+// #define PRE_TRACE_MODEL_LINTRACE dummy
+// #undef  PRE_TRACE_MODEL
+// #define PRE_TRACE_MODEL LinearTrace
 
 /*! Specifies the different transmitter types 
  * that Auryn knows. */
