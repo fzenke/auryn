@@ -3,6 +3,8 @@
 *.[oa]
 # Ignore docs
 docs/*
+# Ignore development files
+dev/*
 # Ignore stuff in the build dirs except the makefiles
 build/*
 !build/lcncluster/Makefile
