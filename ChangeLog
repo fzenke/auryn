@@ -1,3 +1,7 @@
+2014-02-21 Friedemann Zenke <friedemann.zenke@epfl.ch> 
+ * Adds new example code for Brunel 2000 balanced network
+ * Applies diverse bugfixes
+
 2014-01-20 Friedemann Zenke <friedemann.zenke@epfl.ch> 
  
  * Added release information version v0.3.
