@@ -63,7 +63,10 @@ int main(int ac,char *av[]) {
 	double sparseness = 0.1;
 	double simtime = 1.;
 
-	double lambda = 1e-9;
+	double lambda = 1e-2; 
+	// For the benchmark this value was changed to 1e-9 to 
+	// avoid frequency changes during the simulation. Otherwise
+	// lambda should be in the order of 1e-2 - 1e-3.
 	double gamma = 5.0;
 	double poisson_rate = 20.0e3;
 
