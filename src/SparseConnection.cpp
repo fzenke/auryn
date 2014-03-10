@@ -311,12 +311,12 @@ void SparseConnection::connect_block_random(AurynWeight weight, float sparseness
 		jdim += 1;
 	}
     AurynLong x = (AurynLong) die();
+	if ( sparseness == 1.0 ) x = 0; // for dense matrices
     AurynLong stop = idim*jdim;
     AurynLong count = 0;
     NeuronID i = 0;
     NeuronID j = 0;
-    while ( x < stop )
-      {
+    while ( x < stop ) {
 		i = lo_row+x/jdim;
 		j = lo_col + s*(x%jdim) + r; // be carfule with this line ... it already was the cause of a lot of headaches
 		if ( (j >= lo_col) && (!skip_diag || i!=j)) {
@@ -324,6 +324,21 @@ void SparseConnection::connect_block_random(AurynWeight weight, float sparseness
 				if ( push_back(i,j,weight) )
 					count++;
 			}
+			catch ( AurynMatrixDimensionalityException )
+			{
+				stringstream oss;
+				oss << "SparseConnection: ("
+					<< get_name() 
+					<<"): Trying to add elements outside of matrix (i=" 
+					<< i 
+					<< "j="
+					<< j 
+					<< ", "
+					<< count 
+					<< "th element) ";
+				logger->msg(oss.str(),ERROR);
+				return;
+			} 
 			catch ( AurynMatrixPushBackException )
 			{
 				stringstream oss;
