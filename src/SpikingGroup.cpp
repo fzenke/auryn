@@ -394,7 +394,7 @@ bool SpikingGroup::write_to_file(const char * filename)
 	}
 
 	outfile << "# Auryn SpikingGroup state file for n="<< get_rank_size() <<" neurons (ver. " << VERSION << ")" << endl;
-	outfile << "# Field order: ";
+	outfile << "# Default field order (might be overwritten): ";
 	for ( map<string,gsl_vector_float *>::const_iterator iter = state_vector.begin() ; 
 			iter != state_vector.end() ;
 			++iter ) {
