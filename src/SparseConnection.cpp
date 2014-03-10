@@ -422,7 +422,7 @@ void SparseConnection::propagate()
 			spike != src->get_spikes()->end() ; 
 			++spike ) {
 		for (const NeuronID * c = w->get_row_begin(*spike) ; 
-				c != w->get_row_end(*spike) ; 
+				c < w->get_row_end(*spike) ; 
 				++c ) {
 			NeuronID * ind = w->get_ind_begin(); // first element of index array
 			AurynWeight * data = w->get_data_begin();
@@ -443,7 +443,7 @@ void SparseConnection::sanity_check()
 	AurynWeight * data = w->get_data_begin();
 	for ( NeuronID i = 0 ; i < src->get_size() ; ++i ) {
 		for (NeuronID * c = w->get_row_begin(i) ; 
-				c != w->get_row_end(i) ; 
+				c < w->get_row_end(i) ; 
 				++c ) {
 			AurynWeight value = data[c-ind]; 
 			sum[*c] += value;
