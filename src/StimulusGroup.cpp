@@ -46,6 +46,7 @@ void StimulusGroup::init(string filename, StimulusGroupModeType stimulusmode, st
 	background_rate = 0.0;
 	bgx  = 0 ;
 
+
 	binary_patterns = false;
 
 	if ( !outputfile.empty() ) 
@@ -149,14 +150,27 @@ void StimulusGroup::evolve()
 
 	if ( stimulus_active ) {
 		// detect and push spikes
-		boost::exponential_distribution<> dist(BASERATE);
+		boost::exponential_distribution<> dist(scale*BASERATE);
 		boost::variate_generator<boost::mt19937&, boost::exponential_distribution<> > die(poisson_gen, dist);
-		for ( NeuronID i = 0 ; i < get_rank_size() ; ++i )
-		{
-			if ( ttl[i] < sys->get_clock() && activity[i]>0.0 )
+		if ( binary_patterns ) {
+			type_pattern current = stimuli[cur_stim_index];
+			// I am just using bgx because it's there.
+			// To be strict there should be a second variable
+			// to separate the two.
+			while ( bgx < current.size() ) {
+				push_spike ( current.at(bgx).i );
+				AurynDouble r = die();
+				bgx += 1+(NeuronID)(r/dt);
+			}
+			bgx -= current.size();
+		} else {
+			for ( NeuronID i = 0 ; i < get_rank_size() ; ++i )
 			{
-				push_spike ( i );
-				ttl[i] = sys->get_clock() + (AurynTime)((AurynFloat)die()/((activity[i]+base_rate)*dt));
+				if ( ttl[i] < sys->get_clock() && activity[i]>0.0 )
+				{
+					push_spike ( i );
+					ttl[i] = sys->get_clock() + (AurynTime)((AurynFloat)die()/((activity[i]+base_rate)*dt));
+				}
 			}
 		}
 	} else {
@@ -179,7 +193,9 @@ void StimulusGroup::evolve()
 		write_sequence_file(dt*(sys->get_clock()));
 
 		if ( stimulus_active ) {
-			set_all( 0.0 ); // turn off currently active stimulus 
+
+			if ( !binary_patterns )
+				set_all( 0.0 ); // turn off currently active stimulus 
 			stimulus_active = false ;
 
 			if ( randomintervals ) {
@@ -221,7 +237,9 @@ void StimulusGroup::evolve()
 						}
 					break;
 				}
-				set_active_pattern( cur_stim_index );
+
+				if ( !binary_patterns )
+					set_active_pattern( cur_stim_index );
 				stimulus_active = true;
 
 				if ( randomintervals ) {
