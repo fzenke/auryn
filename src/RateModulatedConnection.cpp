@@ -136,7 +136,7 @@ bool RateModulatedConnection::write_to_file(string filename)
 {
 
 	stringstream oss;
-	oss << filename << ".cs";
+	oss << filename << ".cstate";
 
 	ofstream outfile;
 	outfile.open(oss.str().c_str(),ios::out);
@@ -158,7 +158,7 @@ bool RateModulatedConnection::load_from_file(string filename)
 {
 
 	stringstream oss;
-	oss << filename << ".cs";
+	oss << filename << ".cstate";
 	ifstream infile (oss.str().c_str());
 
 	if (!infile) {

@@ -47,7 +47,6 @@ class RateModulatedConnection : public SparseConnection
 private:
 	AurynDouble rate_estimate_tau;
 	AurynDouble rate_estimate_decay_mul;
-	AurynDouble rate_modulation_mul;
 
 	AurynDouble rate_modulation_scale;
 	SpikingGroup * rate_modulating_group;
@@ -65,6 +64,9 @@ public:
 	AurynDouble rate_target; 
 	/*! Defines the modulation exponent. */ 
 	AurynDouble rate_modulation_exponent; 
+
+	/*! The modulation value. */ 
+	AurynDouble rate_modulation_mul;
 
 	RateModulatedConnection(const char * filename);
 	RateModulatedConnection(NeuronID rows, NeuronID cols);
