@@ -34,7 +34,7 @@
 #include "Logger.h"
 #include "PoissonGroup.h"
 #include "IFGroup.h"
-#include "P07Connection.h"
+#include "P09Connection.h"
 #include "SpikeMonitor.h"
 #include "DelayedSpikeMonitor.h"
 #include "PopulationRateMonitor.h"
@@ -141,11 +141,11 @@ int main(int ac, char* av[])
 
 	IFGroup * neurons = new IFGroup(100);
 
-	P07Connection * con = new P07Connection(
+	P09Connection * con = new P09Connection(
 			poisson,neurons,
 			0.1,0.1);
 
-	P07Connection * con2 = new P07Connection(
+	P09Connection * con2 = new P09Connection(
 			poisson2,neurons,
 			0.1,0.1);
 
