@@ -97,11 +97,11 @@ void IF2Group::integrate_nonlinear_nmda_synapses()
 	gsl_vector_float_memcpy( nmda_opening , mem );
 	auryn_vector_float_add_constant( nmda_opening , -e_nmda_onset );
 	auryn_vector_float_scale( nmda_slope, nmda_opening );
-	auryn_vector_float_mul( nmda_opening, nmda_opening ); // squaring
 	for ( AurynState * ptr = gsl_vector_float_ptr( nmda_opening , 0 ) ; ptr != gsl_vector_float_ptr( nmda_opening , get_post_size()-1 )+1 ; ++ptr ) {
-		AurynFloat x2 = *ptr;
+		AurynFloat x = *ptr;
+		AurynFloat x2 = x*x;
 		AurynFloat r = x2/(1.0+x2);
-		if (r>0) *ptr = r;
+		if (x>0) *ptr = r; // rectification
 		else *ptr = 0;
 		// cout << *ptr << endl;
 	}
