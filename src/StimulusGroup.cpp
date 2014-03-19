@@ -46,6 +46,8 @@ void StimulusGroup::init(StimulusGroupModeType stimulusmode, string outputfile, 
 	background_rate = 0.0;
 	bgx  = 0 ;
 
+	fgx  = 0 ;
+
 
 	binary_patterns = false;
 
@@ -155,19 +157,30 @@ void StimulusGroup::evolve()
 
 	if ( stimulus_active ) {
 		// detect and push spikes
+		boost::exponential_distribution<> bg_dist(background_rate);
+		boost::variate_generator<boost::mt19937&, boost::exponential_distribution<> > bg_die(poisson_gen, bg_dist);
+
 		boost::exponential_distribution<> dist(scale*BASERATE);
 		boost::variate_generator<boost::mt19937&, boost::exponential_distribution<> > die(poisson_gen, dist);
+
 		if ( binary_patterns ) {
 			type_pattern current = stimuli[cur_stim_index];
-			// I am just using bgx because it's there.
-			// To be strict there should be a second variable
-			// to separate the two.
-			while ( bgx < current.size() ) {
-				push_spike ( current.at(bgx).i );
-				AurynDouble r = die();
-				bgx += 1+(NeuronID)(r/dt);
+
+			while ( bgx < get_rank_size() || fgx < current.size() ) {
+				if ( fgx < current.size() && current.at(fgx).i < bgx ) {
+					push_spike ( current.at(fgx).i );
+					AurynDouble r = die();
+					fgx += 1+(NeuronID)(r/dt);
+				} else {
+					push_spike ( bgx );
+					AurynDouble r = bg_die();
+					bgx += 1+(NeuronID)(r/dt); 
+				}
 			}
-			bgx -= current.size();
+			bgx -= get_rank_size();
+			if ( fgx >= current.size() )
+				fgx -= current.size();
+
 		} else {
 			for ( NeuronID i = 0 ; i < get_rank_size() ; ++i )
 			{

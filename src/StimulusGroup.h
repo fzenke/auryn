@@ -54,6 +54,9 @@ private:
 
 	int off_pattern;
 
+	/*! Foreground Poisson field pointer */
+	NeuronID fgx;
+
 	/*! Background Poisson field pointer */
 	NeuronID bgx;
 
