@@ -24,7 +24,7 @@ boost::mt19937 StimulusGroup::poisson_gen = boost::mt19937();
 boost::mt19937 StimulusGroup::order_gen = boost::mt19937(2351301); 
 boost::uniform_01<boost::mt19937> StimulusGroup::order_die = boost::uniform_01<boost::mt19937> (order_gen);
 
-void StimulusGroup::init(string filename, StimulusGroupModeType stimulusmode, string outputfile, AurynFloat baserate)
+void StimulusGroup::init(StimulusGroupModeType stimulusmode, string outputfile, AurynFloat baserate)
 {
 	sys->register_spiking_group(this);
 	ttl = new AurynTime [get_rank_size()];
@@ -54,7 +54,7 @@ void StimulusGroup::init(string filename, StimulusGroupModeType stimulusmode, st
 		tiserfile.open(outputfile.c_str(),ios::out);
 		if (!tiserfile) {
 		  stringstream oss;
-		  oss << "StimulusGroup:: Can't open output file " << filename;
+		  oss << "StimulusGroup:: Can't open output file " << outputfile;
 		  logger->msg(oss.str(),ERROR);
 		  exit(1);
 		}
@@ -71,12 +71,17 @@ void StimulusGroup::init(string filename, StimulusGroupModeType stimulusmode, st
 	active = true;
 	off_pattern = -1;
 
+}
+
+StimulusGroup::StimulusGroup(NeuronID n, string filename, string outputfile, StimulusGroupModeType stimulusmode, AurynFloat baserate) : SpikingGroup( n, STIMULUSGROUP_LOAD_MULTIPLIER ) // Load multiplier is an empirical value
+{
+	init(stimulusmode, outputfile, baserate);
 	load_patterns(filename);
 }
 
-StimulusGroup::StimulusGroup(NeuronID n, string filename, string outputfile, StimulusGroupModeType stimulusmode, AurynFloat baserate) : SpikingGroup( n, STIMULUSGROUP_LOAD_MULTIPLIER ) // Load multiplier is an empircal value
+StimulusGroup::StimulusGroup(NeuronID n, string outputfile, StimulusGroupModeType stimulusmode, AurynFloat baserate) : SpikingGroup( n, STIMULUSGROUP_LOAD_MULTIPLIER ) // Load multiplier is an empirical value
 {
-	init(filename, stimulusmode, outputfile, baserate);
+	init(stimulusmode, outputfile, baserate);
 }
 
 StimulusGroup::~StimulusGroup()
@@ -206,7 +211,7 @@ void StimulusGroup::evolve()
 				next_action_time = sys->get_clock() + (AurynTime)(mean_off_period/dt);
 			}
 		} else {
-			if ( active ) {
+			if ( active && stimuli.size() ) {
 
 				// choose stimulus
 				switch ( stimulus_order ) {

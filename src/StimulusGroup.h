@@ -78,7 +78,7 @@ private:
 	AurynTime next_action_time ;
 
 	/*! Standard initialization */
-	void init(string filename, StimulusGroupModeType stimulusmode, string outputfile, AurynFloat baserate);
+	void init(StimulusGroupModeType stimulusmode, string outputfile, AurynFloat baserate);
 	/*! Draw all Time-To-Live (ttls) typically after changing the any of the activiteis */
 	void redraw();
 
@@ -115,8 +115,10 @@ public:
 	AurynDouble background_rate;
 
 	/*! Default constructor */
-	StimulusGroup(NeuronID n, string filename, string outputfile = "", StimulusGroupModeType stimulusmode=RANDOM, AurynFloat baserate=0.0 );
+	StimulusGroup(NeuronID n, string filename, string outputfile, StimulusGroupModeType stimulusmode=RANDOM, AurynFloat baserate=0.0 );
 
+	/*! Constructor without stimfile. Patterns can be loaded afterwards using the load_patterns method. */
+	StimulusGroup(NeuronID n, string outputfile, StimulusGroupModeType stimulusmode=RANDOM, AurynFloat baserate=0.0 );
 
 	virtual ~StimulusGroup();
 	/*! Standard virtual evolve function */
