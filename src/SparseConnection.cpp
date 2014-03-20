@@ -861,7 +861,7 @@ void SparseConnection::load_patterns( string filename, AurynWeight strength, int
 
 		unsigned int patcount = 0 ;
 
-		NeuronID mindimension = min( get_m_rows() , get_n_cols() );
+		NeuronID mindimension = min( get_m_rows()*patterns_every_pre, get_n_cols()*patterns_every_post );
 		bool istoolarge = false;
 		
 
