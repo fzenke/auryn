@@ -315,8 +315,9 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 
 	while ( get_clock() <= stoptime ) {
 
-	    if ((mpicom->rank()==0) && (not quiet) && (get_clock()%PROGRESSBAR_UPDATE_INTERVAL==0)) {
-			progressbar(dt*(get_clock()-starttime)/total_time,get_time()); // TODO find neat solution for the rate
+	    if ( (mpicom->rank()==0) && (not quiet) && ( (get_clock()%PROGRESSBAR_UPDATE_INTERVAL==0) || get_clock()==stoptime ) ) {
+			double fraction = 1.0*(get_clock()-starttime+1)*dt/total_time;
+			progressbar(fraction,get_time()); // TODO find neat solution for the rate
 		}
 
 		if ( get_clock()%LOGGER_MARK_INTERVAL==0 ) // set a mark 
