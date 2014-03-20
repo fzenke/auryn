@@ -54,10 +54,10 @@ private:
 	void init();
 	void free();
 
-
-public:
 	/*! Controls the strength and sign of the response in the integral controller */
 	AurynDouble eta;
+
+public:
 	bool stdp_active;
 	AurynDouble rate_estimate;
 	/*! Defines the rate target at which the modulation factor is 1 */ 
@@ -89,6 +89,8 @@ public:
 	virtual ~RateModulatedConnection();
 
 	virtual void stats(AurynFloat &mean, AurynFloat &std);
+
+	void set_eta(AurynFloat value);
 
 	void propagate_forward();
 	void propagate();

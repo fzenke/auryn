@@ -125,6 +125,11 @@ void RateModulatedConnection::set_modulating_group(SpikingGroup * group)
 		rate_modulating_group = group;
 }
 
+void RateModulatedConnection::set_eta(AurynFloat value)
+{
+	eta = value;
+}
+
 void RateModulatedConnection::stats(AurynFloat &mean, AurynFloat &std)
 {
 	SparseConnection::stats(mean,std);
