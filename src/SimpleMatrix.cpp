@@ -24,6 +24,9 @@
 #include "auryn_global.h"
 #include <string.h>
 
+#include <boost/serialization/utility.hpp>
+#include <boost/serialization/split_member.hpp>
+
 using namespace std;
 
 /*! \brief Template for a sparse matrix with row major ordering and fast access of rows.
@@ -35,6 +38,44 @@ template <typename T>
 class SimpleMatrix 
 {
 private:
+	friend class boost::serialization::access;
+	template<class Archive>
+	void save(Archive & ar, const unsigned int version) const
+		{
+			ar & m_rows;
+			ar & n_cols;
+			ar & datasize;
+			ar & n_nonzero;
+			for (NeuronID i = 0 ; i < m_rows ; ++i) {
+				for (NeuronID * r = rowptrs[i] ; r < rowptrs[i+1] ; ++r ) {
+					ar & i;
+					ar & *r;
+					ar & coldata[r-colinds];
+				}
+			}
+		}
+	template<class Archive>
+	void load(Archive & ar, const unsigned int version)
+		{
+			ar & m_rows;
+			ar & n_cols;
+			ar & datasize;
+			resize_buffer_and_clear(datasize);
+
+			AurynLong nnz;
+			ar & nnz;
+
+			for (AurynLong c = 0 ; c < nnz ; ++c) {
+				NeuronID i,j;
+				T val;
+				ar & i;
+				ar & j;
+				ar & val;
+				push_back(i,j,val);
+			}
+		}
+	BOOST_SERIALIZATION_SPLIT_MEMBER()
+
 	/*! Dimensions of matrix */
 	NeuronID m_rows,n_cols;
 	/*! Current row and col for filling. Should be in the last corner before use. */
@@ -303,10 +344,11 @@ AurynLong SimpleMatrix<T>::get_nonzero()
 template <typename T>
 void SimpleMatrix<T>::fill_zeros()
 {
-	for ( current_row ; current_row < m_rows-1 ; ++current_row )
+	for ( NeuronID i = current_row ; i < m_rows-1 ; ++i )
 	{
-		rowptrs[current_row+2] = rowptrs[current_row+1];  // save value of last element
-	} 
+		rowptrs[i+2] = rowptrs[i+1];  // save value of last element
+	}
+	current_row = get_m_rows();
 }
 
 

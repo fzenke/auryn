@@ -709,22 +709,28 @@ bool SparseConnection::load_from_file(ForwardMatrix * m, string filename, AurynL
 	if ( data_size ) { 
 		k = data_size;
 	}
-
-	if ( m->get_datasize() > k ) {
+	
+	if ( m->get_datasize() >= k ) {
 		m->clear();
 	} else {
-		logger->msg("Buffer too small reallocating..." ,NOTIFICATION);
+		stringstream oss;
+		oss << "Buffer too small ("
+			<< m->get_datasize()
+			<< " -> "
+			<< k
+			<< " elements). Reallocating.";
+		logger->msg(oss.str() ,NOTIFICATION);
 		m->resize_buffer_and_clear(k);
 	}
 
 	stringstream oss;
-	oss << get_name() \
+	oss << get_name() 
 		<< ": Reading from file ("
 		<< get_m_rows()<<"x"<<get_n_cols()
 		<< " @ "<<1.*k/(src->get_size()*dst->get_rank_size())<<")";
 	logger->msg(oss.str(),NOTIFICATION);
 
-	while ( infile.getline (buffer,100) )
+	while ( infile.getline (buffer,254) )
 	{
 		count++;
 		sscanf (buffer,"%u %u %e",&i,&j,&val);
@@ -739,7 +745,8 @@ bool SparseConnection::load_from_file(ForwardMatrix * m, string filename, AurynL
 				<< " i=" << i 
 				<< " j=" << j 
 				<< " v=" << val << ". "
-				<< "Bad row major order?";
+				<< " After pushing " << pushback_count << " elements. "
+				<< " Bad row major order?";
 			logger->msg(oss.str(),ERROR);
 			throw AurynMMFileException();
 			return false;
