@@ -730,7 +730,8 @@ bool SparseConnection::load_from_file(ForwardMatrix * m, string filename, AurynL
 		<< " @ "<<1.*k/(src->get_size()*dst->get_rank_size())<<")";
 	logger->msg(oss.str(),NOTIFICATION);
 
-	while ( infile.getline (buffer,254) )
+
+	while ( infile.getline (buffer,255) )
 	{
 		count++;
 		sscanf (buffer,"%u %u %e",&i,&j,&val);
