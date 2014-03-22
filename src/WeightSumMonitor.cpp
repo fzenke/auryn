@@ -20,9 +20,9 @@
 
 #include "WeightSumMonitor.h"
 
-WeightSumMonitor::WeightSumMonitor(Connection * source, string filename, AurynTime stepsize) : Monitor(filename)
+WeightSumMonitor::WeightSumMonitor(Connection * source, string filename, AurynDouble binsize) : Monitor(filename)
 {
-	init(source,filename,stepsize);
+	init(source,filename,binsize/dt);
 }
 
 WeightSumMonitor::~WeightSumMonitor()

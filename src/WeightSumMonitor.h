@@ -42,7 +42,7 @@ protected:
 	void init(Connection * source, string filename, AurynTime stepsize);
 	
 public:
-	WeightSumMonitor(Connection * source, string filename, AurynTime stepsize=10000);
+	WeightSumMonitor(Connection * source, string filename, AurynDouble binsize=1.0);
 	virtual ~WeightSumMonitor();
 	void propagate();
 };
