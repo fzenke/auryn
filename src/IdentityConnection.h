@@ -70,8 +70,8 @@ public:
 	virtual void propagate();
 
 	virtual void stats(AurynFloat &mean, AurynFloat &std);
-	virtual bool write_to_file(const char * filename);
-	virtual bool load_from_file(const char * filename);
+	virtual bool write_to_file(string filename);
+	virtual bool load_from_file(string filename);
 	virtual AurynFloat mean();
 
 	/*! Returns a vector of ConnectionsID of a block specified by the arguments */

@@ -121,12 +121,12 @@ void IdentityConnection::stats(AurynFloat &mean, AurynFloat &std)
 	std = 0;
 }
 
-bool IdentityConnection::write_to_file(const char * filename)
+bool IdentityConnection::write_to_file(string filename)
 {
 	return true; // TODO fake but what else ? 
 }
 
-bool IdentityConnection::load_from_file(const char * filename)
+bool IdentityConnection::load_from_file(string filename)
 {
 	return true; // TODO fake but what else ? 
 }

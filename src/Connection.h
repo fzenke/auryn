@@ -87,8 +87,8 @@ public:
 	/*! DEPRECATED. (Such connections should not be registered in the first place) Calls propagate only if the postsynaptic NeuronGroup exists on the local rank. */
 	void conditional_propagate();
 	virtual void stats(AurynFloat &mean, AurynFloat &std) = 0;
-	virtual bool write_to_file(const char * filename) = 0;
-	virtual bool load_from_file(const char * filename) = 0;
+	virtual bool write_to_file(string filename) = 0;
+	virtual bool load_from_file(string filename) = 0;
 
 	/*! This is a new approach towards replacing tadd, increments transmitter specific state variables in neuron i*/
 	inline void transmit(NeuronID id, AurynWeight amount);

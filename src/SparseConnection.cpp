@@ -581,12 +581,12 @@ void SparseConnection::set(NeuronID i, NeuronID j, AurynWeight value)
 	w->set(i,j,value);
 }
 
-bool SparseConnection::write_to_file(ForwardMatrix * m, const char * filename )
+bool SparseConnection::write_to_file(ForwardMatrix * m, string filename )
 {
 	if ( !dst->evolve_locally() ) return true;
 
 	ofstream outfile;
-	outfile.open(filename,ios::out);
+	outfile.open(filename.c_str(),ios::out);
 	if (!outfile) {
 		stringstream oss;
 	    oss << "Can't open output file " << filename;
@@ -611,11 +611,6 @@ bool SparseConnection::write_to_file(ForwardMatrix * m, const char * filename )
 
 	outfile.close();
 	return true;
-}
-
-bool SparseConnection::write_to_file(const char * filename)
-{
-	return write_to_file(string(filename));
 }
 
 bool SparseConnection::write_to_file(string filename)
@@ -672,12 +667,12 @@ AurynLong SparseConnection::dryrun_from_file(string filename)
 	return pushback_count;
 }
 
-bool SparseConnection::load_from_file(ForwardMatrix * m, const char * filename, AurynLong data_size )
+bool SparseConnection::load_from_file(ForwardMatrix * m, string filename, AurynLong data_size )
 {
 	if ( !dst->evolve_locally() ) return true;
 
 	char buffer[256];
-	ifstream infile (filename);
+	ifstream infile (filename.c_str());
 	if (!infile) {
 		stringstream oss;
 		oss << "Can't open input file " << filename;
@@ -794,11 +789,6 @@ bool SparseConnection::load_from_complete_file(string filename)
 bool SparseConnection::load_from_file(string filename)
 {
 	return load_from_file(w,filename.c_str());
-}
-
-bool SparseConnection::load_from_file(const char * filename)
-{
-	return load_from_file(string(filename));
 }
 
 bool SparseConnection::init_from_file(const char * filename)
