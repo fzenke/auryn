@@ -603,6 +603,7 @@ bool SparseConnection::write_to_file(ForwardMatrix * m, string filename )
 
 	for ( NeuronID i = 0 ; i < get_m_rows() ; ++i ) 
 	{
+		outfile << setprecision(7);
 		for ( NeuronID * j = m->get_row_begin(i) ; j != m->get_row_end(i) ; ++j )
 		{
 			outfile << i+1 << " " << *j+1 << " " << scientific << m->get_data_begin()[j-m->get_row_begin(0)] << fixed << "\n";
@@ -736,8 +737,10 @@ bool SparseConnection::load_from_file(ForwardMatrix * m, string filename, AurynL
 		count++;
 		sscanf (buffer,"%u %u %e",&i,&j,&val);
 		try {
-			if ( push_back(i-1,j-1,val) )
+			if ( dst->localrank(j) ) {
+				m->push_back(i-1,j-1,val);
 				pushback_count++;
+			}
 		}
 		catch ( AurynMatrixPushBackException )
 		{
@@ -791,7 +794,7 @@ bool SparseConnection::load_from_complete_file(string filename)
 		<< datasize 
 		<< ".";
 	logger->msg(oss.str(),NOTIFICATION);
-	return load_from_file(w,filename.c_str(),datasize);
+	return load_from_file(w,filename,datasize);
 }
 
 bool SparseConnection::load_from_file(string filename)
