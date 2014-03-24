@@ -1,11 +1,13 @@
-SRCDIR=../../src
-SIMDIR=../../sim
-CC = mpic++
-
 .SECONDARY:
 
-CFLAGS=-ansi -Wall -pipe -g -pedantic -I/usr/include/gsl $(shell pkg-config --cflags gsl) -I$(SRCDIR)
+CC = mpicxx
+
+CFLAGS=-ansi -Wall -pipe -g -pedantic -I/usr/include/gsl $(shell pkg-config --cflags gsl) -I$(SRCDIR) -I$(DEVDIR)
 # LDFLAGS=-L/usr/local/atlas/lib -lgsl -lcblas -latlas -lm -lboost_program_options -lboost_mpi -lboost_filesystem -lboost_system
+#
+#
+GSLLIBS=$(shell pkg-config --libs gsl)
+
 LDFLAGS=$(shell pkg-config --libs gsl) -lboost_program_options -lboost_mpi -lboost_serialization -lboost_filesystem -lboost_system
 
 include ../Makefile.include
