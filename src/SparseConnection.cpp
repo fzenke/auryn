@@ -410,8 +410,8 @@ void SparseConnection::finalize()
 bool SparseConnection::push_back(NeuronID i, NeuronID j, AurynWeight weight) 
 {
 	if ( dst->localrank(j) ) {
-			w->push_back(i,j,weight);
-			return true;
+		w->push_back(i,j,weight);
+		return true;
 	}
 	return false;
 }
@@ -737,7 +737,7 @@ bool SparseConnection::load_from_file(ForwardMatrix * m, string filename, AurynL
 		count++;
 		sscanf (buffer,"%u %u %e",&i,&j,&val);
 		try {
-			if ( dst->localrank(j) ) {
+			if ( dst->localrank(j-1) ) {
 				m->push_back(i-1,j-1,val);
 				pushback_count++;
 			}
@@ -781,7 +781,7 @@ bool SparseConnection::load_from_file(ForwardMatrix * m, string filename, AurynL
 	}
 
 	m->fill_zeros();
-	finalize();
+	// finalize(); // commented this line out because it only acts on w
 
 	return true;
 }
@@ -799,7 +799,9 @@ bool SparseConnection::load_from_complete_file(string filename)
 
 bool SparseConnection::load_from_file(string filename)
 {
-	return load_from_file(w,filename.c_str());
+	bool result = load_from_file(w,filename);
+	finalize();
+	return result;
 }
 
 bool SparseConnection::init_from_file(const char * filename)
