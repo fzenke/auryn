@@ -92,7 +92,7 @@ DuplexConnection::~DuplexConnection()
 void DuplexConnection::compute_reverse_matrix()
 {
 
-	if ( fwd->get_datasize() < bkw->get_datasize() ) {
+	if ( fwd->get_datasize() <= bkw->get_datasize() ) {
 		bkw->clear();
 	} else {
 		logger->msg("Bkw buffer too small reallocating..." ,NOTIFICATION);
