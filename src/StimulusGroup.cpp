@@ -142,12 +142,13 @@ void StimulusGroup::set_mean_on_period(AurynFloat period)
 
 void StimulusGroup::write_sequence_file(AurynDouble time) {
 	if ( tiserfile ) {
-		tiserfile << time; 
-		for ( unsigned int i = 0 ; i < stimuli.size() ; ++i ) {
-			tiserfile << "  ";
-			if ( ( stimulus_active  && i == cur_stim_index ) || ( !stimulus_active && i == off_pattern ) ) tiserfile << 1; else tiserfile << 0;
-		}
-		tiserfile  << endl;
+		tiserfile 
+			<< time
+			<< " ";
+		if ( stimulus_active || off_pattern > -1 ) tiserfile << "1 "; else tiserfile << "0 ";
+		tiserfile 
+			<< cur_stim_index
+			<< endl;
 	}
 }
 
