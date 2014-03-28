@@ -98,21 +98,8 @@ void StimulusGroup::redraw()
 	boost::variate_generator<boost::mt19937&, boost::exponential_distribution<> > die(poisson_gen, dist);
 	for ( NeuronID i = 0 ; i < get_rank_size() ; ++i )
 	{
-		ttl[i] = sys->get_clock() + (AurynTime)((AurynFloat)die()/((activity[i]+1e-9)*dt));
-	}
-}
-
-void StimulusGroup::redraw_softstart()
-{
-	boost::exponential_distribution<> dist(BASERATE);
-	boost::variate_generator<boost::mt19937&, boost::exponential_distribution<> > die(poisson_gen, dist);
-
-	boost::uniform_real<> uniformdist(0, SOFTSTARTTIME );
-	boost::variate_generator<boost::mt19937&, boost::uniform_real<> > random(poisson_gen, uniformdist);
-
-	for ( NeuronID i = 0 ; i < get_rank_size() ; ++i )
-	{
-		ttl[i] = sys->get_clock() + (AurynTime)((AurynFloat)die()/((activity[i]+base_rate)*dt)+random()/dt);
+		if (activity[i]>0) 
+			ttl[i] = sys->get_clock() + (AurynTime)((AurynFloat)die()/(activity[i]*dt));
 	}
 }
 
@@ -157,14 +144,15 @@ void StimulusGroup::evolve()
 	if ( !active ) return;
 
 	if ( stimulus_active ) {
-		// detect and push spikes
-		boost::exponential_distribution<> bg_dist(background_rate);
-		boost::variate_generator<boost::mt19937&, boost::exponential_distribution<> > bg_die(poisson_gen, bg_dist);
-
-		boost::exponential_distribution<> dist(scale*BASERATE);
-		boost::variate_generator<boost::mt19937&, boost::exponential_distribution<> > die(poisson_gen, dist);
 
 		if ( binary_patterns ) {
+			// detect and push spikes
+			boost::exponential_distribution<> bg_dist(background_rate);
+			boost::variate_generator<boost::mt19937&, boost::exponential_distribution<> > bg_die(poisson_gen, bg_dist);
+
+			boost::exponential_distribution<> dist(scale);
+			boost::variate_generator<boost::mt19937&, boost::exponential_distribution<> > die(poisson_gen, dist);
+
 			type_pattern current = stimuli[cur_stim_index];
 
 			while ( bgx < get_rank_size() || fgx < current.size() ) {
@@ -183,12 +171,15 @@ void StimulusGroup::evolve()
 				fgx -= current.size();
 
 		} else {
+			boost::exponential_distribution<> dist(BASERATE);
+			boost::variate_generator<boost::mt19937&, boost::exponential_distribution<> > die(poisson_gen, dist);
+
 			for ( NeuronID i = 0 ; i < get_rank_size() ; ++i )
 			{
 				if ( ttl[i] < sys->get_clock() && activity[i]>0.0 )
 				{
 					push_spike ( i );
-					ttl[i] = sys->get_clock() + (AurynTime)((AurynFloat)die()/((activity[i]+base_rate)*dt));
+					ttl[i] = sys->get_clock() + (AurynTime)((AurynFloat)die()/(activity[i]*dt));
 				}
 			}
 		}
@@ -276,12 +267,12 @@ void StimulusGroup::evolve()
 
 void StimulusGroup::set_activity(NeuronID i, AurynFloat val)
 {
-	activity[i] = max((double)val,1e-9);
+	activity[i] = val;
 }
 
 void StimulusGroup::set_all(AurynFloat val)
 {
-	for ( unsigned int i = 0 ; i < get_rank_size() ; ++i )
+	for ( NeuronID i = 0 ; i < get_rank_size() ; ++i )
 		activity[i] = val;
 }
 
@@ -345,7 +336,7 @@ void StimulusGroup::load_patterns( string filename )
 			iss >> i ;
 			if ( localrank( i ) ) {
 				pattern_member pm;
-				pm.gamma = 1 ;
+				pm.gamma = 1.0 ;
 				iss >>  pm.gamma ;
 				pm.i = global2rank( i ) ;
 				pattern.push_back( pm ) ;
@@ -368,16 +359,9 @@ void StimulusGroup::set_pattern_activity(unsigned int i)
 	type_pattern current = stimuli[i];
 	type_pattern::iterator iter;
 
-	if ( binary_patterns ) { 
-		for ( iter = current.begin() ; iter != current.end() ; ++iter )
-		{
-			set_activity(iter->i,scale);
-		}
-	} else { 
-		for ( iter = current.begin() ; iter != current.end() ; ++iter )
-		{
-			set_activity(iter->i,scale*iter->gamma);
-		}
+	for ( iter = current.begin() ; iter != current.end() ; ++iter )
+	{
+		set_activity(iter->i,scale*iter->gamma+background_rate);
 	}
 }
 
@@ -399,7 +383,7 @@ void StimulusGroup::set_active_pattern(unsigned int i)
 	oss << "StimulusGroup:: Setting active pattern " << i ;
 	logger->msg(oss.str(),DEBUG);
 
-	set_all( 0.0 );
+	set_all( background_rate );
 	if ( i < stimuli.size() ) {
 		set_pattern_activity(i);
 	}

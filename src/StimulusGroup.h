@@ -85,9 +85,6 @@ private:
 	/*! Draw all Time-To-Live (ttls) typically after changing the any of the activiteis */
 	void redraw();
 
-	/*! Makes onset of stimulus soft */
-	void redraw_softstart();
-
 	/*! write current stimulus to timeseriesfile */
 	void write_sequence_file(AurynDouble time);
 
