@@ -55,9 +55,16 @@ PoissonGroup::~PoissonGroup()
 void PoissonGroup::set_rate(AurynDouble  rate)
 {
 	lambda = rate;
-    if (evolve_locally() ) {
-      AurynDouble r = -log((*die)()+1e-20)/lambda;
-      x = (NeuronID)(r/dt); 
+    if ( evolve_locally() ) {
+		if ( rate > 0.0 ) {
+		  AurynDouble r = -log((*die)())/lambda;
+		  x = (NeuronID)(r/dt); 
+		} else {
+			// if the rate is zero this triggers one spike at the end of time/groupsize
+			// this is the easiest way to take care of the zero rate case, which should 
+			// be avoided in any case.
+			x = std::numeric_limits<NeuronID>::max(); 
+		}
     }
 }
 
