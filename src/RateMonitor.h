@@ -32,9 +32,10 @@ using namespace std;
 
 /*! \brief Monitor class to record neural firing rates
  * 
- * Instances of this class record the population firing rate of the src SpikingGroup assigned.
- * Binning is done discretely in bins of size bsize that is directly transformed in discrete 
- * AurynTime steps. The default 
+ * Instances of this class record the firing rates of all neurons in the src SpikingGroup.
+ * To estimate rates online it uses an exponential filter with a time constant that is
+ * three times the sampling interval. To do so the class uses a synaptic trace. Each rank
+ * only records spikes from local neurons.
  */
 
 class RateMonitor : protected Monitor
@@ -61,7 +62,8 @@ public:
 	/*! Default Constructor 
 	 @param[source] The source spiking group.
 	 @param[filename] The filename to write to (should be different for each rank.)
-	 @param[samplinginterval] The sampling interval used for writing data to file.*/
+	 @param[samplinginterval] The sampling interval used for writing data to file.
+	 which currently also determines the filter time constant. */
 	RateMonitor(SpikingGroup * source, string filename, AurynFloat samplinginterval=1);
 
 	/*! Default Destructor */
