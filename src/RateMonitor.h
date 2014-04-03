@@ -18,8 +18,8 @@
 * along with Auryn.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef POPULATIONRATEMONITOR_H_
-#define POPULATIONRATEMONITOR_H_
+#ifndef RATEMONITOR_H_
+#define RATEMONITOR_H_
 
 #include "auryn_definitions.h"
 #include "Monitor.h"
@@ -71,4 +71,4 @@ public:
 	void propagate();
 };
 
-#endif /*POPULATIONRATEMONITOR_H_*/
+#endif /*RATEMONITOR_H_*/
