@@ -62,7 +62,6 @@ private:
 
 	double simulation_time_realtime_ratio;
 
-	bool quiet;
 
 	/*! Draws the progress bar */
 	void progressbar ( double fraction, float time );	
@@ -75,6 +74,9 @@ private:
 
 
 public:
+	/*! Switch to turn output to quiet mode (no progress bar). */
+	bool quiet;
+
 	System();
 	System(mpi::communicator * communicator);
 	void init();
