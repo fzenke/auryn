@@ -20,7 +20,7 @@
 
 #include "WeightMatrixMonitor.h"
 
-WeightMatrixMonitor::WeightMatrixMonitor(Connection * source, char * filename, AurynFloat stepsize) : Monitor(filename)
+WeightMatrixMonitor::WeightMatrixMonitor(Connection * source, string filename, AurynFloat stepsize) : Monitor(filename)
 {
 	init(source,stepsize);
 }

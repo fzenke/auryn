@@ -41,7 +41,7 @@ protected:
 	void init(Connection * source, AurynFloat stepsize);
 	
 public:
-	WeightMatrixMonitor(Connection * source, char * filename, AurynFloat stepsize=600.);
+	WeightMatrixMonitor(Connection * source, string filename, AurynFloat stepsize=600.);
 	virtual ~WeightMatrixMonitor();
 	void propagate();
 };
