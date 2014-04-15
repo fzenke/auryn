@@ -139,6 +139,9 @@ public:
 	/*! Sets all weights of existing connections to the given value. */
 	virtual void set_all(AurynWeight weight);
 
+	/*! Scales all weights in the weight matrix with the given value. */
+	virtual void scale_all(AurynFloat value);
+
 	/*! Clip weights */
 	virtual void clip(AurynWeight lo, AurynWeight hi);
 

@@ -141,6 +141,8 @@ public:
 	void set_row(NeuronID i, T value);
 	/*! Scales all non-zero elements in row i to value */
 	void scale_row(NeuronID i, T value);
+	/*! Scales all non-zero elements */
+	void scale_all(T value);
 	/*! Sets all non-zero elements in col j to value. Due to ordering this is slow and the use of this functions is discouraged. */
 	void set_col(NeuronID j, T value);
 	/*! Scales all non-zero elements in col j to value. Due to ordering this is slow and the use of this functions is discouraged. */
@@ -413,6 +415,15 @@ void SimpleMatrix<T>::scale_row(NeuronID i, T value)
 	for (NeuronID * c = rowbegin ; c <= rowend ; ++c) 
 	{
 		coldata[c-colinds] *= value;
+	}
+}
+
+template <typename T>
+void SimpleMatrix<T>::scale_all(T value)
+{
+	for (T * c = coldata ; c <= coldata+get_nonzero() ; ++c) 
+	{
+		*c *= value;
 	}
 }
 

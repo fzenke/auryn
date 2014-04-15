@@ -34,6 +34,9 @@ void DuplexConnection::finalize() // finalize at this level is called only for r
 	logger->msg(oss.str(),NOTIFICATION);
 
 	bkw->clear();
+	if ( bkw->get_nonzero() > w->get_nonzero() ) {
+		bkw->resize_buffer_and_clear(w->get_nonzero());
+	}
 	compute_reverse_matrix();
 }
 

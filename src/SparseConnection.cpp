@@ -271,6 +271,11 @@ void SparseConnection::set_all(AurynWeight weight)
 	w->set_all( weight );
 }
 
+void SparseConnection::scale_all(AurynFloat value)
+{
+	w->scale_all( value );
+}
+
 void SparseConnection::set_upper_triangular(AurynWeight weight)
 {
 	w->set_all( 0.0 );
@@ -794,7 +799,9 @@ bool SparseConnection::load_from_complete_file(string filename)
 		<< datasize 
 		<< ".";
 	logger->msg(oss.str(),NOTIFICATION);
-	return load_from_file(w,filename,datasize);
+	bool returnvalue = load_from_file(w,filename,datasize);
+	finalize();
+	return returnvalue;
 }
 
 bool SparseConnection::load_from_file(string filename)
