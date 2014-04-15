@@ -475,6 +475,23 @@ gsl_vector_float * SpikingGroup::get_state_vector(string key)
 	}
 }
 
+void SpikingGroup::randomize_state_vector_gauss(string state_vector_name, AurynState mean, AurynState sigma, int seed)
+{
+	boost::mt19937 ng_gen(seed+communicator->rank()); // produces same series every time 
+	boost::normal_distribution<> dist((double)mean, (double)sigma);
+	boost::variate_generator<boost::mt19937&, boost::normal_distribution<> > die(ng_gen, dist);
+	AurynState rv;
+
+	gsl_vector_float * vec = get_state_vector(state_vector_name); 
+
+
+	for ( AurynLong i = 0 ; i<get_rank_size() ; ++i ) {
+		rv = die();
+		gsl_vector_float_set( vec, i, rv );
+	}
+
+}
+
 string SpikingGroup::get_output_line(NeuronID i)
 {
 	stringstream oss;

@@ -141,16 +141,7 @@ void NeuronGroup::set_nmda(NeuronID i, AurynState val)
 
 void NeuronGroup::random_mem(AurynState mean, AurynState sigma)
 {
-	boost::mt19937 ng_gen(42+communicator->rank()); // produces same series every time 
-	boost::normal_distribution<> dist((double)mean, (double)sigma);
-	boost::variate_generator<boost::mt19937&, boost::normal_distribution<> > die(ng_gen, dist);
-	AurynState rv;
-
-	for ( AurynLong i = 0 ; i<get_rank_size() ; ++i ) {
-		rv = die();
-		set_mem(i,rv);
-	}
-
+	randomize_state_vector_gauss("mem",mean,sigma,42);
 	init_state();
 }
 
