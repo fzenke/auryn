@@ -110,7 +110,7 @@ public:
 	 *  old buffers before freeing the memory */
 	void resize_buffer(AurynLong size);
 
-	/*! Resizes buffer and clears the matrix. This save
+	/*! Resizes buffer and clears the matrix. This saves
 	 *  to copy all the data. */
 	void resize_buffer_and_clear(AurynLong size);
 
