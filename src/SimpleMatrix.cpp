@@ -421,10 +421,8 @@ void SimpleMatrix<T>::scale_row(NeuronID i, T value)
 template <typename T>
 void SimpleMatrix<T>::scale_all(T value)
 {
-	for (T * c = coldata ; c <= coldata+get_nonzero() ; ++c) 
-	{
-		*c *= value;
-	}
+	for ( AurynLong i = 0 ; i < n_nonzero ; ++i ) 
+		scale_data( i , value );
 }
 
 template <typename T>
