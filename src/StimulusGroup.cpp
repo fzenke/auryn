@@ -65,7 +65,9 @@ void StimulusGroup::init(StimulusGroupModeType stimulusmode, string outputfile, 
 	}
 
 	stringstream oss;
-	oss << "StimulusGroup:: In mode " << stimulus_order;
+	oss << "StimulusGroup:: " 
+		<< "size " << get_size() << " "  
+		<< "(mode " << stimulus_order << ") ";
 	logger->msg(oss.str(),NOTIFICATION);
 
 	cur_stim_index = 0;
