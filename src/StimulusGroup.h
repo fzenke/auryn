@@ -114,6 +114,9 @@ public:
 	 * when no stim is active. */
 	AurynDouble background_rate;
 
+	/*! Switch for background firing during stimulus. */
+	bool background_during_stimulus;
+
 	/*! Default constructor */
 	StimulusGroup(NeuronID n, string filename, string outputfile, StimulusGroupModeType stimulusmode=RANDOM, AurynFloat baserate=0.0 );
 
@@ -126,8 +129,13 @@ public:
 	/*! Sets the baserate that is the rate at 1 activity */
 	void set_baserate(AurynFloat baserate);
 	void set_maxrate(AurynFloat baserate); // TODO remove deprecated
+
+	/*! Sets the stimulation mode. Can be any of StimulusGroupModeType (MANUAL,RANDOM,SEQUENTIAL,SEQUENTIAL_REV). */
+	void set_stimulation_mode(StimulusGroupModeType mode);
+
 	/*! Sets sets the activity of all units */
 	void set_all( AurynFloat val=0.0 );
+
 	/*! Gets the activity of unit i */
 	AurynFloat get_activity(NeuronID i);
 

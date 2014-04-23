@@ -35,13 +35,15 @@ void StimulusGroup::init(StimulusGroupModeType stimulusmode, string outputfile, 
 
 	mean_off_period = 1.0 ;
 	mean_on_period = 0.2 ;
-	stimulus_order = stimulusmode ;
+	set_stimulation_mode(stimulusmode);
 
 	stimulus_active = false ;
 	set_all( 0.0 ); 
 
 	scale = 2.0;
 	randomintervals = true;
+
+	background_during_stimulus = false;
 
 	background_rate = 0.0;
 	bgx  = 0 ;
@@ -157,6 +159,7 @@ void StimulusGroup::evolve()
 
 			type_pattern current = stimuli[cur_stim_index];
 
+
 			while ( bgx < get_rank_size() || fgx < current.size() ) {
 				if ( fgx < current.size() && current.at(fgx).i < bgx ) {
 					push_spike ( current.at(fgx).i );
@@ -168,7 +171,9 @@ void StimulusGroup::evolve()
 					bgx += 1+(NeuronID)(r/dt); 
 				}
 			}
-			bgx -= get_rank_size();
+			if ( background_during_stimulus )
+				bgx -= get_rank_size();
+
 			if ( fgx >= current.size() )
 				fgx -= current.size();
 
@@ -361,9 +366,12 @@ void StimulusGroup::set_pattern_activity(unsigned int i)
 	type_pattern current = stimuli[i];
 	type_pattern::iterator iter;
 
+	AurynFloat addrate = 0.0;
+	if ( background_during_stimulus ) 
+		addrate = background_rate;
 	for ( iter = current.begin() ; iter != current.end() ; ++iter )
 	{
-		set_activity(iter->i,scale*iter->gamma+background_rate);
+		set_activity(iter->i,scale*iter->gamma+addrate);
 	}
 }
 
@@ -449,4 +457,8 @@ vector<type_pattern> * StimulusGroup::get_patterns()
 
 void StimulusGroup::set_next_action_time( double time ) {
 	next_action_time = sys->get_clock() + time/dt;
+}
+
+void StimulusGroup::set_stimulation_mode( StimulusGroupModeType mode ) {
+	stimulus_order = mode ;
 }
