@@ -644,7 +644,7 @@ AurynLong SparseConnection::dryrun_from_file(string filename)
 	float val;
 
 	// read connection details
-	infile.getline (buffer,255); count++;
+	infile.getline (buffer,256); count++;
 	string header("%%MatrixMarket matrix coordinate real general");
 	if (header.compare(buffer)!=0)
 	{
@@ -654,13 +654,13 @@ AurynLong SparseConnection::dryrun_from_file(string filename)
 		return false;
 	}
 	while ( buffer[0]=='%' ) {
-	  infile.getline (buffer,255);
+	  infile.getline (buffer,256);
 	  count++;
 	}
 
 	sscanf (buffer,"%u %u %lu",&i,&j,&k);
 
-	while ( infile.getline (buffer,255) )
+	while ( infile.getline (buffer,256) )
 	{
 		count++;
 		sscanf (buffer,"%u %u %e",&i,&j,&val);
@@ -695,7 +695,7 @@ bool SparseConnection::load_from_file(ForwardMatrix * m, string filename, AurynL
 	float val;
 
 	// read connection details
-	infile.getline (buffer,255); count++;
+	infile.getline (buffer,256); count++;
 	string header("%%MatrixMarket matrix coordinate real general");
 	if (header.compare(buffer)!=0)
 	{
@@ -705,7 +705,7 @@ bool SparseConnection::load_from_file(ForwardMatrix * m, string filename, AurynL
 		return false;
 	}
 	while ( buffer[0]=='%' ) {
-	  infile.getline (buffer,255);
+	  infile.getline (buffer,256);
 	  count++;
 	}
 
