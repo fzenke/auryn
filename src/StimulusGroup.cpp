@@ -506,7 +506,7 @@ void StimulusGroup::seed(int rndseed)
 {
 	order_gen.seed(rndseed); // has to be seeded identically on all ranks!
 
-	boost::uniform_int<> dist(std::numeric_limits<NeuronID>::max());
+	boost::uniform_int<> dist(0,std::numeric_limits<int>::max());
 	boost::variate_generator<boost::mt19937&, boost::uniform_int<> > die(order_gen, dist);
 
 	NeuronID rnd = die();
