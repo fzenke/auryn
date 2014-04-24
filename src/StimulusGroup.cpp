@@ -240,7 +240,7 @@ void StimulusGroup::evolve()
 				if (a==0) stimulus_active = true; 
 					else stimulus_active = false;
 				cur_stim_index = i;
-				cout << sys->get_time() << " " << t << " " << a << " " << i << endl;
+				// cout << sys->get_time() << " " << t << " " << a << " " << i << endl;
 			}
 		} else { // we have to generate stimulus times
 
