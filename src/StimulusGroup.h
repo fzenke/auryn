@@ -49,7 +49,10 @@ private:
 	AurynTime * ttl;
 	vector<type_pattern> stimuli;
 	AurynFloat * activity;
-	ofstream tiserfile;
+
+	/*! Internal name for the stimfile (tiser stands for time series). */
+	fstream tiserfile;
+
 	AurynFloat base_rate;
 
 	int off_pattern;
@@ -81,12 +84,15 @@ private:
 	AurynTime next_action_time ;
 
 	/*! Standard initialization */
-	void init(StimulusGroupModeType stimulusmode, string outputfile, AurynFloat baserate);
+	void init(StimulusGroupModeType stimulusmode, string stimfile, AurynFloat baserate);
 	/*! Draw all Time-To-Live (ttls) typically after changing the any of the activiteis */
 	void redraw();
 
-	/*! write current stimulus to timeseriesfile */
-	void write_sequence_file(AurynDouble time);
+	/*! write current stimulus to stimfile */
+	void write_stimulus_file(AurynDouble time);
+
+	/*! Read current stimulus status from stimfile */
+	void read_next_stimulus_from_file(AurynDouble &time, int &active, int &stimulusid );
 
 	/*! Sets the activity for a given unit on the local rank. Activity determines the freq as baserate*activity */
 	void set_activity( NeuronID i, AurynFloat val=0.0 );
@@ -118,10 +124,10 @@ public:
 	bool background_during_stimulus;
 
 	/*! Default constructor */
-	StimulusGroup(NeuronID n, string filename, string outputfile, StimulusGroupModeType stimulusmode=RANDOM, AurynFloat baserate=0.0 );
+	StimulusGroup(NeuronID n, string filename, string stimfile, StimulusGroupModeType stimulusmode=RANDOM, AurynFloat baserate=0.0 );
 
 	/*! Constructor without stimfile. Patterns can be loaded afterwards using the load_patterns method. */
-	StimulusGroup(NeuronID n, string outputfile, StimulusGroupModeType stimulusmode=RANDOM, AurynFloat baserate=0.0 );
+	StimulusGroup(NeuronID n, string stimfile, StimulusGroupModeType stimulusmode=RANDOM, AurynFloat baserate=0.0 );
 
 	virtual ~StimulusGroup();
 	/*! Standard virtual evolve function */

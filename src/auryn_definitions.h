@@ -101,7 +101,7 @@ enum TransmitterType {
 	MEM   //!< Current based synapse. Adds the transmitted quantity directly to membrane voltage.
 };
 
-enum StimulusGroupModeType { MANUAL, RANDOM, SEQUENTIAL, SEQUENTIAL_REV };
+enum StimulusGroupModeType { MANUAL, RANDOM, SEQUENTIAL, SEQUENTIAL_REV, STIMFILE };
 
 
 typedef unsigned int NeuronID; //!< NeuronID is an unsigned integeger type used to index neurons in Auryns.

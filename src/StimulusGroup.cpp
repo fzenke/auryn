@@ -24,7 +24,7 @@ boost::mt19937 StimulusGroup::poisson_gen = boost::mt19937();
 boost::mt19937 StimulusGroup::order_gen = boost::mt19937(2351301); 
 boost::uniform_01<boost::mt19937> StimulusGroup::order_die = boost::uniform_01<boost::mt19937> (order_gen);
 
-void StimulusGroup::init(StimulusGroupModeType stimulusmode, string outputfile, AurynFloat baserate)
+void StimulusGroup::init(StimulusGroupModeType stimulusmode, string stimfile, AurynFloat baserate)
 {
 	sys->register_spiking_group(this);
 	ttl = new AurynTime [get_rank_size()];
@@ -53,17 +53,28 @@ void StimulusGroup::init(StimulusGroupModeType stimulusmode, string outputfile, 
 
 	binary_patterns = false;
 
-	if ( !outputfile.empty() ) 
+	// if a filename was supplied and we are 
+	// not supposed to be reading from it.
+	if ( !stimfile.empty() && stimulus_order != STIMFILE ) 
 	{
-		tiserfile.open(outputfile.c_str(),ios::out);
-		if (!tiserfile) {
-		  stringstream oss;
-		  oss << "StimulusGroup:: Can't open output file " << outputfile;
-		  logger->msg(oss.str(),ERROR);
-		  exit(1);
-		}
+		tiserfile.open(stimfile.c_str(),ios::out);
 		tiserfile.setf(ios::fixed);
-		// tiserfile.precision(5); 
+	} else {
+		if (stimulus_order==STIMFILE) {
+			tiserfile.open(stimfile.c_str(),ios::in);
+		}
+	}
+
+	if (!tiserfile) {
+		stringstream oss;
+		oss << "StimulusGroup:: Cannot open stimulus file " 
+			<< stimfile
+			<< " for ";
+		if (stimulus_order==STIMFILE) oss << "reading.";
+		else oss << "writing.";
+
+		logger->msg(oss.str(),ERROR);
+		throw AurynOpenFileException();
 	}
 
 	stringstream oss;
@@ -79,15 +90,15 @@ void StimulusGroup::init(StimulusGroupModeType stimulusmode, string outputfile, 
 
 }
 
-StimulusGroup::StimulusGroup(NeuronID n, string filename, string outputfile, StimulusGroupModeType stimulusmode, AurynFloat baserate) : SpikingGroup( n, STIMULUSGROUP_LOAD_MULTIPLIER ) // Load multiplier is an empirical value
+StimulusGroup::StimulusGroup(NeuronID n, string filename, string stimfile, StimulusGroupModeType stimulusmode, AurynFloat baserate) : SpikingGroup( n, STIMULUSGROUP_LOAD_MULTIPLIER ) // Load multiplier is an empirical value
 {
-	init(stimulusmode, outputfile, baserate);
+	init(stimulusmode, stimfile, baserate);
 	load_patterns(filename);
 }
 
-StimulusGroup::StimulusGroup(NeuronID n, string outputfile, StimulusGroupModeType stimulusmode, AurynFloat baserate) : SpikingGroup( n, STIMULUSGROUP_LOAD_MULTIPLIER ) // Load multiplier is an empirical value
+StimulusGroup::StimulusGroup(NeuronID n, string stimfile, StimulusGroupModeType stimulusmode, AurynFloat baserate) : SpikingGroup( n, STIMULUSGROUP_LOAD_MULTIPLIER ) // Load multiplier is an empirical value
 {
-	init(stimulusmode, outputfile, baserate);
+	init(stimulusmode, stimfile, baserate);
 }
 
 StimulusGroup::~StimulusGroup()
@@ -131,8 +142,8 @@ void StimulusGroup::set_mean_on_period(AurynFloat period)
 	logger->parameter("StimulusGroup:: mean_on_period",mean_on_period);
 }
 
-void StimulusGroup::write_sequence_file(AurynDouble time) {
-	if ( tiserfile ) {
+void StimulusGroup::write_stimulus_file(AurynDouble time) {
+	if ( tiserfile && stimulus_order != STIMFILE ) {
 		tiserfile 
 			<< time
 			<< " ";
@@ -140,6 +151,17 @@ void StimulusGroup::write_sequence_file(AurynDouble time) {
 		tiserfile 
 			<< cur_stim_index
 			<< endl;
+	}
+}
+
+void StimulusGroup::read_next_stimulus_from_file(AurynDouble &time, int &active, int &stimulusid ) {
+	char buffer[256];
+	if ( tiserfile.getline (buffer,256) ) {
+		sscanf (buffer,"%lf %i %i",&time,&active,&stimulusid);
+	} else {
+		time = sys->get_time()+1000; // TODO this is a bit weird as a condition but should do the job
+		active = 0;
+		stimulusid = 0;
 	}
 }
 
@@ -206,69 +228,86 @@ void StimulusGroup::evolve()
 	}
 
 	// update stimulus properties
-	if ( sys->get_clock() >= next_action_time ) {
-		write_sequence_file(dt*(sys->get_clock()));
+	if ( sys->get_clock() >= next_action_time ) { // action required
+		write_stimulus_file(dt*(sys->get_clock()));
 
-		if ( stimulus_active ) {
-
-			if ( !binary_patterns )
-				set_all( 0.0 ); // turn off currently active stimulus 
-			stimulus_active = false ;
-
-			if ( randomintervals ) {
-				boost::exponential_distribution<> dist(1./mean_off_period);
-				boost::variate_generator<boost::mt19937&, boost::exponential_distribution<> > die(order_gen, dist);
-				next_action_time = sys->get_clock() + (AurynTime)(max(0.0,die())/dt);
-			} else {
-				next_action_time = sys->get_clock() + (AurynTime)(mean_off_period/dt);
+		if ( stimulus_order == STIMFILE )  {
+			AurynDouble t = 0.0;
+			int a,i;
+			while ( t <= sys->get_time() ) {
+				read_next_stimulus_from_file(t,a,i);
+				next_action_time = (AurynTime) (t/dt);
+				if (a==0) stimulus_active = true; 
+					else stimulus_active = false;
+				cur_stim_index = i;
+				cout << sys->get_time() << " " << t << " " << a << " " << i << endl;
 			}
-		} else {
-			if ( active && stimuli.size() ) {
+		} else { // we have to generate stimulus times
 
-				// choose stimulus
-				switch ( stimulus_order ) {
-					case MANUAL:
-					break;
-					case SEQUENTIAL:
-						cur_stim_index = (cur_stim_index+1)%stimuli.size();
-					break;
-					case SEQUENTIAL_REV:
-						--cur_stim_index;
-						if ( cur_stim_index <= 0 ) 
-							cur_stim_index = stimuli.size() - 1 ;
-					break;
-					case RANDOM:
-					default:
-						double draw = order_die();
-						double cummulative = 0; // TODO make this less greedy and do not compute this every draw
-						cur_stim_index = 0;
-						// cout.precision(5);
-						// cout << " draw " << draw <<  endl;
-						for ( unsigned int i = 0 ; i < probabilities.size() ; ++i ) {
-							cummulative += probabilities[i];
-							// cout << cummulative << endl;
-							if ( draw <= cummulative ) {
-								cur_stim_index = i;
-								break;
-							}
-						}
-					break;
-				}
+			if ( stimulus_active ) { // stimulus was active and going inactive now
 
 				if ( !binary_patterns )
-					set_active_pattern( cur_stim_index );
-				stimulus_active = true;
+					set_all( 0.0 ); // turns off currently active stimulus 
+				stimulus_active = false ;
 
 				if ( randomintervals ) {
-					boost::normal_distribution<> dist(mean_on_period,mean_on_period/3);
-					boost::variate_generator<boost::mt19937&, boost::normal_distribution<> > die(order_gen, dist);
+					boost::exponential_distribution<> dist(1./mean_off_period);
+					boost::variate_generator<boost::mt19937&, boost::exponential_distribution<> > die(order_gen, dist);
 					next_action_time = sys->get_clock() + (AurynTime)(max(0.0,die())/dt);
 				} else {
-					next_action_time = sys->get_clock() + (AurynTime)(mean_on_period/dt);
+					next_action_time = sys->get_clock() + (AurynTime)(mean_off_period/dt);
+				}
+			} else { // stimulus was not active and is going active now
+				if ( active && stimuli.size() ) { // the group is active and there are stimuli in the array
+
+					// chooses stimulus according to schema specified in stimulusmode
+					double draw, cummulative;
+					switch ( stimulus_order ) {
+						case RANDOM:
+							// TODO make this less greedy 
+							// and do not compute this every draw
+							draw = order_die();
+							cummulative = 0; 
+							cur_stim_index = 0;
+							// cout.precision(5);
+							// cout << " draw " << draw <<  endl;
+							for ( unsigned int i = 0 ; i < probabilities.size() ; ++i ) {
+								cummulative += probabilities[i];
+								// cout << cummulative << endl;
+								if ( draw <= cummulative ) {
+									cur_stim_index = i;
+									break;
+								}
+							}
+						break;
+						case SEQUENTIAL:
+							cur_stim_index = (cur_stim_index+1)%stimuli.size();
+						break;
+						case SEQUENTIAL_REV:
+							--cur_stim_index;
+							if ( cur_stim_index <= 0 ) 
+								cur_stim_index = stimuli.size() - 1 ;
+						break;
+						case MANUAL:
+						default:
+						break;
+					}
+
+					if ( !binary_patterns )
+						set_active_pattern( cur_stim_index );
+					stimulus_active = true;
+
+					if ( randomintervals && stimulus_order != STIMFILE ) {
+						boost::normal_distribution<> dist(mean_on_period,mean_on_period/3);
+						boost::variate_generator<boost::mt19937&, boost::normal_distribution<> > die(order_gen, dist);
+						next_action_time = sys->get_clock() + (AurynTime)(max(0.0,die())/dt);
+					} else {
+						next_action_time = sys->get_clock() + (AurynTime)(mean_on_period/dt);
+					}
 				}
 			}
+			write_stimulus_file(dt*(sys->get_clock()+1));
 		}
-		write_sequence_file(dt*(sys->get_clock()+1));
 	}
 }
 
