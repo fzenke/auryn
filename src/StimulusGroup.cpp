@@ -513,5 +513,14 @@ void StimulusGroup::seed(int rndseed)
 	for (int i = 0 ; i < communicator->rank() ; ++i ) {
 		rnd = die();
 	}
+
+	order_gen.seed(rndseed); // has to be again here otherwise it is different on all ranks
+
+	stringstream oss;
+	oss << "StimulusGroup:: " 
+		<< "seeding poisson generator with " 
+		<< rnd;
+	logger->msg(oss.str(),DEBUG);
+	
 	poisson_gen.seed(rnd); // is now drawn differently but reproducibly so for each rank
 }
