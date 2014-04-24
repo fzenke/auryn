@@ -21,7 +21,7 @@
 #include "StimulusGroup.h"
 
 boost::mt19937 StimulusGroup::poisson_gen = boost::mt19937(); 
-boost::mt19937 StimulusGroup::order_gen = boost::mt19937(2351301); 
+boost::mt19937 StimulusGroup::order_gen = boost::mt19937(); 
 boost::uniform_01<boost::mt19937> StimulusGroup::order_die = boost::uniform_01<boost::mt19937> (order_gen);
 
 void StimulusGroup::init(StimulusGroupModeType stimulusmode, string stimfile, AurynFloat baserate)
@@ -30,8 +30,8 @@ void StimulusGroup::init(StimulusGroupModeType stimulusmode, string stimfile, Au
 	ttl = new AurynTime [get_rank_size()];
 	activity = new AurynFloat [get_rank_size()];
 	set_baserate(baserate);
-	poisson_gen.seed(162346*communicator->rank());
-	
+
+	seed(2351301);
 
 	mean_off_period = 1.0 ;
 	mean_on_period = 0.2 ;
@@ -500,4 +500,18 @@ void StimulusGroup::set_next_action_time( double time ) {
 
 void StimulusGroup::set_stimulation_mode( StimulusGroupModeType mode ) {
 	stimulus_order = mode ;
+}
+
+void StimulusGroup::seed(int rndseed)
+{
+	order_gen.seed(rndseed); // has to be seeded identically on all ranks!
+
+	boost::uniform_int<> dist(std::numeric_limits<NeuronID>::max());
+	boost::variate_generator<boost::mt19937&, boost::uniform_int<> > die(order_gen, dist);
+
+	NeuronID rnd = die();
+	for (int i = 0 ; i < communicator->rank() ; ++i ) {
+		rnd = die();
+	}
+	poisson_gen.seed(rnd); // is now drawn differently but reproducibly so for each rank
 }

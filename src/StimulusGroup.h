@@ -29,6 +29,7 @@
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_01.hpp>
 #include <boost/random/uniform_real.hpp>
+#include <boost/random/uniform_int.hpp>
 #include <boost/random/exponential_distribution.hpp>
 #include <boost/random/normal_distribution.hpp>
 #include <boost/random/variate_generator.hpp>
@@ -141,6 +142,9 @@ public:
 
 	/*! Sets sets the activity of all units */
 	void set_all( AurynFloat val=0.0 );
+
+	/*! Seeds the random number generator for all stimulus groups of the simulation. */
+	void seed( int rndseed );
 
 	/*! Gets the activity of unit i */
 	AurynFloat get_activity(NeuronID i);
