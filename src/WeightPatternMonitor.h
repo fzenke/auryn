@@ -40,17 +40,27 @@ protected:
 	AurynTime ssize;
 	NeuronID data_size_limit;
 
-	vector<type_pattern> patterns;
+	vector<type_pattern> pre_patterns;
+	vector<type_pattern> post_patterns;
 
 
 	void init(Connection * source, string filename, AurynTime stepsize);
 	AurynWeight compute_pattern_mean(const NeuronID i, const NeuronID j);
+
+	/*! Mother function for loading patterns */
+	void load_patterns(string filename, vector<type_pattern> & patterns );
 	
 public:
 	WeightPatternMonitor(Connection * source, string filename, AurynDouble binsize=10.0);
 
-	void load_patterns(string filename);
-
+	/*! Loads pre patterns for asymmetric monitoring. Each pre pattern needs to be matched
+	 * by a corresponding post pattern otherwise there will be a crash. */
+	void load_pre_patterns(string filename );
+	/*! Loads post patterns for asymmetric monitoring. Each post pattern needs to be matched
+	 * by a corresponding pre pattern otherwise there will be a crash. */
+	void load_post_patterns(string filename );
+	/*! Loads patterns for symmetric assembly monitoring */
+	void load_patterns(string filename );
 
 	virtual ~WeightPatternMonitor();
 	void propagate();

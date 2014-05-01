@@ -46,10 +46,10 @@ AurynWeight WeightPatternMonitor::compute_pattern_mean(const NeuronID i, const N
 	AurynWeight sum = 0;
 	// AurynFloat sum2 = 0;
 	NeuronID n = 0;
-	for ( NeuronID k = 0 ; k < patterns[i].size() ; ++k ) {
-		for ( NeuronID l = 0 ; l < patterns[j].size() ; ++l ) {
-			pattern_member p = patterns[i][k];
-			pattern_member q = patterns[j][l];
+	for ( NeuronID k = 0 ; k < pre_patterns[i].size() ; ++k ) {
+		for ( NeuronID l = 0 ; l < post_patterns[j].size() ; ++l ) {
+			pattern_member p = pre_patterns[i][k];
+			pattern_member q = post_patterns[j][l];
 			AurynWeight * val = src->get_ptr(p.i,q.i);
 			if ( val ) {
 				sum += *val;
@@ -67,7 +67,7 @@ void WeightPatternMonitor::propagate()
 	if (sys->get_clock()%ssize==0) {
 		outfile << fixed << (sys->get_time()) << " ";
 
-		for ( int i = 0 ; i < patterns.size() ; ++i ) {
+		for ( int i = 0 ; i < pre_patterns.size() ; ++i ) {
 			for ( int j = 0 ; j <= i ; ++j ) {
 				outfile << scientific 
 					<< compute_pattern_mean(i,j) 
@@ -79,7 +79,7 @@ void WeightPatternMonitor::propagate()
 }
 
 
-void WeightPatternMonitor::load_patterns(string filename)
+void WeightPatternMonitor::load_patterns( string filename, vector<type_pattern> & patterns )
 {
 	ifstream fin (filename.c_str());
 	if (!fin) {
@@ -142,4 +142,20 @@ void WeightPatternMonitor::load_patterns(string filename)
 	stringstream oss;
 	oss << "WeightPatternMonitor:: Finished loading " << patterns.size() << " patterns";
 	logger->msg(oss.str(),NOTIFICATION);
+}
+
+void WeightPatternMonitor::load_pre_patterns( string filename ) 
+{
+	load_patterns(filename,pre_patterns);
+}
+
+void WeightPatternMonitor::load_post_patterns( string filename ) 
+{
+	load_patterns(filename,post_patterns);
+}
+
+void WeightPatternMonitor::load_patterns( string filename ) 
+{
+	load_pre_patterns(filename);
+	load_post_patterns(filename);
 }
