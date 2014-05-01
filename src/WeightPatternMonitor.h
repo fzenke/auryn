@@ -30,8 +30,9 @@
 
 using namespace std;
 
-/*! \brief Records sum and standard deviation of a weight matrix in predefined
- *         intervals.
+/*! \brief Records mean weights from a connection specified by one or two
+ *  pattern files. Can be used to easily monitor the mean synaptic weight
+ *  in assemblies or feed-forward connections of populations of neurons.
  */
 class WeightPatternMonitor : protected Monitor
 {
