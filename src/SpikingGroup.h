@@ -118,7 +118,7 @@ public:
 	/* Creates and returens a state vector */
 	gsl_vector_float * get_state_vector(string key);
 
-	/* Randomizes the content of a state vector with Gaussian random numbers */
+	/* Randomizes the content of a state vector with Gaussian random numbers. Seeding is MPI save. */
 	void randomize_state_vector_gauss(string state_vector_name, AurynState mean, AurynState sigma, int seed=12239);
 
 	/*! Default constructor */
