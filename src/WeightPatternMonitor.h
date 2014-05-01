@@ -39,7 +39,8 @@ class WeightPatternMonitor : protected Monitor
 protected:
 	Connection * src;
 	AurynTime ssize;
-	NeuronID data_size_limit;
+
+
 
 	vector<type_pattern> pre_patterns;
 	vector<type_pattern> post_patterns;
@@ -52,6 +53,9 @@ protected:
 	void load_patterns(string filename, vector<type_pattern> & patterns );
 	
 public:
+	/*! Maximum number of patterns to record from */
+size_t max_patterns;
+
 	WeightPatternMonitor(Connection * source, string filename, AurynDouble binsize=10.0);
 
 	/*! Loads pre patterns for asymmetric monitoring. Each pre pattern needs to be matched
