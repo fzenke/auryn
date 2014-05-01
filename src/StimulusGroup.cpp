@@ -229,7 +229,14 @@ void StimulusGroup::evolve()
 
 	// update stimulus properties
 	if ( sys->get_clock() >= next_action_time ) { // action required
+
+		if ( stimuli.size() == 0 ) {
+			set_next_action_time(10); // TODO make this a bit smarter at some point -- i.e. could send this to the end of time 
+			return;
+		}
+
 		write_stimulus_file(dt*(sys->get_clock()));
+
 
 		if ( stimulus_order == STIMFILE )  {
 			AurynDouble t = 0.0;
