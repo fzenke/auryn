@@ -69,7 +69,7 @@ void WeightPatternMonitor::propagate()
 	if (sys->get_clock()%ssize==0) {
 		outfile << fixed << (sys->get_time()) << " ";
 
-		for ( int i = 0 ; i < min(pre_patterns.size(),max_patterns) ; ++i ) {
+		for ( int i = 0 ; i < min(min(pre_patterns.size(),post_patterns.size()),max_patterns) ; ++i ) {
 			for ( int j = 0 ; j <= i ; ++j ) {
 				outfile << scientific 
 					<< compute_pattern_mean(i,j) 
