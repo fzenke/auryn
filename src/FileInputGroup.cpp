@@ -20,7 +20,7 @@
 
 #include "FileInputGroup.h"
 
-void FileInputGroup::init(const char * filename)
+void FileInputGroup::init(string filename)
 {
 	sys->register_spiking_group(this);
 
@@ -31,7 +31,7 @@ void FileInputGroup::init(const char * filename)
 	active = true;
 
 	if ( evolve_locally() ) {
-		spkfile.open(filename,ifstream::in);
+		spkfile.open(filename.c_str(),ifstream::in);
 		if (!spkfile) {
 		  cerr << "Can't open input file " << filename << endl;
 		  exit(1);
@@ -39,7 +39,7 @@ void FileInputGroup::init(const char * filename)
 	}
 }
 
-FileInputGroup::FileInputGroup(NeuronID n, const char * filename) : SpikingGroup(n, 0.0 ) // last 0 enforces RankLock
+FileInputGroup::FileInputGroup(NeuronID n, string filename) : SpikingGroup(n, 0.0 ) // last 0 enforces RankLock
 {
 	playinloop = false;
 	dly = 0;
@@ -47,7 +47,7 @@ FileInputGroup::FileInputGroup(NeuronID n, const char * filename) : SpikingGroup
 	init(filename);
 }
 
-FileInputGroup::FileInputGroup(NeuronID n, const char * filename, 
+FileInputGroup::FileInputGroup(NeuronID n, string filename, 
 		bool loop, AurynFloat delay) 
 : SpikingGroup( n , 0.0 )
 {

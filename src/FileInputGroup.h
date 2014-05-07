@@ -45,14 +45,13 @@ private:
 	AurynTime dly;
 	AurynTime off;
 	ifstream spkfile;
-	const char * fname;
 	char buffer[255];
-	void init(const char * filename );
+	void init(string filename );
 	
 public:
 	bool active ;
-	FileInputGroup(NeuronID n, const char * filename );
-	FileInputGroup(NeuronID n, const char * filename , bool loop, AurynFloat delay );
+	FileInputGroup(NeuronID n, string filename );
+	FileInputGroup(NeuronID n, string filename , bool loop, AurynFloat delay );
 	virtual ~FileInputGroup();
 	virtual void evolve();
 
