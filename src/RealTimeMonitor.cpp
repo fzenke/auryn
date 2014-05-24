@@ -26,7 +26,16 @@ RealTimeMonitor::RealTimeMonitor(string filename, AurynDouble start, AurynDouble
 
 	t_start = start/dt;
 	t_stop = stop/dt;
-	ptime_offset = boost::posix_time::microsec_clock::local_time();
+
+	if (sys->get_com()->rank() == 0) {
+		ptime_offset = boost::posix_time::microsec_clock::local_time();
+		string sendstring = boost::posix_time::to_iso_string(ptime_offset);
+		broadcast(*sys->get_com(), sendstring, 0);
+	} else {
+		string timestring;
+		broadcast(*sys->get_com(), timestring , 0);
+		ptime_offset = boost::posix_time::from_iso_string(timestring);
+	}
 }
 
 RealTimeMonitor::~RealTimeMonitor()
@@ -38,6 +47,6 @@ void RealTimeMonitor::propagate()
 	if ( t_stop > sys->get_clock() && t_start < sys->get_clock() ) {
 		boost::posix_time::ptime now = boost::posix_time::microsec_clock::local_time();
 		boost::posix_time::time_duration diff = now - ptime_offset;
-		outfile << (sys->get_clock()) << " " << diff.total_milliseconds() << "\n";
+		outfile << (sys->get_clock()) << " " << diff.total_microseconds() << "\n";
 	}
 }
