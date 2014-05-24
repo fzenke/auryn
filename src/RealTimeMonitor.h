@@ -33,7 +33,7 @@ using namespace std;
 
 /*! \brief Monitor class to record the system time in every timestep
  * 
- * The RealTimeMonitor records every timestep RealTime (boost ms clock) vs AurynTime
+ * The RealTimeMonitor records every timestep RealTime (boost us clock) vs AurynTime
  */
 
 class RealTimeMonitor : protected Monitor
