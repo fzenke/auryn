@@ -1,0 +1,67 @@
+/* 
+* Copyright 2014 Friedemann Zenke
+*
+* This file is part of Auryn, a simulation package for plastic
+* spiking neural networks.
+* 
+* Auryn is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+* 
+* Auryn is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+* 
+* You should have received a copy of the GNU General Public License
+* along with Auryn.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#ifndef REALTIMEMONITOR_H_
+#define REALTIMEMONITOR_H_
+
+#include "auryn_definitions.h"
+#include "Monitor.h"
+#include "System.h"
+#include "SpikingGroup.h"
+#include <fstream>
+#include <iomanip>
+#include <boost/date_time/posix_time/posix_time.hpp>
+
+using namespace std;
+
+/*! \brief Monitor class to record the system time in every timestep
+ * 
+ * The RealTimeMonitor records every timestep RealTime (boost ms clock) vs AurynTime
+ */
+
+class RealTimeMonitor : protected Monitor
+{
+private:
+	/*! Start time */
+	AurynTime t_start;
+
+	/*! Stop time */
+	AurynTime t_stop;
+
+	/*! Time offset to keep filesize smaller */
+	boost::posix_time::ptime ptime_offset ;
+
+protected:
+	
+public:
+	/*! Default Constructor 
+	 @param[filename] The filename to write to (should be different for each rank.)
+	 @param[start] Start time.)
+	 @param[stop] Stop time.*/
+	RealTimeMonitor(string filename, AurynDouble start = 1e-3, AurynDouble stop = 100);
+
+	/*! Default Destructor */
+	virtual ~RealTimeMonitor();
+
+	/*! Implementation of necessary propagate() function. */
+	void propagate();
+};
+
+#endif /*REALTIMEMONITOR_H_*/
