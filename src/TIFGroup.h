@@ -59,6 +59,10 @@ public:
 
 	/*! Controls the constant current input (per default set so zero) to neuron i */
 	void set_bg_current(NeuronID i, AurynFloat current);
+
+	/*! Setter for refractory time [s] */
+	void set_refractory_period(AurynDouble t);
+
 	/*! Gets the current background current value for neuron i */
 	AurynFloat get_bg_current(NeuronID i);
 	/*! Sets the membrane time constant (default 20ms) */

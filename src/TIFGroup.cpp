@@ -41,7 +41,7 @@ void TIFGroup::init()
 	tau_ampa = 5e-3;
 	tau_gaba = 10e-3;
 	tau_mem = 20e-3;
-	refractory_time = (unsigned short) (5.e-3/dt);
+	set_refractory_period(5e-3);
 
 	calculate_scale_constants();
 	
@@ -166,3 +166,7 @@ AurynFloat TIFGroup::get_tau_gaba()
 	return tau_gaba;
 }
 
+void TIFGroup::set_refractory_period(AurynDouble t)
+{
+	refractory_time = (unsigned short) (t/dt);
+}
