@@ -59,19 +59,26 @@ void FileModulatedPoissonGroup::evolve()
 		rate_n = get_rate();
 
 		line >> t;
-		ftime = t/dt;
+		ftime = (AurynTime) (t/dt+0.5);
 		line >> r;
 
-		if ( inputfile.eof() ) // to avoid infinit growth
+		if ( ftime < sys->get_clock() || inputfile.eof() ) { // if the recently read point is already in the past -> reinit interpolation
 			rate_m = 0.0;
-		else
+			rate_n = r;
+			set_rate(r);
+		} else { // compute linear interpolation
 			rate_m = (r-rate_n)/(ftime-ltime);
-
+		}
 	}
 
 	AurynDouble rate = rate_m*(sys->get_clock()-ltime)+rate_n;
-	if ( rate > 0.0 ) {
+
+	if ( last_rate != rate ) { // only redraw when rate changes
 		set_rate(rate);
-		PoissonGroup::evolve();
 	}
+
+	if ( rate ) 
+		PoissonGroup::evolve();
+
+	last_rate = rate;
 }

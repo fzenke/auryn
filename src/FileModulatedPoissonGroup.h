@@ -44,6 +44,7 @@ private:
 	AurynTime ltime;
 	AurynDouble rate_m;
 	AurynDouble rate_n;
+	AurynDouble last_rate;
 
 	char buffer[255];
 	bool stimulus_active;
