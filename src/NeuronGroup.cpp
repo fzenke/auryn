@@ -93,6 +93,21 @@ void NeuronGroup::set_mem(NeuronID i, AurynState val)
 	set_val(mem,i,val);
 }
 
+void NeuronGroup::set_state(string name, NeuronID i, AurynState val)
+{
+	gsl_vector_float * tmp = get_state_vector(name);
+	set_val(tmp,i,val);
+}
+
+void NeuronGroup::set_state(string name, AurynState val)
+{
+	gsl_vector_float * tmp = get_state_vector(name);
+	for ( NeuronID i = 0 ; i < get_rank_size() ; ++i )
+		set_val(tmp,i,val);
+}
+
+
+
 
 AurynState NeuronGroup::get_ampa(NeuronID i)
 {

@@ -77,7 +77,12 @@ public:
 	void print_vec(gsl_vector_float* vec, const char * name);
 	AurynState get_mem(NeuronID i);
 	gsl_vector_float * get_mem_ptr();
+
 	void set_mem(NeuronID i, AurynState val);
+
+	void set_state(string name, NeuronID i, AurynState val);
+	void set_state(string name, AurynState val);
+
 	AurynState get_ampa(NeuronID i);
 	void set_ampa(NeuronID i,AurynState val);
 	gsl_vector_float * get_ampa_ptr();
