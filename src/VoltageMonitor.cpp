@@ -20,9 +20,9 @@
 
 #include "VoltageMonitor.h"
 
-VoltageMonitor::VoltageMonitor(NeuronGroup * source, NeuronID id, string filename, AurynTime stepsize) : Monitor(filename)
+VoltageMonitor::VoltageMonitor(NeuronGroup * source, NeuronID id, string filename, AurynDouble stepsize) : Monitor(filename)
 {
-	init(source,id,filename,stepsize);
+	init(source,id,filename,(AurynTime)(stepsize/dt));
 }
 
 VoltageMonitor::~VoltageMonitor()
@@ -35,16 +35,24 @@ void VoltageMonitor::init(NeuronGroup * source, NeuronID id, string filename, Au
 	src = source;
 	ssize = stepsize;
 	nid = id;
+	gid = src->rank2global(nid);
+	paste_spikes = true;
+
 	if ( nid < src->get_post_size() ) {
 		sys->register_monitor(this);
 		outfile << setiosflags(ios::fixed) << setprecision(6);
-		outfile << "# Recording from neuron " << src->rank2global(nid) << "\n";
+		outfile << "# Recording from neuron " << gid << "\n";
 	}
 }
 
 void VoltageMonitor::propagate()
 {
 	if (active && (sys->get_clock())%ssize==0 && nid < src->get_size() ) {
-		outfile << (sys->get_time()) << " " << src->get_mem(nid) << "\n";
+		if ( paste_spikes && 
+				std::find(src->get_spikes_immediate()->begin(), 
+					      src->get_spikes_immediate()->end(), gid)!=src->get_spikes_immediate()->end() ) 
+			outfile << (sys->get_time()) << " " << VOLTAGEMONITOR_PASTED_SPIKE_HEIGHT << "\n";
+		else
+			outfile << (sys->get_time()) << " " << src->get_mem(nid) << "\n";
 	}
 }

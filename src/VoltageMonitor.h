@@ -21,6 +21,8 @@
 #ifndef VOLTAGEMONITOR_H_
 #define VOLTAGEMONITOR_H_
 
+#define VOLTAGEMONITOR_PASTED_SPIKE_HEIGHT 20e-3
+
 #include "auryn_definitions.h"
 #include "Monitor.h"
 #include "System.h"
@@ -30,21 +32,36 @@
 
 using namespace std;
 
-/*! \brief Records the membrane potential from one unit from the source neuron group to a file.*/
+/*! \brief Records the membrane potential from one unit from the source neuron group to a file. 
+ *
+ * The Monitor records the membrane potential of a single cell from a NeuronGroup. Per default
+ * the timestep is simulator precision and the Monitor pastes a spike of height 
+ * VOLTAGEMONITOR_PASTED_SPIKE_HEIGHT by reading out the the current spikes. For 
+ * performance it is adviced to use the StateMonitor which does not do any
+ * spike pasting. */
 class VoltageMonitor : protected Monitor
 {
+private:
+	/*! Global neuron id to record from */
+	NeuronID gid;
 protected:
 	/*! The source neuron group to record from */
 	NeuronGroup * src;
+
 	/*! The source neuron id to record from */
 	NeuronID nid;
+
 	/*! The step size (sampling interval) in units of dt */
 	AurynTime ssize;
+
 	/*! Standard initialization */
 	void init(NeuronGroup * source, NeuronID id, string filename, AurynTime stepsize);
 	
 public:
-	VoltageMonitor(NeuronGroup * source, NeuronID id, string filename, AurynTime stepsize=1);
+	/*! Paste spikes switch (default = true) */
+	AurynTime paste_spikes;
+
+	VoltageMonitor(NeuronGroup * source, NeuronID id, string filename, AurynDouble stepsize=dt);
 	virtual ~VoltageMonitor();
 	void propagate();
 };
