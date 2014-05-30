@@ -115,6 +115,9 @@ public:
 	/*! Can hold single neuron vectors such as target rates or STP states etc  */
 	map<string,gsl_vector_float *> state_vector;
 
+	/* Returns existing state vector by name */
+	gsl_vector_float * find_state_vector(string key);
+
 	/* Creates and returens a state vector */
 	gsl_vector_float * get_state_vector(string key);
 

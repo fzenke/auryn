@@ -467,9 +467,19 @@ bool SpikingGroup::load_from_file(const char * filename)
 gsl_vector_float * SpikingGroup::get_state_vector(string key)
 {
 	if ( state_vector.find(key) == state_vector.end() ) {
+		if ( get_vector_size() == 0 ) return NULL;
 		gsl_vector_float * vec = gsl_vector_float_alloc (get_vector_size()); 
 		state_vector[key] = vec;
 		return vec;
+	} else {
+		return state_vector.find(key)->second;
+	}
+}
+
+gsl_vector_float * SpikingGroup::find_state_vector(string key)
+{
+	if ( state_vector.find(key) == state_vector.end() ) {
+		return NULL;
 	} else {
 		return state_vector.find(key)->second;
 	}
