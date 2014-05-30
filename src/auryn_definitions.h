@@ -75,7 +75,7 @@ const double dt = 1e-4;
  *  cut up in chunks that are not smaller than
  *  this. This is done to reduce overhead
  */
-#define DEFAULT_MINDISTRIBUTEDSIZE 32
+#define DEFAULT_MINDISTRIBUTEDSIZE 16
 
 
 /*! These precompiler directives control
