@@ -374,10 +374,10 @@ string SpikingGroup::get_name()
 }
 
 bool SpikingGroup::localrank(NeuronID i) {
-	bool t = ( (i-communicator->rank()+locked_rank)%locked_range==0 )
+	bool t = ( (i+locked_rank)%locked_range==communicator->rank() )
 		 && (int) communicator->rank() >= locked_rank
 		 && (int) communicator->rank() < (locked_rank+locked_range)
-		 && i < get_size(); // TODO what if I remove the last condition ?
+		 && i/locked_range < get_rank_size(); 
 	return t; 
 }
 
