@@ -60,13 +60,14 @@ class SparseConnection : public Connection
 {
 private:
 	SpikeContainer * spikes;
-	static boost::mt19937 sparse_connection_gen;
 	static bool has_been_seeded;
 	bool has_been_allocated;
 	void init();
 	bool init_from_file(const char * filename);
 
 protected:
+	static boost::mt19937 sparse_connection_gen;
+
 	AurynWeight wmin;
 	AurynWeight wmax;
 	bool skip_diagonal;
