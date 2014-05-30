@@ -39,7 +39,7 @@ void RateChecker::init(AurynFloat min, AurynFloat max, AurynFloat tau)
 	if ( src->evolve_locally() )
 		sys->register_checker(this);
 	timeconstant = tau;
-	size = src->get_post_size();
+	size = src->get_size();
 	popmin = min;
 	popmax = max;
 	decay_multiplier = exp(-dt/tau);
@@ -50,7 +50,7 @@ void RateChecker::init(AurynFloat min, AurynFloat max, AurynFloat tau)
 bool RateChecker::propagate()
 {
 	state *= decay_multiplier;
-	state += 1.*src->get_spikes_immediate()->size()/timeconstant/size;
+	state += 1.*src->get_spikes()->size()/timeconstant/size;
 	if ( state>popmin && state<popmax ) return true;
 	else  return false;
 }
