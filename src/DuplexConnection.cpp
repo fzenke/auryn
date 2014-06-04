@@ -24,6 +24,7 @@ void DuplexConnection::init()
 {
 	fwd = w; // for consistency declared here. fwd can be overwritten later though
 	bkw = new BackwardMatrix ( get_n_cols(), get_m_rows(), w->get_nonzero() );
+	allocated_bkw=true;
 	compute_reverse_matrix();
 }
 
@@ -44,6 +45,7 @@ void DuplexConnection::finalize() // finalize at this level is called only for r
 DuplexConnection::DuplexConnection(const char * filename) 
 : SparseConnection(filename)
 {
+	allocated_bkw=false;
 	if ( dst->get_post_size() > 0 ) 
 		init();
 }
@@ -52,6 +54,7 @@ DuplexConnection::DuplexConnection(SpikingGroup * source, NeuronGroup * destinat
 		TransmitterType transmitter) 
 : SparseConnection(source, destination, transmitter)
 {
+	allocated_bkw=false;
 }
 
 DuplexConnection::DuplexConnection(SpikingGroup * source, NeuronGroup * destination, 
@@ -59,6 +62,7 @@ DuplexConnection::DuplexConnection(SpikingGroup * source, NeuronGroup * destinat
 		TransmitterType transmitter) 
 : SparseConnection(source, destination, filename, transmitter)
 {
+	allocated_bkw=false;
 	if ( dst->get_post_size() > 0 ) 
 		init();
 }
@@ -67,6 +71,7 @@ DuplexConnection::DuplexConnection(SpikingGroup * source, NeuronGroup * destinat
 DuplexConnection::DuplexConnection(NeuronID rows, NeuronID cols) 
 : SparseConnection(rows,cols)
 {
+	allocated_bkw=false;
 	init();
 }
 
@@ -87,7 +92,7 @@ void DuplexConnection::free()
 
 DuplexConnection::~DuplexConnection()
 {
-	if ( dst->get_post_size() > 0 ) 
+	if ( allocated_bkw ) 
 		free();
 }
 
@@ -95,7 +100,7 @@ DuplexConnection::~DuplexConnection()
 void DuplexConnection::compute_reverse_matrix()
 {
 
-	if ( fwd->get_datasize() <= bkw->get_datasize() ) {
+	if ( fwd->get_nonzero() <= bkw->get_datasize() ) {
 		bkw->clear();
 	} else {
 		logger->msg("Bkw buffer too small reallocating..." ,NOTIFICATION);

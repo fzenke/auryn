@@ -48,6 +48,7 @@ typedef SimpleMatrix<AurynWeight*> BackwardMatrix;
 class DuplexConnection : public SparseConnection
 {
 private:
+	bool allocated_bkw;
 	void init();
 	void free();
 protected:
