@@ -228,12 +228,12 @@ void SimpleMatrix<T>::resize_buffer(AurynLong size)
 		rowptrs[i] += offset;
 	}
 	
-	delete colinds;
+	delete [] colinds;
 	colinds = new_colinds;
 
 	T * new_coldata = new T [datasize];
 	std::copy(coldata, coldata+get_nonzero(), new_coldata);
-	delete coldata;
+	delete [] coldata;
 	coldata = new_coldata;
 }
 
