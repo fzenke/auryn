@@ -36,6 +36,7 @@
 #include "SymmetricSTDPConnection.h"
 #include "WeightSumMonitor.h"
 #include "SpikeMonitor.h"
+#include "DelayedSpikeMonitor.h"
 #include "StateMonitor.h"
 #include "RateChecker.h"
 
@@ -56,8 +57,8 @@ int main(int ac,char *av[]) {
 	string strbuf ;
 	string msg;
 
-	double w = 0.4;
-	double wi = 5.1;
+	double w = 0.4; // [g_leak]
+	double wi = 5.1; // [g_leak]
 
 
 
@@ -67,7 +68,6 @@ int main(int ac,char *av[]) {
 	NeuronID ne = 3200;
 	NeuronID ni = 800;
 
-	bool prime = false;
 	bool fast = false;
 
 	int errcode = 0;
@@ -79,7 +79,6 @@ int main(int ac,char *av[]) {
         desc.add_options()
             ("help", "produce help message")
             ("simtime", po::value<double>(), "simulation time")
-            ("prime", "switch input modalities")
             ("fast", "turns off most monitoring to reduce IO")
             ("dir", po::value<string>(), "load/save directory")
             ("fee", po::value<string>(), "file with EE connections")
@@ -99,10 +98,6 @@ int main(int ac,char *av[]) {
 
         if (vm.count("simtime")) {
 			simtime = vm["simtime"].as<double>();
-        } 
-
-        if (vm.count("prime")) {
-			prime = true;
         } 
 
         if (vm.count("fast")) {
@@ -154,15 +149,13 @@ int main(int ac,char *av[]) {
 	sys = new System(&world);
 	// END Global stuff
 
-
-	// double primetime = 10;
 	logger->msg("Setting up neuron groups ...",PROGRESS,true);
 
 	TIFGroup * neurons_e = new TIFGroup( ne);
 	TIFGroup * neurons_i = new TIFGroup( ni);
 
-	neurons_e->random_mem(-70e-3,10e-3);
-	neurons_i->random_mem(-70e-3,10e-3);
+	neurons_e->set_state("bg_current",2e-2); // corresponding to 200pF for C=200pF and tau=20ms
+	neurons_i->set_state("bg_current",2e-2);
 
 
 	logger->msg("Setting up E connections ...",PROGRESS,true);
@@ -182,30 +175,10 @@ int main(int ac,char *av[]) {
 	SparseConnection * con_ii 
 		= new SparseConnection( neurons_i,neurons_i,wi,sparseness,GABA);
 
-	if ( prime ) { 
-		msg = "Setting up external input ...";
-		logger->msg(msg,PROGRESS,true);
-
-		PoissonGroup * poisson= new PoissonGroup(200,10);
-		poisson->seed(257); 
-		// this will give the same seed on each rank,
-		// but since the group should be locked to a single
-		// rank we do not care.
-
-		SparseConnection * con_ext_e = new SparseConnection(poisson,neurons_e,1,sparseness/2,GLUT);
-		SparseConnection * con_ext_i = new SparseConnection(poisson,neurons_i,1,sparseness/2,GLUT);
-
-	} else {
-		oss.str("");
-		oss << dir << "/save";
-		sys->load_network_state(oss.str());
-	}
-
-	if ( !fwmat_ee.empty() ) con_ee->load_from_file(fwmat_ee);
-	if ( !fwmat_ei.empty() ) con_ei->load_from_file(fwmat_ei);
-	if ( !fwmat_ie.empty() ) con_ie->load_from_file(fwmat_ie);
-	if ( !fwmat_ii.empty() ) con_ii->load_from_file(fwmat_ii);
-
+	if ( !fwmat_ee.empty() ) con_ee->load_from_complete_file(fwmat_ee);
+	if ( !fwmat_ei.empty() ) con_ei->load_from_complete_file(fwmat_ei);
+	if ( !fwmat_ie.empty() ) con_ie->load_from_complete_file(fwmat_ie);
+	if ( !fwmat_ii.empty() ) con_ii->load_from_complete_file(fwmat_ii);
 
 	// pruning here impairs performance -- probably due to cache poisoning
 	con_ee->prune();
@@ -224,20 +197,25 @@ int main(int ac,char *av[]) {
 
 		filename.str("");
 		filename.clear();
+		filename << outputfile << "e.dras";
+		DelayedSpikeMonitor * dsmon_e = new DelayedSpikeMonitor( neurons_e, filename.str().c_str() );
+
+		filename.str("");
+		filename.clear();
 		filename << outputfile << "i.ras";
 		SpikeMonitor * smon_i = new SpikeMonitor( neurons_i, filename.str().c_str() );
 		
 		filename.str("");
 		filename << outputfile << "e.mem";
-		StateMonitor * smon_mem = new StateMonitor( neurons_e, 3, "mem", filename.str() ); 
+		StateMonitor * smon_mem = new StateMonitor( neurons_e, 7, "mem", filename.str() ,dt ); 
 		
 		filename.str("");
 		filename << outputfile << "e.ampa";
-		StateMonitor * smon_ampa = new StateMonitor( neurons_e, 3, "g_ampa", filename.str() );
+		StateMonitor * smon_ampa = new StateMonitor( neurons_e, 7, "g_ampa", filename.str() );
 
 		filename.str("");
 		filename << outputfile << "e.gaba";
-		StateMonitor * smon_gaba = new StateMonitor( neurons_e, 3, "g_gaba", filename.str() );
+		StateMonitor * smon_gaba = new StateMonitor( neurons_e, 7, "g_gaba", filename.str() );
 	}
 
 
@@ -252,12 +230,6 @@ int main(int ac,char *av[]) {
 	logger->msg("Simulating ..." ,PROGRESS,true);
 	if (!sys->run(simtime,true)) 
 			errcode = 1;
-
-	if ( prime ) { 
-		oss.str("");
-		oss << dir << "/save";
-		sys->save_network_state(oss.str());
-	}
 
 	logger->msg("Freeing ..." ,PROGRESS,true);
 	delete sys;
