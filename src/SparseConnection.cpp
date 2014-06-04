@@ -483,7 +483,7 @@ void SparseConnection::sanity_check()
 		logger->msg(oss.str(),WARNING);
 	}
 
-	delete sum;
+	delete [] sum;
 
 	//  row count - outputs
 
@@ -515,7 +515,7 @@ void SparseConnection::sanity_check()
 	}
 
 
-	delete sum_rows;
+	delete [] sum_rows;
 }
 
 void SparseConnection::stats(AurynFloat &mean, AurynFloat &std)
@@ -545,11 +545,6 @@ void SparseConnection::stats(AurynFloat &mean, AurynFloat &std)
 	}
 	mean = sum/count;
 	std = sqrt(sum2/count-mean*mean);
-}
-
-void SparseConnection::prune()
-{   
-	w->prune();
 }
 
 AurynWeight SparseConnection::get_data(NeuronID i)

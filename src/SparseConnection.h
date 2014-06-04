@@ -179,8 +179,6 @@ public:
 
 	virtual void stats(AurynFloat &mean, AurynFloat &std);
 
-	virtual void prune();
-
 	AurynLong dryrun_from_file(string filename);
 	bool write_to_file(ForwardMatrix * m, string filename );
 	bool load_from_file(ForwardMatrix * m, string filename, AurynLong data_size = 0 );
