@@ -277,10 +277,16 @@ int main(int ac,char *av[]) {
 	if ( !fwmat_ie.empty() ) con_ie->load_from_complete_file(fwmat_ie);
 	if ( !fwmat_ii.empty() ) con_ii->load_from_complete_file(fwmat_ii);
 
-	con_ee->prune();
-	con_ei->prune();
-	con_ie->prune();
-	con_ii->prune();
+	// con_ee->prune();
+	// con_ei->prune();
+	// con_ie->prune();
+	// con_ii->prune();
+
+	// logger->msg("Running sanity check ...",PROGRESS,true);
+	con_ee->sanity_check();
+	con_ei->sanity_check();
+	con_ie->sanity_check();
+	con_ii->sanity_check();
 
 	logger->msg("Simulating ..." ,PROGRESS,true);
 	if (!sys->run(simtime,true)) 
