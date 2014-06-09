@@ -264,20 +264,17 @@ int main(int ac, char* av[])
     }
 
 
-	// BEGIN Global stuff
+	// BEGIN Global init
 	mpi::environment env(ac, av);
 	mpi::communicator world;
 	communicator = &world;
 
-	sprintf(strbuf, "%s/bg_static.%d.log", dir, world.rank());
+	sprintf(strbuf, "%s/bg_static.%d.log", dir.c_str(), world.rank());
 	string logfile = strbuf;
 	logger = new Logger(logfile,world.rank(),PROGRESS,EVERYTHING);
 
 	sys = new System(&world);
-	// boost::filesystem::path p = av[0];
-	// string binaryname = p.stem().string();
-	// sys->set_simulation_name(binaryname);
-	// END Global stuff
+	// END Global init
 
 	if (!infilename.empty()) {
 		stringstream iss;
