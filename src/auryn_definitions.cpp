@@ -129,11 +129,11 @@ void auryn_vector_float_scale( const float a, const auryn_vector_float * b )
 
 void auryn_vector_float_saxpy( const float a, const auryn_vector_float * x, const auryn_vector_float * y )
 {
-	float * xp = x->data;
 #ifdef CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY
 	#ifdef CODE_ACTIVATE_CILK_INSTRUCTIONS
 	y->data[0:y->size:1] = a * x->data[0:x->size:1] + y->data[0:y->size:1];
 	#else
+	float * xp = x->data;
 	const __m128 alpha = _mm_set1_ps(a);
 	for ( float * i = y->data ; i < y->data+y->size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )
 	{
