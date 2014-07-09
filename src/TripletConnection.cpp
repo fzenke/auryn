@@ -169,7 +169,11 @@ void TripletConnection::propagate_backward()
 				spike != spikes_end ; ++spike ) {
 			NeuronID translated_spike = dst->global2rank(*spike); // only to be used for post traces
 			for (const NeuronID * c = bkw->get_row_begin(*spike) ; c != bkw->get_row_end(*spike) ; ++c ) {
-				_mm_prefetch(bkw_data[c-bkw_ind+2],  _MM_HINT_NTA); 
+
+				#ifdef CODE_ACTIVATE_PREFETCHING_INTRINSICS
+				_mm_prefetch(bkw_data[c-bkw_ind+2],  _MM_HINT_NTA);
+				#endif
+
 				*bkw_data[c-bkw_ind] = *bkw_data[c-bkw_ind] + dw_post(*c,translated_spike);
 				if (*bkw_data[c-bkw_ind]>get_max_weight()) *bkw_data[c-bkw_ind]=get_max_weight();
 			}

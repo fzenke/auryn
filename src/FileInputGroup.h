@@ -51,7 +51,7 @@ private:
 public:
 	bool active ;
 	FileInputGroup(NeuronID n, string filename );
-	FileInputGroup(NeuronID n, string filename , bool loop, AurynFloat delay );
+	FileInputGroup(NeuronID n, string filename , bool loop, AurynFloat delay=0.0 );
 	virtual ~FileInputGroup();
 	virtual void evolve();
 

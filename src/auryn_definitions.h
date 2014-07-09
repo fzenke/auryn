@@ -32,7 +32,6 @@
 
 #include <emmintrin.h> // SSE+SSE2
 
-#include <gsl/gsl_vector_float.h>
 #include <boost/mpi.hpp>
 
 #include "Logger.h"
@@ -49,23 +48,30 @@ namespace mpi = boost::mpi;
  */
 #define CODE_ALIGNED_SIMD_INSTRUCTIONS
 
+/*! Toggle prefetching in spike backpropagation */
+#define CODE_ACTIVATE_PREFETCHING_INTRINSICS
+
 /*! Toggle between using auryns vector 
  * operations using SIMD instructions. If
  * you do not enforce this here the compiler
  * might still choose to use them when
  * mtune settings are set appropriately.
  */
-#define USE_SIMD_INSTRUCTIONS_EXPLICITLY
+#define CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY
+
+/*! Use Intel Cilk Plus -- only has an effect when 
+ * CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY is enabled. */
+// #define CODE_ACTIVATE_CILK_INSTRUCTIONS
 
 #define SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS 4 //!< SSE can process 4 floats in parallel
 
 // #define CODE_COLLECT_SYNC_TIMING_STATS //!< toggle  collection of timing data on sync/all_gather
 
 /*! System wide integration time step */
-const double dt = 1e-4;
+const double dt = 1.0e-4;
 
 /*! System wide minimum delay which determines
- * the sync interval between nodes. 
+ * the sync interval between nodes in units of dt.
  */ 
 #define MINDELAY 8
 
@@ -111,9 +117,21 @@ typedef NeuronID AurynTime; //!< Defines Auryns discrete time unit of the System
 typedef float AurynFloat; //!< Low precision floating point datatype.
 typedef double AurynDouble; //!< Higher precision floating point datatype.
 typedef float AurynWeight; //!< Unit of synaptic weights.
-typedef float AurynState; //!< Type for Auryn state variables (default single precision since it needs to be compatible with gsl_vector_float).
+typedef float AurynState; //!< Type for Auryn state variables (default single precision since it needs to be compatible with auryn_vector_float).
 typedef vector<NeuronID> SpikeContainer; //!< Spike container type. Used for storing spikes.
 typedef vector<float> AttributeContainer; //!< Attribute container type. Used for storing spike attributes that are needed for efficient STP implementations.
+
+
+template <typename T> 
+struct auryn_vector { 
+    NeuronID size;
+    T * data;
+};
+
+/*! Reimplements a simplified version of the GSL vector. */
+typedef auryn_vector<AurynFloat> auryn_vector_float;
+
+typedef auryn_vector<unsigned short> auryn_vector_ushort;
 
 struct neuron_pair {
 	NeuronID i,j;
@@ -137,24 +155,67 @@ int auryn_AlignOffset (const int N, const void *vp, const int inc, const int ali
 /*! Rounds vector size to multiple of four to allow using the SSE optimizations. */
 NeuronID calculate_vector_size(NeuronID i);
 
-/*! Internal  version of gsl_vector_float_mul of gsl operations */
-void auryn_vector_float_mul( gsl_vector_float * a, gsl_vector_float * b);
-/*! Internal  version of gsl_vector_float_add gsl operations */
-void auryn_vector_float_add_constant( gsl_vector_float * a, float b );
+
+// Float vector functions
+
+/*! Allocates an auryn_vector_float */
+auryn_vector_float * auryn_vector_float_alloc(const NeuronID n);
+/*! Frees an auryn_vector_float */
+void auryn_vector_float_free (auryn_vector_float * v);
+/*! Initializes an auryn_vector_float with zeros */
+void auryn_vector_float_set_zero (auryn_vector_float * v);
+/*! Sets all elements in an auryn_vector_float to value x */
+void auryn_vector_float_set_all (auryn_vector_float * v, AurynFloat x);
+/*! Copies vector src to dst assuming they have the same size. 
+ * Otherwise this will lead to undefined results. No checking of size is
+ * performed for performance reasons. */
+void auryn_vector_float_copy (auryn_vector_float * src, auryn_vector_float * dst );
+/*! Auryn vector getter */
+AurynFloat auryn_vector_float_get (const auryn_vector_float * v, const NeuronID i);
+/*! Auryn vector setter */
+void auryn_vector_float_set (auryn_vector_float * v, const NeuronID i, AurynFloat x);
+/*! Auryn vector gets pointer to designed element. */
+AurynFloat * auryn_vector_float_ptr (const auryn_vector_float * v, const NeuronID i);
+
+/*! Internal  version of auryn_vector_float_mul of gsl operations */
+void auryn_vector_float_mul( auryn_vector_float * a, auryn_vector_float * b);
+/*! Internal  version of auryn_vector_float_add gsl operations */
+void auryn_vector_float_add_constant( auryn_vector_float * a, float b );
 /*! Internal  SAXPY version */
-void auryn_vector_float_saxpy( const float a, const gsl_vector_float * x, const gsl_vector_float * y );
+void auryn_vector_float_saxpy( const float a, const auryn_vector_float * x, const auryn_vector_float * y );
 /*! Internal  version to scale a vector with a constant b  */
-void auryn_vector_float_scale(const float a, const gsl_vector_float * b );
+void auryn_vector_float_scale(const float a, const auryn_vector_float * b );
 /*! Internal  version to clip all the elements of a vector between [a:b]  */
-void auryn_vector_float_clip(gsl_vector_float * v, const float a , const float b );
+void auryn_vector_float_clip(auryn_vector_float * v, const float a , const float b );
 /*! Internal  version to clip all the elements of a vector between [a:0]  */
-void auryn_vector_float_clip(gsl_vector_float * v, const float a );
+void auryn_vector_float_clip(auryn_vector_float * v, const float a );
 /*! Internal  version of to add GSL vectors */
-void auryn_vector_float_add( gsl_vector_float * a, gsl_vector_float * b);
+void auryn_vector_float_add( auryn_vector_float * a, auryn_vector_float * b);
 /*! Internal  version of to subtract GSL vectors */
-void auryn_vector_float_sub( gsl_vector_float * a, gsl_vector_float * b);
+void auryn_vector_float_sub( auryn_vector_float * a, auryn_vector_float * b);
 
 
+// ushort vector functions
+/*! Allocates an auryn_vector_ushort */
+auryn_vector_ushort * auryn_vector_ushort_alloc(const NeuronID n);
+/*! Frees an auryn_vector_ushort */
+void auryn_vector_ushort_free (auryn_vector_ushort * v);
+/*! Initializes an auryn_vector_ushort with zeros */
+void auryn_vector_ushort_set_zero (auryn_vector_ushort * v);
+/*! Sets all elements in an auryn_vector_ushort to value x */
+void auryn_vector_ushort_set_all (auryn_vector_ushort * v, unsigned short x);
+/*! Copies vector src to dst assuming they have the same size. 
+ * Otherwise this will lead to undefined results. No checking of size is
+ * performed for performance reasons. */
+void auryn_vector_ushort_copy (auryn_vector_ushort * src, auryn_vector_ushort * dst );
+/*! Auryn vector getter */
+unsigned short auryn_vector_ushort_get (const auryn_vector_ushort * v, const NeuronID i);
+/*! Auryn vector setter */
+void auryn_vector_ushort_set (auryn_vector_ushort * v, const NeuronID i, unsigned short x);
+/*! Auryn vector gets pointer to designed element. */
+unsigned short * auryn_vector_ushort_ptr (const auryn_vector_ushort * v, const NeuronID i);
+
+// Exceptions
 class AurynOpenFileException: public exception
 {
 	  virtual const char* what() const throw()

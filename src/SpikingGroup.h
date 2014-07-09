@@ -31,6 +31,7 @@
 #include <boost/archive/text_iarchive.hpp> 
 
 #include <vector>
+#include <map>
 #include <boost/serialization/vector.hpp>
 #include <boost/mpi.hpp>
 #include <boost/progress.hpp>
@@ -113,13 +114,13 @@ public:
 	SpikeDelay * delay;
 
 	/*! Can hold single neuron vectors such as target rates or STP states etc  */
-	map<string,gsl_vector_float *> state_vector;
+	map<string,auryn_vector_float *> state_vector;
 
 	/* Returns existing state vector by name */
-	gsl_vector_float * find_state_vector(string key);
+	auryn_vector_float * find_state_vector(string key);
 
 	/* Creates and returens a state vector */
-	gsl_vector_float * get_state_vector(string key);
+	auryn_vector_float * get_state_vector(string key);
 
 	/* Randomizes the content of a state vector with Gaussian random numbers. Seeding is MPI save. */
 	void randomize_state_vector_gauss(string state_vector_name, AurynState mean, AurynState sigma, int seed=12239);

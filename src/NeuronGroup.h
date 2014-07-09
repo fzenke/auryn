@@ -25,7 +25,7 @@
 #include "SpikingGroup.h"
 
 #include <map>
-#include <gsl/gsl_vector_float.h>
+
 #include <fstream>
 #include <sstream>
 
@@ -43,15 +43,15 @@ class NeuronGroup : public SpikingGroup
 {
 protected:
 	/*! Stores the membrane potentials. */
-	gsl_vector_float * mem __attribute__((aligned(16)));
+	auryn_vector_float * mem __attribute__((aligned(16)));
 	/*! Stores the AMPA conductances of each point neuron. */
-	gsl_vector_float * g_ampa __attribute__((aligned(16)));
+	auryn_vector_float * g_ampa __attribute__((aligned(16)));
 	/*! Stores the GABA conductances of each point neuron. */
-	gsl_vector_float * g_gaba __attribute__((aligned(16)));
+	auryn_vector_float * g_gaba __attribute__((aligned(16)));
 	/*! Stores the NMDA conductances of each point neuron. */
-	gsl_vector_float * g_nmda __attribute__((aligned(16)));
+	auryn_vector_float * g_nmda __attribute__((aligned(16)));
 	/*! Stores  threshold terms for moving thresholds. */
-	gsl_vector_float * thr __attribute__((aligned(16)));
+	auryn_vector_float * thr __attribute__((aligned(16)));
 
 	/*! Init procedure called by default constructor. */
 	void init();
@@ -69,14 +69,14 @@ public:
 
 	virtual void clear() = 0;
 
-	AurynState get_val(gsl_vector_float* vec, NeuronID i);
-	void set_val(gsl_vector_float* vec, NeuronID i, AurynState val);
-	void add_val(gsl_vector_float* vec, NeuronID i, AurynState val);
-	void clip_val(gsl_vector_float* vec, NeuronID i, AurynState max);
-	void print_val(gsl_vector_float* vec, NeuronID i, const char * name);
-	void print_vec(gsl_vector_float* vec, const char * name);
+	AurynState get_val(auryn_vector_float* vec, NeuronID i);
+	void set_val(auryn_vector_float* vec, NeuronID i, AurynState val);
+	void add_val(auryn_vector_float* vec, NeuronID i, AurynState val);
+	void clip_val(auryn_vector_float* vec, NeuronID i, AurynState max);
+	void print_val(auryn_vector_float* vec, NeuronID i, const char * name);
+	void print_vec(auryn_vector_float* vec, const char * name);
 	AurynState get_mem(NeuronID i);
-	gsl_vector_float * get_mem_ptr();
+	auryn_vector_float * get_mem_ptr();
 
 	void set_mem(NeuronID i, AurynState val);
 
@@ -85,13 +85,13 @@ public:
 
 	AurynState get_ampa(NeuronID i);
 	void set_ampa(NeuronID i,AurynState val);
-	gsl_vector_float * get_ampa_ptr();
+	auryn_vector_float * get_ampa_ptr();
 	AurynState get_gaba(NeuronID i);
 	void set_gaba(NeuronID i,AurynState val);
-	gsl_vector_float * get_gaba_ptr();
+	auryn_vector_float * get_gaba_ptr();
 	AurynState get_nmda(NeuronID i);
 	void set_nmda(NeuronID i,AurynState val);
-	gsl_vector_float * get_nmda_ptr();
+	auryn_vector_float * get_nmda_ptr();
 
 	void random_mem(AurynState mean, AurynState sigma);
 	void random_uniform_mem(AurynState lo, AurynState hi);

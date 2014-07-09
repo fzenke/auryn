@@ -66,7 +66,7 @@ protected:
 
 	PRE_TRACE_MODEL * tr_pre;
 	DEFAULT_TRACE_MODEL * tr_post;
-	DEFAULT_TRACE_MODEL * tr_post2,;
+	DEFAULT_TRACE_MODEL * tr_post2;
 	DEFAULT_TRACE_MODEL * tr_post_hom;
 
 	void propagate_forward();

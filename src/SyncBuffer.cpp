@@ -248,11 +248,28 @@ void SyncBuffer::reset_send_buffer()
 }
 
 #ifdef CODE_COLLECT_SYNC_TIMING_STATS
-AurynDouble SyncBuffer::get_sync_time()
+AurynDouble SyncBuffer::get_relative_sync_time()
 {
 	AurynDouble temp = MPI_Wtime();
 	return (deltaT/(temp-measurement_start));
+}
+
+AurynDouble SyncBuffer::get_sync_time()
+{
+	return deltaT;
+}
+
+AurynDouble SyncBuffer::get_elapsed_wall_time()
+{
+	AurynDouble temp = MPI_Wtime();
+	return temp-measurement_start;
+}
+
+void SyncBuffer::reset_sync_time()
+{
+	AurynDouble temp = MPI_Wtime();
     measurement_start = temp;     
 	deltaT = 0.0;
 }
+
 #endif

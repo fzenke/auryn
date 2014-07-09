@@ -24,16 +24,16 @@
 #include "auryn_definitions.h"
 #include "NeuronGroup.h"
 #include "System.h"
-#include <gsl/gsl_blas.h>
+
 
 class IF2Group : public NeuronGroup
 {
 private:
-	gsl_vector_float * t_leak;
-	gsl_vector_float * t_exc;
-	gsl_vector_float * t_inh;
+	auryn_vector_float * t_leak;
+	auryn_vector_float * t_exc;
+	auryn_vector_float * t_inh;
 
-	gsl_vector_float * nmda_opening;
+	auryn_vector_float * nmda_opening;
 	AurynFloat scale_ampa,scale_gaba, scale_thr;
 	AurynFloat e_rest,e_rev,thr_rest,tau_mem,tau_thr,dthr;
 	AurynFloat tau_ampa,tau_gaba,tau_nmda;
@@ -43,7 +43,6 @@ private:
 	void init();
 	void free();
 	void calculate_scale_constants();
-	void vector_scale( float mul, gsl_vector_float * v );
 	void integrate_membrane();
 	void integrate_nonlinear_nmda_synapses();
 	void check_thresholds();

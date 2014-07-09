@@ -24,17 +24,17 @@ void EulerTrace::init(NeuronID n, AurynFloat timeconstant)
 {
 	size = n;
 	set_timeconstant(timeconstant);
-	state = gsl_vector_float_alloc ( calculate_vector_size(size) ); 
+	state = auryn_vector_float_alloc ( calculate_vector_size(size) ); 
 	set_all(0.);
 	target_ptr = NULL;
 }
 
 void EulerTrace::free()
 {
-	gsl_vector_float_free (state);
+	auryn_vector_float_free (state);
 
 	if ( target_ptr != NULL ) {
-		gsl_vector_float_free (update);
+		auryn_vector_float_free (update);
 	}
 }
 
@@ -56,7 +56,7 @@ void EulerTrace::set_timeconstant(AurynFloat timeconstant)
 
 void EulerTrace::set(NeuronID i , AurynFloat value)
 {
-   gsl_vector_float_set (state, i, value);
+   auryn_vector_float_set (state, i, value);
 }
 
 void EulerTrace::set_all(AurynFloat value)
@@ -65,21 +65,21 @@ void EulerTrace::set_all(AurynFloat value)
 		set(i,value);
 }
 
-void EulerTrace::add(gsl_vector_float * values)
+void EulerTrace::add(auryn_vector_float * values)
 {
-   gsl_vector_float_add ( state, values );
+   auryn_vector_float_add ( state, values );
 }
 
 void EulerTrace::add(NeuronID i, AurynFloat value)
 {
-   // gsl_vector_float_set (state, i, gsl_vector_float_get (state, i) + value);
+   // auryn_vector_float_set (state, i, auryn_vector_float_get (state, i) + value);
    state->data[i] += value;
 }
 
-void EulerTrace::set_target( gsl_vector_float * target )
+void EulerTrace::set_target( auryn_vector_float * target )
 {
 	if ( target != NULL ) {
-		update = gsl_vector_float_alloc (size); 
+		update = auryn_vector_float_alloc (size); 
 	}
 	target_ptr = target ;
 }
@@ -97,12 +97,12 @@ void EulerTrace::evolve()
 
 void EulerTrace::follow()
 { 
-	gsl_blas_scopy( state, update );
-	gsl_blas_saxpy( -1., target_ptr, update );
-	gsl_blas_saxpy( -dt/tau, update, state );
+	auryn_vector_float_copy( state, update );
+	auryn_vector_float_saxpy( -1., target_ptr, update );
+	auryn_vector_float_saxpy( -dt/tau, update, state );
 }
 
-gsl_vector_float * EulerTrace::get_state_ptr()
+auryn_vector_float * EulerTrace::get_state_ptr()
 {
 	return state;
 }
@@ -114,14 +114,14 @@ AurynFloat EulerTrace::get_tau()
 
 void EulerTrace::inc(NeuronID i)
 {
-   // gsl_vector_float_set (state, i, gsl_vector_float_get (state, i)+1);
+   // auryn_vector_float_set (state, i, auryn_vector_float_get (state, i)+1);
    state->data[i]++;
 }
 
 
 AurynFloat EulerTrace::normalized_get(NeuronID i)
 {
-	return gsl_vector_float_get (state, i) / tau ;
+	return auryn_vector_float_get (state, i) / tau ;
 }
 
 

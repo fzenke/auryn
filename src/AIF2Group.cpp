@@ -48,7 +48,7 @@ void AIF2Group::clear()
 {
 	AIFGroup::clear();
 	for (NeuronID i = 0; i < get_rank_size(); i++) {
-	   gsl_vector_float_set (g_adapt2, i, 0.);
+	   auryn_vector_float_set (g_adapt2, i, 0.);
 	 }
 }
 
@@ -95,16 +95,16 @@ void AIF2Group::integrate_linear_nmda_synapses()
 	auryn_vector_float_saxpy(-mul_nmda,g_nmda,g_nmda);
 
     // excitatory
-    gsl_blas_scopy(g_ampa,t_exc);
+    auryn_vector_float_copy(g_ampa,t_exc);
     auryn_vector_float_scale(-A_ampa,t_exc);
     auryn_vector_float_saxpy(-A_nmda,g_nmda,t_exc);
     auryn_vector_float_mul(t_exc,mem);
     
     // inhibitory
-    gsl_blas_scopy(g_gaba,t_leak); // using t_leak as temp here
+    auryn_vector_float_copy(g_gaba,t_leak); // using t_leak as temp here
     auryn_vector_float_saxpy(1,g_adapt1,t_leak);
     auryn_vector_float_saxpy(1,g_adapt2,t_leak);
-    gsl_blas_scopy(mem,t_inh);
+    auryn_vector_float_copy(mem,t_inh);
     auryn_vector_float_add_constant(t_inh,-e_rev);
     auryn_vector_float_mul(t_inh,t_leak);
 }

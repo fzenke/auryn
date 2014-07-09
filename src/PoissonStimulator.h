@@ -54,7 +54,7 @@ private:
 	AurynState * newcurrents;
 
 	/*! Target membrane */
-	gsl_vector_float * target_vector;
+	auryn_vector_float * target_vector;
 
 	/*! Scale stimulus rate */
 	AurynFloat poisson_rate;

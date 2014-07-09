@@ -37,8 +37,8 @@ void LinearReadout::init(NeuronGroup * source, const char * filename, int np, Au
 	count = gsl_vector_uint_alloc( source->get_rank_size()+1 );
 	gsl_vector_uint_set_basis( count, no_of_perceptrons );
 	for ( int i = 0 ; i < no_of_perceptrons ; ++i ) {
-		w.push_back( gsl_vector_float_alloc( source->get_rank_size()+1 ) );
-		// gsl_vector_float_set_zero( w[i] );
+		w.push_back( auryn_vector_float_alloc( source->get_rank_size()+1 ) );
+		// auryn_vector_float_set_zero( w[i] );
 	}
 }
 
@@ -46,7 +46,7 @@ LinearReadout::free()
 {
 	gsl_vector_uint_free( count );
 	for ( int i = 0 ; i < no_of_perceptrons ; ++i )
-		gsl_vector_float_free(w[i]);
+		auryn_vector_float_free(w[i]);
 }
 
 LinearReadout::~LinearReadout()

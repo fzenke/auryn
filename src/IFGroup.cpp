@@ -50,7 +50,7 @@ void IFGroup::init()
 
 	calculate_scale_constants();
 	
-	// thr = gsl_vector_float_alloc (size); 
+	// thr = auryn_vector_float_alloc (size); 
 	
 	t_leak = get_state_vector("t_leak");
 	t_exc =  get_state_vector("t_exc");
@@ -64,11 +64,11 @@ void IFGroup::clear()
 {
 	clear_spikes();
 	for (NeuronID i = 0; i < get_rank_size(); i++) {
-	   gsl_vector_float_set (mem, i, e_rest);
-	   gsl_vector_float_set (thr, i, 0.);
-	   gsl_vector_float_set (g_ampa, i, 0.);
-	   gsl_vector_float_set (g_gaba, i, 0.);
-	   gsl_vector_float_set (g_nmda, i, 0.);
+	   auryn_vector_float_set (mem, i, e_rest);
+	   auryn_vector_float_set (thr, i, 0.);
+	   auryn_vector_float_set (g_ampa, i, 0.);
+	   auryn_vector_float_set (g_gaba, i, 0.);
+	   auryn_vector_float_set (g_nmda, i, 0.);
 	}
 }
 
@@ -92,13 +92,13 @@ void IFGroup::integrate_linear_nmda_synapses()
 	auryn_vector_float_saxpy(-mul_nmda,g_nmda,g_nmda);
 
     // excitatory
-    gsl_blas_scopy(g_ampa,t_exc);
+    auryn_vector_float_copy(g_ampa,t_exc);
     auryn_vector_float_scale(-A_ampa,t_exc);
     auryn_vector_float_saxpy(-A_nmda,g_nmda,t_exc);
     auryn_vector_float_mul(t_exc,mem);
     
     // inhibitory
-    gsl_blas_scopy(mem,t_inh);
+    auryn_vector_float_copy(mem,t_inh);
     auryn_vector_float_add_constant(t_inh,-e_rev);
     auryn_vector_float_mul(t_inh,g_gaba);
 }
@@ -113,7 +113,7 @@ void IFGroup::integrate_membrane()
     auryn_vector_float_scale(scale_thr,thr);
     
     // leak
-	gsl_blas_scopy(mem,t_leak);
+	auryn_vector_float_copy(mem,t_leak);
     auryn_vector_float_add_constant(t_leak,-e_rest);
     
     // membrane dynamics

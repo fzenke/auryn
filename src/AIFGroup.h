@@ -24,7 +24,7 @@
 #include "auryn_definitions.h"
 #include "NeuronGroup.h"
 #include "System.h"
-#include <gsl/gsl_blas.h>
+
 
 /*! \brief A simple extension of IFGroup with spike triggered adaptation */
 class AIFGroup : public NeuronGroup
@@ -33,11 +33,11 @@ private:
 	void free();
 
 protected:
-	gsl_vector_float * dmem;
-	gsl_vector_float * t_leak;
-	gsl_vector_float * t_exc;
-	gsl_vector_float * t_inh;
-	gsl_vector_float * g_adapt1;
+	auryn_vector_float * dmem;
+	auryn_vector_float * t_leak;
+	auryn_vector_float * t_exc;
+	auryn_vector_float * t_inh;
+	auryn_vector_float * g_adapt1;
 
 	AurynFloat scale_ampa,scale_gaba, scale_thr;
 	AurynFloat scale_adapt1;
@@ -49,7 +49,7 @@ protected:
 	AurynFloat A_ampa,A_nmda;
 
 	void init();
-	void vector_scale( float mul, gsl_vector_float * v );
+	void vector_scale( float mul, auryn_vector_float * v );
 	void integrate_linear_nmda_synapses();
 	void integrate_membrane();
 	void check_thresholds();

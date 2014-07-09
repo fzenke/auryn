@@ -158,6 +158,14 @@ public:
 
 	mpi::communicator * get_com();
 
+#ifdef CODE_COLLECT_SYNC_TIMING_STATS
+	AurynDouble deltaT;
+	AurynDouble measurement_start;
+	AurynDouble get_relative_sync_time();
+	AurynDouble get_sync_time();
+	AurynDouble get_elapsed_wall_time();
+	void reset_sync_time();
+#endif
 
 };
 

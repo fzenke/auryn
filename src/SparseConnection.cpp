@@ -129,7 +129,7 @@ void SparseConnection::init()
 	}
 
 	set_min_weight(0.0);
-	set_max_weight(1e100); // just make it large 
+	set_max_weight(1e16); // just make it large 
 
 	patterns_ignore_gamma = false;
 	wrap_patterns = false;

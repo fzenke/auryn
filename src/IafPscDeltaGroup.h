@@ -24,8 +24,6 @@
 #include "auryn_definitions.h"
 #include "NeuronGroup.h"
 #include "System.h"
-#include <gsl/gsl_vector_float.h>
-#include <gsl/gsl_vector_ushort.h>
 
 
 /*! \brief Conductance based neuron model with absolute refractoriness as used in Vogels and Abbott 2005.
@@ -39,7 +37,7 @@ private:
 	AurynFloat * t_mem; 
 
 	unsigned short refractory_time;
-	gsl_vector_ushort * ref;
+	auryn_vector_ushort * ref;
 	unsigned short * t_ref; 
 
 	void init();

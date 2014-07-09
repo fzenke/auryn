@@ -28,13 +28,13 @@ void STPConnection::init()
 		tau_f = 1.0;
 		Urest = 0.3;
 		Ujump = 0.01;
-		state_x = gsl_vector_float_alloc( src->get_rank_size() );
-		state_u = gsl_vector_float_alloc( src->get_rank_size() );
-		state_temp = gsl_vector_float_alloc( src->get_rank_size() );
+		state_x = auryn_vector_float_alloc( src->get_rank_size() );
+		state_u = auryn_vector_float_alloc( src->get_rank_size() );
+		state_temp = auryn_vector_float_alloc( src->get_rank_size() );
 		for (NeuronID i = 0; i < src->get_rank_size() ; i++)
 		{
-			   gsl_vector_float_set (state_x, i, 1 ); // TODO
-			   gsl_vector_float_set (state_u, i, Ujump );
+			   auryn_vector_float_set (state_x, i, 1 ); // TODO
+			   auryn_vector_float_set (state_u, i, Ujump );
 		}
 
 	}
@@ -88,9 +88,9 @@ STPConnection::STPConnection( SpikingGroup * source, NeuronGroup * destination,
 void STPConnection::free()
 {
 	if ( src->get_rank_size() > 0 ) {
-		gsl_vector_float_free (state_x);
-		gsl_vector_float_free (state_u);
-		gsl_vector_float_free (state_temp);
+		auryn_vector_float_free (state_x);
+		auryn_vector_float_free (state_u);
+		auryn_vector_float_free (state_temp);
 	}
 }
 
@@ -109,10 +109,10 @@ void STPConnection::push_attributes()
 			spike != spikes->end() ; ++spike ) {
 		// dynamics 
 		NeuronID spk = src->global2rank(*spike);
-		double x = gsl_vector_float_get( state_x, spk );
-		double u = gsl_vector_float_get( state_u, spk );
-		gsl_vector_float_set( state_x, spk, x-u*x );
-		gsl_vector_float_set( state_u, spk, u+Ujump*(1-u) );
+		double x = auryn_vector_float_get( state_x, spk );
+		double u = auryn_vector_float_get( state_u, spk );
+		auryn_vector_float_set( state_x, spk, x-u*x );
+		auryn_vector_float_set( state_u, spk, u+Ujump*(1-u) );
 
 		// TODO spike translation or introduce local_spikes function in SpikingGroup and implement this there ... (better option)
 		src->push_attribute( x*u ); 
@@ -122,17 +122,17 @@ void STPConnection::push_attributes()
 void STPConnection::evolve()
 {
 	// dynamics of x
-	gsl_vector_float_set_all( state_temp, 1);
-	gsl_blas_saxpy(-1,state_x,state_temp);
-	gsl_blas_saxpy(dt/tau_d,state_temp,state_x);
+	auryn_vector_float_set_all( state_temp, 1);
+	auryn_vector_float_saxpy(-1,state_x,state_temp);
+	auryn_vector_float_saxpy(dt/tau_d,state_temp,state_x);
 
 	// dynamics of u
-	gsl_vector_float_set_all( state_temp, Ujump);
-	gsl_blas_saxpy(-1,state_u,state_temp);
-	gsl_blas_saxpy(dt/tau_f,state_temp,state_u);
+	auryn_vector_float_set_all( state_temp, Ujump);
+	auryn_vector_float_saxpy(-1,state_u,state_temp);
+	auryn_vector_float_saxpy(dt/tau_f,state_temp,state_u);
 
-	// double x = gsl_vector_float_get( state_x, 0 );
-	// double u = gsl_vector_float_get( state_u, 0 );
+	// double x = auryn_vector_float_get( state_x, 0 );
+	// double u = auryn_vector_float_get( state_u, 0 );
 	// cout << setprecision(5) << x << " " << u << " " << x*u << endl;
 }
 

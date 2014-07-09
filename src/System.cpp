@@ -173,6 +173,10 @@ void System::register_checker(Checker * checker)
 void System::sync()
 {
 
+#ifdef CODE_COLLECT_SYNC_TIMING_STATS
+	double T1, T2;              
+    T1 = MPI_Wtime();     /* start time */
+#endif
 
 	vector<SpikingGroup *>::const_iterator iter;
 	for ( iter = spiking_groups.begin() ; iter != spiking_groups.end() ; ++iter ) 
@@ -187,6 +191,11 @@ void System::sync()
 	syncbuffer->sync();
 	for ( iter = spiking_groups.begin() ; iter != spiking_groups.end() ; ++iter ) 
 		syncbuffer->pop((*iter)->delay,(*iter)->get_size()); 
+
+#ifdef CODE_COLLECT_SYNC_TIMING_STATS
+    T2 = MPI_Wtime();     /* end time */
+	deltaT += (T2-T1);
+#endif
 }
 
 void System::evolve()
@@ -258,10 +267,6 @@ void System::progressbar ( double fraction, float time ) {
 	if (checkers.size())
 		cout  << setprecision(1) << "  f=" << checkers[0]->get_property() << " Hz  ";
 
-#ifdef CODE_COLLECT_SYNC_TIMING_STATS
-		cout  << scientific << setprecision(3) << "  sync_load=" << syncbuffer->get_sync_time() << "   ";
-#endif 
-
 	cout << std::flush;
 
 	if ( fraction >= 1. )
@@ -308,6 +313,9 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 		reduce(*mpicom, get_total_synapses(), std::plus<AurynLong>(), 0);
 	}
 
+#ifdef CODE_COLLECT_SYNC_TIMING_STATS
+	syncbuffer->reset_sync_time();
+#endif
 
 	time_t t_sim_start;
 	time(&t_sim_start);
@@ -353,13 +361,59 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 
 	}
 
+
+
+#ifdef CODE_COLLECT_SYNC_TIMING_STATS
+	double elapsed  = syncbuffer->get_elapsed_wall_time();
+
+	oss.str("");
+	oss << "Total synctime " 
+		<< get_sync_time()
+		<< " (relative "
+		<< get_relative_sync_time()
+		<< " )";
+	logger->msg(oss.str(),NOTIFICATION);
+
+#else
 	time_t t_now ;
 	time(&t_now);
 	double elapsed  = difftime(t_now,t_sim_start);
+#endif 
 
 	oss.str("");
-	oss << "Simulation finished. Ran for " << elapsed << "s with SpeedFactor=" << elapsed/runtime;
+	oss << "Simulation finished. Ran for " 
+		<< elapsed 
+		<< "s with SpeedFactor=" 
+		<< elapsed/runtime;
 	logger->msg(oss.str(),NOTIFICATION);
+
+
+#ifdef CODE_COLLECT_SYNC_TIMING_STATS
+	if (mpicom->rank() == 0) {
+		double minimum;
+		reduce(*mpicom, elapsed, minimum, mpi::minimum<double>(), 0);
+
+		double minsync;
+		reduce(*mpicom, syncbuffer->get_sync_time(), minsync, mpi::minimum<double>(), 0);
+
+		double maxsync;
+		reduce(*mpicom, syncbuffer->get_sync_time(), maxsync, mpi::maximum<double>(), 0);
+
+		oss.str("");
+		oss << "Fastest rank. Ran for " 
+			<< elapsed 
+			<< " with minsynctime " 
+			<< minsync
+			<< " and maxsynctime "
+			<< maxsync;
+		logger->msg(oss.str(),NOTIFICATION);
+	} else {
+		reduce(*mpicom, elapsed, mpi::minimum<double>(), 0);
+		reduce(*mpicom, syncbuffer->get_sync_time(), mpi::minimum<double>(), 0);
+		reduce(*mpicom, syncbuffer->get_sync_time(), mpi::maximum<double>(), 0);
+	}
+#endif 
+
 
 	return true;
 }
@@ -472,3 +526,30 @@ void System::load_network_state(string basename)
 		}
 	}
 }
+
+#ifdef CODE_COLLECT_SYNC_TIMING_STATS
+AurynDouble System::get_relative_sync_time()
+{
+	AurynDouble temp = MPI_Wtime();
+	return (deltaT/(temp-measurement_start));
+}
+
+AurynDouble System::get_sync_time()
+{
+	return deltaT;
+}
+
+AurynDouble System::get_elapsed_wall_time()
+{
+	AurynDouble temp = MPI_Wtime();
+	return temp-measurement_start;
+}
+
+void System::reset_sync_time()
+{
+	AurynDouble temp = MPI_Wtime();
+    measurement_start = temp;     
+	deltaT = 0.0;
+}
+
+#endif

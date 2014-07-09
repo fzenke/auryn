@@ -49,7 +49,7 @@ private:
 	/*! Input filestream for time series data */
 	ifstream timeseriesfile;
 	/*! Target membrane */
-	gsl_vector_float * mem;
+	auryn_vector_float * mem;
 
 	/*! Scale stimulus size */
 	AurynFloat scl;

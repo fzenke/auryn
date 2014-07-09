@@ -45,14 +45,14 @@ void TIFGroup::init()
 
 	calculate_scale_constants();
 	
-	ref = gsl_vector_ushort_alloc (get_vector_size()); 
+	ref = auryn_vector_ushort_alloc (get_vector_size()); 
 	bg_current = get_state_vector("bg_current");
 
-	t_g_ampa = gsl_vector_float_ptr ( g_ampa , 0 ); 
-	t_g_gaba = gsl_vector_float_ptr ( g_gaba , 0 ); 
-	t_bg_cur = gsl_vector_float_ptr ( bg_current , 0 ); 
-	t_mem = gsl_vector_float_ptr ( mem , 0 ); 
-	t_ref = gsl_vector_ushort_ptr ( ref , 0 ); 
+	t_g_ampa = auryn_vector_float_ptr ( g_ampa , 0 ); 
+	t_g_gaba = auryn_vector_float_ptr ( g_gaba , 0 ); 
+	t_bg_cur = auryn_vector_float_ptr ( bg_current , 0 ); 
+	t_mem = auryn_vector_float_ptr ( mem , 0 ); 
+	t_ref = auryn_vector_ushort_ptr ( ref , 0 ); 
 
 	clear();
 
@@ -62,11 +62,11 @@ void TIFGroup::clear()
 {
 	clear_spikes();
 	for (NeuronID i = 0; i < get_rank_size(); i++) {
-	   gsl_vector_float_set (mem, i, e_rest);
-	   gsl_vector_ushort_set (ref, i, 0);
-	   gsl_vector_float_set (g_ampa, i, 0.);
-	   gsl_vector_float_set (g_gaba, i, 0.);
-	   gsl_vector_float_set (bg_current, i, 0.);
+	   auryn_vector_float_set (mem, i, e_rest);
+	   auryn_vector_ushort_set (ref, i, 0);
+	   auryn_vector_float_set (g_ampa, i, 0.);
+	   auryn_vector_float_set (g_gaba, i, 0.);
+	   auryn_vector_float_set (bg_current, i, 0.);
 	}
 }
 
@@ -75,12 +75,14 @@ TIFGroup::~TIFGroup()
 {
 	if ( !evolve_locally() ) return;
 
-	gsl_vector_ushort_free (ref);
+	auryn_vector_ushort_free (ref);
 }
 
 
 void TIFGroup::evolve()
 {
+
+
 	for (NeuronID i = 0 ; i < get_rank_size() ; ++i ) {
     	if (t_ref[i]==0) {
 			const AurynFloat dg_mem = ( (e_rest-t_mem[i]) 
@@ -107,7 +109,7 @@ void TIFGroup::evolve()
 
 void TIFGroup::set_bg_current(NeuronID i, AurynFloat current) {
 	if ( localrank(i) )
-		gsl_vector_float_set ( bg_current , global2rank(i) , current ) ;
+		auryn_vector_float_set ( bg_current , global2rank(i) , current ) ;
 }
 
 void TIFGroup::set_tau_mem(AurynFloat taum)
@@ -118,7 +120,7 @@ void TIFGroup::set_tau_mem(AurynFloat taum)
 
 AurynFloat TIFGroup::get_bg_current(NeuronID i) {
 	if ( localrank(i) )
-		return gsl_vector_float_get ( bg_current , global2rank(i) ) ;
+		return auryn_vector_float_get ( bg_current , global2rank(i) ) ;
 	else 
 		return 0;
 }
@@ -126,7 +128,7 @@ AurynFloat TIFGroup::get_bg_current(NeuronID i) {
 string TIFGroup::get_output_line(NeuronID i)
 {
 	stringstream oss;
-	oss << get_mem(i) << " " << get_ampa(i) << " " << get_gaba(i) << " " << gsl_vector_ushort_get (ref, i) << "\n";
+	oss << get_mem(i) << " " << get_ampa(i) << " " << get_gaba(i) << " " << auryn_vector_ushort_get (ref, i) << "\n";
 	return oss.str();
 }
 
@@ -140,7 +142,7 @@ void TIFGroup::load_input_line(NeuronID i, const char * buf)
 			set_mem(trans,vmem);
 			set_ampa(trans,vampa);
 			set_gaba(trans,vgaba);
-			gsl_vector_ushort_set (ref, trans, vref);
+			auryn_vector_ushort_set (ref, trans, vref);
 		}
 }
 

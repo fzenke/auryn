@@ -149,10 +149,10 @@ void SpikingGroup::free()
 	for ( NeuronID i = 0 ; i < posttraces.size() ; ++i )
 		delete posttraces[i];
 
-	for ( map<string,gsl_vector_float *>::const_iterator iter = state_vector.begin() ; 
+	for ( map<string,auryn_vector_float *>::const_iterator iter = state_vector.begin() ; 
 			iter != state_vector.end() ;
 			++iter ) {
-		gsl_vector_float_free ( iter->second );
+		auryn_vector_float_free ( iter->second );
 	}
 	state_vector.clear();
 
@@ -395,7 +395,7 @@ bool SpikingGroup::write_to_file(const char * filename)
 
 	outfile << "# Auryn SpikingGroup state file for n="<< get_rank_size() <<" neurons (ver. " << VERSION << ")" << endl;
 	outfile << "# Default field order (might be overwritten): ";
-	for ( map<string,gsl_vector_float *>::const_iterator iter = state_vector.begin() ; 
+	for ( map<string,auryn_vector_float *>::const_iterator iter = state_vector.begin() ; 
 			iter != state_vector.end() ;
 			++iter ) {
 		outfile << scientific << iter->first << " ";
@@ -464,11 +464,11 @@ bool SpikingGroup::load_from_file(const char * filename)
 	return true;
 }
 
-gsl_vector_float * SpikingGroup::get_state_vector(string key)
+auryn_vector_float * SpikingGroup::get_state_vector(string key)
 {
 	if ( state_vector.find(key) == state_vector.end() ) {
 		if ( get_vector_size() == 0 ) return NULL;
-		gsl_vector_float * vec = gsl_vector_float_alloc (get_vector_size()); 
+		auryn_vector_float * vec = auryn_vector_float_alloc (get_vector_size()); 
 		state_vector[key] = vec;
 		return vec;
 	} else {
@@ -476,7 +476,7 @@ gsl_vector_float * SpikingGroup::get_state_vector(string key)
 	}
 }
 
-gsl_vector_float * SpikingGroup::find_state_vector(string key)
+auryn_vector_float * SpikingGroup::find_state_vector(string key)
 {
 	if ( state_vector.find(key) == state_vector.end() ) {
 		return NULL;
@@ -492,12 +492,12 @@ void SpikingGroup::randomize_state_vector_gauss(string state_vector_name, AurynS
 	boost::variate_generator<boost::mt19937&, boost::normal_distribution<> > die(ng_gen, dist);
 	AurynState rv;
 
-	gsl_vector_float * vec = get_state_vector(state_vector_name); 
+	auryn_vector_float * vec = get_state_vector(state_vector_name); 
 
 
 	for ( AurynLong i = 0 ; i<get_rank_size() ; ++i ) {
 		rv = die();
-		gsl_vector_float_set( vec, i, rv );
+		auryn_vector_float_set( vec, i, rv );
 	}
 
 }
@@ -506,10 +506,10 @@ string SpikingGroup::get_output_line(NeuronID i)
 {
 	stringstream oss;
 
-	for ( map<string,gsl_vector_float *>::const_iterator iter = state_vector.begin() ; 
+	for ( map<string,auryn_vector_float *>::const_iterator iter = state_vector.begin() ; 
 			iter != state_vector.end() ;
 			++iter ) {
-		oss << scientific << gsl_vector_float_get( iter->second, i ) << " ";
+		oss << scientific << auryn_vector_float_get( iter->second, i ) << " ";
 	}
 
 	for ( NeuronID k = 0 ; k < pretraces.size() ; k++ ) { 
@@ -539,7 +539,7 @@ void SpikingGroup::load_input_line(NeuronID i, const char * buf)
 		float temp;
 
 		// read the state_vector
-		for ( map<string,gsl_vector_float *>::const_iterator iter = state_vector.begin() ; 
+		for ( map<string,auryn_vector_float *>::const_iterator iter = state_vector.begin() ; 
 			iter != state_vector.end() ;
 			++iter ) {
 			if ( ( nums_now = sscanf( buf + bytes_consumed, "%f%n", & temp, & bytes_now ) ) <= 0 )
@@ -550,7 +550,7 @@ void SpikingGroup::load_input_line(NeuronID i, const char * buf)
 			}
 			bytes_consumed += bytes_now;
 			nums_read += nums_now;
-			gsl_vector_float_set(iter->second, i, temp );
+			auryn_vector_float_set(iter->second, i, temp );
 		}
 
 		for ( int k = 0 ; k < pretraces.size() ; k++ ) {

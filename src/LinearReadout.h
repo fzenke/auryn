@@ -41,7 +41,7 @@ protected:
 	/*! The spike counts */
 	gsl_vector_uint * count;
 	/*! The weight vetors */
-	vector<gsl_vector_float *> w;
+	vector<auryn_vector_float *> w;
 	/*! The output vector */
 	vector<double> y;
 	/*! Falling edge of this guy triggers readout */

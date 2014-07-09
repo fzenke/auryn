@@ -60,12 +60,12 @@ NeuronGroup::~NeuronGroup()
 	if ( evolve_locally() ) free();
 }
 
-void NeuronGroup::print_val(gsl_vector_float * vec, NeuronID i, const char * name)
+void NeuronGroup::print_val(auryn_vector_float * vec, NeuronID i, const char * name)
 {
-           printf ("%s%d= %g\n",name, i, gsl_vector_float_get (vec, i));
+           printf ("%s%d= %g\n",name, i, auryn_vector_float_get (vec, i));
 }
 
-void NeuronGroup::print_vec(gsl_vector_float * vec, const char * name)
+void NeuronGroup::print_vec(auryn_vector_float * vec, const char * name)
 {
 	for (NeuronID i = 0; i < get_rank_size(); i++)
          {
@@ -75,7 +75,7 @@ void NeuronGroup::print_vec(gsl_vector_float * vec, const char * name)
 
 void NeuronGroup::print_state(NeuronID id)
 {
-           printf ("%g %g %g %g\n",gsl_vector_float_get (mem, id), gsl_vector_float_get (g_ampa, id), gsl_vector_float_get (g_gaba, id) ,gsl_vector_float_get (g_nmda, id));
+           printf ("%g %g %g %g\n",auryn_vector_float_get (mem, id), auryn_vector_float_get (g_ampa, id), auryn_vector_float_get (g_gaba, id) ,auryn_vector_float_get (g_nmda, id));
 }
 
 AurynState NeuronGroup::get_mem(NeuronID i)
@@ -83,7 +83,7 @@ AurynState NeuronGroup::get_mem(NeuronID i)
 	return get_val(mem,i);
 }
 
-gsl_vector_float * NeuronGroup::get_mem_ptr()
+auryn_vector_float * NeuronGroup::get_mem_ptr()
 {
 	return mem;
 }
@@ -95,14 +95,14 @@ void NeuronGroup::set_mem(NeuronID i, AurynState val)
 
 void NeuronGroup::set_state(string name, NeuronID i, AurynState val)
 {
-	gsl_vector_float * tmp = get_state_vector(name);
+	auryn_vector_float * tmp = get_state_vector(name);
 	if ( tmp )
 		set_val(tmp,i,val);
 }
 
 void NeuronGroup::set_state(string name, AurynState val)
 {
-	gsl_vector_float * tmp = get_state_vector(name);
+	auryn_vector_float * tmp = get_state_vector(name);
 	if ( tmp ) 
 		for ( NeuronID i = 0 ; i < get_rank_size() ; ++i )
 			set_val(tmp,i,val);
@@ -116,7 +116,7 @@ AurynState NeuronGroup::get_ampa(NeuronID i)
 	return get_val(g_ampa,i);
 }
 
-gsl_vector_float * NeuronGroup::get_ampa_ptr()
+auryn_vector_float * NeuronGroup::get_ampa_ptr()
 {
 	return g_ampa;
 }
@@ -126,7 +126,7 @@ AurynState NeuronGroup::get_gaba(NeuronID i)
 	return get_val(g_gaba,i);
 }
 
-gsl_vector_float * NeuronGroup::get_gaba_ptr()
+auryn_vector_float * NeuronGroup::get_gaba_ptr()
 {
 	return g_gaba;
 }
@@ -136,7 +136,7 @@ AurynState NeuronGroup::get_nmda(NeuronID i)
 	return get_val(g_nmda,i);
 }
 
-gsl_vector_float * NeuronGroup::get_nmda_ptr()
+auryn_vector_float * NeuronGroup::get_nmda_ptr()
 {
 	return g_nmda;
 }
@@ -227,26 +227,26 @@ void NeuronGroup::init_state()
 
 
 
-void NeuronGroup::set_val(gsl_vector_float * vec, NeuronID i, AurynState val)
+void NeuronGroup::set_val(auryn_vector_float * vec, NeuronID i, AurynState val)
 {
-    gsl_vector_float_set (vec, i, val);
+    auryn_vector_float_set (vec, i, val);
 }
 
-void NeuronGroup::add_val(gsl_vector_float * vec, NeuronID i, AurynState val)
+void NeuronGroup::add_val(auryn_vector_float * vec, NeuronID i, AurynState val)
 {
-	// gsl_vector_float_set(vec,i,gsl_vector_float_get(vec,i)+val);
+	// auryn_vector_float_set(vec,i,auryn_vector_float_get(vec,i)+val);
 	vec->data[i] += val;
 }
 
-void NeuronGroup::clip_val(gsl_vector_float * vec, NeuronID i, AurynState max)
+void NeuronGroup::clip_val(auryn_vector_float * vec, NeuronID i, AurynState max)
 {
-	if ( gsl_vector_float_get(vec,i) > max)
-		gsl_vector_float_set(vec,i,max);
+	if ( auryn_vector_float_get(vec,i) > max)
+		auryn_vector_float_set(vec,i,max);
 }
 
-AurynState NeuronGroup::get_val(gsl_vector_float * vec, NeuronID i)
+AurynState NeuronGroup::get_val(auryn_vector_float * vec, NeuronID i)
 {
-	return gsl_vector_float_get (vec, i);
+	return auryn_vector_float_get (vec, i);
 }
 
 void NeuronGroup::tadd(NeuronID id, AurynWeight amount, TransmitterType t)

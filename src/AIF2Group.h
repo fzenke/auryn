@@ -24,7 +24,7 @@
 #include "auryn_definitions.h"
 #include "AIFGroup.h"
 #include "System.h"
-#include <gsl/gsl_blas.h>
+
 
 class AIF2Group : public AIFGroup
 {
@@ -36,7 +36,7 @@ private:
 	void free();
 
 protected:
-	gsl_vector_float * g_adapt2;
+	auryn_vector_float * g_adapt2;
 
 	void calculate_scale_constants();
 	void integrate_linear_nmda_synapses();

@@ -115,8 +115,12 @@ inline void SymmetricSTDPConnection::propagate_backward()
 	for (SpikeContainer::const_iterator spike = dst->get_spikes_immediate()->begin() ; // spike = post_spike
 			spike != spikes_end ; ++spike ) {
 		for (NeuronID * c = bkw->get_row_begin(*spike) ; c != bkw->get_row_end(*spike) ; ++c ) {
-			  _mm_prefetch(data[c-ind+1],  _MM_HINT_NTA);  
-			  *data[c-ind] += dw_post(*c);
+
+			#ifdef CODE_ACTIVATE_PREFETCHING_INTRINSICS
+			_mm_prefetch(data[c-ind+2],  _MM_HINT_NTA);
+			#endif
+			
+			*data[c-ind] += dw_post(*c);
 			if (*data[c-ind]>w_max) {
 				*data[c-ind]=w_max;
 			}

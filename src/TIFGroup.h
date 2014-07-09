@@ -24,8 +24,6 @@
 #include "auryn_definitions.h"
 #include "NeuronGroup.h"
 #include "System.h"
-#include <gsl/gsl_vector_float.h>
-#include <gsl/gsl_vector_ushort.h>
 
 
 /*! \brief Conductance based neuron model with absolute refractoriness as used in Vogels and Abbott 2005.
@@ -33,8 +31,8 @@
 class TIFGroup : public NeuronGroup
 {
 private:
-	gsl_vector_float * bg_current;
-	gsl_vector_ushort * ref;
+	auryn_vector_float * bg_current;
+	auryn_vector_ushort * ref;
 	unsigned short refractory_time;
 	AurynFloat e_rest,e_rev,thr,tau_mem;
 	AurynFloat tau_ampa,tau_gaba;

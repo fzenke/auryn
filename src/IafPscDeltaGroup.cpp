@@ -43,9 +43,9 @@ void IafPscDeltaGroup::init()
 
 	calculate_scale_constants();
 	
-	t_mem = gsl_vector_float_ptr ( mem , 0 ); 
-	ref = gsl_vector_ushort_alloc (get_vector_size()); 
-	t_ref = gsl_vector_ushort_ptr ( ref , 0 ); 
+	t_mem = auryn_vector_float_ptr ( mem , 0 ); 
+	ref = auryn_vector_ushort_alloc (get_vector_size()); 
+	t_ref = auryn_vector_ushort_ptr ( ref , 0 ); 
 
 	clear();
 
@@ -60,8 +60,8 @@ void IafPscDeltaGroup::clear()
 {
 	clear_spikes();
 	for (NeuronID i = 0; i < get_rank_size(); i++) {
-	   gsl_vector_float_set (mem, i, e_rest);
-	   gsl_vector_ushort_set (ref, i, 0);
+	   auryn_vector_float_set (mem, i, e_rest);
+	   auryn_vector_ushort_set (ref, i, 0);
 	}
 }
 
@@ -70,7 +70,7 @@ IafPscDeltaGroup::~IafPscDeltaGroup()
 {
 	if ( !evolve_locally() ) return;
 
-	gsl_vector_ushort_free (ref);
+	auryn_vector_ushort_free (ref);
 }
 
 
@@ -105,7 +105,7 @@ void IafPscDeltaGroup::set_tau_mem(AurynFloat taum)
 string IafPscDeltaGroup::get_output_line(NeuronID i)
 {
 	stringstream oss;
-	oss << get_mem(i) << " " << gsl_vector_ushort_get (ref, i) << "\n";
+	oss << get_mem(i) << " " << auryn_vector_ushort_get (ref, i) << "\n";
 	return oss.str();
 }
 
@@ -117,6 +117,6 @@ void IafPscDeltaGroup::load_input_line(NeuronID i, const char * buf)
 	if ( localrank(i) ) {
 		NeuronID trans = global2rank(i);
 		set_mem(trans,vmem);
-		gsl_vector_ushort_set (ref, trans, vref);
+		auryn_vector_ushort_set (ref, trans, vref);
 	}
 }

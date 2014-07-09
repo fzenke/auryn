@@ -149,8 +149,11 @@ void STDPConnection::propagate_backward()
 			spike != spikes_end ; ++spike ) {
 		if (stdp_active) {
 			for (NeuronID * c = bkw->get_row_begin(*spike) ; c != bkw->get_row_end(*spike) ; ++c ) {
-			    _mm_prefetch(bkw_data[c-bkw_ind+1],  _MM_HINT_NTA); 
-				// tested this and this and NTA directly here gave the best performance on the SUN
+
+				#ifdef CODE_ACTIVATE_PREFETCHING_INTRINSICS
+				_mm_prefetch(bkw_data[c-bkw_ind+1],  _MM_HINT_NTA);
+				#endif
+
 				AurynWeight * value = bkw_data[c-bkw_ind]; // create a shortcut for readability
 			    AurynWeight fplus = pow((get_max_weight()-*value),param_mu_plus); // compute f_minus(w) function value
 			    *value += fudge_pot*fplus*tr_pre->get(*c); // update the weight

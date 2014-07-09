@@ -24,7 +24,7 @@
 #include "auryn_definitions.h"
 #include "SparseConnection.h"
 #include "SimpleMatrix.cpp"
-#include <gsl/gsl_blas.h>
+
 
 using namespace std;
 
@@ -32,9 +32,9 @@ class STPConnection : public SparseConnection
 {
 private:
 	// STP parameters (maybe this should all move to a container)
-	gsl_vector_float * state_x;
-	gsl_vector_float * state_u;
-	gsl_vector_float * state_temp;
+	auryn_vector_float * state_x;
+	auryn_vector_float * state_u;
+	auryn_vector_float * state_temp;
 
 	double tau_d;
 	double tau_f;
