@@ -108,7 +108,7 @@ int main(int ac, char* av[])
 	string stimfile = "";
 	string infilename = "";
 
-	const char * file_prefix = "bg2";
+	const char * file_prefix = "bg_static";
 	char strbuf [255];
 	string msg;
 

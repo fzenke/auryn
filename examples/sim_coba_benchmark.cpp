@@ -180,12 +180,6 @@ int main(int ac,char *av[]) {
 	if ( !fwmat_ie.empty() ) con_ie->load_from_complete_file(fwmat_ie);
 	if ( !fwmat_ii.empty() ) con_ii->load_from_complete_file(fwmat_ii);
 
-	// pruning here impairs performance -- probably due to cache poisoning
-	con_ee->prune();
-	con_ei->prune();
-	con_ie->prune();
-	con_ii->prune();
-
 
 	if ( !fast ) {
 		msg = "Setting up monitors ...";
@@ -195,10 +189,10 @@ int main(int ac,char *av[]) {
 		filename << outputfile << "e.ras";
 		SpikeMonitor * smon_e = new SpikeMonitor( neurons_e, filename.str().c_str() );
 
-		filename.str("");
-		filename.clear();
-		filename << outputfile << "e.dras";
-		DelayedSpikeMonitor * dsmon_e = new DelayedSpikeMonitor( neurons_e, filename.str().c_str() );
+		// filename.str("");
+		// filename.clear();
+		// filename << outputfile << "e.dras";
+		// DelayedSpikeMonitor * dsmon_e = new DelayedSpikeMonitor( neurons_e, filename.str().c_str() );
 
 		filename.str("");
 		filename.clear();

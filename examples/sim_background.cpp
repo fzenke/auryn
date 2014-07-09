@@ -47,6 +47,7 @@
 #include "WeightMatrixMonitor.h"
 #include "PopulationRateMonitor.h"
 #include "SpikeMonitor.h"
+#include "RealTimeMonitor.h"
 #include "RateChecker.h"
 #include "FileInputGroup.h"
 
@@ -85,6 +86,9 @@ int main(int ac, char* av[])
 	bool scaling = false;
 	bool wmatdump = false;
 	bool loadbalance = false;
+
+	bool wall = false;
+
 	double tau_chk = 100e-3;
 	double simtime = 3600.;
 	double stimtime = simtime;
@@ -188,6 +192,7 @@ int main(int ac, char* av[])
             ("wdecay", po::value<double>(), "wdecay for decay triplet connections")
             ("chk", po::value<double>(), "checker time constant")
             ("adapt", "adapting excitatory neurons")
+            ("wall", "enable monitoring of wall clock time")
             ("noisyweights", "enables noisyweights for mean field checks")
             ("switchweights", "switches first weights in each weight matrix")
             ("fast", "turn off some of the monitors to run faster")
@@ -453,6 +458,11 @@ int main(int ac, char* av[])
 			adapt = true;
         } 
 
+        if (vm.count("wall")) {
+            cout << "real time wall clock monitoring enabled " << endl;
+			wall = true;
+        } 
+
         if (vm.count("noisyweights")) {
             cout << "noisyweights on " << endl;
 			noisyweights = true;
@@ -651,6 +661,11 @@ int main(int ac, char* av[])
 
 	sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.%c.prate", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), world.rank(), 'e');
 	PopulationRateMonitor * pmon_e = new PopulationRateMonitor( neurons_e, strbuf, 1.0 );
+
+	if ( wall ) {
+		sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.rt", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), world.rank());
+		RealTimeMonitor * rtmon = new RealTimeMonitor( strbuf );
+	}
 
 	// sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.%c.prate", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), world.rank(), 'i');
 	// PopulationRateMonitor * pmon_i = new PopulationRateMonitor( neurons_i, strbuf, 1.0 );
