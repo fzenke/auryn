@@ -426,13 +426,10 @@ void SparseConnection::propagate()
 	for (SpikeContainer::const_iterator spike = src->get_spikes()->begin() ;
 			spike != src->get_spikes()->end() ; 
 			++spike ) {
-		for (const NeuronID * c = w->get_row_begin(*spike) ; 
-				c < w->get_row_end(*spike) ; 
+		for ( AurynLong c = w->get_row_begin_index(*spike) ;
+				c < w->get_row_end_index(*spike) ;
 				++c ) {
-			NeuronID * ind = w->get_ind_begin(); // first element of index array
-			AurynWeight * data = w->get_data_begin();
-			AurynWeight value = data[c-ind]; 
-			transmit( *c , value );
+			transmit( w->get_colind(c) , w->get_value(c) );
 		}
 	}
 }

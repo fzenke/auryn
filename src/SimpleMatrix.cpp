@@ -133,7 +133,14 @@ public:
 	AurynDouble get_fill_level();
 	T get(NeuronID i, NeuronID j);
 	bool exists(NeuronID i, NeuronID j);
+	/*! Returns the pointer to a particular element */
 	T * get_ptr(NeuronID i, NeuronID j);
+	/*! Returns the pointer to a particular element given 
+	 * its position in the data array. */
+	T * get_ptr(AurynLong data_index);
+	T get_value(AurynLong data_index);
+	void add_value(AurynLong data_index, T value);
+	NeuronID get_colind(AurynLong data_index);
 	bool set(NeuronID i, NeuronID j, T value);
 	/*! Sets all non-zero elements to value */
 	void set_all(T value);
@@ -154,7 +161,9 @@ public:
 	double mean();
 	NeuronID * get_ind_begin();
 	NeuronID * get_row_begin(NeuronID i);
+	AurynLong get_row_begin_index(NeuronID i);
 	NeuronID * get_row_end(NeuronID i);
+	AurynLong get_row_end_index(NeuronID i);
 	NeuronID get_m_rows();
 	NeuronID get_n_cols();
 	NeuronID ** get_rowptrs();
@@ -395,6 +404,30 @@ T * SimpleMatrix<T>::get_ptr(NeuronID i, NeuronID j)
 }
 
 template <typename T>
+T * SimpleMatrix<T>::get_ptr(AurynLong data_index)
+{
+	return &coldata[data_index];
+}
+
+template <typename T>
+T SimpleMatrix<T>::get_value(AurynLong data_index)
+{
+	return coldata[data_index];
+}
+
+template <typename T>
+void SimpleMatrix<T>::add_value(AurynLong data_index, T value)
+{
+	coldata[data_index] += value;
+}
+
+template <typename T>
+NeuronID SimpleMatrix<T>::get_colind(AurynLong data_index)
+{
+	return colinds[data_index];
+}
+
+template <typename T>
 bool SimpleMatrix<T>::set(NeuronID i, NeuronID j, T value)
 {
 	T * ptr = get_ptr(i,j);
@@ -484,9 +517,21 @@ NeuronID * SimpleMatrix<T>::get_row_begin(NeuronID i)
 }
 
 template <typename T>
+AurynLong SimpleMatrix<T>::get_row_begin_index(NeuronID i)
+{
+	return rowptrs[i]-rowptrs[0];
+}
+
+template <typename T>
 NeuronID * SimpleMatrix<T>::get_row_end(NeuronID i)
 {
 	return rowptrs[i+1];
+}
+
+template <typename T>
+AurynLong SimpleMatrix<T>::get_row_end_index(NeuronID i)
+{
+	return rowptrs[i+1]-rowptrs[0];
 }
 
 
