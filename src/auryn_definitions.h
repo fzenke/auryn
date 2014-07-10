@@ -30,7 +30,12 @@
 #include <exception>
 #include <limits>
 
-#include <emmintrin.h> // SSE+SSE2
+
+#ifndef CODE_ACTIVATE_CILK_INSTRUCTIONS
+#include <x86intrin.h> // SIMD intrinsics
+#else // XMM registers are not supported on the phi platform
+#include <immintrin.h> // AVX only
+#endif /* CODE_ACTIVATE_CILK_INSTRUCTIONS */
 
 #include <boost/mpi.hpp>
 
@@ -65,7 +70,7 @@ namespace mpi = boost::mpi;
 
 #define SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS 4 //!< SSE can process 4 floats in parallel
 
-// #define CODE_COLLECT_SYNC_TIMING_STATS //!< toggle  collection of timing data on sync/all_gather
+#define CODE_COLLECT_SYNC_TIMING_STATS //!< toggle  collection of timing data on sync/all_gather
 
 /*! System wide integration time step */
 const double dt = 1.0e-4;

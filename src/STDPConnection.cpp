@@ -151,7 +151,7 @@ void STDPConnection::propagate_backward()
 			for (NeuronID * c = bkw->get_row_begin(*spike) ; c != bkw->get_row_end(*spike) ; ++c ) {
 
 				#ifdef CODE_ACTIVATE_PREFETCHING_INTRINSICS
-				_mm_prefetch(bkw_data[c-bkw_ind+1],  _MM_HINT_NTA);
+				_mm_prefetch((const char *)bkw_data[c-bkw_ind+1],  _MM_HINT_NTA);
 				#endif
 
 				AurynWeight * value = bkw_data[c-bkw_ind]; // create a shortcut for readability

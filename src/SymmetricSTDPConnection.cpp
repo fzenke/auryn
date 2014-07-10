@@ -117,7 +117,7 @@ inline void SymmetricSTDPConnection::propagate_backward()
 		for (NeuronID * c = bkw->get_row_begin(*spike) ; c != bkw->get_row_end(*spike) ; ++c ) {
 
 			#ifdef CODE_ACTIVATE_PREFETCHING_INTRINSICS
-			_mm_prefetch(data[c-ind+2],  _MM_HINT_NTA);
+			_mm_prefetch((const char *)data[c-ind+2],  _MM_HINT_NTA);
 			#endif
 			
 			*data[c-ind] += dw_post(*c);

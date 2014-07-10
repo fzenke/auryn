@@ -171,7 +171,7 @@ void TripletConnection::propagate_backward()
 			for (const NeuronID * c = bkw->get_row_begin(*spike) ; c != bkw->get_row_end(*spike) ; ++c ) {
 
 				#ifdef CODE_ACTIVATE_PREFETCHING_INTRINSICS
-				_mm_prefetch(bkw_data[c-bkw_ind+2],  _MM_HINT_NTA);
+				_mm_prefetch((const char *)bkw_data[c-bkw_ind+2],  _MM_HINT_NTA);
 				#endif
 
 				*bkw_data[c-bkw_ind] = *bkw_data[c-bkw_ind] + dw_post(*c,translated_spike);
