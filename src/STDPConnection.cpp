@@ -20,7 +20,7 @@
 
 #include "STDPConnection.h"
 
-void STDPConnection::init(AurynFloat lambda, AurynFloat maxweight)
+void STDPConnection::init(AurynWeight lambda, AurynWeight maxweight)
 {
 	if ( dst->get_post_size() == 0 ) return;
 
@@ -77,8 +77,8 @@ STDPConnection::STDPConnection(SpikingGroup * source, NeuronGroup * destination,
 
 STDPConnection::STDPConnection(SpikingGroup * source, NeuronGroup * destination, 
 		const char * filename, 
-		AurynFloat lambda, 
-		AurynFloat maxweight , 
+		AurynWeight lambda, 
+		AurynWeight maxweight , 
 		TransmitterType transmitter) 
 : DuplexConnection(source, 
 		destination, 
@@ -90,9 +90,9 @@ STDPConnection::STDPConnection(SpikingGroup * source, NeuronGroup * destination,
 }
 
 STDPConnection::STDPConnection(SpikingGroup * source, NeuronGroup * destination, 
-		AurynWeight weight, AurynFloat sparseness, 
-		AurynFloat lambda, 
-		AurynFloat maxweight , 
+		AurynWeight weight, AurynWeight sparseness, 
+		AurynWeight lambda, 
+		AurynWeight maxweight , 
 		TransmitterType transmitter,
 		string name) 
 : DuplexConnection(source, 
@@ -162,28 +162,28 @@ void STDPConnection::propagate_backward()
 	}
 }
 
-void STDPConnection::set_alpha(AurynFloat a)
+void STDPConnection::set_alpha(AurynWeight a)
 {
 	param_alpha = a;
 	compute_fudge_factors();
 	logger->parameter("alpha",param_alpha);
 }
 
-void STDPConnection::set_lambda(AurynFloat l)
+void STDPConnection::set_lambda(AurynWeight l)
 {
 	param_lambda = l;
 	compute_fudge_factors();
 	logger->parameter("lambda",param_lambda);
 }
 
-void STDPConnection::set_mu_plus(AurynFloat m)
+void STDPConnection::set_mu_plus(AurynWeight m)
 {
 	param_mu_plus = m;
 	compute_fudge_factors();
 	logger->parameter("mu_plus",param_mu_plus);
 }
 
-void STDPConnection::set_mu_minus(AurynFloat m)
+void STDPConnection::set_mu_minus(AurynWeight m)
 {
 	param_mu_minus = m;
 	compute_fudge_factors();
