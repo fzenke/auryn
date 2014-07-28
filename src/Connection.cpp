@@ -95,7 +95,7 @@ void Connection::set_transmitter(TransmitterType transmitter)
 	} else set_transmitter(NULL);
 }
 
-void Connection::set_transmitter(float * ptr)
+void Connection::set_transmitter(AurynWeight * ptr)
 {
 	target = ptr;
 }

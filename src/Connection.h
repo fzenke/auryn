@@ -66,7 +66,7 @@ public:
 	NeuronID get_m_rows();
 	NeuronID get_n_cols();
 	TransmitterType get_transmitter();
-	void set_transmitter(float * ptr);
+	void set_transmitter(AurynWeight * ptr);
 	void set_transmitter(TransmitterType transmitter);
 
 	void set_source(SpikingGroup * source);

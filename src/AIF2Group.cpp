@@ -114,8 +114,8 @@ void AIF2Group::check_thresholds()
 {
 	auryn_vector_float_clip( mem, e_rev );
 
-	float * thr_ptr = thr->data;
-	for ( float * i = mem->data ; i != mem->data+get_rank_size() ; ++i ) { // it's important to use rank_size here otherwise there might be spikes from units that do not exist
+	AurynState * thr_ptr = thr->data;
+	for ( AurynState * i = mem->data ; i != mem->data+get_rank_size() ; ++i ) { // it's important to use rank_size here otherwise there might be spikes from units that do not exist
     	if ( *i > ( thr_rest + *thr_ptr ) ) {
 			NeuronID unit = i-mem->data;
 			push_spike(unit);
