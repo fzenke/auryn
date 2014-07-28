@@ -121,12 +121,13 @@ typedef unsigned long AurynLong; //!< An unsigned long type used to count synaps
 typedef NeuronID AurynTime; //!< Defines Auryns discrete time unit of the System clock.  Change to AurynLong if 120h of simtime are not sufficient
 typedef float AurynFloat; //!< Low precision floating point datatype.
 typedef double AurynDouble; //!< Higher precision floating point datatype.
-typedef float AurynWeight; //!< Unit of synaptic weights.
-typedef float AurynState; //!< Type for Auryn state variables (default single precision since it needs to be compatible with auryn_vector_float).
+typedef AurynFloat AurynWeight; //!< Unit of synaptic weights.
+typedef AurynFloat AurynState; //!< Type for Auryn state variables (default single precision since it needs to be compatible with auryn_vector_float).
 typedef vector<NeuronID> SpikeContainer; //!< Spike container type. Used for storing spikes.
 typedef vector<float> AttributeContainer; //!< Attribute container type. Used for storing spike attributes that are needed for efficient STP implementations.
 
 
+// Auryn vector template -- copies the core of GSL vector functionality
 template <typename T> 
 struct auryn_vector { 
     NeuronID size;
