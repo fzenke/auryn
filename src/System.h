@@ -62,9 +62,11 @@ private:
 
 	double simulation_time_realtime_ratio;
 
+	/*! Returns string with a human readable time. */
+	string get_nice_time ( AurynTime clk );	
 
 	/*! Draws the progress bar */
-	void progressbar ( double fraction, float time );	
+	void progressbar ( double fraction, AurynTime clk );	
 
 	/*! Run simulation with given start and stop times and displays a progress bar. Mainly for internal use in System.
 	 * \param starttime Start time used for display of progress bar.

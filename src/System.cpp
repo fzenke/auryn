@@ -244,7 +244,7 @@ bool System::monitor(bool checking)
 }
 
 
-void System::progressbar ( double fraction, float time ) {
+void System::progressbar ( double fraction, AurynTime clk ) {
 	std::string bar;
 	int percent = 100*fraction;
 	const int division = 4;
@@ -261,7 +261,9 @@ void System::progressbar ( double fraction, float time ) {
 	cout << fixed << "\r" "[" << bar << "] ";
 	cout.width( 3 );
 
-	cout<< percent << "%     "<< setiosflags(ios::fixed) << setprecision(1) << " t=" << time << " s";
+	string time = get_nice_time(clk);
+
+	cout<< percent << "%     "<< setiosflags(ios::fixed) << " t=" << time ;
 
 
 	if (checkers.size())
@@ -273,6 +275,24 @@ void System::progressbar ( double fraction, float time ) {
 		cout << endl;
 }
 
+string System::get_nice_time(AurynTime clk)
+{
+	const AurynTime hour = 3600/dt;
+	const AurynTime day  = 24*hour;
+	stringstream oss;
+	if ( clk > day ) {
+		int d = clk/day;
+		oss << d <<"d ";
+		clk -= d*day;
+	}
+	if ( clk > hour ) {
+		int h = clk/hour;
+		oss << h <<"h ";
+		clk -= h*hour;
+	}
+	oss << fixed << setprecision(1) << clk*dt << "s";
+	return oss.str();
+}
 
 bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time, bool checking)
 {
@@ -325,7 +345,7 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 
 	    if ( (mpicom->rank()==0) && (not quiet) && ( (get_clock()%PROGRESSBAR_UPDATE_INTERVAL==0) || get_clock()==stoptime ) ) {
 			double fraction = 1.0*(get_clock()-starttime+1)*dt/total_time;
-			progressbar(fraction,get_time()); // TODO find neat solution for the rate
+			progressbar(fraction,get_clock()); // TODO find neat solution for the rate
 		}
 
 		if ( get_clock()%LOGGER_MARK_INTERVAL==0 ) // set a mark 
