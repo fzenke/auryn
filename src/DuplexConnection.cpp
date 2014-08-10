@@ -139,6 +139,12 @@ void DuplexConnection::compute_reverse_matrix()
 			<< bkw->get_nonzero() 
 			<< " different number of non-zero elements in bkw and fwd matrix.";
 		logger->msg(oss.str(),ERROR);
+	} else {
+		oss.str("");
+		oss << "DuplexConnection: ("<< get_name() << "): " 
+			<< bkw->get_nonzero() 
+			<< " elements processed.";
+		logger->msg(oss.str(),DEBUG);
 	}
 }
 

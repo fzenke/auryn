@@ -775,6 +775,12 @@ bool SparseConnection::load_from_file(ForwardMatrix * m, string filename, AurynL
 			<< m->get_nonzero()
 			<< " in matrix matrix.";
 		logger->msg(oss.str(),ERROR);
+	} else {
+		oss.str("");
+		oss << get_name() << ": OK, " 
+			<< pushback_count 
+			<< " elements pushed.";
+		logger->msg(oss.str(),DEBUG);
 	}
 
 	m->fill_zeros();
