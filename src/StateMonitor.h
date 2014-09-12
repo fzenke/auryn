@@ -48,7 +48,7 @@ protected:
 	void init(NeuronGroup * source, NeuronID id, string statename, string filename, AurynTime stepsize);
 	
 public:
-	StateMonitor(NeuronGroup * source, NeuronID id, string statename, string filename, AurynDouble sampling_interval=1.0);
+	StateMonitor(NeuronGroup * source, NeuronID id, string statename, string filename, AurynDouble sampling_interval=dt);
 	virtual ~StateMonitor();
 	void propagate();
 };
