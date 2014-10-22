@@ -55,6 +55,9 @@ public:
 	/*! Controls the constant current input (per default set so zero) to neuron i */
 	void set_bg_current(NeuronID i, AurynFloat current);
 
+	/*! Sets the constant current for all units to the same value. */
+	void set_all_bg_currents( AurynFloat current );
+
 	/*! Setter for refractory time [s] */
 	void set_refractory_period(AurynDouble t);
 
