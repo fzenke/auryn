@@ -77,8 +77,8 @@ int main(int ac, char* av[])
 	sys = new System(&world);
 	// END Global definitions
 
-	// Sets up a single presynaptic Poisson neuron which fires at 10Hz
-	PoissonGroup * poisson = new PoissonGroup(N,10.);
+	// Sets up a single presynaptic Poisson neuron which fires at 1Hz
+	PoissonGroup * poisson = new PoissonGroup(N,1.);
 
 	// Sets up a single postsynaptic integrate-and-fire neuron
 	IFGroup * neuron = new IFGroup(1);
@@ -87,10 +87,10 @@ int main(int ac, char* av[])
 	// Initializes the STP connection
 	STPConnection * con = new STPConnection(poisson,neuron,w,1.0,GLUT);
 
-	// Sets STP parameters
+	// Sets STP parameters (depression dominated)
 	double U = 0.2;
-	double taud = 0.2; // s
-	double tauf = 0.6; // s
+	double taud = 200e-3; // s
+	double tauf = 50e-3;  // s
 
 	// Passes the parameters to the connection instance
 	con->set_tau_d(taud);
@@ -121,8 +121,22 @@ int main(int ac, char* av[])
 	tmpstr += ".nmda";
 	NmdaMonitor * nmon = new NmdaMonitor( neuron, 0, tmpstr.c_str() );
 
+	// simulate for 5s
 	logger->msg("Running ...",PROGRESS);
-	sys->run(10);
+	sys->run(5);
+
+	// Changes firing rate of PoissonGroup
+	poisson->set_rate(50.0);
+
+	// simulate for 0.5s
+	sys->run(0.5);
+
+	// Changes firing rate of PoissonGroup
+	poisson->set_rate(1.0);
+
+	// simulate for 4.5s
+	sys->run(4.5);
+
 
 	logger->msg("Freeing ...",PROGRESS,true);
 	delete sys;
