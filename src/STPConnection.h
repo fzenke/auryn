@@ -102,7 +102,7 @@ public:
 	/*! Setter for tau_f, the timescale of synaptic facilitation. */
 	void set_tau_f(AurynFloat tauf);
 
-	/*! Setter for U_jump, the paramter of the U equation in the model. */
+	/*! Setter for U_jump, which specifies the spike triggered change in the U equation in the model. Typically the same as urest. */
 	void set_ujump(AurynFloat r);
 
 	/*! Setter for U_rest the resting value of U. */
