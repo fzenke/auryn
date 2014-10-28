@@ -76,41 +76,47 @@ int main(int ac, char* av[])
 
 	sys = new System(&world);
 	// END Global definitions
-	
-	PoissonGroup * poisson = new PoissonGroup(N,1.);
+
+	// Sets up a single presynaptic Poisson neuron which fires at 10Hz
+	PoissonGroup * poisson = new PoissonGroup(N,10.);
+
+	// Sets up a single postsynaptic integrate-and-fire neuron
 	IFGroup * neuron = new IFGroup(1);
 
+
+	// Initializes the STP connection
 	STPConnection * con = new STPConnection(poisson,neuron,w,1.0,GLUT);
 
+	// Sets STP parameters
 	double U = 0.2;
 	double taud = 0.2; // s
 	double tauf = 0.6; // s
 
+	// Passes the parameters to the connection instance
 	con->set_tau_d(taud);
 	con->set_tau_f(tauf);
 	con->set_ujump(U);
 	con->set_urest(U);
 
-	tmpstr = outputfile;
-	tmpstr += ".p.ras";
-	SpikeMonitor * smon_poisson = new SpikeMonitor( poisson, tmpstr.c_str() );
 
+	// Sets up recording
+
+	// Records the input spike train
 	tmpstr = outputfile;
 	tmpstr += ".ras";
-	SpikeMonitor * smon = new SpikeMonitor( neuron, tmpstr.c_str() );
+	SpikeMonitor * smon = new SpikeMonitor( poisson, tmpstr.c_str() );
 
+	// Records the postsynaptic membrane potential
 	tmpstr = outputfile;
 	tmpstr += ".mem";
 	VoltageMonitor * vmon = new VoltageMonitor( neuron, 0, tmpstr.c_str() );
 
+	// Records the postsynaptic AMPA conductance
 	tmpstr = outputfile;
 	tmpstr += ".ampa";
 	AmpaMonitor * amon = new AmpaMonitor( neuron, 0, tmpstr.c_str() );
 
-	tmpstr = outputfile;
-	tmpstr += ".gaba";
-	GabaMonitor * gmon = new GabaMonitor( neuron, 0, tmpstr.c_str() );
-
+	// Records the postsynaptic NMDA conductance
 	tmpstr = outputfile;
 	tmpstr += ".nmda";
 	NmdaMonitor * nmon = new NmdaMonitor( neuron, 0, tmpstr.c_str() );
