@@ -37,6 +37,8 @@ void WeightPatternMonitor::init(Connection * source, string filename,AurynTime s
 
 	src = source;
 	ssize = stepsize;
+	if ( ssize < 1 ) ssize = 1;
+
 	outfile << setiosflags(ios::fixed) << setprecision(6);
 
 	max_patterns = 3;

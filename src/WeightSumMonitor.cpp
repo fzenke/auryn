@@ -37,6 +37,8 @@ void WeightSumMonitor::init(Connection * source, string filename,AurynTime steps
 
 	src = source;
 	ssize = stepsize;
+	if ( ssize < 1 ) ssize = 1;
+
 	outfile << setiosflags(ios::fixed) << setprecision(6);
 }
 

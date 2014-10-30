@@ -39,6 +39,8 @@ void StateMonitor::init(NeuronGroup * source, NeuronID id, string statename, str
 	nid = source->global2rank(id);
 
 	ssize = stepsize;
+	if ( ssize < 1 ) ssize = 1;
+
 	if ( source->evolve_locally() ) {
 		target_variable = src->get_state_vector(statename)->data+nid;
 	} else {

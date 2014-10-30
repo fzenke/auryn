@@ -45,20 +45,20 @@ private:
 	/*! Stepsize = binsize in units of AurynTime (dt) */
 	AurynTime ssize;
 	/*! Binsize used in seconds */
-	AurynDouble bsize;
+	AurynDouble invbsize;
 
 protected:
 	/*! The source SpikingGroup */
 	SpikingGroup * src;
 	/*! Default init method */
-	void init(SpikingGroup * source, string filename, AurynFloat binsize);
+	void init(SpikingGroup * source, string filename, AurynDouble binsize);
 	
 public:
 	/*! Default Constructor 
 	 @param[source] The source spiking group.
 	 @param[filename] The filename to write to (should be different for each rank.)
 	 @param[binsize] The binsize used for counting in seconds.*/
-	PopulationRateMonitor(SpikingGroup * source, string filename, AurynFloat binsize=1e-3);
+	PopulationRateMonitor(SpikingGroup * source, string filename, AurynDouble binsize=1e-3);
 	/*! Default Destructor */
 	virtual ~PopulationRateMonitor();
 	/*! Implementation of necessary propagate() function. */
