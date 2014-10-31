@@ -1,3 +1,10 @@
+xxxx-xx-xx Friedemann Zenke <friedemann.zenke@epfl.ch>
+ * Adds integrate-and-fire model for exclusive use with current based synapses
+ (CubaIFGroup).
+ * Adds an example simulation for short-term-plasticity (STPConnection).
+ * Improves doxygen strings and comments in various places.
+ * Diverse bugfixes.
+
 2014-02-21 Friedemann Zenke <friedemann.zenke@epfl.ch> 
  * Adds new example code for Brunel 2000 balanced network
  * Applies diverse bugfixes
