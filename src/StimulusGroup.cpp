@@ -448,6 +448,12 @@ void StimulusGroup::set_active_pattern(unsigned int i)
 
 void StimulusGroup::set_distribution( vector<double> probs )
 {
+	for ( unsigned int i = 0 ; i < stimuli.size() ; ++i ) {
+		probabilities[i] = probs[i];
+	}
+
+	normalize_distribution();
+
 	stringstream oss;
 	oss << "StimulusGroup: Set distribution [";
 	for ( unsigned int i = 0 ; i < stimuli.size() ; ++i ) {
@@ -456,8 +462,6 @@ void StimulusGroup::set_distribution( vector<double> probs )
 	}
 	oss << " ]";
 	logger->msg(oss.str(),NOTIFICATION);
-
-	normalize_distribution();
 }
 
 vector<double> StimulusGroup::get_distribution( )
