@@ -54,6 +54,8 @@ void PatternMonitor::init(SpikingGroup * source, string filename, NeuronID maxim
 	src = source;
 	bsize = binsize;
 	ssize = bsize/dt;
+	if ( ssize < 1 ) ssize = 1;
+
 	maxpat = maximum_patterns;
 
 	counter = new  NeuronID [src->get_rank_size()];

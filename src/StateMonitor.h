@@ -30,7 +30,7 @@
 
 using namespace std;
 
-/*! \brief Records the membrane potential from one unit from the source neuron group to a file.*/
+/*! \brief Records from an arbitray state vector of one unit from the source neuron group to a file.*/
 class StateMonitor : protected Monitor
 {
 protected:
@@ -48,7 +48,14 @@ protected:
 	void init(NeuronGroup * source, NeuronID id, string statename, string filename, AurynTime stepsize);
 	
 public:
-	StateMonitor(NeuronGroup * source, NeuronID id, string statename, string filename, AurynDouble sampling_interval=1.0);
+	/*! Standard constructor 
+	 * \param source The neuron group to record from
+	 * \param id The neuron id in the group to record from 
+	 * \param statename The name of the StateVector to record from
+	 * \param filename The filename of the file to dump the output to
+	 * \param sampling_interval The sampling interval in seconds
+	 */
+	StateMonitor(NeuronGroup * source, NeuronID id, string statename, string filename, AurynDouble sampling_interval=dt);
 	virtual ~StateMonitor();
 	void propagate();
 };

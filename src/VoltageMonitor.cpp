@@ -34,6 +34,10 @@ void VoltageMonitor::init(NeuronGroup * source, NeuronID id, string filename, Au
 	// only register if the neuron exists on this rank
 	src = source;
 	ssize = stepsize;
+	if ( ssize < 1 ) ssize = 1;
+
+	if ( ssize < 1 ) ssize = 1;
+
 	nid = id;
 	gid = src->rank2global(nid);
 	paste_spikes = true;

@@ -20,7 +20,7 @@
 
 #include "PopulationRateMonitor.h"
 
-PopulationRateMonitor::PopulationRateMonitor(SpikingGroup * source, string filename, AurynFloat binsize) : Monitor(filename)
+PopulationRateMonitor::PopulationRateMonitor(SpikingGroup * source, string filename, AurynDouble binsize) : Monitor(filename)
 {
 	init(source,filename,binsize);
 }
@@ -29,20 +29,21 @@ PopulationRateMonitor::~PopulationRateMonitor()
 {
 }
 
-void PopulationRateMonitor::init(SpikingGroup * source, string filename, AurynFloat binsize)
+void PopulationRateMonitor::init(SpikingGroup * source, string filename, AurynDouble binsize)
 {
 	sys->register_monitor(this);
 
 	src = source;
-	bsize = binsize;
-	ssize = bsize/dt;
+	invbsize = 1.0/binsize;
+	ssize = (1.0*binsize/dt);
+	if ( ssize < 1 ) ssize = 1;
 	counter = 0;
 
 	stringstream oss;
-	oss << "PopulationRateMonitor:: Setting binsize " << bsize << "s";
+	oss << "PopulationRateMonitor:: Setting binsize " << binsize << "s";
 	logger->msg(oss.str(),NOTIFICATION);
 
-	outfile << setiosflags(ios::fixed) << setprecision(6);
+	// outfile << setiosflags(ios::fixed) << setprecision(6);
 }
 
 void PopulationRateMonitor::propagate()
@@ -50,9 +51,9 @@ void PopulationRateMonitor::propagate()
 	if ( src->evolve_locally() ) {
 		counter += src->get_spikes_immediate()->size();
 		if (sys->get_clock()%ssize==0) {
-			double rate = 1.*counter/bsize/src->get_rank_size();
+			double rate = invbsize*counter/src->get_rank_size();
 			counter = 0;
-			outfile << dt*(sys->get_clock()) << " " << rate << "\n";
+			outfile << sys->get_time() << " " << rate << "\n";
 		}
 	}
 }

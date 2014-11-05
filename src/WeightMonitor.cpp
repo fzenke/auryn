@@ -69,6 +69,8 @@ void WeightMonitor::init(SparseConnection * source, NeuronID i, NeuronID j, stri
 	src = source;
 	set_mat(src->w);
 	ssize = stepsize;
+	if ( ssize < 1 ) ssize = 1;
+
 	outfile << setiosflags(ios::fixed) << setprecision(6);
 
 	stringstream oss;

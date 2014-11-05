@@ -35,6 +35,8 @@ void RateMonitor::init(SpikingGroup * source, string filename, AurynFloat sampli
 
 	src = source;
 	ssize = samplinginterval/dt;
+	if ( ssize < 1 ) ssize = 1;
+
 	tau_filter = 3*samplinginterval;
 
 	tr_post = source->get_post_trace(tau_filter);
