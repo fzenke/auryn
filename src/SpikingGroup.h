@@ -116,13 +116,13 @@ public:
 	/*! Can hold single neuron vectors such as target rates or STP states etc  */
 	map<string,auryn_vector_float *> state_vector;
 
-	/* Returns existing state vector by name */
+	/*! Returns existing state vector by name */
 	auryn_vector_float * find_state_vector(string key);
 
-	/* Creates and returens a state vector */
+	/*! Creates a new or returns an existing state vector */
 	auryn_vector_float * get_state_vector(string key);
 
-	/* Randomizes the content of a state vector with Gaussian random numbers. Seeding is MPI save. */
+	/*! Randomizes the content of a state vector with Gaussian random numbers. Seeding is MPI save. */
 	void randomize_state_vector_gauss(string state_vector_name, AurynState mean, AurynState sigma, int seed=12239);
 
 	/*! Default constructor */
