@@ -81,11 +81,9 @@ int main(int ac, char* av[])
 	// END Global definitions
 	
 	PoissonGroup * poisson = new PoissonGroup(N,1.);
-	PoissonGroup * poisson2 = new PoissonGroup(N,1.);
 	IFGroup * neuron = new IFGroup(1);
 
 	IdentityConnection * con = new IdentityConnection(poisson,neuron,w,GLUT);
-	IdentityConnection * con2 = new IdentityConnection(poisson2,neuron,w,GABA);
 
 	tmpstr = outputfile;
 	tmpstr += ".ras";
@@ -98,10 +96,6 @@ int main(int ac, char* av[])
 	tmpstr = outputfile;
 	tmpstr += ".ampa";
 	AmpaMonitor * amon = new AmpaMonitor( neuron, 0, tmpstr.c_str() );
-
-	tmpstr = outputfile;
-	tmpstr += ".gaba";
-	GabaMonitor * gmon = new GabaMonitor( neuron, 0, tmpstr.c_str() );
 
 	tmpstr = outputfile;
 	tmpstr += ".nmda";
