@@ -76,6 +76,8 @@ protected:
 
 	void record_single_synapses();
 	void record_synapse_groups();
+
+	vector<type_pattern> * load_patfile( string filename, int maxpat );
 	
 public:
 	WeightMonitor(SparseConnection * source, string filename, AurynDouble interval=1);
@@ -113,6 +115,7 @@ public:
 	 *		only adds connections inside single patterns.
 	 */
 	void load_pattern_connections(string filename, int maxcon = 5, int maxpat = 10, PatternMode patmod = ALLTOALL);
+	void load_pattern_connections(string filename_pre, string filename_post, int maxcon = 5, int maxpat = 10, PatternMode patmod = ALLTOALL);
 	void load_data_range(NeuronID i, NeuronID j);
 };
 

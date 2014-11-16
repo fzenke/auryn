@@ -156,11 +156,11 @@ void WeightMonitor::load_data_range( NeuronID i, NeuronID j )
 	outfile << "# Added data range " << i << "-" << j << "." << endl;
 }
 
-void WeightMonitor::load_pattern_connections( string filename , int maxcon, int maxpat, PatternMode patmod )
+vector<type_pattern> * WeightMonitor::load_patfile( string filename, int maxpat )
 {
-	if ( !src->get_destination()->evolve_locally() ) return;
+	if ( !src->get_destination()->evolve_locally() ) return NULL;
 
-	vector<type_pattern> patterns;
+	vector<type_pattern> * patterns = new vector<type_pattern>;
 
 	ifstream fin (filename.c_str());
 	if (!fin) {
@@ -171,7 +171,7 @@ void WeightMonitor::load_pattern_connections( string filename , int maxcon, int 
 		<< " for reading."
 		<< endl;
 		logger->msg(oss.str(),ERROR);
-		return;
+		throw AurynOpenFileException();
 	}
 
 	char buffer[256];
@@ -179,7 +179,7 @@ void WeightMonitor::load_pattern_connections( string filename , int maxcon, int 
 
 	type_pattern pattern;
 	int total_pattern_size = 0;
-	while( !fin.eof() && patterns.size() < maxpat ) {
+	while( !fin.eof() && patterns->size() < maxpat ) {
 
 		line.clear();
 		fin.getline (buffer,255);
@@ -190,7 +190,7 @@ void WeightMonitor::load_pattern_connections( string filename , int maxcon, int 
 			if ( total_pattern_size > 0 ) {
 				stringstream oss;
 				oss << "WeightMonitor:: Read pattern " 
-					<< patterns.size() 
+					<< patterns->size() 
 					<< " with pattern size "
 					<< total_pattern_size
 					<< " ( "
@@ -198,7 +198,7 @@ void WeightMonitor::load_pattern_connections( string filename , int maxcon, int 
 					<< " on rank )";
 				logger->msg(oss.str(),DEBUG);
 
-				patterns.push_back(pattern);
+				patterns->push_back(pattern);
 				pattern.clear();
 				total_pattern_size = 0;
 			}
@@ -217,15 +217,33 @@ void WeightMonitor::load_pattern_connections( string filename , int maxcon, int 
 	}
 	fin.close();
 
-	for ( int i = 0 ; i < patterns.size() ; ++i ) {
-		for ( int j = 0 ; j < patterns.size() ; ++j ) {
+	return patterns;
+}
+
+void WeightMonitor::load_pattern_connections( string filename , int maxcon, int maxpat, PatternMode patmod )
+{
+	load_pattern_connections( filename, filename, maxcon, maxpat, patmod );
+}
+
+
+void WeightMonitor::load_pattern_connections( string filename_pre, string filename_post , int maxcon, int maxpat, PatternMode patmod )
+{
+
+	vector<type_pattern> * patterns_pre = load_patfile(filename_pre, maxpat);
+	vector<type_pattern> * patterns_post = patterns_pre;
+
+	if ( filename_pre.compare(filename_post) ) 
+		vector<type_pattern> * patterns_pre = load_patfile(filename_post, maxpat);
+
+	for ( int i = 0 ; i < patterns_pre->size() ; ++i ) {
+		for ( int j = 0 ; j < patterns_post->size() ; ++j ) {
 			if ( patmod==ASSEMBLIES_ONLY && i != j ) continue;
 			vector<neuron_pair> list;
-			for ( int k = 0 ; k < patterns[i].size() ; ++k ) {
-				for ( int l = 0 ; l < patterns[j].size() ; ++l ) {
+			for ( int k = 0 ; k < patterns_pre[i].size() ; ++k ) {
+				for ( int l = 0 ; l < patterns_post[j].size() ; ++l ) {
 						neuron_pair p;
-						p.i = patterns[i][k].i;
-						p.j = patterns[j][l].i;
+						p.i = patterns_pre->at(i)[k].i;
+						p.j = patterns_post->at(j)[l].i;
 						AurynWeight * ptr = mat->get_ptr(p.i,p.j);
 						if ( ptr != NULL ) // make sure we are counting connections that do exist
 							list.push_back( p );
@@ -237,13 +255,23 @@ void WeightMonitor::load_pattern_connections( string filename , int maxcon, int 
 			stringstream oss;
 			oss << "(connections " << i << " to " << j << ")";
 			add_to_list(list,oss.str());
+			group_indices.push_back(element_list->size());
 		}
 	}
 
 
 	stringstream oss;
-	oss << "WeightMonitor:: Finished loading connections from " << patterns.size() << " patterns";
+	oss << "WeightMonitor:: Finished loading connections from n_pre" 
+		<< patterns_pre->size() 
+		<< " and n_post "
+		<< patterns_post->size() 
+		<< " patterns";
 	logger->msg(oss.str(),NOTIFICATION);
+
+
+	delete patterns_pre;
+	if ( filename_pre.compare(filename_post) ) 
+		delete patterns_post;
 }
 
 
