@@ -54,6 +54,7 @@ WeightMonitor::WeightMonitor(SparseConnection * source, NeuronID i, NeuronID j, 
 WeightMonitor::~WeightMonitor()
 {
 	delete element_list;
+
 }
 
 void WeightMonitor::init(SparseConnection * source, NeuronID i, NeuronID j, string filename, AurynTime stepsize)
@@ -82,16 +83,8 @@ void WeightMonitor::init(SparseConnection * source, NeuronID i, NeuronID j, stri
 
 void WeightMonitor::add_to_list(AurynWeight * ptr)
 {
-	if ( recordingmode == ELEMENTLIST ) {
-		if ( ptr != NULL )
-			element_list->push_back( ptr );
-	} else {
-		stringstream oss;
-		oss << "WeightMonitor:: "
-			<< "Cannot add weight list. Not in ELEMENTLIST mode."
-			<< endl;
-		logger->msg(oss.str(),ERROR);
-	}
+	if ( ptr != NULL )
+		element_list->push_back( ptr );
 }
 
 void WeightMonitor::add_to_list(NeuronID i, NeuronID j)
@@ -102,7 +95,7 @@ void WeightMonitor::add_to_list(NeuronID i, NeuronID j)
 
 void WeightMonitor::add_to_list( vector<neuron_pair>  vec, string label )
 {
-	if ( recordingmode == ELEMENTLIST ) {
+	if ( recordingmode == ELEMENTLIST || recordingmode == GROUPS ) {
 		stringstream oss;
 		oss << "WeightMonitor:: Adding " << vec.size() << " elements to index list " << label;
 		logger->msg(oss.str(),DEBUG);
@@ -119,7 +112,7 @@ void WeightMonitor::add_to_list( vector<neuron_pair>  vec, string label )
 	} else {
 		stringstream oss;
 		oss << "WeightMonitor:: "
-			<< "Cannot add weight list. Not in ELEMENTLIST mode."
+			<< "Cannot add weight list. Not in ELEMENTLIST or GROUP mode."
 			<< endl;
 		logger->msg(oss.str(),ERROR);
 	}
@@ -158,9 +151,9 @@ void WeightMonitor::load_data_range( NeuronID i, NeuronID j )
 
 vector<type_pattern> * WeightMonitor::load_patfile( string filename, int maxpat )
 {
-	if ( !src->get_destination()->evolve_locally() ) return NULL;
 
 	vector<type_pattern> * patterns = new vector<type_pattern>;
+
 
 	ifstream fin (filename.c_str());
 	if (!fin) {
@@ -176,6 +169,7 @@ vector<type_pattern> * WeightMonitor::load_patfile( string filename, int maxpat 
 
 	char buffer[256];
 	string line;
+
 
 	type_pattern pattern;
 	int total_pattern_size = 0;
@@ -217,6 +211,8 @@ vector<type_pattern> * WeightMonitor::load_patfile( string filename, int maxpat 
 	}
 	fin.close();
 
+
+
 	return patterns;
 }
 
@@ -228,19 +224,22 @@ void WeightMonitor::load_pattern_connections( string filename , int maxcon, int 
 
 void WeightMonitor::load_pattern_connections( string filename_pre, string filename_post , int maxcon, int maxpat, PatternMode patmod )
 {
+	if ( !src->get_destination()->evolve_locally() ) return ;
 
 	vector<type_pattern> * patterns_pre = load_patfile(filename_pre, maxpat);
 	vector<type_pattern> * patterns_post = patterns_pre;
 
 	if ( filename_pre.compare(filename_post) ) 
-		vector<type_pattern> * patterns_pre = load_patfile(filename_post, maxpat);
+		patterns_pre = load_patfile(filename_post, maxpat);
+
+
 
 	for ( int i = 0 ; i < patterns_pre->size() ; ++i ) {
 		for ( int j = 0 ; j < patterns_post->size() ; ++j ) {
 			if ( patmod==ASSEMBLIES_ONLY && i != j ) continue;
 			vector<neuron_pair> list;
-			for ( int k = 0 ; k < patterns_pre[i].size() ; ++k ) {
-				for ( int l = 0 ; l < patterns_post[j].size() ; ++l ) {
+			for ( int k = 0 ; k < patterns_pre->at(i).size() ; ++k ) {
+				for ( int l = 0 ; l < patterns_post->at(j).size() ; ++l ) {
 						neuron_pair p;
 						p.i = patterns_pre->at(i)[k].i;
 						p.j = patterns_post->at(j)[l].i;
@@ -252,6 +251,7 @@ void WeightMonitor::load_pattern_connections( string filename_pre, string filena
 				if ( list.size() >= maxcon ) break;
 			}
 
+
 			stringstream oss;
 			oss << "(connections " << i << " to " << j << ")";
 			add_to_list(list,oss.str());
@@ -260,18 +260,20 @@ void WeightMonitor::load_pattern_connections( string filename_pre, string filena
 	}
 
 
+
 	stringstream oss;
-	oss << "WeightMonitor:: Finished loading connections from n_pre" 
+	oss << "WeightMonitor:: Finished loading connections from n_pre=" 
 		<< patterns_pre->size() 
-		<< " and n_post "
+		<< " and n_post="
 		<< patterns_post->size() 
 		<< " patterns";
 	logger->msg(oss.str(),NOTIFICATION);
 
 
-	delete patterns_pre;
-	if ( filename_pre.compare(filename_post) ) 
+	if ( patterns_pre != patterns_post ) 
 		delete patterns_post;
+	delete patterns_pre;
+
 }
 
 
