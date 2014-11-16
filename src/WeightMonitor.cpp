@@ -23,29 +23,22 @@
 WeightMonitor::WeightMonitor(SparseConnection * source, string filename, AurynDouble interval ) : Monitor(filename)
 {
 	init(source,0,0,filename,interval/dt);
-	recordingmode = ELEMENTLIST;
-	element_list = new vector<AurynWeight*>;
-	elem_i = 0;
-	elem_j = 0;
 }
 
 WeightMonitor::WeightMonitor(SparseConnection * source, ForwardMatrix * m, string filename, AurynDouble interval ) : Monitor(filename)
 {
 	init(source,0,0,filename,interval/dt);
-	recordingmode = ELEMENTLIST;
-	element_list = new vector<AurynWeight*>;
-	elem_i = 0;
-	elem_j = 0;
 	set_mat(m);
 }
 
 WeightMonitor::WeightMonitor(SparseConnection * source, NeuronID i, NeuronID j, string filename, AurynDouble interval, RecordingMode mode ) : Monitor(filename)
 {
 	init(source,i,j,filename,interval/dt);
+
+	// overwrite the following default values set in init
 	recordingmode = mode;
 	elem_i = i;
 	elem_j = j;
-	element_list = new vector<AurynWeight*>;
 
 	switch (recordingmode) {
 		case DATARANGE : 
@@ -78,6 +71,13 @@ void WeightMonitor::init(SparseConnection * source, NeuronID i, NeuronID j, stri
 		<< "Initialized. Writing to file "
 		<< fname;
 	logger->msg(oss.str(),DEBUG);
+
+	// default behavior
+	recordingmode = ELEMENTLIST;
+	element_list = new vector<AurynWeight*>;
+	group_indices.push_back(0); // important for group mode
+	elem_i = 0;
+	elem_j = 0;
 }
 
 void WeightMonitor::add_to_list(AurynWeight * ptr)
@@ -247,13 +247,37 @@ void WeightMonitor::load_pattern_connections( string filename , int maxcon, int 
 }
 
 
+void WeightMonitor::record_single_synapses()
+{
+	for (vector<AurynWeight*>::iterator iter = element_list->begin() ; iter != element_list->end() ; ++iter)
+		outfile << *(*iter) << " ";
+}
+
+void WeightMonitor::record_synapse_groups()
+{
+	for ( int i = 1 ; i < group_indices.size() ; ++i ) {
+		AurynDouble sum = 0;
+		AurynDouble sum2 = 0;
+
+		for ( int k = group_indices[i-1] ; k < group_indices[i] ; ++k ) {
+			sum += *(element_list->at(k));
+			sum2 += pow((*(element_list->at(k))),2);
+		}
+		NeuronID n = group_indices[i]-group_indices[i-1];
+		AurynDouble mean = sum/n;
+		AurynDouble stdev = sqrt(sum2/n-mean*mean);
+		outfile << mean << " " << stdev << "   ";
+	}
+}
+
+
 void WeightMonitor::propagate()
 {
 	if ( src->get_destination()->evolve_locally() ) {
 		if (sys->get_clock()%ssize==0) {
 			outfile << fixed << dt*(sys->get_clock()) << scientific << " ";
-			for (vector<AurynWeight*>::iterator iter = element_list->begin() ; iter != element_list->end() ; ++iter)
-				outfile << *(*iter) << " ";
+			if ( recordingmode == GROUPS ) record_synapse_groups();
+			else record_single_synapses();
 			outfile << "\n";
 		}
 	}
