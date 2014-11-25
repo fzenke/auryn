@@ -39,7 +39,7 @@ void WeightPatternMonitor::init(Connection * source, string filename,AurynTime s
 	ssize = stepsize;
 	outfile << setiosflags(ios::fixed) << setprecision(6);
 
-	max_patterns = 3;
+	max_patterns = 5;
 }
 
 
@@ -69,8 +69,10 @@ void WeightPatternMonitor::propagate()
 	if (sys->get_clock()%ssize==0) {
 		outfile << fixed << (sys->get_time()) << " ";
 
-		for ( int i = 0 ; i < min(min(pre_patterns.size(),post_patterns.size()),max_patterns) ; ++i ) {
-			for ( int j = 0 ; j <= i ; ++j ) {
+		int p = min(min(pre_patterns.size(),post_patterns.size()),max_patterns);
+
+		for ( int i = 0 ; i < p ; ++i ) {
+			for ( int j = 0 ; j < p ; ++j ) {
 				outfile << scientific 
 					<< compute_pattern_mean(i,j) 
 					<< " ";
