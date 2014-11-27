@@ -36,10 +36,7 @@
 #include "IFGroup.h"
 #include "AIFGroup.h"
 #include "PoissonGroup.h"
-#include "SparseConnection.h"
-#include "IdentityConnection.h"
-#include "TripletConnection.h"
-#include "TripletDecayConnection.h"
+#include "STPConnection.h"
 #include "WeightMonitor.h"
 #include "WeightMatrixMonitor.h"
 #include "PopulationRateMonitor.h"
@@ -64,7 +61,7 @@ int main(int ac, char* av[])
 
 	int errcode = 0;
 	char strbuf [255];
-	string outputfile = "out_epsp";
+	string outputfile = "out_epsp_stp";
 	string tmpstr;
 	AurynWeight w = 1.0;
 
@@ -73,36 +70,73 @@ int main(int ac, char* av[])
 	mpi::communicator world;
 	communicator = &world;
 
-	sprintf(strbuf, "out_epsp.%d.log", world.rank());
+	sprintf(strbuf, "out_epsp_stp.%d.log", world.rank());
 	string logfile = strbuf;
 	logger = new Logger(logfile,world.rank(),PROGRESS,EVERYTHING);
 
 	sys = new System(&world);
 	// END Global definitions
-	
+
+	// Sets up a single presynaptic Poisson neuron which fires at 1Hz
 	PoissonGroup * poisson = new PoissonGroup(N,1.);
+
+	// Sets up a single postsynaptic integrate-and-fire neuron
 	IFGroup * neuron = new IFGroup(1);
 
-	IdentityConnection * con = new IdentityConnection(poisson,neuron,w,GLUT);
 
+	// Initializes the STP connection
+	STPConnection * con = new STPConnection(poisson,neuron,w,1.0,GLUT);
+
+	// Sets STP parameters (depression dominated)
+	double U = 0.2;
+	double taud = 200e-3; // s
+	double tauf = 50e-3;  // s
+
+	// Passes the parameters to the connection instance
+	con->set_tau_d(taud);
+	con->set_tau_f(tauf);
+	con->set_ujump(U);
+	con->set_urest(U);
+
+
+	// Sets up recording
+
+	// Records the input spike train
 	tmpstr = outputfile;
 	tmpstr += ".ras";
-	SpikeMonitor * smon = new SpikeMonitor( neuron, tmpstr.c_str() );
+	SpikeMonitor * smon = new SpikeMonitor( poisson, tmpstr.c_str() );
 
+	// Records the postsynaptic membrane potential
 	tmpstr = outputfile;
 	tmpstr += ".mem";
 	VoltageMonitor * vmon = new VoltageMonitor( neuron, 0, tmpstr.c_str() );
 
+	// Records the postsynaptic AMPA conductance
 	tmpstr = outputfile;
 	tmpstr += ".ampa";
 	AmpaMonitor * amon = new AmpaMonitor( neuron, 0, tmpstr.c_str() );
 
+	// Records the postsynaptic NMDA conductance
 	tmpstr = outputfile;
 	tmpstr += ".nmda";
 	NmdaMonitor * nmon = new NmdaMonitor( neuron, 0, tmpstr.c_str() );
 
+	// simulate for 5s
 	logger->msg("Running ...",PROGRESS);
-	sys->run(10);
+	sys->run(5);
+
+	// Changes firing rate of PoissonGroup
+	poisson->set_rate(50.0);
+
+	// simulate for 0.5s
+	sys->run(0.5);
+
+	// Changes firing rate of PoissonGroup
+	poisson->set_rate(1.0);
+
+	// simulate for 4.5s
+	sys->run(4.5);
+
 
 	logger->msg("Freeing ...",PROGRESS,true);
 	delete sys;

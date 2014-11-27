@@ -35,6 +35,8 @@ void GabaMonitor::init(NeuronGroup * source, NeuronID id, string filename, Auryn
 
 	src = source;
 	ssize = stepsize;
+	if ( ssize < 1 ) ssize = 1;
+
 	nid = id;
 	outfile << setiosflags(ios::fixed) << setprecision(6);
 }

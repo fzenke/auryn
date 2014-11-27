@@ -42,7 +42,6 @@ public:
 	AurynFloat learning_rate;
 	AurynFloat target;
 	AurynFloat kappa_fudge;
-	AurynWeight w_max;
 
 	PRE_TRACE_MODEL * tr_pre;
 	DEFAULT_TRACE_MODEL * tr_post;

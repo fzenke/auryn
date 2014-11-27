@@ -29,15 +29,14 @@ due to problems with the inclusion of the necessary MPI libraries.
 Requirements
 ------------
 
-Auryn needs the boost libraries (www.boost.org) with MPI support and GSL 
-(http://www.gnu.org/software/gsl/) installed in development versions to
-compile.
+Auryn needs the boost libraries (www.boost.org) with MPI support installed 
+in development versions to compile.
 
 
 
 
 
--- Friedemann Zenke, Jan 26 2014
+-- Friedemann Zenke, Oct 29 2014
 
 
 

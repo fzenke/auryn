@@ -100,8 +100,8 @@ inline void SymmetricSTDPConnection::propagate_forward()
 			transmit( *c, value );
 			NeuronID translated_spike = dst->global2rank(*c);
 			  data[c-ind] += dw_pre(translated_spike);
-			if (data[c-ind]<0) {
-				data[c-ind] = 0;
+			if (data[c-ind] < get_min_weight()) {
+				data[c-ind] = get_min_weight();
 			}
 		}
 	}
@@ -121,8 +121,8 @@ inline void SymmetricSTDPConnection::propagate_backward()
 			#endif
 			
 			*data[c-ind] += dw_post(*c);
-			if (*data[c-ind]>w_max) {
-				*data[c-ind]=w_max;
+			if (*data[c-ind] > get_max_weight()) {
+				*data[c-ind] = get_max_weight();
 			}
 		}
 	}

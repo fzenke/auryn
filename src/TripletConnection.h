@@ -64,7 +64,10 @@ protected:
 
 	AurynDouble hom_fudge;
 
+	/* Definitions of presynaptic traces */
 	PRE_TRACE_MODEL * tr_pre;
+
+	/* Definitions of postsynaptic traces */
 	DEFAULT_TRACE_MODEL * tr_post;
 	DEFAULT_TRACE_MODEL * tr_post2;
 	DEFAULT_TRACE_MODEL * tr_post_hom;
