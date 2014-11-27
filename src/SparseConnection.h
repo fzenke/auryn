@@ -177,6 +177,7 @@ public:
 	/*! Quick an dirty function that checks if all units on the local rank are connected */
 	void sanity_check();
 
+	virtual AurynDouble sum();
 	virtual void stats(AurynFloat &mean, AurynFloat &std);
 
 	AurynLong dryrun_from_file(string filename);

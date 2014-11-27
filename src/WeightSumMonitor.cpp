@@ -45,9 +45,8 @@ void WeightSumMonitor::init(Connection * source, string filename,AurynTime steps
 void WeightSumMonitor::propagate()
 {
 	if (sys->get_clock()%ssize==0) {
-		AurynFloat mean,std;
-		src->stats(mean,std);
-		outfile << (sys->get_time()) << " " << mean << " "  << std << endl;
+		AurynDouble weightsum = src->sum();
+		outfile << (sys->get_time()) << " " << weightsum << endl;
 	}
 
 }

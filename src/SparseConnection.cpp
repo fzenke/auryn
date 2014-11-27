@@ -544,6 +544,17 @@ void SparseConnection::stats(AurynFloat &mean, AurynFloat &std)
 	std = sqrt(sum2/count-mean*mean);
 }
 
+AurynDouble SparseConnection::sum()
+{
+	AurynFloat sum = 0;
+
+	for ( AurynWeight * iter = w->get_data_begin() ; iter != w->get_data_end() ; ++iter ) {
+		sum  += *iter;
+	}
+	
+	return sum;
+}
+
 AurynWeight SparseConnection::get_data(NeuronID i)
 {
 	return w->get_data(i);

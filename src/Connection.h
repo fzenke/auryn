@@ -86,8 +86,17 @@ public:
 
 	/*! DEPRECATED. (Such connections should not be registered in the first place) Calls propagate only if the postsynaptic NeuronGroup exists on the local rank. */
 	void conditional_propagate();
+
+	/*! Computes the sum of all weights in the connection. */
+	virtual AurynDouble sum() = 0;
+
+	/*! Computes mean synaptic weight and std dev of all weights in this connection. */
 	virtual void stats(AurynFloat &mean, AurynFloat &std) = 0;
+
+	/*! Implements save to file functionality. Also called in save_network_state from System class. */
 	virtual bool write_to_file(string filename) = 0;
+
+	/*! Implements load from file functionality. Also called in save_network_state from System class. */
 	virtual bool load_from_file(string filename) = 0;
 
 	/*! This is a new approach towards replacing tadd, increments transmitter specific state variables in neuron i*/

@@ -30,7 +30,7 @@
 
 using namespace std;
 
-/*! \brief Records sum and standard deviation of a weight matrix in predefined
+/*! \brief Records sum of all weights in synaptic weight matrix in predefined
  *         intervals.
  */
 class WeightSumMonitor : protected Monitor
