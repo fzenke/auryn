@@ -121,6 +121,11 @@ void IdentityConnection::stats(AurynFloat &mean, AurynFloat &std)
 	std = 0;
 }
 
+AurynDouble IdentityConnection::sum()
+{
+	return connection_weight*get_nonzero();
+}
+
 bool IdentityConnection::write_to_file(string filename)
 {
 	return true; // TODO fake but what else ? 

@@ -69,6 +69,7 @@ public:
 	AurynLong get_nonzero();
 	virtual void propagate();
 
+	virtual AurynDouble sum();
 	virtual void stats(AurynFloat &mean, AurynFloat &std);
 	virtual bool write_to_file(string filename);
 	virtual bool load_from_file(string filename);
