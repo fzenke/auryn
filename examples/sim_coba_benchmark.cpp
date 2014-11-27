@@ -34,7 +34,6 @@
 #include "PoissonGroup.h"
 #include "SparseConnection.h"
 #include "SymmetricSTDPConnection.h"
-#include "WeightSumMonitor.h"
 #include "SpikeMonitor.h"
 #include "DelayedSpikeMonitor.h"
 #include "StateMonitor.h"
