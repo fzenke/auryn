@@ -44,6 +44,8 @@ class VoltageMonitor : protected Monitor
 private:
 	/*! Global neuron id to record from */
 	NeuronID gid;
+
+
 protected:
 	/*! The source neuron group to record from */
 	NeuronGroup * src;
@@ -61,7 +63,10 @@ public:
 	/*! Paste spikes switch (default = true) */
 	AurynTime paste_spikes;
 
-	VoltageMonitor(NeuronGroup * source, NeuronID id, string filename, AurynDouble stepsize=dt);
+	/*! Defines the maximum recording time in AurynTime to save space. */
+	AurynTime tStop;
+
+	VoltageMonitor(NeuronGroup * source, NeuronID id, string filename,  AurynDouble stepsize=dt);
 	virtual ~VoltageMonitor();
 	void propagate();
 };

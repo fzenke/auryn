@@ -38,6 +38,8 @@ void VoltageMonitor::init(NeuronGroup * source, NeuronID id, string filename, Au
 	gid = src->rank2global(nid);
 	paste_spikes = true;
 
+	tStop = -1; // at the end of all times ...
+
 	if ( nid < src->get_post_size() ) {
 		sys->register_monitor(this);
 		outfile << setiosflags(ios::fixed) << setprecision(6);
@@ -47,7 +49,7 @@ void VoltageMonitor::init(NeuronGroup * source, NeuronID id, string filename, Au
 
 void VoltageMonitor::propagate()
 {
-	if (active && (sys->get_clock())%ssize==0 && nid < src->get_size() ) {
+	if (active && (sys->get_clock())%ssize==0 && sys->get_clock() < tStop && nid < src->get_size() ) {
 		if ( paste_spikes && 
 				std::find(src->get_spikes_immediate()->begin(), 
 					      src->get_spikes_immediate()->end(), gid)!=src->get_spikes_immediate()->end() ) 
