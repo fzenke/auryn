@@ -15,6 +15,7 @@ WILD_SIMS =$(wildcard $(SIMDIR)/sim_*.cpp)
 SRC_SIMS = $(WILD_EXA_SIMS) $(WILD_SIMS)
 OBJ_SIMS = $(patsubst %.cpp,%.o,$(notdir $(WILD_SIMS) ))
 BIN_SIMS = $(patsubst %.cpp,%,$(notdir $(WILD_SIMS) ))
+BIN_EXAMPLES = $(patsubst %.cpp,%,$(notdir $(WILD_EXA_SIMS) ))
 
 WILD_GROUPS = $(wildcard $(SRCDIR)/*Group.cpp) $(wildcard $(DEVDIR)/*Group.cpp)
 OBJ_GROUPS = $(patsubst %.cpp,%.o,$(notdir $(WILD_GROUPS)))
@@ -34,8 +35,10 @@ all: simulations tests
 
 simulations: $(BIN_SIMS)
 
-test:
-	echo $(EXAMPLE_SIMS)
+examples: $(BIN_EXAMPLES)
+
+lib: examples
+	ar rcs auryn.a $(OBJECTS)
 
 tests: $(TESTFILES)
 
