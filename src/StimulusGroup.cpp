@@ -33,15 +33,18 @@ void StimulusGroup::init(StimulusGroupModeType stimulusmode, string stimfile, Au
 
 	seed(2351301);
 
-	mean_off_period = 1.0 ;
-	mean_on_period = 0.2 ;
 	set_stimulation_mode(stimulusmode);
 
 	stimulus_active = false ;
 	set_all( 0.0 ); 
 
-	scale = 2.0;
 	randomintervals = true;
+	mean_off_period = 1.0 ;
+	mean_on_period = 0.2 ;
+
+	randomintensities = false;
+	scale = 2.0;
+	curscale = scale;
 
 	background_during_stimulus = false;
 
@@ -169,6 +172,7 @@ void StimulusGroup::evolve()
 {
 	if ( !active ) return;
 
+
 	if ( stimulus_active ) {
 
 		if ( binary_patterns ) {
@@ -176,7 +180,7 @@ void StimulusGroup::evolve()
 			boost::exponential_distribution<> bg_dist(background_rate);
 			boost::variate_generator<boost::mt19937&, boost::exponential_distribution<> > bg_die(poisson_gen, bg_dist);
 
-			boost::exponential_distribution<> dist(scale);
+			boost::exponential_distribution<> dist(curscale);
 			boost::variate_generator<boost::mt19937&, boost::exponential_distribution<> > die(poisson_gen, dist);
 
 			type_pattern current = stimuli[cur_stim_index];
@@ -237,6 +241,16 @@ void StimulusGroup::evolve()
 
 		write_stimulus_file(dt*(sys->get_clock()));
 
+		// if we have variable rate stimuli update curscale otherwise set to scale 
+		// this is only needed for binary stimuli -- otherwise the change is done in
+		// set_pattern_activity
+		if ( randomintensities && binary_patterns ) {
+			boost::normal_distribution<> dist(1.0,0.1);
+			boost::variate_generator<boost::mt19937&, boost::normal_distribution<> > die(order_gen, dist);
+			curscale = scale*(AurynFloat)die();
+		} else {
+			curscale = scale;
+		}
 
 		if ( stimulus_order == STIMFILE )  {
 			AurynDouble t = 0.0;
@@ -415,9 +429,17 @@ void StimulusGroup::set_pattern_activity(unsigned int i)
 	AurynFloat addrate = 0.0;
 	if ( background_during_stimulus ) 
 		addrate = background_rate;
+
+	AurynFloat curscale = scale;
+	if ( randomintensities ) {
+		boost::exponential_distribution<> dist(1.);
+		boost::variate_generator<boost::mt19937&, boost::exponential_distribution<> > die(order_gen, dist);
+		curscale *= (AurynFloat)die();
+	}
+
 	for ( iter = current.begin() ; iter != current.end() ; ++iter )
 	{
-		set_activity(iter->i,scale*iter->gamma+addrate);
+		set_activity(iter->i,curscale*iter->gamma+addrate);
 	}
 }
 

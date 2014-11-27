@@ -103,6 +103,8 @@ private:
 
 	/*! mean presentation time  */
 	AurynFloat mean_on_period ;
+
+	AurynFloat curscale;
 	
 public:
 	/*! This is by how much the pattern gamma value is multiplied. The resulting value gives the x-times baseline activation */
@@ -116,6 +118,9 @@ public:
 
 	/*! Determines if the Group is using random activation intervals */
 	bool randomintervals;
+
+	/*! Determines if the Group is using random activation intensities */
+	bool randomintensities;
 
 	/*! Play random Poisson noise with this rate on all channels 
 	 * when no stim is active. */
