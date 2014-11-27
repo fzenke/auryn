@@ -23,29 +23,22 @@
 WeightMonitor::WeightMonitor(SparseConnection * source, string filename, AurynDouble interval ) : Monitor(filename)
 {
 	init(source,0,0,filename,interval/dt);
-	recordingmode = ELEMENTLIST;
-	element_list = new vector<AurynWeight*>;
-	elem_i = 0;
-	elem_j = 0;
 }
 
 WeightMonitor::WeightMonitor(SparseConnection * source, ForwardMatrix * m, string filename, AurynDouble interval ) : Monitor(filename)
 {
 	init(source,0,0,filename,interval/dt);
-	recordingmode = ELEMENTLIST;
-	element_list = new vector<AurynWeight*>;
-	elem_i = 0;
-	elem_j = 0;
 	set_mat(m);
 }
 
 WeightMonitor::WeightMonitor(SparseConnection * source, NeuronID i, NeuronID j, string filename, AurynDouble interval, RecordingMode mode ) : Monitor(filename)
 {
 	init(source,i,j,filename,interval/dt);
+
+	// overwrite the following default values set in init
 	recordingmode = mode;
 	elem_i = i;
 	elem_j = j;
-	element_list = new vector<AurynWeight*>;
 
 	switch (recordingmode) {
 		case DATARANGE : 
@@ -61,6 +54,7 @@ WeightMonitor::WeightMonitor(SparseConnection * source, NeuronID i, NeuronID j, 
 WeightMonitor::~WeightMonitor()
 {
 	delete element_list;
+
 }
 
 void WeightMonitor::init(SparseConnection * source, NeuronID i, NeuronID j, string filename, AurynTime stepsize)
@@ -69,6 +63,8 @@ void WeightMonitor::init(SparseConnection * source, NeuronID i, NeuronID j, stri
 	src = source;
 	set_mat(src->w);
 	ssize = stepsize;
+	if ( ssize < 1 ) ssize = 1;
+
 	outfile << setiosflags(ios::fixed) << setprecision(6);
 
 	stringstream oss;
@@ -76,20 +72,19 @@ void WeightMonitor::init(SparseConnection * source, NeuronID i, NeuronID j, stri
 		<< "Initialized. Writing to file "
 		<< fname;
 	logger->msg(oss.str(),DEBUG);
+
+	// default behavior
+	recordingmode = ELEMENTLIST;
+	element_list = new vector<AurynWeight*>;
+	group_indices.push_back(0); // important for group mode
+	elem_i = 0;
+	elem_j = 0;
 }
 
 void WeightMonitor::add_to_list(AurynWeight * ptr)
 {
-	if ( recordingmode == ELEMENTLIST ) {
-		if ( ptr != NULL )
-			element_list->push_back( ptr );
-	} else {
-		stringstream oss;
-		oss << "WeightMonitor:: "
-			<< "Cannot add weight list. Not in ELEMENTLIST mode."
-			<< endl;
-		logger->msg(oss.str(),ERROR);
-	}
+	if ( ptr != NULL )
+		element_list->push_back( ptr );
 }
 
 void WeightMonitor::add_to_list(NeuronID i, NeuronID j)
@@ -100,7 +95,7 @@ void WeightMonitor::add_to_list(NeuronID i, NeuronID j)
 
 void WeightMonitor::add_to_list( vector<neuron_pair>  vec, string label )
 {
-	if ( recordingmode == ELEMENTLIST ) {
+	if ( recordingmode == ELEMENTLIST || recordingmode == GROUPS ) {
 		stringstream oss;
 		oss << "WeightMonitor:: Adding " << vec.size() << " elements to index list " << label;
 		logger->msg(oss.str(),DEBUG);
@@ -117,7 +112,7 @@ void WeightMonitor::add_to_list( vector<neuron_pair>  vec, string label )
 	} else {
 		stringstream oss;
 		oss << "WeightMonitor:: "
-			<< "Cannot add weight list. Not in ELEMENTLIST mode."
+			<< "Cannot add weight list. Not in ELEMENTLIST or GROUP mode."
 			<< endl;
 		logger->msg(oss.str(),ERROR);
 	}
@@ -154,11 +149,11 @@ void WeightMonitor::load_data_range( NeuronID i, NeuronID j )
 	outfile << "# Added data range " << i << "-" << j << "." << endl;
 }
 
-void WeightMonitor::load_pattern_connections( string filename , int maxcon, int maxpat, PatternMode patmod )
+vector<type_pattern> * WeightMonitor::load_patfile( string filename, int maxpat )
 {
-	if ( !src->get_destination()->evolve_locally() ) return;
 
-	vector<type_pattern> patterns;
+	vector<type_pattern> * patterns = new vector<type_pattern>;
+
 
 	ifstream fin (filename.c_str());
 	if (!fin) {
@@ -169,15 +164,16 @@ void WeightMonitor::load_pattern_connections( string filename , int maxcon, int 
 		<< " for reading."
 		<< endl;
 		logger->msg(oss.str(),ERROR);
-		return;
+		throw AurynOpenFileException();
 	}
 
 	char buffer[256];
 	string line;
 
+
 	type_pattern pattern;
 	int total_pattern_size = 0;
-	while( !fin.eof() && patterns.size() < maxpat ) {
+	while( !fin.eof() && patterns->size() < maxpat ) {
 
 		line.clear();
 		fin.getline (buffer,255);
@@ -188,7 +184,7 @@ void WeightMonitor::load_pattern_connections( string filename , int maxcon, int 
 			if ( total_pattern_size > 0 ) {
 				stringstream oss;
 				oss << "WeightMonitor:: Read pattern " 
-					<< patterns.size() 
+					<< patterns->size() 
 					<< " with pattern size "
 					<< total_pattern_size
 					<< " ( "
@@ -196,7 +192,7 @@ void WeightMonitor::load_pattern_connections( string filename , int maxcon, int 
 					<< " on rank )";
 				logger->msg(oss.str(),DEBUG);
 
-				patterns.push_back(pattern);
+				patterns->push_back(pattern);
 				pattern.clear();
 				total_pattern_size = 0;
 			}
@@ -215,15 +211,38 @@ void WeightMonitor::load_pattern_connections( string filename , int maxcon, int 
 	}
 	fin.close();
 
-	for ( int i = 0 ; i < patterns.size() ; ++i ) {
-		for ( int j = 0 ; j < patterns.size() ; ++j ) {
+
+
+	return patterns;
+}
+
+void WeightMonitor::load_pattern_connections( string filename , int maxcon, int maxpat, PatternMode patmod )
+{
+	load_pattern_connections( filename, filename, maxcon, maxpat, patmod );
+}
+
+
+void WeightMonitor::load_pattern_connections( string filename_pre, string filename_post , int maxcon, int maxpat, PatternMode patmod )
+{
+	if ( !src->get_destination()->evolve_locally() ) return ;
+
+	vector<type_pattern> * patterns_pre = load_patfile(filename_pre, maxpat);
+	vector<type_pattern> * patterns_post = patterns_pre;
+
+	if ( filename_pre.compare(filename_post) ) 
+		patterns_pre = load_patfile(filename_post, maxpat);
+
+
+
+	for ( int i = 0 ; i < patterns_pre->size() ; ++i ) {
+		for ( int j = 0 ; j < patterns_post->size() ; ++j ) {
 			if ( patmod==ASSEMBLIES_ONLY && i != j ) continue;
 			vector<neuron_pair> list;
-			for ( int k = 0 ; k < patterns[i].size() ; ++k ) {
-				for ( int l = 0 ; l < patterns[j].size() ; ++l ) {
+			for ( int k = 0 ; k < patterns_pre->at(i).size() ; ++k ) {
+				for ( int l = 0 ; l < patterns_post->at(j).size() ; ++l ) {
 						neuron_pair p;
-						p.i = patterns[i][k].i;
-						p.j = patterns[j][l].i;
+						p.i = patterns_pre->at(i)[k].i;
+						p.j = patterns_post->at(j)[l].i;
 						AurynWeight * ptr = mat->get_ptr(p.i,p.j);
 						if ( ptr != NULL ) // make sure we are counting connections that do exist
 							list.push_back( p );
@@ -232,16 +251,53 @@ void WeightMonitor::load_pattern_connections( string filename , int maxcon, int 
 				if ( list.size() >= maxcon ) break;
 			}
 
+
 			stringstream oss;
 			oss << "(connections " << i << " to " << j << ")";
 			add_to_list(list,oss.str());
+			group_indices.push_back(element_list->size());
 		}
 	}
 
 
+
 	stringstream oss;
-	oss << "WeightMonitor:: Finished loading connections from " << patterns.size() << " patterns";
+	oss << "WeightMonitor:: Finished loading connections from n_pre=" 
+		<< patterns_pre->size() 
+		<< " and n_post="
+		<< patterns_post->size() 
+		<< " patterns";
 	logger->msg(oss.str(),NOTIFICATION);
+
+
+	if ( patterns_pre != patterns_post ) 
+		delete patterns_post;
+	delete patterns_pre;
+
+}
+
+
+void WeightMonitor::record_single_synapses()
+{
+	for (vector<AurynWeight*>::iterator iter = element_list->begin() ; iter != element_list->end() ; ++iter)
+		outfile << *(*iter) << " ";
+}
+
+void WeightMonitor::record_synapse_groups()
+{
+	for ( int i = 1 ; i < group_indices.size() ; ++i ) {
+		AurynDouble sum = 0;
+		AurynDouble sum2 = 0;
+
+		for ( int k = group_indices[i-1] ; k < group_indices[i] ; ++k ) {
+			sum += *(element_list->at(k));
+			sum2 += pow((*(element_list->at(k))),2);
+		}
+		NeuronID n = group_indices[i]-group_indices[i-1];
+		AurynDouble mean = sum/n;
+		AurynDouble stdev = sqrt(sum2/n-mean*mean);
+		outfile << mean << " " << stdev << "   ";
+	}
 }
 
 
@@ -250,8 +306,8 @@ void WeightMonitor::propagate()
 	if ( src->get_destination()->evolve_locally() ) {
 		if (sys->get_clock()%ssize==0) {
 			outfile << fixed << dt*(sys->get_clock()) << scientific << " ";
-			for (vector<AurynWeight*>::iterator iter = element_list->begin() ; iter != element_list->end() ; ++iter)
-				outfile << *(*iter) << " ";
+			if ( recordingmode == GROUPS ) record_synapse_groups();
+			else record_single_synapses();
 			outfile << "\n";
 		}
 	}

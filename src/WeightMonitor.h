@@ -31,7 +31,21 @@
 using namespace std;
 
 
-enum RecordingMode { SINGLE, DATARANGE, ELEMENTLIST };
+/*! RecordingMode determines the default recording behavior of the monitor.
+ * The modes SINGLE, DATARANGE and ELEMENTLIST (default) record weight values
+ * from single synapses while GROUPS records the statistics over groups of 
+ * synapses */
+enum RecordingMode { 
+	SINGLE, ///< The entire Monitor will record from a single synapse specified at initialization.
+	DATARANGE, ///< The Monitor will record from a range of synapses specified at initialization.
+	ELEMENTLIST, ///< The Monitor records from selected synapses stored in a list. This is the default behavior.
+	GROUPS /*!< This mode is added in versions >0.4.1 and allows to record summary statistics of 
+			 synapses between neural groups/patterns. */
+};
+
+/*! Determines how pattern files are interpreted for loading. 
+ * ALLTOALL will add connections between all possible pattern combinations, 
+ * whereas ASSEMBLIES_ONLY restricts recording to inside each pattern. */
 enum PatternMode { ALLTOALL, ASSEMBLIES_ONLY};
 
 /*! \brief Monitors the evolution of a single or a set of weights 
@@ -57,9 +71,13 @@ protected:
 	NeuronID elem_j;
 	AurynTime ssize;
 	vector<AurynWeight*> * element_list;
-	/*! Vector storing all the patterns */
-	vector<type_pattern> * patterns;
+	vector<NeuronID> group_indices;
 	void init(SparseConnection * source, NeuronID i, NeuronID j, string filename, AurynTime interval);
+
+	void record_single_synapses();
+	void record_synapse_groups();
+
+	vector<type_pattern> * load_patfile( string filename, int maxpat );
 	
 public:
 	WeightMonitor(SparseConnection * source, string filename, AurynDouble interval=1);
@@ -97,6 +115,7 @@ public:
 	 *		only adds connections inside single patterns.
 	 */
 	void load_pattern_connections(string filename, int maxcon = 5, int maxpat = 10, PatternMode patmod = ALLTOALL);
+	void load_pattern_connections(string filename_pre, string filename_post, int maxcon = 5, int maxpat = 10, PatternMode patmod = ALLTOALL);
 	void load_data_range(NeuronID i, NeuronID j);
 };
 
