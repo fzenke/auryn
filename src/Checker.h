@@ -16,6 +16,11 @@
 * 
 * You should have received a copy of the GNU General Public License
 * along with Auryn.  If not, see <http://www.gnu.org/licenses/>.
+*
+* If you are using Auryn or parts of it for your work please cite:
+* Zenke, F. and Gerstner, W., 2014. Limits to high-speed simulations 
+* of spiking neural networks using general-purpose computers. 
+* Front Neuroinform 8, 76. doi: 10.3389/fninf.2014.00076
 */
 
 #ifndef CHECKER_H_

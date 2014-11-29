@@ -37,8 +37,8 @@ simulations: $(BIN_SIMS)
 
 examples: $(BIN_EXAMPLES)
 
-lib: examples
-	ar rcs auryn.a $(OBJECTS)
+lib: $(OBJECTS)
+	ar rcs libauryn.a $(OBJECTS)
 
 tests: $(TESTFILES)
 

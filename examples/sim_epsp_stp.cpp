@@ -18,36 +18,7 @@
 * along with Auryn.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <iostream>
-#include <iomanip>
-#include <stdlib.h>
-#include <string>
-
-#include <boost/program_options.hpp>
-#include <boost/mpi/environment.hpp>
-#include <boost/mpi/communicator.hpp>
-#include <boost/mpi.hpp>
-
-#include "auryn_global.h"
-#include "auryn_definitions.h"
-#include "System.h"
-#include "Logger.h"
-#include "NeuronGroup.h"
-#include "IFGroup.h"
-#include "AIFGroup.h"
-#include "PoissonGroup.h"
-#include "STPConnection.h"
-#include "WeightMonitor.h"
-#include "WeightMatrixMonitor.h"
-#include "PopulationRateMonitor.h"
-#include "SpikeMonitor.h"
-#include "VoltageMonitor.h"
-#include "AmpaMonitor.h"
-#include "GabaMonitor.h"
-#include "NmdaMonitor.h"
-#include "DelayedSpikeMonitor.h"
-#include "RateChecker.h"
-#include "FileInputGroup.h"
+#include "auryn.h"
 
 #define N 1
 

@@ -18,41 +18,8 @@
 * along with Auryn.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <iostream>
-#include <iomanip>
-#include <stdlib.h>
-#include <string>
 
-#include <boost/program_options.hpp>
-#include <boost/mpi/environment.hpp>
-#include <boost/mpi/communicator.hpp>
-#include <boost/mpi.hpp>
-
-#include "auryn_global.h"
-#include "auryn_definitions.h"
-#include "System.h"
-#include "Logger.h"
-#include "NeuronGroup.h"
-#include "IFGroup.h"
-#include "AIFGroup.h"
-#include "PoissonGroup.h"
-#include "CorrelatedPoissonGroup.h"
-#include "SparseConnection.h"
-#include "STPConnection.h"
-#include "IdentityConnection.h"
-#include "TripletConnection.h"
-#include "TripletDecayConnection.h"
-#include "WeightMonitor.h"
-#include "VoltageMonitor.h"
-#include "WeightMatrixMonitor.h"
-#include "PopulationRateMonitor.h"
-#include "SpikeMonitor.h"
-#include "RealTimeMonitor.h"
-#include "RateChecker.h"
-#include "FileInputGroup.h"
-
-#include "PatternMonitor.h"
-#include "PatternStimulator.h"
+#include "auryn.h"
 
 #define N_REC_WEIGHTS 5000
 
