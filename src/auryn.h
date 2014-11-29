@@ -31,30 +31,73 @@
 #include <boost/mpi/communicator.hpp>
 #include <boost/mpi.hpp>
 
+// Core simulator definitions
 #include "auryn_global.h"
 #include "auryn_definitions.h"
 #include "System.h"
+#include "SyncBuffer.h"
 #include "Logger.h"
-#include "SpikingGroup.h"
-#include "NeuronGroup.h"
+#include "SpikeDelay.h"
+
+// Trace definitions
+#include "LinearTrace.h"
+#include "EulerTrace.h"
+
+// Connection definitions
+#include "Connection.h"
+#include "SparseConnection.h"
+#include "RateModulatedConnection.h"
+#include "STDPConnection.h"
+#include "SymmetricSTDPConnection.h"
+#include "STPConnection.h"
+#include "ABSConnection.h"
+#include "TripletConnection.h"
+#include "DuplexConnection.h"
+#include "TripletDecayConnection.h"
+#include "IdentityConnection.h"
+
+// Spiking and Neuron group definitions
+#include "IF2Group.h"
+#include "AIF2Group.h"
+#include "IafPscDeltaGroup.h"
 #include "IFGroup.h"
 #include "AIFGroup.h"
+#include "CubaIFGroup.h"
+#include "TIFGroup.h"
+#include "SpikingGroup.h"
+#include "NeuronGroup.h"
 #include "PoissonGroup.h"
+#include "StructuredPoissonGroup.h"
 #include "CorrelatedPoissonGroup.h"
-#include "SparseConnection.h"
-#include "STPConnection.h"
-#include "IdentityConnection.h"
-#include "TripletConnection.h"
-#include "TripletDecayConnection.h"
-#include "WeightMonitor.h"
-#include "VoltageMonitor.h"
-#include "WeightMatrixMonitor.h"
-#include "PopulationRateMonitor.h"
-#include "SpikeMonitor.h"
-#include "RealTimeMonitor.h"
-#include "RateChecker.h"
+#include "FileModulatedPoissonGroup.h"
+#include "AuditoryBeepGroup.h"
+#include "StimulusGroup.h"
 #include "FileInputGroup.h"
+
+
+// Checker definitions
+#include "Checker.h"
+#include "RateChecker.h"
+
+// Monitor and stimulator definitions
+#include "Monitor.h"
+#include "GabaMonitor.h"
+#include "NmdaMonitor.h"
+#include "AmpaMonitor.h"
+#include "VoltageMonitor.h"
+#include "SpikeMonitor.h"
+#include "DelayedSpikeMonitor.h"
+#include "RealTimeMonitor.h"
+#include "RateMonitor.h"
+#include "PopulationRateMonitor.h"
+#include "StateMonitor.h"
+#include "WeightSumMonitor.h"
 #include "PatternMonitor.h"
+#include "WeightPatternMonitor.h"
+#include "WeightStatsMonitor.h"
+#include "WeightMonitor.h"
+#include "WeightMatrixMonitor.h"
+#include "PoissonStimulator.h"
 #include "PatternStimulator.h"
 
 
