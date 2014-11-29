@@ -245,9 +245,7 @@ void StimulusGroup::evolve()
 		// this is only needed for binary stimuli -- otherwise the change is done in
 		// set_pattern_activity
 		if ( randomintensities && binary_patterns ) {
-			boost::normal_distribution<> dist(1.0,0.1);
-			boost::variate_generator<boost::mt19937&, boost::normal_distribution<> > die(order_gen, dist);
-			curscale = scale*(AurynFloat)die();
+			curscale = scale*(AurynFloat)order_die();
 		} else {
 			curscale = scale;
 		}
