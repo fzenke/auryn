@@ -18,31 +18,7 @@
 * along with Auryn.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <iostream>
-#include <iomanip>
-#include <stdlib.h>
-#include <string>
-#include <iterator>
-
-#include <boost/program_options.hpp>
-
-#include "auryn_global.h"
-#include "auryn_definitions.h"
-#include "System.h"
-#include "Logger.h"
-
-#include "NeuronGroup.h"
-#include "TIFGroup.h"
-#include "StimulusGroup.h"
-#include "IdentityConnection.h"
-#include "SparseConnection.h"
-#include "SymmetricSTDPConnection.h"
-#include "VoltageMonitor.h"
-#include "AmpaMonitor.h"
-#include "GabaMonitor.h"
-#include "SpikeMonitor.h"
-#include "RateChecker.h"
-#include "PatternMonitor.h"
+#include "auryn.h"
 
 #define NE 160000
 #define NI 40000

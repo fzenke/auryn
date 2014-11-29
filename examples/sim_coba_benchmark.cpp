@@ -18,26 +18,7 @@
 * along with Auryn.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <iostream>
-#include <iomanip>
-#include <stdlib.h>
-#include <string>
-
-#include <boost/program_options.hpp>
-#include <boost/mpi/environment.hpp>
-#include <boost/mpi/communicator.hpp>
-#include <boost/mpi.hpp>
-
-#include "System.h"
-#include "IFGroup.h"
-#include "TIFGroup.h"
-#include "PoissonGroup.h"
-#include "SparseConnection.h"
-#include "SymmetricSTDPConnection.h"
-#include "SpikeMonitor.h"
-#include "DelayedSpikeMonitor.h"
-#include "StateMonitor.h"
-#include "RateChecker.h"
+#include "auryn.h"
 
 using namespace std;
 
