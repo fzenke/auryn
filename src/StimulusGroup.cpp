@@ -182,14 +182,14 @@ void StimulusGroup::evolve()
 
 		if ( binary_patterns ) {
 			// detect and push spikes
-			boost::exponential_distribution<> bg_dist(background_rate);
-			boost::variate_generator<boost::mt19937&, boost::exponential_distribution<> > bg_die(poisson_gen, bg_dist);
 
 			boost::exponential_distribution<> dist(curscale);
 			boost::variate_generator<boost::mt19937&, boost::exponential_distribution<> > die(poisson_gen, dist);
 
 			type_pattern current = stimuli[cur_stim_index];
 
+			if ( !background_during_stimulus )
+				bgx = get_rank_size();
 
 			while ( bgx < get_rank_size() || fgx < current.size() ) {
 				if ( fgx < current.size() && current.at(fgx).i < bgx ) {
@@ -198,6 +198,9 @@ void StimulusGroup::evolve()
 					fgx += 1+(NeuronID)(r/dt);
 				} else {
 					push_spike ( bgx );
+
+					boost::exponential_distribution<> bg_dist(background_rate);
+					boost::variate_generator<boost::mt19937&, boost::exponential_distribution<> > bg_die(poisson_gen, bg_dist);
 					AurynDouble r = bg_die();
 					bgx += 1+(NeuronID)(r/dt); 
 				}
