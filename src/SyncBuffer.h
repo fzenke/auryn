@@ -26,8 +26,8 @@
 #ifndef SYNCBUFFER_H_
 #define SYNCBUFFER_H_
 
-#define SYNCBUFFER_SIZE_MARGIN_MULTIPLIER 3
-#define SYNCBUFFER_SIZE_HIST_LEN 512
+#define SYNCBUFFER_SIZE_MARGIN_MULTIPLIER 3 //!< Safety margin for receive buffer size -- a value of 3 should make overflows rare in AI state
+#define SYNCBUFFER_SIZE_HIST_LEN 512 //!< Accumulate history over this number of timesteps before updating the sendbuffer size in the absence of overflows
 
 #include "auryn_definitions.h"
 #include "SpikeDelay.h"
