@@ -37,6 +37,7 @@ void ProfilePoissonGroup::init(AurynDouble  rate)
 		die  = new boost::variate_generator<boost::mt19937&, boost::uniform_01<> > ( gen, *dist );
 		seed(communicator->rank()); // seeding problem
 		x = 0;
+		jumpsize = 0;
 
 		// creates flat profile 
 		profile = new AurynFloat[get_rank_size()];
@@ -68,7 +69,8 @@ void ProfilePoissonGroup::set_rate(AurynDouble  rate)
     if ( evolve_locally() ) {
 		if ( rate > 0.0 ) {
 		  AurynDouble r = -log((*die)())/lambda;
-		  x = (NeuronID)(r/dt); 
+		  jumpsize = (r/dt);
+		  x = 0;
 		} else {
 			// if the rate is zero this triggers one spike at the end of time/groupsize
 			// this is the easiest way to take care of the zero rate case, which should 
@@ -85,24 +87,25 @@ void ProfilePoissonGroup::normalize_profile()
 		sum += profile[i];
 	}
 
-	AurynDouble normalization_factor = get_size()/sum;
+	AurynDouble normalization_factor = get_rank_size()/sum;
 	for ( NeuronID i = 0 ; i < get_rank_size() ; ++i ) {
 		profile[i] *= normalization_factor ;
-		sum += profile[i];
 	}
 }
 
 void ProfilePoissonGroup::set_flat_profile()
 {
+	AurynDouble val = 1.0/get_rank_size();
 	for ( NeuronID i = 0 ; i < get_rank_size() ; ++i ) {
-		profile[i] = 1.0;
+		profile[i] = val;
 	}
 }
 
 void ProfilePoissonGroup::set_profile( AurynFloat * newprofile ) 
 {
-	for ( NeuronID i = 0 ; i < get_rank_size() ; ++i ) {
-		profile[i] = newprofile[i];
+	for ( NeuronID i = 0 ; i < get_size() ; ++i ) {
+		if ( localrank( i ) ) 
+			profile[global2rank(i)] = newprofile[i];
 	}
 
 	normalize_profile();
@@ -114,8 +117,9 @@ void ProfilePoissonGroup::set_profile( AurynFloat * newprofile )
 
 void ProfilePoissonGroup::set_gaussian_profile(AurynDouble  mean, AurynDouble sigma, AurynDouble floor)
 {
-	for ( NeuronID i = 0 ; i < get_rank_size() ; ++i ) {
-		profile[i] = exp(-pow((i-mean),2)/(2*sigma*sigma))*(1.0-floor)+floor;
+	for ( NeuronID i = 0 ; i < get_size() ; ++i ) {
+		if ( localrank(i) )
+			profile[global2rank(i)] = exp(-pow((i-mean),2)/(2*sigma*sigma))*(1.0-floor)+floor;
 	}
 
 	normalize_profile();
@@ -139,12 +143,14 @@ AurynDouble  ProfilePoissonGroup::get_rate()
 void ProfilePoissonGroup::evolve()
 {
 	while ( x < get_rank_size() ) {
-		jumpsize -= profile[x++];
+		// cout << x << endl;
+		jumpsize -= profile[x];
 		if ( jumpsize < 0 ) { // reached jump target -> spike
 			push_spike ( x );
 			AurynDouble r = -log((*die)()+1e-20)/lambda;
 			jumpsize = r/dt; 
 		}
+		x++;
 	}
 	x -= get_rank_size();
 }
