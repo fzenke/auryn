@@ -776,8 +776,21 @@ bool SparseConnection::load_from_file(ForwardMatrix * m, string filename, AurynL
 			logger->msg(oss.str(),ERROR);
 			return false;
 		} 
-
-
+		catch ( AurynMatrixDimensionalityException )
+		{
+			stringstream oss;
+			oss << "SparseConnection: ("
+				<< get_name() 
+				<<"): Trying to add elements outside of matrix (i=" 
+				<< i 
+				<< ", j="
+				<< j 
+				<< ", "
+				<< count 
+				<< "th element) ";
+			logger->msg(oss.str(),ERROR);
+			return false;
+		} 
 	}
 
 
