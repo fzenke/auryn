@@ -95,9 +95,8 @@ void ProfilePoissonGroup::normalize_profile()
 
 void ProfilePoissonGroup::set_flat_profile()
 {
-	AurynDouble val = 1.0/get_rank_size();
 	for ( NeuronID i = 0 ; i < get_rank_size() ; ++i ) {
-		profile[i] = val;
+		profile[i] = 1.0;
 	}
 }
 
