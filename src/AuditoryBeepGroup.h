@@ -29,7 +29,7 @@
 #include "auryn_definitions.h"
 #include "System.h"
 #include "SpikingGroup.h"
-#include "PoissonGroup.h"
+#include "ProfilePoissonGroup.h"
 
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int.hpp>
@@ -48,7 +48,7 @@ using namespace std;
  * stimulus_duration. Afterwards the group defaults back to normal poisson
  * firing with rate_off.
  */
-class AuditoryBeepGroup : public PoissonGroup
+class AuditoryBeepGroup : public ProfilePoissonGroup
 {
 private:
 	AurynTime stimulus_duration;
@@ -63,6 +63,12 @@ private:
 	
 public:
 
+	/*! Ceontroid of "pure tone" */
+	NeuronID center;
+
+	/*! Width of "pure tone" */
+	NeuronID width;
+
 	/*! Describes the background firing rate in silence */
 	AurynFloat rate_off;
 
@@ -71,6 +77,11 @@ public:
 	 * otherwise there will be some weird behavior (and 
 	 * this is not checked. */
 	AurynFloat rate_on;
+
+	/*! Describes the firing rate during a single simulation
+	 * timestep after stimulus onset to generate timelocked 
+	 * spikes. */
+	AurynFloat rate_sync;
 
 	AuditoryBeepGroup(NeuronID n, AurynFloat duration=50e-3, AurynFloat interval=1.0, AurynDouble rate=50.0 );
 	virtual ~AuditoryBeepGroup();

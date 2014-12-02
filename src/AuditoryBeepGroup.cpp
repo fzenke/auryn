@@ -35,8 +35,14 @@ void AuditoryBeepGroup::init ( AurynFloat duration, AurynFloat interval, AurynFl
 	stimulus_active = false;
 	next_event = 0;
 
-	rate_off = 1e-9;
-	rate_on  = rate;
+	rate_off   = 1e-9;
+	rate_on    = rate;
+	rate_sync  = 100*rate; // rate for one timestep after stim onset
+
+	center = get_size()/2;
+	width  = get_size()/10;
+
+	set_flat_profile();
 
 	stringstream oss;
 	oss << "AuditoryBeepGroup:: Set up with stimulus_duration=" 
@@ -46,7 +52,7 @@ void AuditoryBeepGroup::init ( AurynFloat duration, AurynFloat interval, AurynFl
 	logger->msg(oss.str(),NOTIFICATION);
 }
 
-AuditoryBeepGroup::AuditoryBeepGroup(NeuronID n, AurynFloat duration, AurynFloat interval, AurynDouble rate ) : PoissonGroup( n , rate ) 
+AuditoryBeepGroup::AuditoryBeepGroup(NeuronID n, AurynFloat duration, AurynFloat interval, AurynDouble rate ) : ProfilePoissonGroup( n , rate ) 
 {
 	init(duration, interval, rate );
 }
@@ -60,17 +66,24 @@ void AuditoryBeepGroup::evolve()
 	if ( sys->get_clock() >= next_event ) {
 		if ( stimulus_active ) {
 			stimulus_active = false;
+			set_flat_profile();
 			set_rate(rate_off);
+
+			ProfilePoissonGroup::evolve();
+
 			next_event = sys->get_clock()+stimulation_period; 
 		} else {
 			stimulus_active = true;
+			set_gaussian_profile(center,width,rate_off);
+
 			// add sync spikes
-			for ( NeuronID i = 0 ; i < get_rank_size() ; ++i )
-				push_spike(i);
+			set_rate(rate_sync);
+			ProfilePoissonGroup::evolve();
+
 			set_rate(rate_on);
 			next_event = sys->get_clock()+stimulus_duration; 
 		}
 	} else {
-		PoissonGroup::evolve();
+		ProfilePoissonGroup::evolve();
 	}
 }
