@@ -270,7 +270,6 @@ void System::progressbar ( double fraction, AurynTime clk ) {
 
 	cout<< percent << "%     "<< setiosflags(ios::fixed) << " t=" << time ;
 
-
 	if (checkers.size())
 		cout  << setprecision(1) << "  f=" << checkers[0]->get_property() << " Hz  ";
 
@@ -359,11 +358,21 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 			time(&t_now);
 			double td = difftime(t_now,t_last_mark);
 			t_last_mark = t_now;
+
 			oss.str("");
 			oss << "Mark set ("
 				<< get_time()
 				<< "s). Ran for " << td
 				<< "s with SpeedFactor=" << td/(LOGGER_MARK_INTERVAL*dt);
+
+			AurynTime simtime_left = total_time-dt*(get_clock()-starttime+1);
+			AurynDouble remaining = simtime_left*td/(LOGGER_MARK_INTERVAL*dt)/60; // in minutes
+			if ( remaining > 5 ) { // only show when more than 5min
+			oss	<< ", approximately "
+				<< remaining
+				<< "min of runtime remaining";
+			}
+
 			logger->msg(oss.str(),NOTIFICATION);
 		}
 
