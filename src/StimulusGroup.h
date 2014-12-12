@@ -39,7 +39,6 @@
 #include <boost/random/normal_distribution.hpp>
 #include <boost/random/variate_generator.hpp>
 
-#define BASERATE 1.0
 #define SOFTSTARTTIME 0.1
 #define STIMULUSGROUP_LOAD_MULTIPLIER 0.1
 
@@ -115,8 +114,11 @@ public:
 	/*! This is by how much the pattern gamma value is multiplied. The resulting value gives the x-times baseline activation */
 	AurynFloat scale;
 
-	/*! Ignore gamma value */
+	/*! Switches to more efficient algorithm which ignores the gamma value */
 	bool binary_patterns;
+
+	/*! Enables a finite refractory time specified in AurynTime (only works for non-binary-pattern mode. */
+	AurynTime refractory_period;
 
 	/*! Determines if the Group is active or bypassed upon evolution. */
 	bool active;

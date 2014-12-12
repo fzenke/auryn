@@ -33,6 +33,9 @@ void StimulusGroup::init(StimulusGroupModeType stimulusmode, string stimfile, Au
 {
 	sys->register_spiking_group(this);
 	ttl = new AurynTime [get_rank_size()];
+
+	refractory_period = 1; // initialize with a default of one timestep (avoids two spikes in same time bin)
+
 	activity = new AurynFloat [get_rank_size()];
 	set_baserate(baserate);
 
@@ -117,7 +120,7 @@ StimulusGroup::~StimulusGroup()
 
 void StimulusGroup::redraw()
 {
-	boost::exponential_distribution<> dist(BASERATE);
+	boost::exponential_distribution<> dist(1.0);
 	boost::variate_generator<boost::mt19937&, boost::exponential_distribution<> > die(poisson_gen, dist);
 	for ( NeuronID i = 0 ; i < get_rank_size() ; ++i )
 	{
@@ -178,9 +181,9 @@ void StimulusGroup::evolve()
 	if ( !active ) return;
 
 
-	if ( stimulus_active ) {
+	if ( stimulus_active ) { // during active stimulation
 
-		if ( binary_patterns ) {
+		if ( binary_patterns ) { // binary patterns
 			// detect and push spikes
 
 			boost::exponential_distribution<> dist(curscale);
@@ -211,8 +214,8 @@ void StimulusGroup::evolve()
 			if ( fgx >= current.size() )
 				fgx -= current.size();
 
-		} else {
-			boost::exponential_distribution<> dist(BASERATE);
+		} else { // non-binary patterns --- using time-to-live TTL mechanism
+			boost::exponential_distribution<> dist(1.0);
 			boost::variate_generator<boost::mt19937&, boost::exponential_distribution<> > die(poisson_gen, dist);
 
 			for ( NeuronID i = 0 ; i < get_rank_size() ; ++i )
@@ -220,11 +223,11 @@ void StimulusGroup::evolve()
 				if ( ttl[i] < sys->get_clock() && activity[i]>0.0 )
 				{
 					push_spike ( i );
-					ttl[i] = sys->get_clock() + (AurynTime)((AurynFloat)die()/(activity[i]*dt));
+					ttl[i] = sys->get_clock() + refractory_period + (AurynTime)((AurynFloat)die()*(1.0/(activity[i]*dt)-refractory_period));
 				}
 			}
 		}
-	} else {
+	} else { // while stimulation is off
 		if ( background_rate ) {
 			boost::exponential_distribution<> dist(background_rate);
 			boost::variate_generator<boost::mt19937&, boost::exponential_distribution<> > die(poisson_gen, dist);
@@ -235,7 +238,6 @@ void StimulusGroup::evolve()
 				bgx += 1+(NeuronID)(r/dt); 
 			}
 			bgx -= get_rank_size();
-
 		}
 	}
 
@@ -346,7 +348,7 @@ void StimulusGroup::set_activity(NeuronID i, AurynFloat val)
 void StimulusGroup::set_all(AurynFloat val)
 {
 	for ( NeuronID i = 0 ; i < get_rank_size() ; ++i )
-		activity[i] = val;
+		set_activity(i,val);
 }
 
 AurynFloat StimulusGroup::get_activity(NeuronID i)
