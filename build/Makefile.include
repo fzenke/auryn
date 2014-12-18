@@ -5,8 +5,6 @@ DEVDIR=../../dev/src
 SIMDIR=../../dev/sim
 
 
-TESTFILES = test_traces test_sync mpi_latency 
-
 DO_NOT_BUILD = clIFGroup.o 
 OBJ_GENERIC = SpikeDelay.o Logger.o LinearTrace.o EulerTrace.o SimpleMatrix.o SyncBuffer.o
 
@@ -16,6 +14,7 @@ SRC_SIMS = $(WILD_EXA_SIMS) $(WILD_SIMS)
 OBJ_SIMS = $(patsubst %.cpp,%.o,$(notdir $(WILD_SIMS) ))
 BIN_SIMS = $(patsubst %.cpp,%,$(notdir $(WILD_SIMS) ))
 BIN_EXAMPLES = $(patsubst %.cpp,%,$(notdir $(WILD_EXA_SIMS) ))
+TESTFILES = test_traces test_sync mpi_latency 
 
 WILD_GROUPS = $(wildcard $(SRCDIR)/*Group.cpp) $(wildcard $(DEVDIR)/*Group.cpp)
 OBJ_GROUPS = $(patsubst %.cpp,%.o,$(notdir $(WILD_GROUPS)))
