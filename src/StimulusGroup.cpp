@@ -487,7 +487,6 @@ void StimulusGroup::set_distribution( vector<double> probs )
 	stringstream oss;
 	oss << "StimulusGroup: Set distribution [";
 	for ( unsigned int i = 0 ; i < stimuli.size() ; ++i ) {
-		probabilities[i] = probs[i];
 		oss << " " << probabilities[i];
 	}
 	oss << " ]";
