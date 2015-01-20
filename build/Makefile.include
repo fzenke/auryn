@@ -6,7 +6,7 @@ SIMDIR=../../dev/sim
 
 
 DO_NOT_BUILD = clIFGroup.o 
-OBJ_GENERIC = SpikeDelay.o Logger.o LinearTrace.o EulerTrace.o SimpleMatrix.o SyncBuffer.o
+OBJ_GENERIC = SpikeDelay.o Logger.o LinearTrace.o EulerTrace.o SimpleMatrix.o ComplexMatrix.o SyncBuffer.o
 
 WILD_EXA_SIMS = $(wildcard $(EXADIR)/sim_*.cpp) 
 WILD_SIMS =$(wildcard $(SIMDIR)/sim_*.cpp)  
@@ -55,16 +55,16 @@ mpi_allgather_latency: $(SIMDIR)/mpi_allgather_latency.c
 test_%: test_%.o $(OBJECTS) 
 	$(CC) $(CFLAGS) $< $(OBJECTS) $(LDFLAGS) -o $(subst .o,,$<)
 
-%.o : $(EXADIR)/%.cpp
+%.o : $(EXADIR)/%.h
 	$(CC) $(CFLAGS) -c $<
 
-%.o : $(DEVDIR)/%.cpp
+%.o : $(DEVDIR)/%.h
 	$(CC) $(CFLAGS) -c $<
 
-%.o : $(SIMDIR)/%.cpp
+%.o : $(SIMDIR)/%.h
 	$(CC) $(CFLAGS) -c $<
 
-%.o : $(SRCDIR)/%.cpp
+%.o : $(SRCDIR)/%.h
 	$(CC) $(CFLAGS) -c $<
 
 
