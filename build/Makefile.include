@@ -1,8 +1,9 @@
-SRCDIR=../../src# outside of submodule
-EXADIR=../../examples# outside of submodule
+SRCDIR=../../src
+EXADIR=../../examples
 
 DEVDIR=../../dev/src
 SIMDIR=../../dev/sim
+
 
 
 DO_NOT_BUILD = clIFGroup.o 
@@ -55,16 +56,16 @@ mpi_allgather_latency: $(SIMDIR)/mpi_allgather_latency.c
 test_%: test_%.o $(OBJECTS) 
 	$(CC) $(CFLAGS) $< $(OBJECTS) $(LDFLAGS) -o $(subst .o,,$<)
 
-%.o : $(EXADIR)/%.h
+%.o : $(EXADIR)/%.cpp
 	$(CC) $(CFLAGS) -c $<
 
-%.o : $(DEVDIR)/%.h
+%.o : $(DEVDIR)/%.cpp
 	$(CC) $(CFLAGS) -c $<
 
-%.o : $(SIMDIR)/%.h
+%.o : $(SIMDIR)/%.cpp
 	$(CC) $(CFLAGS) -c $<
 
-%.o : $(SRCDIR)/%.h
+%.o : $(SRCDIR)/%.cpp
 	$(CC) $(CFLAGS) -c $<
 
 
