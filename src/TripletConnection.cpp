@@ -166,18 +166,18 @@ void TripletConnection::propagate_forward()
 				c != w->get_row_end(*spike) ; 
 				++c ) { // c = post index
 
-			// signal signal strength to target at postsynaptic neuron
-			AurynWeight * value = w->get_data_ptr(c); 
-			transmit( *c , *value );
+			// transmit signal to target at postsynaptic neuron
+			AurynWeight * weight = w->get_data_ptr(c); 
+			transmit( *c , *weight );
 
 			// handle plasticity
 			if ( stdp_active ) {
 				// performs weight update
-			    *value += dw_pre(*c);
+			    *weight += dw_pre(*c);
 
 			    // clips too small weights
-			    if ( *value < get_min_weight() ) 
-					*value = get_min_weight();
+			    if ( *weight < get_min_weight() ) 
+					*weight = get_min_weight();
 			}
 		}
 	}

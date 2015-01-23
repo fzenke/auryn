@@ -133,6 +133,9 @@ public:
 	void copy(SimpleMatrix * mat);
 	void set_data(AurynLong i, T value);
 	void scale_data(AurynLong i, T value);
+	/*! Gets the matching data ptr for a given index i*/
+	T * get_data_ptr(AurynLong i);
+	/*! Gets the matching data entry for a given index i*/
 	T get_data(AurynLong i);
 	/*! Gets the matching data ptr for a given index pointer */
 	T * get_data_ptr(const NeuronID * ind_ptr);
@@ -188,6 +191,12 @@ public:
 	T * get_value_ptr(NeuronID * r);
 	NeuronID get_data_offset(NeuronID * r);
 };
+
+template <typename T>
+T * SimpleMatrix<T>::get_data_ptr(AurynLong i)
+{
+	return coldata+i;
+}
 
 template <typename T>
 T SimpleMatrix<T>::get_data(AurynLong i)
