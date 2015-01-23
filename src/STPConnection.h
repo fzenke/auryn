@@ -28,7 +28,6 @@
 
 #include "auryn_definitions.h"
 #include "SparseConnection.h"
-#include "SimpleMatrix.cpp"
 
 
 using namespace std;

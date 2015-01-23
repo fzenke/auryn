@@ -29,7 +29,7 @@
 #include "auryn_definitions.h"
 #include "Connection.h"
 #include "System.h"
-#include "SimpleMatrix.cpp"
+#include "SimpleMatrix.h"
 
 #include <sstream>
 #include <fstream>
