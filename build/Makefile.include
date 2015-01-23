@@ -44,8 +44,8 @@ libauryn.a: $(OBJECTS)
 
 tests: $(TESTFILES)
 
-sim_%: sim_%.o $(OBJECTS) 
-	$(CC) $(CFLAGS) $< $(OBJECTS) $(LDFLAGS) -o $(subst .o,,$<)
+sim_%: sim_%.o libauryn.a
+	$(CC) $(CFLAGS) $< -L. -lauryn $(LDFLAGS) -o $(subst .o,,$<)
 
 mpi_latency: $(SIMDIR)/mpi_latency.c
 	$(CC) $(CFLAGS) $(LDFLAGS) $< -o mpi_latency 
