@@ -170,6 +170,7 @@ void TripletConnection::propagate_forward()
 
 			// handles plasticity
 			if ( stdp_active ) {
+
 				// performs weight update upon presynaptic spike
 			    *weight += dw_pre(*c);
 
