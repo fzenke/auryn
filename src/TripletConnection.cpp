@@ -204,10 +204,11 @@ void TripletConnection::propagate_backward()
 				#endif
 
 				// computes plasticity update
-				*bkw_data[c-bkw_ind] = *bkw_data[c-bkw_ind] + dw_post(*c,translated_spike);
+				AurynWeight * weight = bkw->get_data(c); 
+				*weight += dw_post(*c,translated_spike);
 
 				// clips too large weights
-				if (*bkw_data[c-bkw_ind]>get_max_weight()) *bkw_data[c-bkw_ind]=get_max_weight();
+				if (*weight>get_max_weight()) *weight=get_max_weight();
 			}
 		}
 	}
