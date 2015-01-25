@@ -53,6 +53,7 @@
 #include "SparseConnection.h"
 #include "RateModulatedConnection.h"
 #include "STDPConnection.h"
+#include "STDPwdConnection.h"
 #include "SymmetricSTDPConnection.h"
 #include "STPConnection.h"
 #include "ABSConnection.h"

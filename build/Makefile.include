@@ -29,18 +29,19 @@ OBJ_MONITORS = Checker.o RateChecker.o PatternStimulator.o PoissonStimulator.o $
 ALL_OBJECTS = auryn_definitions.o auryn_global.o System.o $(OBJ_GENERIC) $(OBJ_GROUPS) $(OBJ_CONNECTIONS) $(OBJ_MONITORS)  
 OBJECTS = $(subst $(DO_NOT_BUILD),,$(ALL_OBJECTS))
 
-main: lib 
+main: lib examples
 
-all: simulations tests
-
-simulations: $(BIN_SIMS)
-
-examples: $(BIN_EXAMPLES)
+all: main simulations tests
 
 lib: libauryn.a
 
 libauryn.a: $(OBJECTS)
 	ar rcs libauryn.a $(OBJECTS)
+
+examples: $(BIN_EXAMPLES)
+
+simulations: $(BIN_SIMS)
+
 
 tests: $(TESTFILES)
 

@@ -23,9 +23,9 @@
 * Front Neuroinform 8, 76. doi: 10.3389/fninf.2014.00076
 */
 
-#include "STDPConnection.h"
+#include "STDPwdConnection.h"
 
-void STDPConnection::init(AurynWeight lambda, AurynWeight maxweight)
+void STDPwdConnection::init(AurynWeight lambda, AurynWeight maxweight)
 {
 	if ( dst->get_post_size() == 0 ) return;
 
@@ -49,14 +49,14 @@ void STDPConnection::init(AurynWeight lambda, AurynWeight maxweight)
 	stdp_active = true;
 }
 
-void STDPConnection::compute_fudge_factors()
+void STDPwdConnection::compute_fudge_factors()
 {
 	learning_rate = param_lambda;
 	fudge_dep = learning_rate*pow(get_max_weight(),1.0-param_mu_minus)*param_alpha;
 	fudge_pot = learning_rate*pow(get_max_weight(),1.0-param_mu_plus);
 }
 
-void STDPConnection::init_shortcuts() 
+void STDPwdConnection::init_shortcuts() 
 {
 	if ( dst->get_post_size() == 0 ) return; // if there are no target neurons on this rank
 
@@ -67,20 +67,20 @@ void STDPConnection::init_shortcuts()
 	bkw_data = bkw->get_data_begin();
 }
 
-void STDPConnection::finalize() {
+void STDPwdConnection::finalize() {
 	DuplexConnection::finalize();
 	init_shortcuts();
 }
 
-void STDPConnection::free()
+void STDPwdConnection::free()
 {
 }
 
-STDPConnection::STDPConnection(SpikingGroup * source, NeuronGroup * destination, TransmitterType transmitter) : DuplexConnection(source, destination, transmitter)
+STDPwdConnection::STDPwdConnection(SpikingGroup * source, NeuronGroup * destination, TransmitterType transmitter) : DuplexConnection(source, destination, transmitter)
 {
 }
 
-STDPConnection::STDPConnection(SpikingGroup * source, NeuronGroup * destination, 
+STDPwdConnection::STDPwdConnection(SpikingGroup * source, NeuronGroup * destination, 
 		const char * filename, 
 		AurynWeight lambda, 
 		AurynWeight maxweight , 
@@ -94,7 +94,7 @@ STDPConnection::STDPConnection(SpikingGroup * source, NeuronGroup * destination,
 	init_shortcuts();
 }
 
-STDPConnection::STDPConnection(SpikingGroup * source, NeuronGroup * destination, 
+STDPwdConnection::STDPwdConnection(SpikingGroup * source, NeuronGroup * destination, 
 		AurynWeight weight, AurynWeight sparseness, 
 		AurynWeight lambda, 
 		AurynWeight maxweight , 
@@ -109,18 +109,18 @@ STDPConnection::STDPConnection(SpikingGroup * source, NeuronGroup * destination,
 {
 	init(lambda, maxweight);
 	if ( name.empty() )
-		set_name("STDPConnection");
+		set_name("STDPwdConnection");
 	init_shortcuts();
 }
 
-STDPConnection::~STDPConnection()
+STDPwdConnection::~STDPwdConnection()
 {
 	if ( dst->get_post_size() > 0 ) 
 		free();
 }
 
 
-void STDPConnection::propagate_forward()
+void STDPwdConnection::propagate_forward()
 {
 	for (SpikeContainer::const_iterator spike = src->get_spikes()->begin() ; // spike = pre_spike
 			spike != src->get_spikes()->end() ; ++spike ) {
@@ -146,7 +146,7 @@ void STDPConnection::propagate_forward()
 	}
 }
 
-void STDPConnection::propagate_backward()
+void STDPwdConnection::propagate_backward()
 {
 	SpikeContainer::const_iterator spikes_end = dst->get_spikes_immediate()->end();
 	// process spikes
@@ -167,47 +167,47 @@ void STDPConnection::propagate_backward()
 	}
 }
 
-void STDPConnection::set_alpha(AurynWeight a)
+void STDPwdConnection::set_alpha(AurynWeight a)
 {
 	param_alpha = a;
 	compute_fudge_factors();
 	logger->parameter("alpha",param_alpha);
 }
 
-void STDPConnection::set_lambda(AurynWeight l)
+void STDPwdConnection::set_lambda(AurynWeight l)
 {
 	param_lambda = l;
 	compute_fudge_factors();
 	logger->parameter("lambda",param_lambda);
 }
 
-void STDPConnection::set_mu_plus(AurynWeight m)
+void STDPwdConnection::set_mu_plus(AurynWeight m)
 {
 	param_mu_plus = m;
 	compute_fudge_factors();
 	logger->parameter("mu_plus",param_mu_plus);
 }
 
-void STDPConnection::set_mu_minus(AurynWeight m)
+void STDPwdConnection::set_mu_minus(AurynWeight m)
 {
 	param_mu_minus = m;
 	compute_fudge_factors();
 	logger->parameter("mu_minus",param_mu_minus);
 }
 
-void STDPConnection::set_max_weight(AurynWeight wmax)
+void STDPwdConnection::set_max_weight(AurynWeight wmax)
 {
 	SparseConnection::set_max_weight(wmax);
 	compute_fudge_factors();
 }
 
-void STDPConnection::propagate()
+void STDPwdConnection::propagate()
 {
 	propagate_forward();
 	propagate_backward();
 }
 
-void STDPConnection::evolve()
+void STDPwdConnection::evolve()
 {
 	//tr_pre->evolve();
 }

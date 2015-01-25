@@ -23,8 +23,8 @@
 * Front Neuroinform 8, 76. doi: 10.3389/fninf.2014.00076
 */
 
-#ifndef STDPCONNECTION_H_
-#define STDPCONNECTION_H_
+#ifndef STDPWDCONNECTION_H_
+#define STDPWDCONNECTION_H_
 
 #include "auryn_definitions.h"
 #include "DuplexConnection.h"
@@ -38,10 +38,12 @@ using namespace std;
 
 /*! \brief Doublet STDP All-to-All as implemented in NEST as stdp_synapse_hom 
  *
- * This class implements a range of doublet STDP rules.
+ * This class implements a range of doublet STDP rules including weight dependent 
+ * ones (hence the wd suffix in he classn ame). 
+ * It is meant to be similar to stdp_synapse_hom in NEST. 
  *
  */
-class STDPConnection : public DuplexConnection
+class STDPwdConnection : public DuplexConnection
 {
 
 private:
@@ -84,21 +86,21 @@ public:
 
 	bool stdp_active;
 
-	STDPConnection(SpikingGroup * source, NeuronGroup * destination, 
+	STDPwdConnection(SpikingGroup * source, NeuronGroup * destination, 
 			TransmitterType transmitter=GLUT);
 
-	STDPConnection(SpikingGroup * source, NeuronGroup * destination, 
+	STDPwdConnection(SpikingGroup * source, NeuronGroup * destination, 
 			const char * filename, 
 			AurynWeight lambda=1e-5, 
 			AurynWeight maxweight=0.1 , 
 			TransmitterType transmitter=GLUT);
 
-	STDPConnection(SpikingGroup * source, NeuronGroup * destination, 
+	STDPwdConnection(SpikingGroup * source, NeuronGroup * destination, 
 			AurynWeight weight, AurynWeight sparseness=0.05, 
 			AurynWeight lambda=0.01, 
 			AurynWeight maxweight=100. , 
 			TransmitterType transmitter=GLUT,
-			string name = "STDPConnection" );
+			string name = "STDPwdConnection" );
 
 	void set_alpha(AurynWeight a);
 	void set_lambda(AurynWeight l);
@@ -108,7 +110,7 @@ public:
 
 	void set_max_weight(AurynWeight w);
 
-	virtual ~STDPConnection();
+	virtual ~STDPwdConnection();
 	virtual void finalize();
 	void free();
 
@@ -117,4 +119,4 @@ public:
 
 };
 
-#endif /*STDPCONNECTION_H_*/
+#endif /*STDPWDCONNECTION_H_*/

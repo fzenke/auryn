@@ -202,9 +202,11 @@ public:
 	virtual bool load_from_complete_file(string filename);
 	virtual bool load_from_file(string filename);
 
+	/*! Sets minimum weight (for plastic connections). */
 	virtual void set_min_weight(AurynWeight minimum_weight);
 	AurynWeight get_min_weight();
 
+	/*! Sets maximum weight (for plastic connections). */
 	virtual void set_max_weight(AurynWeight maximum_weight);
 	AurynWeight get_max_weight();
 

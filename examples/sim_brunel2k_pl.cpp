@@ -200,8 +200,8 @@ int main(int ac,char *av[]) {
 	
 
     logger->msg("Setting up E connections ...",PROGRESS,true);
-	STDPConnection * con_ee 
-		= new STDPConnection( 
+	STDPwdConnection * con_ee 
+		= new STDPwdConnection( 
 				neurons_e,
 				neurons_e,
 				w,
