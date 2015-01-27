@@ -120,8 +120,9 @@ enum TransmitterType {
 enum StimulusGroupModeType { MANUAL, RANDOM, SEQUENTIAL, SEQUENTIAL_REV, STIMFILE };
 
 
-typedef unsigned int NeuronID; //!< NeuronID is an unsigned integeger type used to index neurons in Auryns.
+typedef unsigned int NeuronID; //!< NeuronID is an unsigned integeger type used to index neurons in Auryn.
 typedef NeuronID AurynInt;
+typedef unsigned int StateID; //!< StateID is an unsigned integeger type used to index synaptic states in Auryn.
 typedef unsigned long AurynLong; //!< An unsigned long type used to count synapses or similar. 
 typedef NeuronID AurynTime; //!< Defines Auryns discrete time unit of the System clock.  Change to AurynLong if 120h of simtime are not sufficient
 typedef float AurynFloat; //!< Low precision floating point datatype.
