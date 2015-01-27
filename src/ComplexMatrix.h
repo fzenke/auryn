@@ -161,19 +161,21 @@ public:
 	T * get_ptr(AurynLong data_index);
 
 	/* Methods concerning synaptic state vectors. */
-	void set_num_synapse_states(NeuronID zsize);
-	T * get_state_begin(NeuronID z=0);
-	T * get_state_end(NeuronID z=0);
+	void set_num_synapse_states(StateID zsize);
+	T * get_state_begin(StateID z=0);
+	T * get_state_end(StateID z=0);
 	/*! Sets all values in state x to value. */
-	void state_set_all(NeuronID x, T value);
+	void state_set_all(StateID x, T value);
 	/*! Computes a*x + y and stores result in y */
-	void state_saxpy(T a, NeuronID x, NeuronID y);
+	void state_saxpy(T a, StateID x, StateID y);
 	/*! Multiplies x and y and stores result in y */
-	void state_mul(NeuronID x, NeuronID y);
+	void state_mul(StateID x, StateID y);
+	/*! Adds x and y and stores result in y */
+	void state_add(StateID x, StateID y);
 	/*! Scale state x by a. */
-	void state_scale(T a, NeuronID x);
+	void state_scale(T a, StateID x);
 	/*! Adds constant a to all values in x */
-	void state_add_const(T a, NeuronID x);
+	void state_add_const(T a, StateID x);
 
 	T get_value(AurynLong data_index);
 	void add_value(AurynLong data_index, T value);
@@ -211,8 +213,8 @@ public:
 	NeuronID get_n_cols();
 	NeuronID get_z_values();
 	NeuronID ** get_rowptrs();
-	T * get_data_begin();
-	T * get_data_end();
+	T * get_data_begin(const StateID z=0);
+	T * get_data_end(const StateID z=0);
 	/*! Returns the data value to an item that is i-th in the colindex array */
 	T get_value(NeuronID i);
 	/*! Returns the data value to an item that for pointer r pointing to the respective element in the index array */
@@ -227,13 +229,13 @@ public:
 template <typename T>
 T * ComplexMatrix<T>::get_data_ptr(AurynLong i, StateID z)
 {
-	return elementdata+i;
+	return elementdata+z*get_datasize()+i;
 }
 
 template <typename T>
 T ComplexMatrix<T>::get_data(AurynLong i, StateID z)
 {
-	return elementdata[i];
+	return elementdata[z*get_datasize()+i];
 }
 
 template <typename T>
@@ -452,10 +454,10 @@ bool ComplexMatrix<T>::exists(NeuronID i, NeuronID j)
 }
 
 template <typename T>
-void ComplexMatrix<T>::set_num_synapse_states(NeuronID zsize)
+void ComplexMatrix<T>::set_num_synapse_states(StateID zsize)
 {
 	z_values = zsize;
-	resize_buffer_and_clear();
+	resize_buffer_and_clear(statesize);
 }
 
 template <typename T>
@@ -640,15 +642,15 @@ NeuronID ** ComplexMatrix<T>::get_rowptrs()
 }
 
 template <typename T>
-T * ComplexMatrix<T>::get_data_begin()
+T * ComplexMatrix<T>::get_data_begin(StateID z)
 {
-	return elementdata;
+	return get_data_ptr((AurynLong)0,z);
 }
 
 template <typename T>
-T * ComplexMatrix<T>::get_data_end()
+T * ComplexMatrix<T>::get_data_end(StateID z)
 {
-	return elementdata+get_nonzero();
+	return get_data_ptr(get_nonzero(),z);
 }
 
 
@@ -697,7 +699,7 @@ double ComplexMatrix<T>::mean()
 }
 
 template <typename T>
-void ComplexMatrix<T>::state_set_all(NeuronID x, T value)
+void ComplexMatrix<T>::state_set_all(StateID x, T value)
 {
 	T * sx = get_state_begin(x);
 	for (T * iter=get_state_begin(sx);
@@ -708,7 +710,7 @@ void ComplexMatrix<T>::state_set_all(NeuronID x, T value)
 }
 
 template <typename T>
-void ComplexMatrix<T>::state_saxpy(T a, NeuronID x, NeuronID y)
+void ComplexMatrix<T>::state_saxpy(T a, StateID x, StateID y)
 {
 	T * sx = get_state_begin(x);
 	T * sy = get_state_begin(y);
@@ -718,7 +720,7 @@ void ComplexMatrix<T>::state_saxpy(T a, NeuronID x, NeuronID y)
 }
 
 template <typename T>
-void ComplexMatrix<T>::state_mul(NeuronID x, NeuronID y)
+void ComplexMatrix<T>::state_mul(StateID x, StateID y)
 {
 	T * sx = get_state_begin(x);
 	T * sy = get_state_begin(y);
@@ -728,7 +730,17 @@ void ComplexMatrix<T>::state_mul(NeuronID x, NeuronID y)
 }
 
 template <typename T>
-void ComplexMatrix<T>::state_scale(T a, NeuronID y)
+void ComplexMatrix<T>::state_add(StateID x, StateID y)
+{
+	T * sx = get_state_begin(x);
+	T * sy = get_state_begin(y);
+	for (AurynLong i = 0 ; i < get_datasize() ; ++i ) {
+		sy[i] = sx[i]+sy[i];
+	}
+}
+
+template <typename T>
+void ComplexMatrix<T>::state_scale(T a, StateID y)
 {
 	T * sy = get_state_begin(y);
 	for (AurynLong i = 0 ; i < get_datasize() ; ++i ) {
@@ -737,7 +749,7 @@ void ComplexMatrix<T>::state_scale(T a, NeuronID y)
 }
 
 template <typename T>
-void ComplexMatrix<T>::state_add_const(T a, NeuronID y)
+void ComplexMatrix<T>::state_add_const(T a, StateID y)
 {
 	T * sy = get_state_begin(y);
 	for (AurynLong i = 0 ; i < get_datasize() ; ++i ) {
