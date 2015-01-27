@@ -771,8 +771,10 @@ bool SparseConnection::load_from_file(ForwardMatrix * m, string filename, AurynL
 		catch ( AurynMatrixBufferException )
 		{
 			stringstream oss;
-			oss << get_name() <<": Buffer full after pushing " << count << " elements."
-										<< " There are pruned connections!";
+			oss << get_name() 
+				<< ": Buffer full after pushing " 
+				<< count << " elements."
+				<< " There are pruned connections!";
 			logger->msg(oss.str(),ERROR);
 			return false;
 		} 

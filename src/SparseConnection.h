@@ -29,7 +29,7 @@
 #include "auryn_definitions.h"
 #include "Connection.h"
 #include "System.h"
-#include "SimpleMatrix.h"
+#include "ComplexMatrix.h"
 
 #include <sstream>
 #include <fstream>
@@ -47,7 +47,7 @@
 
 using namespace std;
 
-typedef SimpleMatrix<AurynWeight> ForwardMatrix;
+typedef ComplexMatrix<AurynWeight> ForwardMatrix;
 
 
 /*! \brief The base class to create sparse random connections

@@ -29,6 +29,7 @@
 #include "auryn_definitions.h"
 #include "SparseConnection.h"
 #include "SimpleMatrix.h"
+#include "ComplexMatrix.h"
 
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int.hpp>
