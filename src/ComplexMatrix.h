@@ -55,13 +55,24 @@ private:
 			ar & m_rows;
 			ar & n_cols;
 			ar & z_values;
+			ar & current_row;
+			ar & current_col;
 			ar & statesize;
 			ar & n_nonzero;
-			for (NeuronID i = 0 ; i < m_rows ; ++i) {
-				for (NeuronID * r = rowptrs[i] ; r < rowptrs[i+1] ; ++r ) {
-					ar & i;
-					ar & *r;
-					ar & elementdata[r-colinds];
+
+			// rowpointers -- translate in elements per row
+			for ( NeuronID i = 0 ; i < m_rows+1 ; ++i ) {
+				NeuronID num_elements = rowptrs[i]-rowptrs[0];
+				ar & num_elements;
+			}
+			// colindices
+			for (AurynLong i = 0 ; i < n_nonzero ; ++i) {
+				ar & colinds[i];
+			}
+			// data
+			for (StateID z = 0; z < z_values ; ++z ) {
+				for (AurynLong i = 0 ; i < n_nonzero ; ++i) {
+					ar & elementdata[i+z*statesize];
 				}
 			}
 		}
@@ -71,19 +82,29 @@ private:
 			ar & m_rows;
 			ar & n_cols;
 			ar & z_values;
+			ar & current_row;
+			ar & current_col;
 			ar & statesize;
-			resize_buffer_and_clear(statesize);
+			ar & n_nonzero;
 
-			AurynLong nnz;
-			ar & nnz;
+			// allocate necessary memory
+			resize_buffer_and_clear(n_nonzero);
 
-			for (AurynLong c = 0 ; c < nnz ; ++c) {
-				NeuronID i,j;
-				T val;
-				ar & i;
-				ar & j;
-				ar & val;
-				push_back(i,j,val);
+			// rowpointers -- translate in elements per row
+			for ( NeuronID i = 0 ; i < m_rows+1 ; ++i ) {
+				NeuronID num_elements;
+				ar & num_elements;
+				rowptrs[i] = rowptrs[0]+num_elements;
+			}
+			// colindices
+			for (AurynLong i = 0 ; i < n_nonzero ; ++i) {
+				ar & colinds[i];
+			}
+			// data
+			for (StateID z = 0; z < z_values ; ++z ) {
+				for (AurynLong i = 0 ; i < n_nonzero ; ++i) {
+					ar & elementdata[i+z*statesize];
+				}
 			}
 		}
 	BOOST_SERIALIZATION_SPLIT_MEMBER()
@@ -341,7 +362,7 @@ void ComplexMatrix<T>::prune()
 template <typename T>
 ComplexMatrix<T>::ComplexMatrix()
 {
-	init(1,1);
+	init(1,1,2,1);
 }
 
 template <typename T>
