@@ -44,6 +44,18 @@
 
 #include <boost/mpi.hpp>
 
+#include <boost/archive/text_oarchive.hpp> 
+#include <boost/archive/text_iarchive.hpp> 
+#include <boost/archive/binary_oarchive.hpp> 
+#include <boost/archive/binary_iarchive.hpp> 
+
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/map.hpp>
+
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/variate_generator.hpp>
+#include <boost/random/normal_distribution.hpp>
+
 #include "Logger.h"
 
 using namespace std;
@@ -138,6 +150,14 @@ template <typename T>
 struct auryn_vector { 
     NeuronID size;
     T * data;
+
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		ar & size;
+		for ( NeuronID i = 0 ; i < size ; ++i ) 
+			ar & data[i];
+	}
 };
 
 /*! Reimplements a simplified version of the GSL vector. */

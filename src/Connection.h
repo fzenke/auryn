@@ -48,10 +48,28 @@ class System;
 class Connection 
 {
 private:
+	friend class boost::serialization::access;
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		virtual_serialize(ar, version);
+	}
+
+
 	NeuronID m_rows,n_cols;
 	string connection_name;
 
 protected:
+	virtual void virtual_serialize(boost::archive::text_oarchive & ar, const unsigned int version ) 
+	{
+		ar & m_rows & n_cols & connection_name;
+	}
+
+	virtual void virtual_serialize(boost::archive::text_iarchive & ar, const unsigned int version ) 
+	{
+		ar & m_rows & n_cols & connection_name;
+	}
+
 	SpikingGroup * src;
 	NeuronGroup * dst;
 	TransmitterType trans;
@@ -114,6 +132,8 @@ public:
 	virtual vector<neuron_pair>  get_block(NeuronID lo_row, NeuronID lo_col, NeuronID hi_row,  NeuronID hi_col) = 0;
 
 };
+
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Connection)
 
 inline void Connection::transmit(NeuronID id, AurynWeight amount) 
 {

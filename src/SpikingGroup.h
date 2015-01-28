@@ -32,18 +32,9 @@
 #include "EulerTrace.h"
 #include "LinearTrace.h"
 
-#include <boost/archive/text_oarchive.hpp> 
-#include <boost/archive/text_iarchive.hpp> 
 
 #include <vector>
 #include <map>
-#include <boost/serialization/vector.hpp>
-#include <boost/mpi.hpp>
-#include <boost/progress.hpp>
-
-#include <boost/random/mersenne_twister.hpp>
-#include <boost/random/variate_generator.hpp>
-#include <boost/random/normal_distribution.hpp>
 
 
 using namespace std;
@@ -59,6 +50,14 @@ class System;
 class SpikingGroup
 {
 private:
+	/* Functions necesssary for serialization */
+	friend class boost::serialization::access;
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		virtual_serialize(ar, version);
+	}
+
 	/*! Stores the groupID gid of this group */
 	NeuronID unique_id;
 
@@ -109,17 +108,20 @@ protected:
 	AttributeContainer * attribs;
 
 	/*! Stores the length of output delay */
-    int delay_size;
 	static AurynTime * clock_ptr;
 
+	/* Functions related to loading and storing the state from files */
 	virtual void load_input_line(NeuronID i, const char * buf);
 	virtual string get_output_line(NeuronID i);
+
+	virtual void virtual_serialize(boost::archive::text_oarchive & ar, const unsigned int version );
+	virtual void virtual_serialize(boost::archive::text_iarchive & ar, const unsigned int version );
 	
 public:
 	SpikeDelay * delay;
 
 	/*! Can hold single neuron vectors such as target rates or STP states etc  */
-	map<string,auryn_vector_float *> state_vector;
+	map<string,auryn_vector_float *> state_vectors;
 
 	/*! Returns existing state vector by name */
 	auryn_vector_float * find_state_vector(string key);
@@ -216,6 +218,8 @@ public:
 	static double waitall_time2;
 #endif
 };
+
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(SpikingGroup)
 
 extern System * sys;
 extern Logger * logger;

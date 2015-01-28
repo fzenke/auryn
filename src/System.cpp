@@ -493,72 +493,80 @@ void System::set_simulation_name(string name)
 
 void System::save_network_state(string basename)
 {
-	char filename [255];
+	string netstate_filename;
+	{
+		stringstream oss;
+		oss << basename
+			<< "." << mpicom->rank()
+			<< ".netstate";
+		netstate_filename = oss.str();
+	} // oss goes out of focus
+
+	std::ofstream ofs(netstate_filename.c_str());
+	boost::archive::text_oarchive oa(ofs);
+
 	for ( unsigned int i = 0 ; i < connections.size() ; ++i ) {
-		sprintf(filename, "%s.%d.%d.wmat", basename.c_str(), i, mpicom->rank());
+		// sprintf(filename, "%s.%d.%d.wmat", basename.c_str(), i, mpicom->rank());
 
 		stringstream oss;
 		oss << "Saving connection "
-			<<  filename ;
+			<<  i 
+			<< " to stream";
 		logger->msg(oss.str(),NOTIFICATION);
 
-		connections[i]->write_to_file(filename);
+		oa << *(connections[i]);
 	}
 
 	for ( unsigned int i = 0 ; i < spiking_groups.size() ; ++i ) {
-		sprintf(filename, "%s.%d.%d.gstate", basename.c_str(), i, mpicom->rank());
+		// sprintf(filename, "%s.%d.%d.gstate", basename.c_str(), i, mpicom->rank());
 
 		stringstream oss;
-		oss << "Saving group "
-			<<  filename ;
+		oss << "Saving SpikingGroup "
+			<<  i 
+			<< " to stream";
 		logger->msg(oss.str(),NOTIFICATION);
 
-		spiking_groups[i]->write_to_file(filename);
+		oa << *(spiking_groups[i]);
 	}
+
+	ofs.close();
 }
 
 void System::load_network_state(string basename)
 {
-	char filename [255];
+	string netstate_filename;
+	{
+		stringstream oss;
+		oss << basename
+			<< "." << mpicom->rank()
+			<< ".netstate";
+		netstate_filename = oss.str();
+	} // oss goes out of focus
+
+	std::ifstream ifs(netstate_filename.c_str());
+	boost::archive::text_iarchive ia(ifs);
+
 	for ( unsigned int i = 0 ; i < connections.size() ; ++i ) {
-		sprintf(filename, "%s.%d.%d.wmat", basename.c_str(), i, mpicom->rank());
 
 		stringstream oss;
 		oss << "Loading connection "
-			<<  filename ;
+			<<  i ;
 		logger->msg(oss.str(),NOTIFICATION);
 
-		try {
-			connections[i]->load_from_file(filename);
-		}
-		catch ( AurynOpenFileException ) {
-			oss.str("");
-			oss << "Loading "
-				<<  filename 
-				<< " failed. Continueing ...";
-			logger->msg(oss.str(),WARNING);
-		}
+		ia >> *(connections[i]);
 	}
 
 	for ( unsigned int i = 0 ; i < spiking_groups.size() ; ++i ) {
-		sprintf(filename, "%s.%d.%d.gstate", basename.c_str(), i, mpicom->rank());
 
 		stringstream oss;
 		oss << "Loading group "
-			<<  filename ;
+			<<  i ;
 		logger->msg(oss.str(),NOTIFICATION);
 
-		try {
-			spiking_groups[i]->load_from_file(filename);
-		}
-		catch ( AurynOpenFileException ) {
-			oss.str("");
-			oss << "Loading "
-				<<  filename 
-				<< " failed. Continueing ...";
-			logger->msg(oss.str(),WARNING);
-		}
+		ia >> *(spiking_groups[i]);
 	}
+
+	ifs.close();
 }
 
 #ifdef CODE_COLLECT_SYNC_TIMING_STATS

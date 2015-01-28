@@ -48,6 +48,20 @@ class TripletConnection : public DuplexConnection
 {
 
 private:
+	friend class boost::serialization::access;
+	template<class Archive>
+	void save(Archive & ar, const unsigned int version) const
+	{
+		ar & boost::serialization::base_object<DuplexConnection>(*this);
+	}
+	template<class Archive>
+	void load(Archive & ar, const unsigned int version)
+	{
+		ar & boost::serialization::base_object<DuplexConnection>(*this);
+		finalize();
+	}
+	BOOST_SERIALIZATION_SPLIT_MEMBER()
+
 	void init(AurynFloat tau_hom, AurynFloat eta, AurynFloat kappa, AurynFloat maxweight);
 	void init_shortcuts();
 
@@ -94,6 +108,7 @@ protected:
 	 * @param post the postsynaptic cell in question. 
 	 */ 
 	AurynWeight dw_post(NeuronID pre, NeuronID post);
+
 
 public:
 	AurynFloat A3_plus;

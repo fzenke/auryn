@@ -39,6 +39,16 @@ using namespace std;
 class EulerTrace
 {
 private:
+	/* Functions necesssary for serialization */
+	friend class boost::serialization::access;
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		ar & size ;
+		for ( NeuronID i = 0 ; i < size ; ++i )
+			ar & state->data[i];
+	}
+
 	/*! The size of the group. */
 	NeuronID size;
 	/*! The internal state vector. */

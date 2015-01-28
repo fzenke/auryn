@@ -43,6 +43,20 @@ class LPTripletConnection : public DuplexConnection
 {
 
 private:
+	friend class boost::serialization::access;
+	template<class Archive>
+	void save(Archive & ar, const unsigned int version) const
+	{
+		ar & boost::serialization::base_object<DuplexConnection>(*this);
+	}
+	template<class Archive>
+	void load(Archive & ar, const unsigned int version)
+	{
+		ar & boost::serialization::base_object<DuplexConnection>(*this);
+		finalize();
+	}
+	BOOST_SERIALIZATION_SPLIT_MEMBER()
+
 	AurynFloat tau_lp;
 	AurynFloat delta_lp;
 	AurynTime timestep_lp;
