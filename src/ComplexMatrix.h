@@ -464,7 +464,7 @@ template <typename T>
 void ComplexMatrix<T>::set_num_synapse_states(StateID zsize)
 {
 	z_values = zsize;
-	resize_buffer_and_clear(statesize);
+	resize_buffer(statesize);
 }
 
 template <typename T>
