@@ -55,14 +55,10 @@ void LPTripletConnection::init(AurynFloat tau_hom, AurynFloat eta, AurynFloat ka
 
 	stdp_active = true;
 
-	// define additional states and temporary weight state vectors in finalize
-
 	tau_lp = 120;
 	timestep_lp = 1e-3*tau_lp/dt;
 	delta_lp = 1.0*timestep_lp/tau_lp*dt;
-}
 
-void LPTripletConnection::finalize() {
 
 	// Set number of synaptic states
 	w->set_num_synapse_states(2);
@@ -75,6 +71,11 @@ void LPTripletConnection::finalize() {
 	// FIXME have to make sure they size is adapted upon resizing of datasize
 	temp_state = new AurynWeight[w->get_statesize()];
 
+	// Run finalize again to rebuild backward matrix
+	finalize(); 
+}
+
+void LPTripletConnection::finalize() {
 	// will compute backward matrix on the new elements/data vector of the w
 	DuplexConnection::finalize();
 }
@@ -234,10 +235,8 @@ void LPTripletConnection::evolve()
 	if ( sys->get_clock()%timestep_lp == 0 && stdp_active ) {
 		AurynWeight * lpwval = w->get_data_begin(0);
 		AurynWeight * wval   = w->get_data_begin(1);
-		for (AurynLong i = 0 ; i < w->get_nonzero() ; ++i ) {
-			AurynFloat dw = ( wval[i] - lpwval[i] ) * delta_lp;
-			lpwval[i] += dw;
-		}
+		w->state_sub(wval,lpwval,temp_state);
+		w->state_saxpy(delta_lp,temp_state,lpwval);
 	}
 }
 
