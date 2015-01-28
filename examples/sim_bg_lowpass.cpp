@@ -29,6 +29,16 @@ using namespace std;
 namespace po = boost::program_options;
 namespace mpi = boost::mpi;
 
+/*! \brief Example program using LPTripletConnection
+ * 
+ * This example is a clone of sim_background in which all functionality 
+ * for weight decay was removed. Instead of using TripletConnection, this
+ * piece of code serves as and example program using LPTripletConnection 
+ * instead which is an example for a synapse model with two state variables.
+ * In LPTripletConnection all weight updates are low-pass filtered. The delay
+ * introduced by this filtering should worsen the stabiltity situation as 
+ * in comparison to what can be observed in sim_background. */
+
 int main(int ac, char* av[]) 
 {
 
@@ -820,6 +830,7 @@ if ( patfile != "" ) {
 			corr_connections[i]->write_to_file(strbuf);
 		}
 	}
+
 
 	// save lifetime
 	sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.lifetime", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), world.rank());

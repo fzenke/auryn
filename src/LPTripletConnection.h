@@ -37,7 +37,7 @@
 using namespace std;
 
 
-/*! \brief Implements triplet STDP with a low pass filter.
+/*! \brief Implements triplet STDP in which weight updates are low-pass filtered.
  */
 class LPTripletConnection : public DuplexConnection
 {
