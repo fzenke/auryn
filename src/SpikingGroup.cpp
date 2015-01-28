@@ -154,12 +154,12 @@ void SpikingGroup::free()
 	for ( NeuronID i = 0 ; i < posttraces.size() ; ++i )
 		delete posttraces[i];
 
-	for ( map<string,auryn_vector_float *>::const_iterator iter = state_vector.begin() ; 
-			iter != state_vector.end() ;
+	for ( map<string,auryn_vector_float *>::const_iterator iter = state_vectors.begin() ; 
+			iter != state_vectors.end() ;
 			++iter ) {
 		auryn_vector_float_free ( iter->second );
 	}
-	state_vector.clear();
+	state_vectors.clear();
 
 }
 
@@ -400,8 +400,8 @@ bool SpikingGroup::write_to_file(const char * filename)
 
 	outfile << "# Auryn SpikingGroup state file for n="<< get_rank_size() <<" neurons (ver. " << VERSION << ")" << endl;
 	outfile << "# Default field order (might be overwritten): ";
-	for ( map<string,auryn_vector_float *>::const_iterator iter = state_vector.begin() ; 
-			iter != state_vector.end() ;
+	for ( map<string,auryn_vector_float *>::const_iterator iter = state_vectors.begin() ; 
+			iter != state_vectors.end() ;
 			++iter ) {
 		outfile << scientific << iter->first << " ";
 	}
@@ -469,24 +469,62 @@ bool SpikingGroup::load_from_file(const char * filename)
 	return true;
 }
 
+void SpikingGroup::virtual_serialize(boost::archive::text_oarchive & ar, const unsigned int version ) 
+{
+	ar & size & axonaldelay;
+	// ar & *delay;
+	for ( map<string,auryn_vector_float *>::const_iterator iter = state_vectors.begin() ; 
+			iter != state_vectors.end() ;
+			++iter ) {
+		ar & iter->first;
+		ar & *(iter->second);
+	}
+
+	for ( NeuronID i = 0 ; i < pretraces.size() ; ++i )
+		ar & *(pretraces[i]);
+
+	for ( NeuronID i = 0 ; i < posttraces.size() ; ++i )
+		ar & *(posttraces[i]);
+}
+
+void SpikingGroup::virtual_serialize(boost::archive::text_iarchive & ar, const unsigned int version ) 
+{
+	ar & size & axonaldelay ; 
+	// ar & *delay;
+	for ( map<string,auryn_vector_float *>::const_iterator iter = state_vectors.begin() ; 
+			iter != state_vectors.end() ;
+			++iter ) {
+		string key;
+		ar & key;
+		auryn_vector_float * vect = get_state_vector(key);
+		ar & *vect;
+	}
+
+	for ( NeuronID i = 0 ; i < pretraces.size() ; ++i )
+		ar & *(pretraces[i]);
+
+	for ( NeuronID i = 0 ; i < posttraces.size() ; ++i )
+		ar & *(posttraces[i]);
+}
+
 auryn_vector_float * SpikingGroup::get_state_vector(string key)
 {
-	if ( state_vector.find(key) == state_vector.end() ) {
+	if ( state_vectors.find(key) == state_vectors.end() ) {
 		if ( get_vector_size() == 0 ) return NULL;
 		auryn_vector_float * vec = auryn_vector_float_alloc (get_vector_size()); 
-		state_vector[key] = vec;
+		state_vectors[key] = vec;
 		return vec;
 	} else {
-		return state_vector.find(key)->second;
+		return state_vectors.find(key)->second;
 	}
 }
 
 auryn_vector_float * SpikingGroup::find_state_vector(string key)
 {
-	if ( state_vector.find(key) == state_vector.end() ) {
+	if ( state_vectors.find(key) == state_vectors.end() ) {
 		return NULL;
 	} else {
-		return state_vector.find(key)->second;
+		return state_vectors.find(key)->second;
 	}
 }
 
@@ -511,8 +549,8 @@ string SpikingGroup::get_output_line(NeuronID i)
 {
 	stringstream oss;
 
-	for ( map<string,auryn_vector_float *>::const_iterator iter = state_vector.begin() ; 
-			iter != state_vector.end() ;
+	for ( map<string,auryn_vector_float *>::const_iterator iter = state_vectors.begin() ; 
+			iter != state_vectors.end() ;
 			++iter ) {
 		oss << scientific << auryn_vector_float_get( iter->second, i ) << " ";
 	}
@@ -543,9 +581,9 @@ void SpikingGroup::load_input_line(NeuronID i, const char * buf)
 		int bytes_consumed = 0, nums_read = 0;
 		float temp;
 
-		// read the state_vector
-		for ( map<string,auryn_vector_float *>::const_iterator iter = state_vector.begin() ; 
-			iter != state_vector.end() ;
+		// read the state_vectors
+		for ( map<string,auryn_vector_float *>::const_iterator iter = state_vectors.begin() ; 
+			iter != state_vectors.end() ;
 			++iter ) {
 			if ( ( nums_now = sscanf( buf + bytes_consumed, "%f%n", & temp, & bytes_now ) ) <= 0 )
 			{
