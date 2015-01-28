@@ -88,7 +88,7 @@ private:
 			ar & n_nonzero;
 
 			// allocate necessary memory
-			resize_buffer_and_clear(n_nonzero);
+			resize_buffer(statesize);
 
 			// rowpointers -- translate in elements per row
 			for ( NeuronID i = 0 ; i < m_rows+1 ; ++i ) {
