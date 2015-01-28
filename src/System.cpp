@@ -554,6 +554,7 @@ void System::load_network_state(string basename)
 		logger->msg(oss.str(),NOTIFICATION);
 
 		ia >> *(connections[i]);
+		connections[i]->finalize();
 	}
 
 	for ( unsigned int i = 0 ; i < spiking_groups.size() ; ++i ) {
