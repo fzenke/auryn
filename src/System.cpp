@@ -345,9 +345,9 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 	time(&t_sim_start);
 	time_t t_last_mark = t_sim_start;
 
-	while ( get_clock() <= stoptime ) {
+	while ( get_clock() < stoptime ) {
 
-	    if ( (mpicom->rank()==0) && (not quiet) && ( (get_clock()%PROGRESSBAR_UPDATE_INTERVAL==0) || get_clock()==stoptime ) ) {
+	    if ( (mpicom->rank()==0) && (not quiet) && ( (get_clock()%PROGRESSBAR_UPDATE_INTERVAL==0) || get_clock()==(stoptime-1) ) ) {
 			double fraction = 1.0*(get_clock()-starttime+1)*dt/total_time;
 			progressbar(fraction,get_clock()); // TODO find neat solution for the rate
 		}
@@ -418,7 +418,8 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 	oss << "Simulation finished. Ran for " 
 		<< elapsed 
 		<< "s with SpeedFactor=" 
-		<< elapsed/runtime;
+		<< elapsed/runtime
+		<< "(clock=" << get_clock() << ")";
 	logger->msg(oss.str(),NOTIFICATION);
 
 
@@ -503,7 +504,7 @@ void System::save_network_state(string basename)
 	} // oss goes out of focus
 
 	std::ofstream ofs(netstate_filename.c_str());
-	boost::archive::text_oarchive oa(ofs);
+	boost::archive::binary_oarchive oa(ofs);
 
 	for ( unsigned int i = 0 ; i < connections.size() ; ++i ) {
 		// sprintf(filename, "%s.%d.%d.wmat", basename.c_str(), i, mpicom->rank());
@@ -544,7 +545,7 @@ void System::load_network_state(string basename)
 	} // oss goes out of focus
 
 	std::ifstream ifs(netstate_filename.c_str());
-	boost::archive::text_iarchive ia(ifs);
+	boost::archive::binary_iarchive ia(ifs);
 
 	for ( unsigned int i = 0 ; i < connections.size() ; ++i ) {
 

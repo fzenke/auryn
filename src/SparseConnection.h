@@ -71,13 +71,13 @@ private:
 	bool init_from_file(const char * filename);
 
 protected:
-	void virtual_serialize(boost::archive::text_oarchive & ar, const unsigned int version ) 
+	void virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version ) 
 	{
 		Connection::virtual_serialize(ar,version);
 		ar & *w;
 	}
 
-	void virtual_serialize(boost::archive::text_iarchive & ar, const unsigned int version ) 
+	void virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version ) 
 	{
 		Connection::virtual_serialize(ar,version);
 		ar & *w;

@@ -114,8 +114,8 @@ protected:
 	virtual void load_input_line(NeuronID i, const char * buf);
 	virtual string get_output_line(NeuronID i);
 
-	virtual void virtual_serialize(boost::archive::text_oarchive & ar, const unsigned int version );
-	virtual void virtual_serialize(boost::archive::text_iarchive & ar, const unsigned int version );
+	virtual void virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version );
+	virtual void virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version );
 	
 public:
 	SpikeDelay * delay;

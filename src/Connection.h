@@ -60,12 +60,12 @@ private:
 	string connection_name;
 
 protected:
-	virtual void virtual_serialize(boost::archive::text_oarchive & ar, const unsigned int version ) 
+	virtual void virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version ) 
 	{
 		ar & m_rows & n_cols & connection_name;
 	}
 
-	virtual void virtual_serialize(boost::archive::text_iarchive & ar, const unsigned int version ) 
+	virtual void virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version ) 
 	{
 		ar & m_rows & n_cols & connection_name;
 	}

@@ -469,7 +469,7 @@ bool SpikingGroup::load_from_file(const char * filename)
 	return true;
 }
 
-void SpikingGroup::virtual_serialize(boost::archive::text_oarchive & ar, const unsigned int version ) 
+void SpikingGroup::virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version ) 
 {
 	ar & size & axonaldelay;
 	ar & *delay;
@@ -487,7 +487,7 @@ void SpikingGroup::virtual_serialize(boost::archive::text_oarchive & ar, const u
 		ar & *(posttraces[i]);
 }
 
-void SpikingGroup::virtual_serialize(boost::archive::text_iarchive & ar, const unsigned int version ) 
+void SpikingGroup::virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version ) 
 {
 	ar & size & axonaldelay ; 
 	ar & *delay;
