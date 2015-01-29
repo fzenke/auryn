@@ -133,21 +133,24 @@ AurynFloat TIFGroup::get_bg_current(NeuronID i) {
 string TIFGroup::get_output_line(NeuronID i)
 {
 	stringstream oss;
-	oss << get_mem(i) << " " << get_ampa(i) << " " << get_gaba(i) << " " << auryn_vector_ushort_get (ref, i) << "\n";
+	oss << get_mem(i) << " " << get_ampa(i) << " " << get_gaba(i) << " " 
+		<< auryn_vector_ushort_get (ref, i) << " " 
+		<< auryn_vector_float_get (bg_current, i) <<"\n";
 	return oss.str();
 }
 
 void TIFGroup::load_input_line(NeuronID i, const char * buf)
 {
-		float vmem,vampa,vgaba;
+		float vmem,vampa,vgaba,vbgcur;
 		NeuronID vref;
-		sscanf (buf,"%f %f %f %u",&vmem,&vampa,&vgaba,&vref);
+		sscanf (buf,"%f %f %f %u %f",&vmem,&vampa,&vgaba,&vref,&vbgcur);
 		if ( localrank(i) ) {
 			NeuronID trans = global2rank(i);
 			set_mem(trans,vmem);
 			set_ampa(trans,vampa);
 			set_gaba(trans,vgaba);
 			auryn_vector_ushort_set (ref, trans, vref);
+			auryn_vector_float_set (bg_current, trans, vbgcur);
 		}
 }
 

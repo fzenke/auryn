@@ -179,7 +179,7 @@ int main(int ac, char* av[])
 	netstatfile = outputfile;
 	stringstream oss;
 	oss << outputfile << "." << world.rank();
-	outputfile = oss.str();
+	string basename = oss.str();
 	oss << ".log";
 	string logfile = oss.str();
 	logger = new Logger(logfile,world.rank());
@@ -214,24 +214,24 @@ int main(int ac, char* av[])
 		con_ie->set_all(winh);
 
 	logger->msg("Setting up monitors ...",PROGRESS,true);
-	strbuf = outputfile;
-	strbuf += "_e.ras";
+	strbuf = basename;
+	strbuf += ".e.ras";
 	SpikeMonitor * smon_e = new SpikeMonitor( neurons_e , strbuf.c_str() );
 
-	strbuf = outputfile;
-	strbuf += "_i.ras";
+	strbuf = basename;
+	strbuf += ".i.ras";
 	SpikeMonitor * smon_i = new SpikeMonitor( neurons_i, strbuf.c_str() );
 	smon_i->set_offset(NE);
 
-	strbuf = outputfile;
+	strbuf = basename;
 	strbuf += ".volt";
 	StateMonitor * vmon = new StateMonitor( neurons_e, record_neuron, "mem", strbuf.c_str() );
 
-	strbuf = outputfile;
+	strbuf = basename;
 	strbuf += ".ampa";
 	StateMonitor * amon = new StateMonitor( neurons_e, record_neuron, "g_ampa", strbuf.c_str() );
 
-	strbuf = outputfile;
+	strbuf = basename;
 	strbuf += ".gaba";
 	StateMonitor * gmon = new StateMonitor( neurons_e, record_neuron, "g_gaba", strbuf.c_str() );
 
@@ -244,6 +244,7 @@ int main(int ac, char* av[])
 	for ( int j = 0; j < NI ; j++ ) {
 	  neurons_i->set_bg_current(j,bg_current);
 	}
+
 	
 	// stimulus
 	if (!stimfile.empty()) {
