@@ -53,12 +53,20 @@ class SpikeDelay
 		{
 			for (NeuronID i = 0 ; i < ndelay ; ++i ) {
 				SpikeContainer * sc = delaybuf[i];
-				ar & *sc;
+				NeuronID s = sc->size();
+				ar & s;
+				for (NeuronID k = 0 ; k < s ; ++k )
+					ar & sc->at(k);
 			}
 
 			for (NeuronID i = 0 ; i < ndelay ; ++i ) {
 				AttributeContainer * ac = attribbuf[i];
-				ar & *ac;
+				NeuronID s = ac->size();
+				ar & s;
+				for (NeuronID k = 0 ; k < s ; ++k ) {
+					AurynState state = ac->at(k);
+					ar & state;
+				}
 			}
 		}
 		template<class Archive>
@@ -66,12 +74,26 @@ class SpikeDelay
 		{
 			for (NeuronID i = 0 ; i < ndelay ; ++i ) {
 				SpikeContainer * sc = delaybuf[i];
-				ar & *sc;
+				sc->clear();
+				NeuronID s;
+				ar & s;
+				for (NeuronID k = 0 ; k < s ; ++k ) {
+					NeuronID spike;
+					ar & spike;
+					sc->push_back(spike);
+				}
 			}
 
 			for (NeuronID i = 0 ; i < ndelay ; ++i ) {
 				AttributeContainer * ac = attribbuf[i];
-				ar & *ac;
+				ac->clear();
+				NeuronID s;
+				ar & s;
+				for (NeuronID k = 0 ; k < s ; ++k ) {
+					AurynState state;
+					ar & state;
+					ac->push_back(state);
+				}
 			}
 		}
 		BOOST_SERIALIZATION_SPLIT_MEMBER()
