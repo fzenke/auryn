@@ -472,7 +472,7 @@ bool SpikingGroup::load_from_file(const char * filename)
 void SpikingGroup::virtual_serialize(boost::archive::text_oarchive & ar, const unsigned int version ) 
 {
 	ar & size & axonaldelay;
-	// ar & *delay;
+	ar & *delay;
 	for ( map<string,auryn_vector_float *>::const_iterator iter = state_vectors.begin() ; 
 			iter != state_vectors.end() ;
 			++iter ) {
@@ -490,7 +490,7 @@ void SpikingGroup::virtual_serialize(boost::archive::text_oarchive & ar, const u
 void SpikingGroup::virtual_serialize(boost::archive::text_iarchive & ar, const unsigned int version ) 
 {
 	ar & size & axonaldelay ; 
-	// ar & *delay;
+	ar & *delay;
 	for ( map<string,auryn_vector_float *>::const_iterator iter = state_vectors.begin() ; 
 			iter != state_vectors.end() ;
 			++iter ) {
