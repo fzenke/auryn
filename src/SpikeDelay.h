@@ -49,54 +49,18 @@ class SpikeDelay
 	private:
 		friend class boost::serialization::access;
 		template<class Archive>
-		void save(Archive & ar, const unsigned int version) const
+		void serialize(Archive & ar, const unsigned int version) const
 		{
 			for (NeuronID i = 0 ; i < ndelay ; ++i ) {
 				SpikeContainer * sc = delaybuf[i];
-				NeuronID s = sc->size();
-				ar & s;
-				for (NeuronID k = 0 ; k < s ; ++k )
-					ar & sc->at(k);
+				ar & *sc;
 			}
 
 			for (NeuronID i = 0 ; i < ndelay ; ++i ) {
 				AttributeContainer * ac = attribbuf[i];
-				NeuronID s = ac->size();
-				ar & s;
-				for (NeuronID k = 0 ; k < s ; ++k ) {
-					AurynState state = ac->at(k);
-					ar & state;
-				}
+				ar & *ac;
 			}
 		}
-		template<class Archive>
-		void load(Archive & ar, const unsigned int version)
-		{
-			for (NeuronID i = 0 ; i < ndelay ; ++i ) {
-				SpikeContainer * sc = delaybuf[i];
-				sc->clear();
-				NeuronID s;
-				ar & s;
-				for (NeuronID k = 0 ; k < s ; ++k ) {
-					NeuronID spike;
-					ar & spike;
-					sc->push_back(spike);
-				}
-			}
-
-			for (NeuronID i = 0 ; i < ndelay ; ++i ) {
-				AttributeContainer * ac = attribbuf[i];
-				ac->clear();
-				NeuronID s;
-				ar & s;
-				for (NeuronID k = 0 ; k < s ; ++k ) {
-					AurynState state;
-					ar & state;
-					ac->push_back(state);
-				}
-			}
-		}
-		BOOST_SERIALIZATION_SPLIT_MEMBER()
 
 		SpikeContainer ** delaybuf;
 		AttributeContainer ** attribbuf;
