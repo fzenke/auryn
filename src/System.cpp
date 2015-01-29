@@ -305,9 +305,6 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 		logger->msg("There are no units assigned to this rank!",WARNING);
 	}
 
-	// round off stoptime to multiple of MINDELAY
-	stoptime -= (stoptime%MINDELAY);
-
 	double runtime = (stoptime - get_clock())*dt;
 
 	stringstream oss;

@@ -49,15 +49,15 @@ class SpikeDelay
 	private:
 		friend class boost::serialization::access;
 		template<class Archive>
-		void serialize(Archive & ar, const unsigned int version) const
+		void serialize(Archive & ar, const unsigned int version)
 		{
-			for (NeuronID i = 0 ; i < ndelay ; ++i ) {
-				SpikeContainer * sc = delaybuf[i];
+			for (unsigned int i = 0 ; i < ndelay ; ++i ) {
+				SpikeContainer * sc = get_spikes(i);
 				ar & *sc;
 			}
 
-			for (NeuronID i = 0 ; i < ndelay ; ++i ) {
-				AttributeContainer * ac = attribbuf[i];
+			for (unsigned int i = 0 ; i < ndelay ; ++i ) {
+				AttributeContainer * ac = get_attributes(i);
 				ar & *ac;
 			}
 		}
