@@ -177,3 +177,15 @@ void TIFGroup::set_refractory_period(AurynDouble t)
 {
 	refractory_time = (unsigned short) (t/dt);
 }
+
+void TIFGroup::virtual_serialize(boost::archive::text_oarchive & ar, const unsigned int version ) 
+{
+	SpikingGroup::virtual_serialize(ar,version);
+	ar & *ref;
+}
+
+void TIFGroup::virtual_serialize(boost::archive::text_iarchive & ar, const unsigned int version ) 
+{
+	SpikingGroup::virtual_serialize(ar,version);
+	ar & *ref;
+}

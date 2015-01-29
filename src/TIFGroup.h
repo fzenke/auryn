@@ -55,6 +55,9 @@ private:
 	inline void check_thresholds();
 	virtual string get_output_line(NeuronID i);
 	virtual void load_input_line(NeuronID i, const char * buf);
+
+	void virtual_serialize(boost::archive::text_oarchive & ar, const unsigned int version );
+	void virtual_serialize(boost::archive::text_iarchive & ar, const unsigned int version );
 public:
 	/*! The default constructor of this NeuronGroup */
 	TIFGroup(NeuronID size);
