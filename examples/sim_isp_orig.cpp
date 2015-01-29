@@ -40,7 +40,7 @@ int main(int ac, char* av[])
 	double eta = 1e-4 ;
 	double kappa = 3. ;
 	double tau_stdp = 20e-3 ;
-	bool stdp_active = true;
+	bool stdp_active = false;
 	bool poisson_stim = false;
 	double winh = -1;
 	double wei = 1;
@@ -57,6 +57,7 @@ int main(int ac, char* av[])
 	
 	string infilename = "";
 	string outputfile = "out";
+	string netstatfile = "";
 	string stimfile = "";
 	string strbuf ;
 
@@ -175,6 +176,7 @@ int main(int ac, char* av[])
 	mpi::communicator world;
 	communicator = &world;
 
+	netstatfile = outputfile;
 	stringstream oss;
 	oss << outputfile << "." << world.rank();
 	outputfile = oss.str();
@@ -207,9 +209,6 @@ int main(int ac, char* av[])
 			gamma*eta,kappa,tau_stdp,wmax,
 			GABA);
 
-	if (!infilename.empty()) {
-		sys->load_network_state(infilename);
-	}
 
 	if (winh>=0)
 		con_ie->set_all(winh);
@@ -266,6 +265,9 @@ int main(int ac, char* av[])
 		fin.close();
 	}
 
+	if (!infilename.empty()) {
+		sys->load_network_state(infilename);
+	}
 
 	logger->msg("Simulating ...",PROGRESS,true);
 	con_ie->stdp_active = stdp_active;
@@ -273,7 +275,7 @@ int main(int ac, char* av[])
 	sys->run(simtime);
 
 	logger->msg("Saving network state ...",PROGRESS,true);
-	sys->save_network_state(outputfile);
+	sys->save_network_state(netstatfile);
 
 	logger->msg("Freeing ...",PROGRESS,true);
 	delete sys;
