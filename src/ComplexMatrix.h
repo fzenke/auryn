@@ -349,7 +349,7 @@ template <typename T>
 void ComplexMatrix<T>::resize_buffer_and_clear(AurynLong size)
 {
 	free();
-	init(m_rows, n_cols, z_values, size);
+	init(m_rows, n_cols, size, z_values );
 }
 
 template <typename T>
