@@ -63,7 +63,7 @@ namespace mpi = boost::mpi;
 
 
 /*! The current Auryn version number */
-#define VERSION 0.4
+#define AURYNVERSION 0.4.1
 
 /*! Toggle between memory alignment for
  * SIMD code.

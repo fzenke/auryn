@@ -398,7 +398,7 @@ bool SpikingGroup::write_to_file(const char * filename)
 	  throw AurynOpenFileException();
 	}
 
-	outfile << "# Auryn SpikingGroup state file for n="<< get_rank_size() <<" neurons (ver. " << VERSION << ")" << endl;
+	outfile << "# Auryn SpikingGroup state file for n="<< get_rank_size() <<" neurons (ver. " << AURYNVERSION << ")" << endl;
 	outfile << "# Default field order (might be overwritten): ";
 	for ( map<string,auryn_vector_float *>::const_iterator iter = state_vectors.begin() ; 
 			iter != state_vectors.end() ;
