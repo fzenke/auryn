@@ -26,14 +26,23 @@
 #include "Monitor.h"
 
 
-void Monitor::init(string filename, ios_base::openmode filemode)
+void Monitor::init(string filename)
 {
-	if ( filename.empty() ) return; // stimulators do not necessary need an outputfile
-
 	fname = filename;
 	active = true;
 
-	outfile.open(filename.c_str(), filemode);
+	open_output_file(filename);
+}
+
+Monitor::Monitor()
+{
+}
+
+void Monitor::open_output_file(string filename)
+{
+	if ( filename.empty() ) return; // stimulators do not necessary need an outputfile
+
+	outfile.open( filename.c_str(), ios::out );
 	if (!outfile) {
 	  stringstream oss;
 	  oss << "Can't open output file " << filename;
@@ -41,13 +50,10 @@ void Monitor::init(string filename, ios_base::openmode filemode)
 	  exit(1);
 	}
 }
-Monitor::Monitor()
-{
-}
 
-Monitor::Monitor(string filename, ios_base::openmode filemode)
+Monitor::Monitor( string filename )
 {
-	init(filename, filemode);
+	init(filename);
 }
 
 Monitor::~Monitor()

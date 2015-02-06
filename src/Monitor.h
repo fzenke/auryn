@@ -48,7 +48,9 @@ protected:
 	/*! Stores output filename */
 	string fname;
 	/*! Standard initializer to be called by the constructor */
-	void init(string filename, ios_base::openmode filemode = ios::out);
+	void init(string filename);
+	/*! Opens a text outputfile -- for binary files redefine this function in derived class. */
+	virtual void open_output_file(string filename);
 	/*! Standard free function to be called by the destructor - closes the file stream. */
 	void free();
 	
@@ -58,7 +60,7 @@ public:
 	/*! Standard constructor */
 	Monitor();
 	/*! Standard constructor with file name*/
-	Monitor(string filename, ios_base::openmode filemode = ios::out);
+	Monitor(string filename);
 	/*! Standard destructor  */
 	virtual ~Monitor();
 	/*! Virtual propagate function to be called in central simulation loop in System */

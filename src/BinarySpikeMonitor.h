@@ -52,6 +52,7 @@ private:
 	SpikingGroup * src;
 	NeuronID offset;
 	void init(SpikingGroup * source, string filename, NeuronID from, NeuronID to);
+	virtual void open_output_file(string filename);
 	void free();
 
 public:

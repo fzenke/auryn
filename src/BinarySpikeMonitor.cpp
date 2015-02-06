@@ -28,19 +28,19 @@
 
 
 BinarySpikeMonitor::BinarySpikeMonitor(SpikingGroup * source, string filename, NeuronID from, NeuronID to)
-	: Monitor(filename, ios_base::binary)
+	: Monitor(filename)
 {
 	init(source,filename,from,to);
 }
 
 BinarySpikeMonitor::BinarySpikeMonitor(SpikingGroup * source, string filename, NeuronID to)
-	: Monitor(filename, ios_base::binary)
+	: Monitor(filename)
 {
 	init(source,filename,0,to);
 }
 
 BinarySpikeMonitor::BinarySpikeMonitor(SpikingGroup * source, string filename)
-	: Monitor(filename, ios_base::binary)
+	: Monitor(filename )
 {
 	init(source,filename,0,source->get_size());
 }
@@ -48,6 +48,19 @@ BinarySpikeMonitor::BinarySpikeMonitor(SpikingGroup * source, string filename)
 BinarySpikeMonitor::~BinarySpikeMonitor()
 {
 	free();
+}
+
+void BinarySpikeMonitor::open_output_file(string filename)
+{
+	if ( filename.empty() ) return; // stimulators do not necessary need an outputfile
+
+	outfile.open( filename.c_str(), ios::binary );
+	if (!outfile) {
+	  stringstream oss;
+	  oss << "Can't open binary output file " << filename;
+	  logger->msg(oss.str(),ERROR);
+	  exit(1);
+	}
 }
 
 void BinarySpikeMonitor::init(SpikingGroup * source, string filename, NeuronID from, NeuronID to)
