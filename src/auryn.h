@@ -93,6 +93,7 @@
 #include "AmpaMonitor.h"
 #include "VoltageMonitor.h"
 #include "SpikeMonitor.h"
+#include "BinarySpikeMonitor.h"
 #include "DelayedSpikeMonitor.h"
 #include "RealTimeMonitor.h"
 #include "RateMonitor.h"
