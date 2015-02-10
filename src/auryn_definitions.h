@@ -249,7 +249,7 @@ unsigned short * auryn_vector_ushort_ptr (const auryn_vector_ushort * v, const N
 /*! Auryn spike event for binary monitors */
 struct spikeEvent_type
 {
-    AurynTime time;
+    AurynDouble time;
     NeuronID neuronID;
 };
 
