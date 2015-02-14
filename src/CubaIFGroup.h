@@ -38,7 +38,7 @@
  * NeuronGroup, this model does not actively integrate these states 
  * and thus should be used in cases in which simple Integrate and Fire
  * dynamics with current-based synapses are needed.
- *
+ */
 class CubaIFGroup : public NeuronGroup
 {
 private:
