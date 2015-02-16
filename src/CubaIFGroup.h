@@ -31,7 +31,13 @@
 #include "System.h"
 
 
-/*! \brief Conductance based neuron model with absolute refractoriness as used in Vogels and Abbott 2005.
+/*! \brief Current based neuron model with absolute refractoriness 
+ * as used in Vogels and Abbott 2005.
+ *
+ * Although state vectors for AMPA, GABA and NMDA are defined in 
+ * NeuronGroup, this model does not actively integrate these states 
+ * and thus should be used in cases in which simple Integrate and Fire
+ * dynamics with current-based synapses are needed.
  */
 class CubaIFGroup : public NeuronGroup
 {
