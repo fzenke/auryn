@@ -63,8 +63,12 @@ private:
 	
 public:
 
+
 	/*! Ceontroid of "pure tone" */
 	NeuronID center;
+
+	/*! Randomize center (all tones) */
+	bool randomize_center;
 
 	/*! Width of "pure tone" */
 	NeuronID width;

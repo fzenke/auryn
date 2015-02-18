@@ -39,6 +39,7 @@ void AuditoryBeepGroup::init ( AurynFloat duration, AurynFloat interval, AurynFl
 	rate_on    = rate;
 	rate_sync  = 100*rate; // rate for one timestep after stim onset
 
+	randomize_center = false;
 	center = get_size()/2;
 	width  = get_size()/20;
 
@@ -74,6 +75,11 @@ void AuditoryBeepGroup::evolve()
 			next_event = sys->get_clock()+stimulation_period; 
 		} else {
 			stimulus_active = true;
+
+			if ( randomize_center ) {
+				center = (NeuronID)(get_size()*(*die)());
+			}
+
 			set_gaussian_profile(center,width,rate_off/rate_on);
 
 			// add sync spikes
