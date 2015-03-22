@@ -1,8 +1,6 @@
-All files created by Friedemann Zenke
+Package created by Friedemann Zenke
 
-Patches Lorric Ziegler -- PoissonGroup.cpp
-
-
+Contributors Lorric Ziegler, Ankur Sinha
 
 
 
@@ -12,6 +10,8 @@ Patches Lorric Ziegler -- PoissonGroup.cpp
 
 
 
-Copyright 2014 Friedemann Zenke.
+
+
+Copyright 2014-2015 Friedemann Zenke.
 Copying and distribution of this file, with or without modification, are
 permitted provided the copyright notice and this notice are preserved.
