@@ -31,7 +31,7 @@
 #include "System.h"
 
 
-/*! \brief Conductance based neuron model with absolute refractoriness as used in Vogels and Abbott 2005.
+/*! \brief Conductance based LIF neuron model with absolute refractoriness as used in Vogels and Abbott 2005.
  */
 class TIFGroup : public NeuronGroup
 {
@@ -39,7 +39,7 @@ private:
 	auryn_vector_float * bg_current;
 	auryn_vector_ushort * ref;
 	unsigned short refractory_time;
-	AurynFloat e_rest,e_rev,thr,tau_mem;
+	AurynFloat e_rest,e_rev_gaba,e_rev_ampa,thr,tau_mem, r_mem, c_mem;
 	AurynFloat tau_ampa,tau_gaba;
 	AurynFloat scale_ampa, scale_gaba, scale_mem;
 
@@ -73,6 +73,10 @@ public:
 	AurynFloat get_bg_current(NeuronID i);
 	/*! Sets the membrane time constant (default 20ms) */
 	void set_tau_mem(AurynFloat taum);
+	/*! Sets the membrane resistance (default 100 M-ohm) */
+	void set_r_mem(AurynFloat rm);
+	/*! Sets the membrane capacitance (default 200pF) */
+	void set_c_mem(AurynFloat cm);
 	/*! Sets the exponential time constant for the AMPA channel (default 5ms) */
 	void set_tau_ampa(AurynFloat tau);
 	/*! Gets the exponential time constant for the AMPA channel */
