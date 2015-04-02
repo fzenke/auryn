@@ -1,6 +1,8 @@
 # Lines starting with '#' are considered comments.
 # Ignore objects and archives.
 *.[oa]
+*.l[oa]
+*/.libs
 # Ignore docs
 docs/*
 # Ignore development files
@@ -12,3 +14,28 @@ build/*
 !build/home/Makefile
 !build/debug/Makefile
 !build/tug/Makefile
+
+# http://www.gnu.org/software/automake
+Makefile.in
+Makefile
+# # http://www.gnu.org/software/autoconf
+/autom4te.cache
+/aclocal.m4
+/compile
+/configure
+/depcomp
+/install-sh
+/missing
+/stamp-h1
+config*
+.deps
+libtool
+ltmain.sh
+m4/libtool.m4
+m4/ltoptions.m4
+m4/ltsugar.m4
+m4/ltversion.m4
+m4/lt~obsolete.m4
+
+# travis build file
+.travis.yml
