@@ -1,5 +1,6 @@
-SRCDIR=../../src
-EXADIR=../../examples
+SRCDIR=../../src# outside of submodule
+EXADIR=../../examples# outside of submodule
+EXPDIR=../../experiments/DBM_ECD
 
 DEVDIR=../../dev/src
 SIMDIR=../../dev/sim
@@ -11,7 +12,7 @@ OBJ_GENERIC = SpikeDelay.o Logger.o LinearTrace.o EulerTrace.o SimpleMatrix.o Co
 
 WILD_EXA_SIMS = $(wildcard $(EXADIR)/sim_*.cpp) 
 WILD_SIMS =$(wildcard $(SIMDIR)/sim_*.cpp)  
-SRC_SIMS = $(WILD_EXA_SIMS) $(WILD_SIMS)
+SRC_SIMS = $(WILD_EXP_SIMS) $(WILD_EXA_SIMS) $(WILD_SIMS)
 OBJ_SIMS = $(patsubst %.cpp,%.o,$(notdir $(WILD_SIMS) ))
 BIN_SIMS = $(patsubst %.cpp,%,$(notdir $(WILD_SIMS) ))
 BIN_EXAMPLES = $(patsubst %.cpp,%,$(notdir $(WILD_EXA_SIMS) ))
@@ -24,7 +25,7 @@ WILD_CONNECTIONS = $(wildcard $(SRCDIR)/*Connection.cpp) $(wildcard $(DEVDIR)/*C
 OBJ_CONNECTIONS = $(patsubst %.cpp,%.o,$(notdir $(WILD_CONNECTIONS) ))
 
 WILD_MONITORS = $(wildcard $(SRCDIR)/*Monitor.cpp) $(wildcard $(DEVDIR)/*Monitor.cpp)
-OBJ_MONITORS = Checker.o RateChecker.o PatternStimulator.o PoissonStimulator.o $(patsubst %.cpp,%.o,$(notdir $(WILD_MONITORS) )) 
+OBJ_MONITORS = Checker.o RateChecker.o PatternStimulator.o PoissonStimulator.o NormalStimulator.o $(patsubst %.cpp,%.o,$(notdir $(WILD_MONITORS) )) 
 
 ALL_OBJECTS = auryn_definitions.o auryn_global.o System.o $(OBJ_GENERIC) $(OBJ_GROUPS) $(OBJ_CONNECTIONS) $(OBJ_MONITORS)  
 OBJECTS = $(subst $(DO_NOT_BUILD),,$(ALL_OBJECTS))
@@ -48,6 +49,9 @@ tests: $(TESTFILES)
 sim_%: sim_%.o libauryn.a
 	$(CC) $(CFLAGS) $< -L. -lauryn $(LDFLAGS) -o $(subst .o,,$<)
 
+exp_%: exp_%.o libauryn.a 
+	$(CC) $(CFLAGS) $< -L. -lauryn $(LDFLAGS) -o $(EXPDIR)/$(subst .o,,$<)
+
 mpi_latency: $(SIMDIR)/mpi_latency.c
 	$(CC) $(CFLAGS) $(LDFLAGS) $< -o mpi_latency 
 
@@ -58,6 +62,9 @@ test_%: test_%.o $(OBJECTS)
 	$(CC) $(CFLAGS) $< $(OBJECTS) $(LDFLAGS) -o $(subst .o,,$<)
 
 %.o : $(EXADIR)/%.cpp
+	$(CC) $(CFLAGS) -c $<
+
+%.o : $(EXPDIR)/%.cpp
 	$(CC) $(CFLAGS) -c $<
 
 %.o : $(DEVDIR)/%.cpp

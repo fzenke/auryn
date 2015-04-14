@@ -99,6 +99,8 @@ public:
 
 	void save_network_state(string basename);
 
+	void save_network_state_text(string basename);
+
 	void load_network_state(string basename);
 
 	/*! Synchronizes SpikingGroups */

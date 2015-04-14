@@ -74,11 +74,11 @@ void PatternStimulator::propagate()
 {
 	if ( dst->evolve_locally() ) {
 
-		char buffer[256];
+		char buffer[25600];
 		string line;
 		while( !timeseriesfile.eof() && filetime < sys->get_clock() ) {
 			line.clear();
-			timeseriesfile.getline (buffer,255);
+			timeseriesfile.getline (buffer,25599);
 			line = buffer;
 			if (line[0] == '#') continue;
 			stringstream iss (line);
@@ -135,7 +135,7 @@ void PatternStimulator::load_patterns( string filename )
 			return;
 		}
 
-		char buffer[256];
+		char buffer[25600];
 		string line;
 
 		type_pattern pattern;
@@ -143,7 +143,7 @@ void PatternStimulator::load_patterns( string filename )
 		while( !fin.eof() && patterns->size() < maxpat ) {
 
 			line.clear();
-			fin.getline (buffer,255);
+			fin.getline (buffer,25599);
 			line = buffer;
 	
 			if (line[0] == '#') continue;
