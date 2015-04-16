@@ -110,10 +110,11 @@ inline void PairInteractionConnection::propagate_forward()
 			spike != spikes_end ; ++spike ) {
 		for (NeuronID * c = w->get_row_begin(*spike) ; c != w->get_row_end(*spike) ; ++c ) {
 			value = data[c-ind]; 
-			dst->tadd( *c , value , transmitter );
-			if (data[c-ind]>0 && data[c-ind]<w_max)
-			  data[c-ind] += dw_fwd(*c);
-		}
+			//dst->tadd( *c , value , transmitter );
+            transmit( *c, value );
+            //if (data[c-ind]>0 && data[c-ind]<w_max); //Not sure this is correct: updates only if the given weight is in [0, wmax]. Why?
+			data[c-ind] += dw_fwd(*c);
+        }
 		// update pre_trace
 		last_spike_pre[*spike] = sys->get_clock();
 	}
