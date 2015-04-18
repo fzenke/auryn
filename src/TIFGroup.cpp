@@ -195,7 +195,10 @@ AurynFloat TIFGroup::get_tau_gaba()
 
 void TIFGroup::set_refractory_period(AurynDouble t)
 {
-	refractory_time = (unsigned short) (t/dt);
+    double tmp = (unsigned short) (t/dt) - 1;
+    if (tmp<0) tmp = 0;
+	refractory_time = tmp;
+
 }
 
 void TIFGroup::virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version ) 
