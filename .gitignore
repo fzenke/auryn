@@ -4,6 +4,7 @@
 *.l[oa]
 */.libs
 # Ignore docs
+doc
 docs/*
 # Ignore development files
 dev/*
@@ -39,3 +40,10 @@ m4/lt~obsolete.m4
 
 # travis build file
 .travis.yml
+
+#Ignore vim swap files
+.*.sw*
+
+#Ignore experiments directory
+experiments
+stubs

@@ -18,10 +18,25 @@
 * along with Auryn.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "PairInteractionConnection.h"
+#include "modulatedPairInteractionConnection.h"
 
-void PairInteractionConnection::init(AurynWeight maxw)
+
+boost::mt19937 modulatedPairInteractionConnection::gen = boost::mt19937();
+
+void modulatedPairInteractionConnection::check_modulation_file(const char * modulation_filename){
+	modulation_file.open(modulation_filename,ios::in);
+	if (!modulation_filename) {
+	  stringstream oss;
+	  oss << "Can't open time series file " << modulation_filename;
+	  logger->msg(oss.str(),ERROR);
+	  exit(1);
+	}
+}
+
+void modulatedPairInteractionConnection::init(AurynWeight maxw)
 {
+    gmod = 1;
+	filetime = 0;
 	last_spike_pre = new AurynTime[get_m_rows()];
 	last_spike_post = new AurynTime[get_n_cols()];
 
@@ -43,62 +58,69 @@ void PairInteractionConnection::init(AurynWeight maxw)
 	stdp_active = true;
 	w_max = maxw;
 
-	set_name("PairInteractionConnection");
+	seed(61093*communicator->rank());
+	dist = new boost::uniform_int<int> (0, 1);
+	die  = new boost::variate_generator<boost::mt19937&, boost::uniform_int<int> > ( gen, *dist );
+
+	set_name("modulatedPairInteractionConnection");
 }
 
-void PairInteractionConnection::free()
+void modulatedPairInteractionConnection::free()
 {
 	delete last_spike_pre;
 	delete last_spike_post;
 
 	delete window_pre_post;
 	delete window_post_pre;
+
+	delete dist;
+	delete die;
 }
 
-PairInteractionConnection::PairInteractionConnection(SpikingGroup * source, NeuronGroup * destination, 
-		const char * filename, 
-		AurynWeight maxweight , TransmitterType transmitter) 
+modulatedPairInteractionConnection::modulatedPairInteractionConnection(SpikingGroup * source, NeuronGroup * destination,  const char * modulation_filename, 
+		const char * filename, AurynWeight maxweight , TransmitterType transmitter) 
 : DuplexConnection(source, destination, filename, transmitter)
 {
+    check_modulation_file(modulation_filename);
 	init(maxweight);
 }
 
-PairInteractionConnection::PairInteractionConnection(SpikingGroup * source, NeuronGroup * destination, 
-		AurynWeight weight, AurynFloat sparseness, 
-		AurynWeight maxweight , TransmitterType transmitter, string name) 
+modulatedPairInteractionConnection::modulatedPairInteractionConnection(SpikingGroup * source, NeuronGroup * destination,  const char * modulation_filename, 
+		AurynWeight weight, AurynFloat sparseness, AurynWeight maxweight , TransmitterType transmitter, string name) 
 : DuplexConnection(source, destination, weight, sparseness, transmitter, name)
 {
+    check_modulation_file(modulation_filename);
 	init(maxweight);
 }
 
-PairInteractionConnection::~PairInteractionConnection()
+modulatedPairInteractionConnection::~modulatedPairInteractionConnection()
 {
 	free();
 }
 
-inline AurynWeight PairInteractionConnection::dw_fwd(NeuronID post)
+inline AurynWeight modulatedPairInteractionConnection::dw_fwd(NeuronID post)
 {
 	AurynTime diff = sys->get_clock()-last_spike_post[post];
 	if ( stdp_active ) {
 		if ( diff >= WINDOW_MAX_SIZE ) diff = WINDOW_MAX_SIZE-1;
-		double dw = window_post_pre[diff];
+		double dw = gmod*window_post_pre[diff];
 		return dw;
 	}
 	else return 0.;
 }
 
-inline AurynWeight PairInteractionConnection::dw_bkw(NeuronID pre)
+inline AurynWeight modulatedPairInteractionConnection::dw_bkw(NeuronID pre)
 {
 	AurynTime diff = sys->get_clock()-last_spike_pre[pre];
 	if ( stdp_active ) {
 		if ( diff >= WINDOW_MAX_SIZE ) diff = WINDOW_MAX_SIZE-1;
-		double dw = window_pre_post[diff];
+		double dw = gmod*window_pre_post[diff];
 		return dw;
 	}
 	else return 0.;
 }
 
-inline void PairInteractionConnection::propagate_forward()
+inline void modulatedPairInteractionConnection::propagate_forward()
 {
 	NeuronID * ind = w->get_row_begin(0); // first element of index array
 	AurynWeight * data = w->get_data_begin();
@@ -110,9 +132,7 @@ inline void PairInteractionConnection::propagate_forward()
 			spike != spikes_end ; ++spike ) {
 		for (NeuronID * c = w->get_row_begin(*spike) ; c != w->get_row_end(*spike) ; ++c ) {
 			value = data[c-ind]; 
-			//dst->tadd( *c , value , transmitter );
-            transmit( *c, value );
-            //if (data[c-ind]>0 && data[c-ind]<w_max); //Not sure this is correct: updates only if the given weight is in [0, wmax]. Why?
+            transmit( *c, value);
 			data[c-ind] += dw_fwd(*c);
         }
 		// update pre_trace
@@ -120,7 +140,7 @@ inline void PairInteractionConnection::propagate_forward()
 	}
 }
 
-inline void PairInteractionConnection::propagate_backward()
+inline void modulatedPairInteractionConnection::propagate_backward()
 {
 	NeuronID * ind = bkw->get_row_begin(0); // first element of index array
 	AurynWeight ** data = bkw->get_data_begin();
@@ -136,18 +156,40 @@ inline void PairInteractionConnection::propagate_backward()
 	}
 }
 
-void PairInteractionConnection::propagate()
+void modulatedPairInteractionConnection::propagate()
 {
 	// propagate
+    if ( dst->evolve_locally() ) {
+
+	char buffer[25600];
+	string line;
+	while( !modulation_file.eof() && filetime < sys->get_clock() ) {
+		line.clear();
+		modulation_file.getline (buffer,25599);
+		line = buffer;
+		if (line[0] == '#') continue;
+		stringstream iss (line);
+		double time;
+		iss >> time;
+		filetime = time/dt;
+
+        AurynFloat cur;
+        iss >> cur ;
+        mods = newmods;
+        newmods = cur;
+		}
+	}
+        
+    gmod = mods;
 	propagate_forward();
 	propagate_backward();
 }
 
-void PairInteractionConnection::load_window_from_file( const char * filename , double scale ) 
+void modulatedPairInteractionConnection::load_window_from_file( const char * filename , double scale ) 
 {
 
 	stringstream oss;
-	oss << "PairInteractionConnection:: Loading STDP window from " << filename;
+	oss << "modulatedPairInteractionConnection:: Loading STDP window from " << filename;
 	logger->msg(oss.str(),NOTIFICATION);
 
 	// default window all zeros
@@ -175,10 +217,10 @@ void PairInteractionConnection::load_window_from_file( const char * filename , d
 	sscanf (buffer,"# %u %f",&size,&timebinsize);
 
 	if ( size > 2*WINDOW_MAX_SIZE )
-		logger->msg("PairInteractionConnection:: STDP window too large ... truncating!",WARNING);
+		logger->msg("modulatedPairInteractionConnection:: STDP window too large ... truncating!",WARNING);
 
 	if ( dt < timebinsize )
-		logger->msg("PairInteractionConnection:: Timebinning of loaded STDP window is different from simulator timestep.",WARNING);
+		logger->msg("modulatedPairInteractionConnection:: Timebinning of loaded STDP window is different from simulator timestep.",WARNING);
 
 	double sum_pre_post = 0 ;
 	double sum_post_pre = 0 ;
@@ -211,7 +253,7 @@ void PairInteractionConnection::load_window_from_file( const char * filename , d
 
 
 	oss.str("");
-	oss << "PairInteractionConnection:: sum_pre_post=" 
+	oss << "modulatedPairInteractionConnection:: sum_pre_post=" 
 		<< scientific 
 		<< sum_pre_post 
 		<< " sum_post_pre=" 
@@ -222,7 +264,7 @@ void PairInteractionConnection::load_window_from_file( const char * filename , d
 
 }
 
-void PairInteractionConnection::set_exponential_window ( double Aplus, double tau_plus, double Aminus, double tau_minus) 
+void modulatedPairInteractionConnection::set_exponential_window ( double Aplus, double tau_plus, double Aminus, double tau_minus) 
 {
 	for ( int i = 0 ; i < WINDOW_MAX_SIZE ; ++i ) {
 		window_pre_post[i] = Aplus/tau_plus*exp(-i*dt/tau_plus);
@@ -236,7 +278,29 @@ void PairInteractionConnection::set_exponential_window ( double Aplus, double ta
 	set_floor_terms();
 }
 
-void PairInteractionConnection::set_floor_terms( double pre_post, double post_pre ) 
+void modulatedPairInteractionConnection::set_box_window ( double Aplus, double tau_plus, double Aminus, double tau_minus) 
+{
+	for ( int i = 0 ; i < WINDOW_MAX_SIZE ; ++i ) {
+        if (i*dt<tau_plus){
+		window_pre_post[i] = Aplus;
+        } else {
+		window_pre_post[i] = 0;
+        }
+	}
+
+	for ( int i = 0 ; i < WINDOW_MAX_SIZE ; ++i ) {
+        if (i*dt<tau_minus){
+		window_post_pre[i] = Aminus;
+        } else {
+		window_post_pre[i] = 0;
+        }
+	}
+
+	// zero floor terms 
+	set_floor_terms(0, 0);
+}
+
+void modulatedPairInteractionConnection::set_floor_terms( double pre_post, double post_pre ) 
 {
 	window_pre_post[WINDOW_MAX_SIZE-1] = pre_post;
 	window_post_pre[WINDOW_MAX_SIZE-1] = post_pre;
