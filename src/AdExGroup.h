@@ -36,34 +36,34 @@
 class AdExGroup : public NeuronGroup
 {
 private:
-	auryn_vector_float * bg_current;
-	AurynFloat e_rest, e_reset, e_rev_gaba, e_rev_ampa,e_thr, g_leak, c_mem, deltat;
-	AurynFloat tau_ampa, tau_gaba;
-	AurynFloat scale_ampa, scale_gaba, scale_mem, scale_w;
+    auryn_vector_float * bg_current;
+    AurynFloat e_rest, e_reset, e_rev_gaba, e_rev_ampa,e_thr, g_leak, c_mem, deltat;
+    AurynFloat tau_ampa, tau_gaba;
+    AurynFloat scale_ampa, scale_gaba, scale_mem, scale_w;
     AurynFloat * t_w;
     AurynFloat a, tau_w, b;
 
-	/*! Stores the adaptation current. */
-	auryn_vector_float * w __attribute__((aligned(16)));
+    /*! Stores the adaptation current. */
+    auryn_vector_float * w __attribute__((aligned(16)));
 
-	AurynFloat * t_g_ampa;
-	AurynFloat * t_g_gaba;
-	AurynFloat * t_bg_cur;
-	AurynFloat * t_mem;
+    AurynFloat * t_g_ampa;
+    AurynFloat * t_g_gaba;
+    AurynFloat * t_bg_cur;
+    AurynFloat * t_mem;
 
-	void init();
-	void calculate_scale_constants();
-	inline void integrate_state();
-	inline void check_thresholds();
-	virtual string get_output_line(NeuronID i);
-	virtual void load_input_line(NeuronID i, const char * buf);
+    void init();
+    void calculate_scale_constants();
+    inline void integrate_state();
+    inline void check_thresholds();
+    virtual string get_output_line(NeuronID i);
+    virtual void load_input_line(NeuronID i, const char * buf);
 public:
-	/*! The default constructor of this NeuronGroup */
-	AdExGroup(NeuronID size);
-	virtual ~AdExGroup();
+    /*! The default constructor of this NeuronGroup */
+    AdExGroup(NeuronID size);
+    virtual ~AdExGroup();
 
-	/*! Controls the constant current input to neuron i (default 500pA) */
-	void set_bg_current(NeuronID i, AurynFloat current);
+    /*! Controls the constant current input to neuron i (default 500pA) */
+    void set_bg_current(NeuronID i, AurynFloat current);
 
     /*! Set value of slope factor delta_t (default 2mV) */
     void set_delta_t(AurynFloat d);
@@ -75,26 +75,26 @@ public:
     void set_e_reset(AurynFloat ereset);
     /*! Set value of E_l (default -70mV) */
     void set_e_rest(AurynFloat erest);
-	/*! Sets the w time constant (default 30ms) */
-	void set_tau_w(AurynFloat tauw);
-	/*! Gets the current background current value for neuron i */
-	AurynFloat get_bg_current(NeuronID i);
-	/*! Sets the leak conductance (default 10nS) */
-	void set_g_leak(AurynFloat g);
-	/*! Sets the membrane capacitance (default 200pF) */
-	void set_c_mem(AurynFloat cm);
-	/*! Sets the exponential time constant for the AMPA channel (default 5ms) */
-	void set_tau_ampa(AurynFloat tau);
-	/*! Gets the exponential time constant for the AMPA channel */
-	AurynFloat get_tau_ampa();
-	/*! Sets the exponential time constant for the GABA channel (default 10ms) */
-	void set_tau_gaba(AurynFloat tau);
-	/*! Gets the exponential time constant for the GABA channel */
-	AurynFloat get_tau_gaba();
-	/*! Resets all neurons to defined and identical initial state. */
-	void clear();
-	/*! The evolve method internally used by System. */
-	void evolve();
+    /*! Sets the w time constant (default 30ms) */
+    void set_tau_w(AurynFloat tauw);
+    /*! Gets the current background current value for neuron i */
+    AurynFloat get_bg_current(NeuronID i);
+    /*! Sets the leak conductance (default 10nS) */
+    void set_g_leak(AurynFloat g);
+    /*! Sets the membrane capacitance (default 200pF) */
+    void set_c_mem(AurynFloat cm);
+    /*! Sets the exponential time constant for the AMPA channel (default 5ms) */
+    void set_tau_ampa(AurynFloat tau);
+    /*! Gets the exponential time constant for the AMPA channel */
+    AurynFloat get_tau_ampa();
+    /*! Sets the exponential time constant for the GABA channel (default 10ms) */
+    void set_tau_gaba(AurynFloat tau);
+    /*! Gets the exponential time constant for the GABA channel */
+    AurynFloat get_tau_gaba();
+    /*! Resets all neurons to defined and identical initial state. */
+    void clear();
+    /*! The evolve method internally used by System. */
+    void evolve();
 };
 
 #endif /*ADEXGROUP_H_*/
