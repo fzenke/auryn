@@ -74,11 +74,16 @@ void PatternStimulator::propagate()
 {
 	if ( dst->evolve_locally() ) {
 
-		char buffer[256];
+		char buffer[256]; 
 		string line;
 		while( !timeseriesfile.eof() && filetime < sys->get_clock() ) {
 			line.clear();
-			timeseriesfile.getline (buffer,255);
+			timeseriesfile.getline (buffer,255); 
+			// FIXME This buffer can quickly become to small of read lots of columns
+			// Instead this section should be re-written to directly read one token/column 
+			// at a time in the loop below. Just making the buffer size large should be avoided 
+			// not to risk buffer overflow or unecessarily large memory consumption on cluster
+			// machines with limited resources.
 			line = buffer;
 			if (line[0] == '#') continue;
 			stringstream iss (line);

@@ -536,6 +536,32 @@ void System::save_network_state(string basename)
 	ofs.close();
 }
 
+void System::save_network_state_text(string basename)
+{
+	char filename [255];
+	for ( unsigned int i = 0 ; i < connections.size() ; ++i ) {
+		sprintf(filename, "%s.%d.%d.wmat", basename.c_str(), i, mpicom->rank());
+
+		stringstream oss;
+		oss << "Saving connection "
+			<<  filename ;
+		logger->msg(oss.str(),NOTIFICATION);
+
+		connections[i]->write_to_file(filename);
+	}
+
+	for ( unsigned int i = 0 ; i < spiking_groups.size() ; ++i ) {
+		sprintf(filename, "%s.%d.%d.gstate", basename.c_str(), i, mpicom->rank());
+
+		stringstream oss;
+		oss << "Saving group "
+			<<  filename ;
+		logger->msg(oss.str(),NOTIFICATION);
+
+		spiking_groups[i]->write_to_file(filename);
+	}
+}
+
 void System::load_network_state(string basename)
 {
 	string netstate_filename;

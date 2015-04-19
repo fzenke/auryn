@@ -55,6 +55,8 @@ protected:
 	auryn_vector_float * g_gaba __attribute__((aligned(16)));
 	/*! Stores the NMDA conductances of each point neuron. */
 	auryn_vector_float * g_nmda __attribute__((aligned(16)));
+	/*! Stores the CURSYN states of each point neuron. */
+	auryn_vector_float * g_cursyn __attribute__((aligned(16)));
 	/*! Stores  threshold terms for moving thresholds. */
 	auryn_vector_float * thr __attribute__((aligned(16)));
 
@@ -91,9 +93,15 @@ public:
 	AurynState get_ampa(NeuronID i);
 	void set_ampa(NeuronID i,AurynState val);
 	auryn_vector_float * get_ampa_ptr();
+
+	AurynState get_cursyn(NeuronID i);
+	void set_cursyn(NeuronID i,AurynState val);
+	auryn_vector_float * get_cursyn_ptr();
+
 	AurynState get_gaba(NeuronID i);
 	void set_gaba(NeuronID i,AurynState val);
 	auryn_vector_float * get_gaba_ptr();
+
 	AurynState get_nmda(NeuronID i);
 	void set_nmda(NeuronID i,AurynState val);
 	auryn_vector_float * get_nmda_ptr();
@@ -109,6 +117,7 @@ public:
 	void print_ampa();
 	void print_gaba();
 	void print_nmda();
+	void print_cursyn();
 	void print_state(NeuronID id);
 	void safe_tadd(NeuronID id, AurynWeight amount, TransmitterType t=GLUT);
 	/*! Adds given transmitter to neuron as from a synaptic event. DEPRECATED. Moving slowly to SparseConnection transmit. */
