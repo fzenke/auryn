@@ -1,5 +1,5 @@
 /* 
-* Copyright 2015 Neftci Emre
+* Copyright 2015 Neftci Emre and Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
