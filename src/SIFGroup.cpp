@@ -185,3 +185,15 @@ void SIFGroup::set_refractory_period(AurynDouble t)
     if (tmp<0) tmp = 0;
 	refractory_time = tmp;
 }
+
+void SIFGroup::virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version ) 
+{
+	SpikingGroup::virtual_serialize(ar,version);
+	ar & *ref;
+}
+
+void SIFGroup::virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version ) 
+{
+	SpikingGroup::virtual_serialize(ar,version);
+	ar & *ref;
+}
