@@ -159,7 +159,7 @@ void PatternStimulator::load_patterns( string filename )
 						<< patterns->size() 
 						<< " with pattern size "
 						<< total_pattern_size
-						< " ( "
+						<< " ( "
 						<< pattern.size()
 						<< " on rank )";
 					logger->msg(oss.str(),DEBUG);
