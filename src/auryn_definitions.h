@@ -147,7 +147,7 @@ typedef vector<NeuronID> SpikeContainer; //!< Spike container type. Used for sto
 typedef vector<float> AttributeContainer; //!< Attribute container type. Used for storing spike attributes that are needed for efficient STP implementations.
 
 
-// Auryn vector template -- copies the core of GSL vector functionality
+//! Auryn vector template -- copies the core of GSL vector functionality
 template <typename T> 
 struct auryn_vector { 
     NeuronID size;
@@ -162,10 +162,9 @@ struct auryn_vector {
 	}
 };
 
-/*! Reimplements a simplified version of the GSL vector. */
-typedef auryn_vector<AurynFloat> auryn_vector_float;
+typedef auryn_vector<AurynFloat> auryn_vector_float; //!< Reimplements a simplified version of the GSL vector.
 
-typedef auryn_vector<unsigned short> auryn_vector_ushort;
+typedef auryn_vector<unsigned short> auryn_vector_ushort; //!< Reimplements a simplified version of the GSL vector for ushort.
 
 struct neuron_pair {
 	NeuronID i,j;

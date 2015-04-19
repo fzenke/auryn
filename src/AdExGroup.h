@@ -23,31 +23,33 @@
 * Front Neuroinform 8, 76. doi: 10.3389/fninf.2014.00076
 */
 
-#ifndef TIFGROUP_H_
-#define TIFGROUP_H_
+#ifndef ADEXGROUP_H_
+#define ADEXGROUP_H_
 
 #include "auryn_definitions.h"
 #include "NeuronGroup.h"
 #include "System.h"
 
 
-/*! \brief Conductance based LIF neuron model with absolute refractoriness as used in Vogels and Abbott 2005.
+/*! \brief Conductance based Adaptive Exponential neuron model - Brette and Gerstner (2005). Default values are taken from Table 1 (4a)  of Naud, Marcille, Clopath and Gerstner (2008)
  */
-class TIFGroup : public NeuronGroup
+class AdExGroup : public NeuronGroup
 {
 private:
 	auryn_vector_float * bg_current;
-	auryn_vector_ushort * ref;
-	unsigned short refractory_time;
-	AurynFloat e_rest,e_rev_gaba,e_rev_ampa,thr,tau_mem, r_mem, c_mem;
-	AurynFloat tau_ampa,tau_gaba;
-	AurynFloat scale_ampa, scale_gaba, scale_mem;
+	AurynFloat e_rest, e_reset, e_rev_gaba, e_rev_ampa,e_thr, g_leak, c_mem, deltat;
+	AurynFloat tau_ampa, tau_gaba;
+	AurynFloat scale_ampa, scale_gaba, scale_mem, scale_w;
+    AurynFloat * t_w;
+    AurynFloat a, tau_w, b;
 
-	AurynFloat * t_g_ampa; 
-	AurynFloat * t_g_gaba; 
-	AurynFloat * t_bg_cur; 
-	AurynFloat * t_mem; 
-	unsigned short * t_ref; 
+	/*! Stores the adaptation current. */
+	auryn_vector_float * w __attribute__((aligned(16)));
+
+	AurynFloat * t_g_ampa;
+	AurynFloat * t_g_gaba;
+	AurynFloat * t_bg_cur;
+	AurynFloat * t_mem;
 
 	void init();
 	void calculate_scale_constants();
@@ -55,26 +57,30 @@ private:
 	inline void check_thresholds();
 	virtual string get_output_line(NeuronID i);
 	virtual void load_input_line(NeuronID i, const char * buf);
-
-	void virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version );
-	void virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version );
 public:
 	/*! The default constructor of this NeuronGroup */
-	TIFGroup(NeuronID size);
-	virtual ~TIFGroup();
+	AdExGroup(NeuronID size);
+	virtual ~AdExGroup();
 
-	/*! Controls the constant current input (per default set so zero) to neuron i */
+	/*! Controls the constant current input to neuron i (default 500pA) */
 	void set_bg_current(NeuronID i, AurynFloat current);
 
-	/*! Setter for refractory time [s] */
-	void set_refractory_period(AurynDouble t);
-
+    /*! Set value of slope factor delta_t (default 2mV) */
+    void set_delta_t(AurynFloat d);
+    /*! Set value of a (default 2nS) */
+    void set_a(AurynFloat _a);
+    /*! Set value of b (default 0nS) */
+    void set_b(AurynFloat _b);
+    /*! Set value of V_r (default -70mV) */
+    void set_e_reset(AurynFloat ereset);
+    /*! Set value of E_l (default -70mV) */
+    void set_e_rest(AurynFloat erest);
+	/*! Sets the w time constant (default 30ms) */
+	void set_tau_w(AurynFloat tauw);
 	/*! Gets the current background current value for neuron i */
 	AurynFloat get_bg_current(NeuronID i);
-	/*! Sets the membrane time constant (default 20ms) */
-	void set_tau_mem(AurynFloat taum);
-	/*! Sets the membrane resistance (default 100 M-ohm) */
-	void set_r_mem(AurynFloat rm);
+	/*! Sets the leak conductance (default 10nS) */
+	void set_g_leak(AurynFloat g);
 	/*! Sets the membrane capacitance (default 200pF) */
 	void set_c_mem(AurynFloat cm);
 	/*! Sets the exponential time constant for the AMPA channel (default 5ms) */
@@ -91,5 +97,5 @@ public:
 	void evolve();
 };
 
-#endif /*TIFGROUP_H_*/
+#endif /*ADEXGROUP_H_*/
 
