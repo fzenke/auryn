@@ -82,5 +82,5 @@ public:
 	void evolve();
 };
 
-#endif /*TIFGROUP_H_*/
+#endif /*SIFGROUP_H_*/
 
