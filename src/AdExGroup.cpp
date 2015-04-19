@@ -103,7 +103,7 @@ void AdExGroup::evolve()
                 + (t_bg_cur[i]-t_w[i]));
 
 
-        if (t_mem[i]>e_thr) {
+        if (t_mem[i]>0.0) {
             push_spike(i);
             t_mem[i] = e_reset;
             t_w[i] += b;
