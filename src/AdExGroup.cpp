@@ -90,6 +90,10 @@ AdExGroup::~AdExGroup()
 
 void AdExGroup::evolve()
 {
+
+	// TODO we should vectorize this code and use some fast SSE 
+	// library such as http://gruntthepeon.free.fr/ssemath/
+	// for the exponential
     for (NeuronID i = 0 ; i < get_rank_size() ; ++i ) {
         t_w[i] += scale_w * (a * (t_mem[i]-e_rest) - t_w[i]);
 
