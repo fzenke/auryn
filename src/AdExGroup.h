@@ -32,13 +32,13 @@
 
 
 /*! \brief Conductance based Adaptive Exponential neuron model - Brette and Gerstner (2005). Default values are taken from Table 1 (4a)  of Naud, Marcille, Clopath and Gerstner (2008)
- */
+*/
 class AdExGroup : public NeuronGroup
 {
 private:
     auryn_vector_float * bg_current;
     AurynFloat e_rest, e_reset, e_rev_gaba, e_rev_ampa,e_thr, g_leak, c_mem, deltat;
-    AurynFloat tau_ampa, tau_gaba;
+    AurynFloat tau_ampa, tau_gaba, tau_mem;
     AurynFloat scale_ampa, scale_gaba, scale_mem, scale_w;
     AurynFloat * t_w;
     AurynFloat a, tau_w, b;
@@ -57,24 +57,27 @@ private:
     inline void check_thresholds();
     virtual string get_output_line(NeuronID i);
     virtual void load_input_line(NeuronID i, const char * buf);
+
 public:
     /*! The default constructor of this NeuronGroup */
     AdExGroup(NeuronID size);
     virtual ~AdExGroup();
 
-    /*! Controls the constant current input to neuron i (default 500pA) */
+    /*! Controls the constant current input to neuron i in natural units of g_leak (default 500pA/10ns) */
     void set_bg_current(NeuronID i, AurynFloat current);
 
-    /*! Set value of slope factor delta_t (default 2mV) */
+    /*! Set value of slope factor deltat (default 2mV) */
     void set_delta_t(AurynFloat d);
-    /*! Set value of a (default 2nS) */
+    /*! Set value of a in natural units of g_leak (default 2nS/10ns) */
     void set_a(AurynFloat _a);
-    /*! Set value of b (default 0nS) */
+    /*! Set value of b in natural units of g_leak (default 0nS/10ns) */
     void set_b(AurynFloat _b);
     /*! Set value of V_r (default -70mV) */
     void set_e_reset(AurynFloat ereset);
     /*! Set value of E_l (default -70mV) */
     void set_e_rest(AurynFloat erest);
+    /*! Set value of V_t (default -50mV) */
+    void set_e_thr(AurynFloat ethr);
     /*! Sets the w time constant (default 30ms) */
     void set_tau_w(AurynFloat tauw);
     /*! Gets the current background current value for neuron i */
