@@ -138,6 +138,10 @@ void AdExGroup::set_e_reset(AurynFloat ereset)
     e_reset = ereset;
 }
 
+void AdExGroup::set_e_thr(AurynFloat ethr)
+{
+    e_thr = ethr;
+}
 void AdExGroup::set_e_rest(AurynFloat erest)
 {
     e_rest = erest;
