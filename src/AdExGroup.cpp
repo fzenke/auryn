@@ -162,12 +162,14 @@ void AdExGroup::set_delta_t(AurynFloat d)
 void AdExGroup::set_g_leak(AurynFloat g)
 {
     g_leak = g;
+    tau_mem = c_mem/g_leak;
     calculate_scale_constants();
 }
 
 void AdExGroup::set_c_mem(AurynFloat cm)
 {
     c_mem = cm;
+    tau_mem = c_mem/g_leak;
     calculate_scale_constants();
 }
 
