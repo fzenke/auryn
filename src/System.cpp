@@ -548,6 +548,15 @@ void System::load_network_state(string basename)
 	} // oss goes out of focus
 
 	std::ifstream ifs(netstate_filename.c_str());
+
+	if ( !ifs.is_open() ) {
+		stringstream oss;
+		oss << "Error opening netstate file: "
+			<< netstate_filename;
+		logger->msg(oss.str(),ERROR);
+		throw AurynOpenFileException();
+	}
+
 	boost::archive::binary_iarchive ia(ifs);
 
 	for ( unsigned int i = 0 ; i < connections.size() ; ++i ) {
