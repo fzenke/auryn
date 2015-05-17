@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2015 Neftci Emre and Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -16,36 +16,34 @@
 * 
 * You should have received a copy of the GNU General Public License
 * along with Auryn.  If not, see <http://www.gnu.org/licenses/>.
-*
-* If you are using Auryn or parts of it for your work please cite:
-* Zenke, F. and Gerstner, W., 2014. Limits to high-speed simulations 
-* of spiking neural networks using general-purpose computers. 
-* Front Neuroinform 8, 76. doi: 10.3389/fninf.2014.00076
 */
 
-#ifndef TIFGROUP_H_
-#define TIFGROUP_H_
+#ifndef SIFGROUP_H_
+#define SIFGROUP_H_
 
 #include "auryn_definitions.h"
 #include "NeuronGroup.h"
 #include "System.h"
 
 
-/*! \brief Conductance based LIF neuron model with absolute refractoriness as used in Vogels and Abbott 2005.
+/*! \brief Conductance based neuron model with absolute refractoriness used for Neural Sampling
  */
-class TIFGroup : public NeuronGroup
+class SIFGroup : public NeuronGroup
 {
 private:
 	auryn_vector_float * bg_current;
+	auryn_vector_float * inj_current;
 	auryn_vector_ushort * ref;
 	unsigned short refractory_time;
-	AurynFloat e_rest,e_rev_gaba,e_rev_ampa,thr,tau_mem, r_mem, c_mem;
-	AurynFloat tau_ampa,tau_gaba;
-	AurynFloat scale_ampa, scale_gaba, scale_mem;
+	AurynFloat e_rest,e_rev,thr,tau_mem;
+	AurynFloat tau_ampa,tau_gaba,tau_cursyn;
+	AurynFloat scale_ampa, scale_gaba, scale_mem, scale_cursyn;
 
+	AurynFloat * t_g_cursyn; 
 	AurynFloat * t_g_ampa; 
 	AurynFloat * t_g_gaba; 
 	AurynFloat * t_bg_cur; 
+	AurynFloat * t_inj_cur; 
 	AurynFloat * t_mem; 
 	unsigned short * t_ref; 
 
@@ -60,8 +58,8 @@ private:
 	void virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version );
 public:
 	/*! The default constructor of this NeuronGroup */
-	TIFGroup(NeuronID size);
-	virtual ~TIFGroup();
+	SIFGroup(NeuronID size);
+	virtual ~SIFGroup();
 
 	/*! Controls the constant current input (per default set so zero) to neuron i */
 	void set_bg_current(NeuronID i, AurynFloat current);
@@ -73,10 +71,6 @@ public:
 	AurynFloat get_bg_current(NeuronID i);
 	/*! Sets the membrane time constant (default 20ms) */
 	void set_tau_mem(AurynFloat taum);
-	/*! Sets the membrane resistance (default 100 M-ohm) */
-	void set_r_mem(AurynFloat rm);
-	/*! Sets the membrane capacitance (default 200pF) */
-	void set_c_mem(AurynFloat cm);
 	/*! Sets the exponential time constant for the AMPA channel (default 5ms) */
 	void set_tau_ampa(AurynFloat tau);
 	/*! Gets the exponential time constant for the AMPA channel */
@@ -91,5 +85,5 @@ public:
 	void evolve();
 };
 
-#endif /*TIFGROUP_H_*/
+#endif /*SIFGROUP_H_*/
 

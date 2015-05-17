@@ -89,6 +89,9 @@ void Connection::set_transmitter(TransmitterType transmitter)
 			case MEM:
 				set_transmitter(dst->get_mem_ptr()->data);
 				break;
+			case CURSYN:
+				set_transmitter(dst->get_cursyn_ptr()->data);
+				break;
 			case NMDA:
 				set_transmitter(dst->get_nmda_ptr()->data);
 				break;

@@ -119,6 +119,18 @@ public:
 	 */
 	void load_network_state(string basename);
 
+	/*! \brief Saves the network state to human readable text files
+	 *
+	 * This deprecated method of saving the network state generates a large number of files 
+	 * because each Connection object or SpikingGroup creates their own respective file. This 
+	 * function might still be useful if you have code in which you analaze these files offline.
+	 * In most cases you will want to use save_network_state and only dump a limited subset (e.g. 
+	 * all the plastic connections) in human-readable text files for analysis.
+	 *
+	 * \param Basename (directory and prefix of file) of the netstate file without extension
+	 */
+	void save_network_state_text(string basename);
+
 	/*! Synchronizes SpikingGroups */
 	void sync();
 
