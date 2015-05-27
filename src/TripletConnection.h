@@ -120,6 +120,8 @@ public:
 	TripletConnection(SpikingGroup * source, NeuronGroup * destination, 
 			TransmitterType transmitter=GLUT);
 
+	/*! Deprecated constructor.
+	 */
 	TripletConnection(SpikingGroup * source, NeuronGroup * destination, 
 			const char * filename, 
 			AurynFloat tau_hom=10, 
