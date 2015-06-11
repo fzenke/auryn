@@ -56,7 +56,7 @@ bool RateChecker::propagate()
 {
 	state *= decay_multiplier;
 	state += 1.*src->get_spikes()->size()/timeconstant/size;
-	if ( state>=popmin && state=<popmax ) return true;
+	if ( state>=popmin && state<=popmax ) return true;
 	else  return false;
 }
 
