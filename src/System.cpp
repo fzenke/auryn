@@ -509,28 +509,46 @@ void System::save_network_state(string basename)
 	std::ofstream ofs(netstate_filename.c_str());
 	boost::archive::binary_oarchive oa(ofs);
 
+	logger->msg("Saving Connections ...",DEBUG);
 	for ( unsigned int i = 0 ; i < connections.size() ; ++i ) {
-		// sprintf(filename, "%s.%d.%d.wmat", basename.c_str(), i, mpicom->rank());
 
 		stringstream oss;
 		oss << "Saving connection "
 			<<  i 
+			<< " \""
+			<< connections[i]->get_name()
+			<< "\""
 			<< " to stream";
 		logger->msg(oss.str(),NOTIFICATION);
 
 		oa << *(connections[i]);
 	}
 
+	logger->msg("Saving SpikingGroups",DEBUG);
 	for ( unsigned int i = 0 ; i < spiking_groups.size() ; ++i ) {
-		// sprintf(filename, "%s.%d.%d.gstate", basename.c_str(), i, mpicom->rank());
 
 		stringstream oss;
-		oss << "Saving SpikingGroup "
+		oss << "Saving SpikingGroup ..."
 			<<  i 
 			<< " to stream";
 		logger->msg(oss.str(),NOTIFICATION);
 
 		oa << *(spiking_groups[i]);
+	}
+
+	// Save Monitors
+	// TODO 
+
+	logger->msg("Saving Checkers ...",DEBUG);
+	for ( unsigned int i = 0 ; i < checkers.size() ; ++i ) {
+
+		stringstream oss;
+		oss << "Saving Checker "
+			<<  i 
+			<< " to stream";
+		logger->msg(oss.str(),NOTIFICATION);
+
+		oa << *(checkers[i]);
 	}
 
 	ofs.close();
@@ -559,6 +577,7 @@ void System::load_network_state(string basename)
 
 	boost::archive::binary_iarchive ia(ifs);
 
+	logger->msg("Loading connections ...",DEBUG);
 	for ( unsigned int i = 0 ; i < connections.size() ; ++i ) {
 
 		stringstream oss;
@@ -570,6 +589,7 @@ void System::load_network_state(string basename)
 		connections[i]->finalize();
 	}
 
+	logger->msg("Loading SpikingGroups ...",DEBUG);
 	for ( unsigned int i = 0 ; i < spiking_groups.size() ; ++i ) {
 
 		stringstream oss;
@@ -578,6 +598,21 @@ void System::load_network_state(string basename)
 		logger->msg(oss.str(),NOTIFICATION);
 
 		ia >> *(spiking_groups[i]);
+	}
+
+	// Loading Monitors states
+	// TODO
+
+	
+	logger->msg("Loading Checkers ...",DEBUG);
+	for ( unsigned int i = 0 ; i < checkers.size() ; ++i ) {
+
+		stringstream oss;
+		oss << "Loading Checker "
+			<<  i;
+		logger->msg(oss.str(),NOTIFICATION);
+
+		ia >> *(checkers[i]);
 	}
 
 	ifs.close();

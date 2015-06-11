@@ -70,7 +70,22 @@ AurynFloat RateChecker::get_rate()
 	return state;
 }
 
+void RateChecker::set_rate(AurynFloat r)
+{
+	state = r;
+}
+
 void RateChecker::reset()
 {
-	state = (popmax+popmin)/2;
+	set_rate((popmax+popmin)/2);
+}
+
+void RateChecker::virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version ) 
+{
+	ar & state;
+}
+
+void RateChecker::virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version ) 
+{
+	ar & state;
 }
