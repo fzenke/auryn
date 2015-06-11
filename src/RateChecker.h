@@ -33,22 +33,26 @@
 
 using namespace std;
 
-/*! \brief A Checker class that tracks population firing rate and breaks 
- *         a run if it goes out of bound.
+/*! \brief A Checker class that tracks population firing rate as a moving
+ * average and breaks a run if it goes out of bound.
  *
- * This class should be specified at least once with all plastic
- * runs to ensure that expoding firing rates or a silent network
- * does not get simulated needlessly for hours.
+ * This class should be specified at least once with all plastic runs to ensure
+ * that expoding firing rates or a silent network does not get simulated
+ * needlessly for hours.
  *
- * The different constructors allow to specify different min and max
- * firing rates to guard against too active or quiet networks.
- * Also the timeconstant (tau) over which the moving rate average
- * is computed online can be specified. Note that for highly parallel
- * simulations the number of neurons in a specific group on a particular
- * node can be highly reduced and therefore the rate estimate 
- * might become noisy. If highly parallel simulation is anticipated
- * tau should be chosen longer to avoid spurious breaks caused by
- * a noisy rate estimate.
+ * The different constructors allow to specify different min and max firing
+ * rates to guard against too active or quiet networks.  Also the timeconstant
+ * (tau) over which the moving rate average is computed online can be specified.
+ * Allow for 3-5 x tau for the estimate to settle to its steady state value.  To
+ * avoid accidental breaking of a run due to this effect, at initialization the
+ * rate estimate is assumed to  be the mean of the min and max. Note further
+ * that this checker computes population averages over the fraction of a neuron
+ * group which is simulated on a particular rank.  In highly parallel
+ * simulations when the number of neurons per rank is very the rate estimate
+ * might have a high variance accross ranks.  If highly parallel simulation is
+ * anticipated tau should be chosen longer to avoid spurious breaks caused by a
+ * noisy rate estimate or a different checker which computes the rate of entire
+ * population (after a MINDELAY s minimal delay) should be used.
  */
 
 class RateChecker : public Checker
@@ -62,6 +66,8 @@ private:
     NeuronID size;
 	void init(AurynFloat min, AurynFloat max, AurynFloat tau);
 	
+	virtual void virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version );
+	virtual void virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version );
 public:
 	/*! The default constructor.
 	 * @param source the source group to monitor.
@@ -82,6 +88,9 @@ public:
 	virtual AurynFloat get_property();
 	/*! Reads out the current rate estimate. */
 	AurynFloat get_rate();
+	/*! Sets the current rate estimate -- for instance to provide a reasonable guess upon init.
+	 * ( per default this is (max+min)/2.) */
+	void set_rate(AurynFloat r);
 	void reset();
 };
 
