@@ -176,10 +176,17 @@ public:
 	bool exists(NeuronID i, NeuronID j);
 	/*! Returns the pointer to a particular element */
 	T * get_ptr(NeuronID i, NeuronID j);
+
 	T * get_ptr(NeuronID i, NeuronID j, NeuronID z);
 	/*! Returns the pointer to a particular element given 
 	 * its position in the data array. */
 	T * get_ptr(AurynLong data_index);
+
+	/*! Returns data index to a particular element specifed by i and j */
+	AurynLong get_data_index(NeuronID i, NeuronID j, NeuronID z=0);
+
+	/*! Returns data index to a particular element specifed by a data pointer */
+	AurynLong get_data_index(T * ptr);
 
 	/* Methods concerning synaptic state vectors. */
 	void set_num_synapse_states(StateID zsize);
@@ -255,19 +262,19 @@ public:
 };
 
 template <typename T>
-T * ComplexMatrix<T>::get_data_ptr(AurynLong i, StateID z)
+T * ComplexMatrix<T>::get_data_ptr(const AurynLong i, const StateID z)
 {
 	return elementdata+z*get_datasize()+i;
 }
 
 template <typename T>
-T ComplexMatrix<T>::get_data(AurynLong i, StateID z)
+T ComplexMatrix<T>::get_data(const AurynLong i, const StateID z)
 {
 	return elementdata[z*get_datasize()+i];
 }
 
 template <typename T>
-T * ComplexMatrix<T>::get_data_ptr(const NeuronID * ind_ptr, StateID z) 
+T * ComplexMatrix<T>::get_data_ptr(const NeuronID * ind_ptr, const StateID z) 
 {
 	size_t ptr_offset = ind_ptr-get_ind_begin();
 	return elementdata+ptr_offset;
@@ -529,6 +536,18 @@ T * ComplexMatrix<T>::get_ptr(NeuronID i, NeuronID j)
 	}
 
 	return NULL; 
+}
+
+template <typename T>
+AurynLong ComplexMatrix<T>::get_data_index(NeuronID i, NeuronID j, NeuronID z)
+{
+	return get_data_index( get_ptr(i,j) ) + z*statesize ;
+}
+
+template <typename T>
+AurynLong ComplexMatrix<T>::get_data_index(T * ptr)
+{
+	return ptr - get_data_begin();
 }
 
 template <typename T>
