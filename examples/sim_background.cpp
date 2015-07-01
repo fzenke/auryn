@@ -646,6 +646,10 @@ int main(int ac, char* av[])
 
 	RateChecker * chk = new RateChecker( neurons_e , 0.1 , 20.*kappa , tau_chk);
 
+	// Use the same time constant for the online rate estimate in the progress bar
+	sys->set_online_rate_monitor_id(0);
+	sys->set_online_rate_monitor_tau(tau_chk);
+
 
 
 	if ( scaling && (errcode==0) ) {

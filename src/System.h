@@ -60,12 +60,21 @@ private:
 
 	SyncBuffer * syncbuffer;
 
+
 	vector<SpikingGroup *> spiking_groups;
 	vector<Connection *> connections;
 	vector<Monitor *> monitors;
 	vector<Checker *> checkers;
 
 	double simulation_time_realtime_ratio;
+
+	int online_rate_monitor_id;
+	double online_rate_monitor_tau;
+	double online_rate_monitor_mul;
+	double online_rate_monitor_state;
+
+	/*! Evolves the online rate monitor for the status bar. */
+	void evolve_online_rate_monitor();
 
 	/*! Returns string with a human readable time. */
 	string get_nice_time ( AurynTime clk );	
@@ -96,6 +105,12 @@ public:
 
 	/*! Initialializes the recvs for all the MPI sync */
 	void sync_prepare();
+
+	/*! Sets the SpikingGroup ID used to display the rate estimate in the progressbar. */
+	void set_online_rate_monitor_id( int id=0 );
+
+	/*! Sets the timeconstant to compute the online rate average for the status bar. */
+	void set_online_rate_monitor_tau( AurynDouble tau=100e-3 );
 
 	/*! \brief Saves network state to a netstate file
 	 *
