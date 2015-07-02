@@ -3,11 +3,14 @@
  STDP windows
  * Added backend to implement current based synapses with temporal dynamics
  * Added code to stimulate with currents generated from a Wiener process
+ (NormalStimulator)
  * Added the AdEx neuron model
+ * Added the SIFGroup neuron model
  * Implemented load/save to netstate files of Checkers
- * Changed backend of WeightMonitor
+ * Changed backend of WeightMonitor to avoid segfaults after loading the
+ network state
  * Implementation of moving average for progress bar moved 
- to System class
+ to System class to disambiguate from Checkers
  * Fixed some problems in ComplexMatrix
  * Bug fixes
 
