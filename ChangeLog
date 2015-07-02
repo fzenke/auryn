@@ -1,4 +1,31 @@
-xxxx-xx-xx Friedemann Zenke <friedemann.zenke@epfl.ch>
+2015-07-01 Friedemann Zenke <fzenke@stanford.edu>
+ * Added PairInteractionConnection to implement arbitrary (pairwise)
+ STDP windows
+ * Added backend to implement current based synapses with temporal dynamics
+ * Added code to stimulate with currents generated from a Wiener process
+ (NormalStimulator)
+ * Added the AdEx neuron model
+ * Added the SIFGroup neuron model
+ * Implemented load/save to netstate files of Checkers
+ * Changed backend of WeightMonitor to avoid segfaults after loading the
+ network state
+ * Implementation of moving average for progress bar moved 
+ to System class to disambiguate from Checkers
+ * Fixed some problems in ComplexMatrix
+ * Bug fixes
+
+2015-02-06 Friedemann Zenke <friedemann.zenke@epfl.ch>
+ * SpikingGroups and Connections are now serializeable and as a consequence
+ the network state can be saved to a single file per rank.
+ * SimpleMatrix has been replaced by ComplexMatrix which creates the
+ basis for the implementation of connection models with multiple
+ internal synaptic states.
+ * Basis for Monitors writing to binary files for increased performance was
+ created (e.g. BinarySpikeMonitor).
+ * Auryn compiles to a statically linkable library per default now, which
+ facilitates to decouple simulation code from simulator code.  * A simplified
+ STDPConnection was added along with a tutorial of how to implement own new
+ plasticity and synapse models.
  * Adds integrate-and-fire model for exclusive use with current based synapses
  (CubaIFGroup).
  * Adds an example simulation for short-term-plasticity (STPConnection).
