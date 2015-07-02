@@ -20,12 +20,9 @@
 
 #include "STDPConnection.h"
 
-void STDPConnection::init(AurynFloat eta, AurynFloat maxweight)
+void STDPConnection::init(AurynFloat eta, AurynFloat tau_pre, AurynFloat tau_post, AurynFloat maxweight)
 {
 	if ( dst->get_post_size() == 0 ) return;
-
-	tau_pre  = 20.0e-3;
-	tau_post = 20.0e-3;
 
 	A = eta; // post-pre
 	B = eta; // pre-post
@@ -58,21 +55,25 @@ STDPConnection::STDPConnection(SpikingGroup * source, NeuronGroup * destination,
 
 STDPConnection::STDPConnection(SpikingGroup * source, NeuronGroup * destination, 
 		const char * filename, 
-		AurynFloat eta, 
-		AurynFloat maxweight , 
+		AurynFloat eta,
+		AurynFloat tau_pre,
+		AurynFloat tau_post,
+		AurynFloat maxweight, 
 		TransmitterType transmitter) 
 : DuplexConnection(source, 
 		destination, 
 		filename, 
 		transmitter)
 {
-	init(eta, maxweight);
+	init(eta, tau_pre, tau_post, maxweight);
 }
 
 STDPConnection::STDPConnection(SpikingGroup * source, NeuronGroup * destination, 
 		AurynWeight weight, AurynFloat sparseness, 
 		AurynFloat eta, 
-		AurynFloat maxweight , 
+		AurynFloat tau_pre,
+		AurynFloat tau_post,
+		AurynFloat maxweight, 
 		TransmitterType transmitter,
 		string name) 
 : DuplexConnection(source, 
@@ -82,7 +83,7 @@ STDPConnection::STDPConnection(SpikingGroup * source, NeuronGroup * destination,
 		transmitter, 
 		name)
 {
-	init(eta, maxweight);
+	init(eta, tau_pre, tau_post, maxweight);
 	if ( name.empty() )
 		set_name("STDPConnection");
 }

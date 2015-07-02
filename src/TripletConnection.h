@@ -48,19 +48,17 @@ class TripletConnection : public DuplexConnection
 {
 
 private:
-	friend class boost::serialization::access;
-	template<class Archive>
-	void save(Archive & ar, const unsigned int version) const
+	void virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version ) 
 	{
-		ar & boost::serialization::base_object<DuplexConnection>(*this);
+		DuplexConnection::virtual_serialize(ar,version);
+		ar & *w;
 	}
-	template<class Archive>
-	void load(Archive & ar, const unsigned int version)
+
+	void virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version ) 
 	{
-		ar & boost::serialization::base_object<DuplexConnection>(*this);
-		finalize();
+		DuplexConnection::virtual_serialize(ar,version);
+		ar & *w;
 	}
-	BOOST_SERIALIZATION_SPLIT_MEMBER()
 
 	void init(AurynFloat tau_hom, AurynFloat eta, AurynFloat kappa, AurynFloat maxweight);
 	void init_shortcuts();
@@ -120,6 +118,8 @@ public:
 	TripletConnection(SpikingGroup * source, NeuronGroup * destination, 
 			TransmitterType transmitter=GLUT);
 
+	/*! Deprecated constructor.
+	 */
 	TripletConnection(SpikingGroup * source, NeuronGroup * destination, 
 			const char * filename, 
 			AurynFloat tau_hom=10, 

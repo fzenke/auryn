@@ -615,6 +615,7 @@ int main(int ac, char* av[])
 		for ( int i = 0 ; i < 5 ; ++i ) {
 			for ( int j = 0 ; j < 5 ; ++j ) {
 				vector<neuron_pair> sublist = con_ee->get_block(i*psize,(i+1)*psize,j*psize,(j+1)*psize);
+				sublist.resize(50); // only record a maximum of 50 connections from each block
 				wmon->add_to_list(sublist);
 			}
 		}
@@ -644,6 +645,10 @@ int main(int ac, char* av[])
 	// SpikeMonitor * smon_i = new SpikeMonitor( neurons_i, strbuf , 500);
 
 	RateChecker * chk = new RateChecker( neurons_e , 0.1 , 20.*kappa , tau_chk);
+
+	// Use the same time constant for the online rate estimate in the progress bar
+	sys->set_online_rate_monitor_id(0);
+	sys->set_online_rate_monitor_tau(tau_chk);
 
 
 

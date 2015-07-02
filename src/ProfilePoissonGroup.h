@@ -40,7 +40,17 @@
 using namespace std;
 
 /*! \brief A SpikingGroup that creates poissonian spikes with a given rate
- * and spacial profile.
+ * and spatial profile.
+ *
+ * This SpikingGroup is a logic extension of PoissonGroup for (relatively) stationary, 
+ * but not uniform firing rates. It uses a similar algorithm as PoissonGroup to generate spikes
+ * in which each random number yields a spike, but uses a warped output array in which neurons
+ * can have different firing probabilities in each timestep. The resulting implementation requires
+ * the computation of the cumulative firing probability accross the group in every timestep. It is 
+ * therefore substantially slower than PoissonGroup, but presumably much faster than drawing 
+ * random numbers for each neuron in each time step.
+ * To set the firing rate profile use the function set_profile which needs to point to an array at 
+ * which the firing rate profile is stored.
  */
 class ProfilePoissonGroup : public SpikingGroup
 {

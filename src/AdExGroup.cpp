@@ -33,7 +33,7 @@ AdExGroup::AdExGroup(NeuronID size) : NeuronGroup(size)
 
 void AdExGroup::calculate_scale_constants()
 {
-    scale_mem  = dt/c_mem;
+    scale_mem  = dt/tau_mem;
     scale_w = dt/tau_w;
     scale_ampa = exp(-dt/tau_ampa);
     scale_gaba = exp(-dt/tau_gaba);
@@ -41,6 +41,7 @@ void AdExGroup::calculate_scale_constants()
 
 void AdExGroup::init()
 {
+    g_leak = 10e-9;
     e_rest = -70e-3;
     e_reset = -58e-3;
     e_rev_ampa = 0;
@@ -49,16 +50,15 @@ void AdExGroup::init()
     tau_ampa = 5e-3;
     tau_gaba = 10e-3;
     tau_w = 30e-3;
-    g_leak = 10e-9;
     c_mem = 200e-12;
+    tau_mem = c_mem/g_leak;
     deltat = 2e-3;
-    a = 2e-9;
-    b = 0;
+    a = 2e-9/g_leak;
+    b = 0./g_leak;
 
     w = get_state_vector("w");
 
     calculate_scale_constants();
-    
     bg_current = get_state_vector("bg_current");
 
     t_g_ampa = auryn_vector_float_ptr ( g_ampa , 0 );
@@ -98,13 +98,11 @@ void AdExGroup::evolve()
         t_w[i] += scale_w * (a * (t_mem[i]-e_rest) - t_w[i]);
 
         t_mem[i] += scale_mem * (
-                g_leak * (
-                  (e_rest-t_mem[i])
-                  + deltat * exp((t_mem[i]-e_thr)/deltat)
-                )
+                e_rest-t_mem[i]
+                + deltat * exp((t_mem[i]-e_thr)/deltat)
                 - t_g_ampa[i] * (t_mem[i]-e_rev_ampa)
                 - t_g_gaba[i] * (t_mem[i]-e_rev_gaba)
-                + (t_bg_cur[i]-t_w[i]));
+                + t_bg_cur[i]-t_w[i]);
 
 
         if (t_mem[i]>0.0) {
@@ -139,11 +137,16 @@ void AdExGroup::set_e_reset(AurynFloat ereset)
 {
     e_reset = ereset;
 }
+
+void AdExGroup::set_e_thr(AurynFloat ethr)
+{
+    e_thr = ethr;
+}
 void AdExGroup::set_e_rest(AurynFloat erest)
 {
     e_rest = erest;
     for (NeuronID i = 0; i < get_rank_size(); i++)
-       auryn_vector_float_set (mem, i, e_rest);
+        auryn_vector_float_set (mem, i, e_rest);
 }
 
 void AdExGroup::set_a(AurynFloat _a)
@@ -159,12 +162,14 @@ void AdExGroup::set_delta_t(AurynFloat d)
 void AdExGroup::set_g_leak(AurynFloat g)
 {
     g_leak = g;
+    tau_mem = c_mem/g_leak;
     calculate_scale_constants();
 }
 
 void AdExGroup::set_c_mem(AurynFloat cm)
 {
     c_mem = cm;
+    tau_mem = c_mem/g_leak;
     calculate_scale_constants();
 }
 
@@ -217,4 +222,3 @@ AurynFloat AdExGroup::get_tau_gaba()
 {
     return tau_gaba;
 }
-

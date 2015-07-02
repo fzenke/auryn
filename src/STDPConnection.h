@@ -40,12 +40,9 @@ class STDPConnection : public DuplexConnection
 {
 
 private:
-	void init(AurynFloat eta, AurynFloat maxweight);
+	void init(AurynFloat eta, AurynFloat tau_pre, AurynFloat tau_post, AurynFloat maxweight);
 
 protected:
-
-	AurynFloat tau_pre;
-	AurynFloat tau_post;
 
 	AurynDouble hom_fudge;
 
@@ -70,15 +67,20 @@ public:
 	STDPConnection(SpikingGroup * source, NeuronGroup * destination, 
 			const char * filename, 
 			AurynFloat eta=1, 
+			AurynFloat tau_pre=20e-3,
+			AurynFloat tau_post=20e-3,
 			AurynFloat maxweight=1. , 
 			TransmitterType transmitter=GLUT);
 
 	STDPConnection(SpikingGroup * source, NeuronGroup * destination, 
 			AurynWeight weight, AurynFloat sparseness=0.05, 
 			AurynFloat eta=1, 
+			AurynFloat tau_pre=20e-3,
+			AurynFloat tau_post=20e-3,
 			AurynFloat maxweight=1. , 
 			TransmitterType transmitter=GLUT,
 			string name = "STDPConnection" );
+
 
 	virtual ~STDPConnection();
 	virtual void finalize();

@@ -45,6 +45,18 @@ class System;
  */
 class Checker
 {
+private:
+	/* Functions necesssary for serialization */
+	friend class boost::serialization::access;
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		virtual_serialize(ar, version);
+	}
+
+	virtual void virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version ) = 0;
+	virtual void virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version ) = 0;
+
 protected:
 	SpikingGroup * src;
 	
@@ -62,5 +74,7 @@ public:
 	 */
 	virtual AurynFloat get_property() = 0 ;
 };
+
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Checker)
 
 #endif /*CHECKER_H_*/
