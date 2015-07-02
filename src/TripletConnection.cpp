@@ -146,7 +146,7 @@ AurynWeight TripletConnection::dw_pre(NeuronID post)
 }
 
 /*! This function implements what happens to synapes from pre->post when
- * it experiences backpropagating action potential. */
+ * they experience backpropagating action potential. */
 AurynWeight TripletConnection::dw_post(NeuronID pre, NeuronID post)
 {
 	// at this point post was already translated to a local id in 
