@@ -135,8 +135,6 @@ AurynWeight TripletConnection::get_hom(NeuronID i)
 }
 
 
-/*! This function implements what happens to synapes transmitting a 
- *  spike to neuron 'post'. */
 AurynWeight TripletConnection::dw_pre(NeuronID post)
 {
 	// translate post id to local id on rank: translated_spike
@@ -145,8 +143,6 @@ AurynWeight TripletConnection::dw_pre(NeuronID post)
 	return dw;
 }
 
-/*! This function implements what happens to synapes from pre->post when
- * it experiences backpropagating action potential. */
 AurynWeight TripletConnection::dw_post(NeuronID pre, NeuronID post)
 {
 	// at this point post was already translated to a local id in 
@@ -158,21 +154,23 @@ AurynWeight TripletConnection::dw_post(NeuronID pre, NeuronID post)
 
 void TripletConnection::propagate_forward()
 {
-	// loop over all spikes
+	// loop over all spikes (yields presynaptic cell ids of cells that spiked)
 	for (SpikeContainer::const_iterator spike = src->get_spikes()->begin() ; // spike = pre_spike
 			spike != src->get_spikes()->end() ; ++spike ) {
-		// loop over all postsynaptic partners
+		// loop over all postsynaptic partners the cells 
+		// that are targeted by that presynaptic cell
 		for (const NeuronID * c = w->get_row_begin(*spike) ; 
 				c != w->get_row_end(*spike) ; 
 				++c ) { // c = post index
 
-			// transmit signal to target at postsynaptic neuron
+			// determines the weight of connection
 			AurynWeight * weight = w->get_data_ptr(c); 
+			// evokes the postsynaptic response 
 			transmit( *c , *weight );
 
-			// handle plasticity
+			// handles plasticity
 			if ( stdp_active ) {
-				// performs weight update
+				// performs weight update upon presynaptic spike
 			    *weight += dw_pre(*c);
 
 			    // clips too small weights
