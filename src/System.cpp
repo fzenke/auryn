@@ -30,6 +30,11 @@ void System::init() {
 	quiet = false;
 	set_simulation_name("default");
 
+	set_online_rate_monitor_tau();
+	// assumes that we have at least one spiking group in the sim
+	online_rate_monitor_id = 0; 
+	online_rate_monitor_state = 0.0;
+
 	syncbuffer = new SyncBuffer(mpicom);
 
 	stringstream oss;
@@ -215,6 +220,9 @@ void System::evolve()
 
 	for ( iter = spiking_groups.begin() ; iter != spiking_groups.end() ; ++iter ) 
 		(*iter)->conditional_evolve(); // evolve only if existing on rank
+
+	// update the online rate estimate
+	evolve_online_rate_monitor();
 }
 
 void System::evolve_independent()
@@ -276,8 +284,8 @@ void System::progressbar ( double fraction, AurynTime clk ) {
 
 	cout<< percent << "%     "<< setiosflags(ios::fixed) << " t=" << time ;
 
-	if (checkers.size())
-		cout  << setprecision(1) << "  f=" << checkers[0]->get_property() << " Hz  ";
+	if ( online_rate_monitor_id >= 0 ) 
+		cout  << setprecision(1) << "  f=" << online_rate_monitor_state << " Hz  ";
 
 	cout << std::flush;
 
@@ -554,6 +562,32 @@ void System::save_network_state(string basename)
 	ofs.close();
 }
 
+void System::save_network_state_text(string basename)
+{
+	char filename [255];
+	for ( unsigned int i = 0 ; i < connections.size() ; ++i ) {
+		sprintf(filename, "%s.%d.%d.wmat", basename.c_str(), i, mpicom->rank());
+
+		stringstream oss;
+		oss << "Saving connection "
+			<<  filename ;
+		logger->msg(oss.str(),NOTIFICATION);
+
+		connections[i]->write_to_file(filename);
+	}
+
+	for ( unsigned int i = 0 ; i < spiking_groups.size() ; ++i ) {
+		sprintf(filename, "%s.%d.%d.gstate", basename.c_str(), i, mpicom->rank());
+
+		stringstream oss;
+		oss << "Saving group "
+			<<  filename ;
+		logger->msg(oss.str(),NOTIFICATION);
+
+		spiking_groups[i]->write_to_file(filename);
+	}
+}
+
 void System::load_network_state(string basename)
 {
 	string netstate_filename;
@@ -616,6 +650,30 @@ void System::load_network_state(string basename)
 	}
 
 	ifs.close();
+}
+
+void System::set_online_rate_monitor_tau(AurynDouble tau)
+{
+	online_rate_monitor_tau = tau;
+	online_rate_monitor_mul = exp(-dt/tau);
+}
+
+void System::evolve_online_rate_monitor()
+{
+	if ( online_rate_monitor_id >= 0 ) {
+		online_rate_monitor_state *= online_rate_monitor_mul;
+		SpikingGroup * src = spiking_groups[online_rate_monitor_id];
+		online_rate_monitor_state += 1.0*src->get_spikes()->size()/online_rate_monitor_tau/src->get_size();
+	}
+}
+
+void System::set_online_rate_monitor_id( int id )
+{
+	online_rate_monitor_state = 0.0;
+	if ( id < spiking_groups.size() ) 
+		online_rate_monitor_id = id;
+	else
+		online_rate_monitor_id = -1;
 }
 
 #ifdef CODE_COLLECT_SYNC_TIMING_STATS

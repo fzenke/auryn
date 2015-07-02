@@ -41,6 +41,7 @@ void NeuronGroup::init()
 		thr = get_state_vector("thr");
 		g_ampa = get_state_vector("g_ampa");
 		g_gaba = get_state_vector("g_gaba");
+		g_cursyn = get_state_vector("g_cursyn");
 		g_nmda = get_state_vector("g_nmda");
 
 #ifndef CODE_ALIGNED_SSE_INSTRUCTIONS
@@ -49,7 +50,8 @@ void NeuronGroup::init()
 				|| auryn_AlignOffset( thr->size, thr->data, sizeof(float), 16) 
 				|| auryn_AlignOffset( g_ampa->size, g_ampa->data, sizeof(float), 16) 
 				|| auryn_AlignOffset( g_nmda->size, g_nmda->data, sizeof(float), 16) 
-				|| auryn_AlignOffset( g_gaba->size, g_gaba->data, sizeof(float), 16) ) 
+				|| auryn_AlignOffset( g_gaba->size, g_gaba->data, sizeof(float), 16)  
+				|| auryn_AlignOffset( g_cursyn->size, g_cursyn->data, sizeof(float), 16) ) 
 			throw AurynMemoryAlignmentException();
 #endif
 }
@@ -80,7 +82,7 @@ void NeuronGroup::print_vec(auryn_vector_float * vec, const char * name)
 
 void NeuronGroup::print_state(NeuronID id)
 {
-           printf ("%g %g %g %g\n",auryn_vector_float_get (mem, id), auryn_vector_float_get (g_ampa, id), auryn_vector_float_get (g_gaba, id) ,auryn_vector_float_get (g_nmda, id));
+           printf ("%g %g %g %g %g\n",auryn_vector_float_get (mem, id), auryn_vector_float_get (g_ampa, id), auryn_vector_float_get (g_gaba, id) ,auryn_vector_float_get (g_nmda, id), auryn_vector_float_get (g_cursyn, id));
 }
 
 AurynState NeuronGroup::get_mem(NeuronID i)
@@ -121,9 +123,19 @@ AurynState NeuronGroup::get_ampa(NeuronID i)
 	return get_val(g_ampa,i);
 }
 
+AurynState NeuronGroup::get_cursyn(NeuronID i)
+{
+	return get_val(g_cursyn,i);
+}
+
 auryn_vector_float * NeuronGroup::get_ampa_ptr()
 {
 	return g_ampa;
+}
+
+auryn_vector_float * NeuronGroup::get_cursyn_ptr()
+{
+	return g_cursyn;
 }
 
 AurynState NeuronGroup::get_gaba(NeuronID i)
@@ -149,6 +161,11 @@ auryn_vector_float * NeuronGroup::get_nmda_ptr()
 void NeuronGroup::set_ampa(NeuronID i, AurynState val)
 {
 	set_val(g_ampa,i,val);
+}
+
+void NeuronGroup::set_cursyn(NeuronID i, AurynState val)
+{
+	set_val(g_cursyn,i,val);
 }
 
 void NeuronGroup::set_gaba(NeuronID i, AurynState val)
@@ -214,6 +231,11 @@ void NeuronGroup::print_gaba()
 void NeuronGroup::print_nmda()
 {
 	print_vec(g_nmda,"g_nmda");
+}
+
+void NeuronGroup::print_cursyn()
+{
+	print_vec(g_nmda,"g_cursyn");
 }
 
 void NeuronGroup::safe_tadd(NeuronID id, AurynWeight amount, TransmitterType t)

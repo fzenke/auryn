@@ -75,7 +75,7 @@ protected:
 	NeuronID elem_i;
 	NeuronID elem_j;
 	AurynTime ssize;
-	vector<AurynWeight*> * element_list;
+	vector<AurynLong> * element_list;
 	vector<NeuronID> group_indices;
 	void init(SparseConnection * source, NeuronID i, NeuronID j, string filename, AurynTime interval);
 
@@ -94,7 +94,9 @@ public:
 	void set_mat(ForwardMatrix * m);
 
 
-	/*! Adds a single element identified by a pointer to the recording list. */
+	/*! Adds a single element to the recording list which is identified by its data index. */
+	void add_to_list( AurynLong index );
+	/*! Adds a single element to the recording list which is identified by a pointer. */
 	void add_to_list( AurynWeight * ptr );
 	/*! Adds a single element identified matrix coordinates (row,col) to the recording list. */
 	void add_to_list( NeuronID i, NeuronID j );

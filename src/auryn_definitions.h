@@ -127,7 +127,8 @@ enum TransmitterType {
 	GABA, //!< Standard Gabaergic (inhibitory) transmission.
 	AMPA, //!< Only targets AMPA channels.
 	NMDA, //!< Only targets NMDA.
-	MEM   //!< Current based synapse. Adds the transmitted quantity directly to membrane voltage.
+	MEM,   //!< Current based synapse. Adds the transmitted quantity directly to membrane voltage.
+	CURSYN   //!< Current based synapse with dynamics.
 };
 
 enum StimulusGroupModeType { MANUAL, RANDOM, SEQUENTIAL, SEQUENTIAL_REV, STIMFILE };

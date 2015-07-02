@@ -48,19 +48,17 @@ class TripletConnection : public DuplexConnection
 {
 
 private:
-	friend class boost::serialization::access;
-	template<class Archive>
-	void save(Archive & ar, const unsigned int version) const
+	void virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version ) 
 	{
-		ar & boost::serialization::base_object<DuplexConnection>(*this);
+		DuplexConnection::virtual_serialize(ar,version);
+		ar & *w;
 	}
-	template<class Archive>
-	void load(Archive & ar, const unsigned int version)
+
+	void virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version ) 
 	{
-		ar & boost::serialization::base_object<DuplexConnection>(*this);
-		finalize();
+		DuplexConnection::virtual_serialize(ar,version);
+		ar & *w;
 	}
-	BOOST_SERIALIZATION_SPLIT_MEMBER()
 
 	void init(AurynFloat tau_hom, AurynFloat eta, AurynFloat kappa, AurynFloat maxweight);
 	void init_shortcuts();
@@ -91,22 +89,35 @@ protected:
 	DEFAULT_TRACE_MODEL * tr_post2;
 	DEFAULT_TRACE_MODEL * tr_post_hom;
 
+	/*! This function propagates spikes from pre to postsynaptic cells
+	 * and performs plasticity updates upon presynaptic spikes. */
 	void propagate_forward();
-	void propagate_backward();
-	void sort_spikes();
 
-	/*! Action on weight upon presynaptic spike on connection with postsynaptic
-	 * partner post. This function should be modified to define new spike based
-	 * plasticity rules. 
-	 * @param post the postsynaptic cell from which the synaptic trace is read out*/
+	/*! This performs plasticity updates following postsynaptic spikes. To that end the postsynaptic spikes 
+	 * have to be communicated backward to the corresponding synapses connecting to presynaptic neurons. This
+	 * is why this function is called propagate_backward ... it is remeniscent of a back-propagating action 
+	 * potential. */
+	void propagate_backward();
+
+
+	/*! This function implements the plastic update to each 
+	 *  synapse at the time of a presynaptic spike.
+	 *
+	 *  \param post the parameter specifies the postsynaptic partner for which we 
+	 *  are computing the update. 
+	 *  */
 	AurynWeight dw_pre(NeuronID post);
 
-	/*! Action on weight upon postsynaptic spike of cell post on connection
-	 * with presynaptic partner pre. This function should be modified to define
-	 * new spike based plasticity rules. 
-	 * @param pre the presynaptic cell in question.
-	 * @param post the postsynaptic cell in question. 
-	 */ 
+	/*! This function implements the plastic update to each 
+	 *  synapse at the time of a postsynaptic spike. Since LTP in the minimal triplet model
+	 *  depends on the timing of the last pre and postsynaptic spike we are passing both NeuronID 
+	 *  as arguments.
+	 *
+	 *  \param pre The parameter specifies the presynaptic partner for which we 
+	 *  are computing the update. 
+	 *  \param post the parameter specifies the postsynaptic partner for which we 
+	 *  are computing the update. 
+	 *  */
 	AurynWeight dw_post(NeuronID pre, NeuronID post);
 
 
@@ -120,6 +131,8 @@ public:
 	TripletConnection(SpikingGroup * source, NeuronGroup * destination, 
 			TransmitterType transmitter=GLUT);
 
+	/*! Deprecated constructor.
+	 */
 	TripletConnection(SpikingGroup * source, NeuronGroup * destination, 
 			const char * filename, 
 			AurynFloat tau_hom=10, 
