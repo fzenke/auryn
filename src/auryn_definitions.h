@@ -345,5 +345,4 @@ class AurynGenericException: public exception
 		    }
 };
 
-
 #endif /*AURYN_DEFINITIONS_H__*/
