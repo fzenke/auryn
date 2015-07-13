@@ -180,3 +180,15 @@ void PatternMonitor::load_patterns( string filename )
 		oss << "PatternMonitor:: Finished loading " << patterns->size() << " patterns";
 		logger->msg(oss.str(),NOTIFICATION);
 }
+
+void PatternMonitor::virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version ) 
+{
+	for ( NeuronID i = 0 ; i < src->get_rank_size() ; ++i )
+		ar & counter[i] ;
+}
+
+void PatternMonitor::virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version ) 
+{
+	for ( NeuronID i = 0 ; i < src->get_rank_size() ; ++i )
+		ar & counter[i] ;
+}

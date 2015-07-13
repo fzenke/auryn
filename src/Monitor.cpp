@@ -66,3 +66,11 @@ void Monitor::free()
 	outfile.close();
 }
 
+
+void Monitor::virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version ) 
+{
+}
+
+void Monitor::virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version ) 
+{
+}
