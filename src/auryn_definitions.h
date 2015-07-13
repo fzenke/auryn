@@ -336,5 +336,14 @@ class AurynStateVectorException: public exception
 		    }
 };
 
+class AurynGenericException: public exception
+{
+	  virtual const char* what() const throw()
+		    {
+				    return "Auryn encountered a problem which it deemed serious enough to break the run. \
+						To debug set logger vebosity to EVERYTHING and analyze the log files.";
+		    }
+};
+
 
 #endif /*AURYN_DEFINITIONS_H__*/
