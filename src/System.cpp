@@ -505,6 +505,8 @@ void System::set_simulation_name(string name)
 
 void System::save_network_state(string basename)
 {
+	logger->msg("Saving network state", NOTIFICATION);
+
 	string netstate_filename;
 	{
 		stringstream oss;
@@ -527,7 +529,7 @@ void System::save_network_state(string basename)
 			<< connections[i]->get_name()
 			<< "\""
 			<< " to stream";
-		logger->msg(oss.str(),NOTIFICATION);
+		logger->msg(oss.str(),DEBUG);
 
 		oa << *(connections[i]);
 	}
@@ -539,13 +541,23 @@ void System::save_network_state(string basename)
 		oss << "Saving SpikingGroup ..."
 			<<  i 
 			<< " to stream";
-		logger->msg(oss.str(),NOTIFICATION);
+		logger->msg(oss.str(),DEBUG);
 
 		oa << *(spiking_groups[i]);
 	}
 
 	// Save Monitors
-	// TODO 
+	logger->msg("Saving Monitors ...",DEBUG);
+	for ( unsigned int i = 0 ; i < monitors.size() ; ++i ) {
+
+		stringstream oss;
+		oss << "Saving Monitor "
+			<<  i 
+			<< " to stream";
+		logger->msg(oss.str(),DEBUG);
+
+		oa << *(monitors[i]);
+	}
 
 	logger->msg("Saving Checkers ...",DEBUG);
 	for ( unsigned int i = 0 ; i < checkers.size() ; ++i ) {
@@ -554,7 +566,7 @@ void System::save_network_state(string basename)
 		oss << "Saving Checker "
 			<<  i 
 			<< " to stream";
-		logger->msg(oss.str(),NOTIFICATION);
+		logger->msg(oss.str(),DEBUG);
 
 		oa << *(checkers[i]);
 	}
@@ -564,6 +576,8 @@ void System::save_network_state(string basename)
 
 void System::save_network_state_text(string basename)
 {
+	logger->msg("Saving network state to textfile", NOTIFICATION);
+
 	char filename [255];
 	for ( unsigned int i = 0 ; i < connections.size() ; ++i ) {
 		sprintf(filename, "%s.%d.%d.wmat", basename.c_str(), i, mpicom->rank());
@@ -571,7 +585,7 @@ void System::save_network_state_text(string basename)
 		stringstream oss;
 		oss << "Saving connection "
 			<<  filename ;
-		logger->msg(oss.str(),NOTIFICATION);
+		logger->msg(oss.str(),DEBUG);
 
 		connections[i]->write_to_file(filename);
 	}
@@ -582,7 +596,7 @@ void System::save_network_state_text(string basename)
 		stringstream oss;
 		oss << "Saving group "
 			<<  filename ;
-		logger->msg(oss.str(),NOTIFICATION);
+		logger->msg(oss.str(),DEBUG);
 
 		spiking_groups[i]->write_to_file(filename);
 	}
@@ -590,6 +604,8 @@ void System::save_network_state_text(string basename)
 
 void System::load_network_state(string basename)
 {
+	logger->msg("Loading network state", NOTIFICATION);
+
 	string netstate_filename;
 	{
 		stringstream oss;
@@ -617,7 +633,7 @@ void System::load_network_state(string basename)
 		stringstream oss;
 		oss << "Loading connection "
 			<<  i ;
-		logger->msg(oss.str(),NOTIFICATION);
+		logger->msg(oss.str(),DEBUG);
 
 		ia >> *(connections[i]);
 		connections[i]->finalize();
@@ -629,13 +645,22 @@ void System::load_network_state(string basename)
 		stringstream oss;
 		oss << "Loading group "
 			<<  i ;
-		logger->msg(oss.str(),NOTIFICATION);
+		logger->msg(oss.str(),DEBUG);
 
 		ia >> *(spiking_groups[i]);
 	}
 
 	// Loading Monitors states
-	// TODO
+	logger->msg("Loading Monitors ...",DEBUG);
+	for ( unsigned int i = 0 ; i < monitors.size() ; ++i ) {
+
+		stringstream oss;
+		oss << "Loading Monitor "
+			<<  i;
+		logger->msg(oss.str(),DEBUG);
+
+		ia >> *(monitors[i]);
+	}
 
 	
 	logger->msg("Loading Checkers ...",DEBUG);
@@ -644,7 +669,7 @@ void System::load_network_state(string basename)
 		stringstream oss;
 		oss << "Loading Checker "
 			<<  i;
-		logger->msg(oss.str(),NOTIFICATION);
+		logger->msg(oss.str(),DEBUG);
 
 		ia >> *(checkers[i]);
 	}
