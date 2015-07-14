@@ -347,7 +347,8 @@ void NeuronGroup::virtual_serialize(boost::archive::binary_oarchive & ar, const 
 {
 	SpikingGroup::virtual_serialize(ar, version);
 
-	for ( NeuronID i = 0 ; i < posttraces.size() ; ++i )
+	logger->msg("NeuronGroup:: serializing state traces",DEBUG);
+	for ( NeuronID i = 0 ; i < post_state_traces.size() ; ++i )
 		ar & *(post_state_traces[i]);
 }
 
@@ -355,6 +356,7 @@ void NeuronGroup::virtual_serialize(boost::archive::binary_iarchive & ar, const 
 {
 	SpikingGroup::virtual_serialize(ar, version);
 
-	for ( NeuronID i = 0 ; i < posttraces.size() ; ++i )
+	logger->msg("NeuronGroup:: loading state traces",DEBUG);
+	for ( NeuronID i = 0 ; i < post_state_traces.size() ; ++i )
 		ar & *(post_state_traces[i]);
 }
