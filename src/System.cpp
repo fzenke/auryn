@@ -534,12 +534,15 @@ void System::save_network_state(string basename)
 		oa << *(connections[i]);
 	}
 
-	logger->msg("Saving SpikingGroups",DEBUG);
+	logger->msg("Saving SpikingGroups ...",DEBUG);
 	for ( unsigned int i = 0 ; i < spiking_groups.size() ; ++i ) {
 
 		stringstream oss;
-		oss << "Saving SpikingGroup ..."
+		oss << "Saving SpikingGroup "
 			<<  i 
+			<< " ("
+			<< spiking_groups[i]->get_name()
+			<< ")"
 			<< " to stream";
 		logger->msg(oss.str(),DEBUG);
 
