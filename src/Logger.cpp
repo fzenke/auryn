@@ -102,7 +102,7 @@ void Logger::msg( string text, LogMessageType type, bool global, int line, strin
 void Logger::parameter(string name, double value) 
 {
 	stringstream oss;
-	oss << scientific << "Parameter " << name << "=" << value;
+	oss << scientific << "  Parameter " << name << "=" << value;
 	msg(oss.str(),SETTINGS,true);
 }
 
