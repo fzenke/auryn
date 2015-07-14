@@ -58,6 +58,8 @@ protected:
 	/*! Default init method */
 	void init(SpikingGroup * source, string filename, AurynDouble binsize);
 	
+	virtual void virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version );
+	virtual void virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version );
 public:
 	/*! Default Constructor 
 	 @param[source] The source spiking group.
