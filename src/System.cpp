@@ -363,7 +363,7 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 			progressbar(fraction,get_clock()); // TODO find neat solution for the rate
 		}
 
-		if ( get_clock()%LOGGER_MARK_INTERVAL==0 ) // set a mark 
+		if ( get_clock()%LOGGER_MARK_INTERVAL==0 && get_clock()>0 ) // set a mark 
 		{
 			time_t t_now; 
 			time(&t_now);
@@ -430,7 +430,7 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 		<< elapsed 
 		<< "s with SpeedFactor=" 
 		<< elapsed/runtime
-		<< "(clock=" << get_clock() << ")";
+		<< " (network clock=" << get_clock() << ")";
 	logger->msg(oss.str(),NOTIFICATION);
 
 

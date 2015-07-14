@@ -85,7 +85,9 @@ void SpikingGroup::init(NeuronID n, double loadmultiplier, NeuronID total )
 	}
 
 	stringstream oss;
-	oss << get_name() << ":: Registering delay (MINDELAY=" << MINDELAY << ")";
+	oss << get_name() 
+		<< ":: Registering SpikeDelay (MINDELAY=" 
+		<< MINDELAY << ")";
 	logger->msg(oss.str(),DEBUG);
 
 	delay = new SpikeDelay( );
