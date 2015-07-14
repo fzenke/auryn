@@ -303,6 +303,16 @@ void SparseConnection::connect_block_random(AurynWeight weight, float sparseness
 		NeuronID hi_col, 
 		bool skip_diag )
 {
+	// do some sanity checks
+	if ( sparseness <= 0.0 ) {
+		logger->msg("Trying to set up a SparseConnection with sparseness smaller or equal to zero, which doesn't make sense",ERROR);
+		throw AurynGenericException();
+	}
+	if ( sparseness > 1.0 ) {
+		logger->msg("Sparseness larger than 1 not allowed. Setting to 1.",WARNING);
+		sparseness = 1.0;
+	}
+
 	int r = 0; // these variables are used to speed up building the matrix if the destination is distributed
 	int s = 1;
 
@@ -373,11 +383,16 @@ void SparseConnection::connect_block_random(AurynWeight weight, float sparseness
 				return;
 			} 
 		}
-		AurynLong jump = (AurynLong) (die()+0.5);
-		if ( jump == 0 || sparseness >= 1.0 )  
+
+		if ( sparseness < 1.0 ) { 
+			AurynLong jump = (AurynLong) (die()+0.5);
+			if ( jump == 0 )  
+				x += 1 ;
+			else
+				x += jump ;
+		} else { // dense matrices
 			x += 1 ;
-		else
-			x += jump ;
+		}
 	}
 
 	stringstream oss;

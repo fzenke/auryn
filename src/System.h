@@ -94,6 +94,22 @@ private:
 	 * \param simulation_time again a time used for the display of the progress bar */
 	bool run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time, bool checking=true);
 
+	/*! Synchronizes SpikingGroups */
+	void sync();
+
+	/*! Evolves all objects that need integration. */
+	void evolve();
+
+	/*! Propagates the spikes and evolves connection objects. */
+	void propagate();
+
+	/*! Performs integration of Connection objects. 
+	 * Since this is independent of the SpikingGroup evolve we 
+	 * can do this while we are waiting for synchronization. */
+	void evolve_independent();
+
+	/*! Calls all monitors. */
+	bool monitor(bool checking);
 
 public:
 	/*! Switch to turn output to quiet mode (no progress bar). */
@@ -155,22 +171,6 @@ public:
 	 */
 	void save_network_state_text(string basename);
 
-	/*! Synchronizes SpikingGroups */
-	void sync();
-
-	/*! Evolves all objects that need integration. */
-	void evolve();
-
-	/*! Propagates the spikes and evolves connection objects. */
-	void propagate();
-
-	/*! Performs integration of Connection objects. 
-	 * Since this is independent of the SpikingGroup evolve we 
-	 * can do this while we are waiting for synchronization. */
-	void evolve_independent();
-
-	/*! Calls all monitors. */
-	bool monitor(bool checking);
 
 	/*! Registers an instance of SpikingGroup to the spiking_groups vector. */
 	void register_spiking_group(SpikingGroup * spiking_group);

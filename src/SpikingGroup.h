@@ -110,6 +110,7 @@ protected:
 	/*! Stores the length of output delay */
 	static AurynTime * clock_ptr;
 
+
 	/* Functions related to loading and storing the state from files */
 	virtual void load_input_line(NeuronID i, const char * buf);
 	virtual string get_output_line(NeuronID i);
@@ -136,6 +137,9 @@ public:
 	SpikingGroup(NeuronID size, double loadmultiplier = 1., NeuronID total = 0 );
 	/*! Default destructor */
 	virtual ~SpikingGroup();
+
+	/*! Evolves traces */
+	virtual void evolve_traces();
 
 	/*! Give a name */
 	void set_name(string s);
@@ -174,8 +178,6 @@ public:
 	/*! Returns true if this group is hosted at a single CPU. */
 	bool evolve_locally();
 
-	/*! Evolves traces */
-	void evolve_traces();
 
 	/*! Get the unique ID of the class */
 	NeuronID get_uid();
