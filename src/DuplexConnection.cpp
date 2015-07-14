@@ -37,7 +37,7 @@ void DuplexConnection::finalize() // finalize at this level is called only for r
 {
 	stringstream oss;
 	oss << "DuplexConnection: Finalizing ...";
-	logger->msg(oss.str(),NOTIFICATION);
+	logger->msg(oss.str(),DEBUG);
 
 	bkw->clear();
 	if ( bkw->get_nonzero() > w->get_nonzero() ) {
@@ -108,13 +108,13 @@ void DuplexConnection::compute_reverse_matrix()
 	if ( fwd->get_nonzero() <= bkw->get_datasize() ) {
 		bkw->clear();
 	} else {
-		logger->msg("Bkw buffer too small reallocating..." ,NOTIFICATION);
+		logger->msg("Bkw buffer too small reallocating..." ,DEBUG);
 		bkw->resize_buffer_and_clear(fwd->get_datasize());
 	}
 
 	stringstream oss;
 	oss << "DuplexConnection: ("<< get_name() << "): Computing backward matrix ...";
-	logger->msg(oss.str(),NOTIFICATION);
+	logger->msg(oss.str(),DEBUG);
 
 	NeuronID maxrows = get_m_rows();
 	NeuronID maxcols = get_n_cols();
