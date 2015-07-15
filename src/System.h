@@ -48,7 +48,13 @@ namespace mpi = boost::mpi;
 
 /*! \brief Class that implements system wide variables and methods to manage and run simulations.
  *
- * This Class contains methods to manage and run sets of classes that make up the simulation. In particular it distinguishes between constituents of types SpikingGroup, Connection, Monitor and Checker. A MPI implementation should implement communicators and all that stuff in here. All the constituent object of a single simulation are stored in STL vectors. The methods evolve() and propagate() from each object in these vectors are called alternatingly from within the run procedure.
+ * This Class contains methods to manage and run sets of classes that make up
+ * the simulation. In particular it distinguishes between constituents of types
+ * SpikingGroup, Connection, Monitor and Checker. A MPI implementation should
+ * implement communicators and all that stuff in here. All the constituent
+ * object of a single simulation are stored in STL vectors. The methods
+ * evolve() and propagate() from each object in these vectors are called
+ * alternatingly from within the run procedure.
  */
 class System
 {
@@ -106,7 +112,10 @@ public:
 	/*! Initialializes the recvs for all the MPI sync */
 	void sync_prepare();
 
-	/*! Sets the SpikingGroup ID used to display the rate estimate in the progressbar. */
+	/*! Sets the SpikingGroup ID used to display the rate estimate in the
+	 * progressbar (this typically is reflected by the order in
+	 * which you define the SpikingGroup and NeuronGroup classes. It starts
+	 * numbering from 0.). */
 	void set_online_rate_monitor_id( int id=0 );
 
 	/*! Sets the timeconstant to compute the online rate average for the status bar. */

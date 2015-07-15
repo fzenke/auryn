@@ -328,5 +328,21 @@ class AurynTimeOverFlowException: public exception
 		    }
 };
 
+class AurynStateVectorException: public exception
+{
+	  virtual const char* what() const throw()
+		    {
+				    return "Auryn encountered an undefined problem when dealing with StateVectors.";
+		    }
+};
+
+class AurynGenericException: public exception
+{
+	  virtual const char* what() const throw()
+		    {
+				    return "Auryn encountered a problem which it deemed serious enough to break the run. \
+						To debug set logger vebosity to EVERYTHING and analyze the log files.";
+		    }
+};
 
 #endif /*AURYN_DEFINITIONS_H__*/

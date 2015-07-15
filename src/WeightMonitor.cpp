@@ -130,6 +130,12 @@ void WeightMonitor::add_to_list( vector<neuron_pair>  vec, string label )
 
 void WeightMonitor::add_equally_spaced(NeuronID number)
 {
+	if ( number > src->get_nonzero() ) {
+		logger->msg("WeightMonitor:: add_equally_spaced: \
+				Not enough elements in this Connection object",WARNING);
+		number = src->get_nonzero();
+	}
+
 	for ( NeuronID i = 0 ; i < number ; ++i )
 		add_to_list(mat->get_data_begin()+i*mat->get_nonzero()/number);
 
