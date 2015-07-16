@@ -12,9 +12,12 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=native -ffast-mat
 message("CMAKE_CXX_FLAGS_DEBUG is ${CMAKE_CXX_FLAGS_DEBUG}")
 message("CMAKE_CXX_FLAGS_RELEASE is ${CMAKE_CXX_FLAGS_RELEASE}")
 
-# Required external libraries (Boost and and MPI implementation)
+# Required external MPI libraries 
 FIND_PACKAGE(MPI REQUIRED)
-FIND_PACKAGE(Boost 1.5 COMPONENTS mpi serialization program_options date_time REQUIRED)
+
+# Required Boost libraries 
+SET(BOOST_MIN_VERSION "1.41.0")
+FIND_PACKAGE(Boost ${BOOST_MIN_VERSION} REQUIRED COMPONENTS mpi serialization program_options date_time)
 
 INCLUDE_DIRECTORIES( ${MPI_CXX_INCLUDE_PATH} )
 INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIRS} )
