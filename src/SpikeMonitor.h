@@ -35,11 +35,12 @@
 using namespace std;
 
 /*! \brief The standard Monitor object to record spikes from a 
- * SpikingGroup and write them to file
+ * SpikingGroup and write them to a text file
  *
  * SpikeMonitor is specified with a source group of type SpikingGroup
  * and writes all or a specified range of the neurons spikes to a
- * file that has to be given at construction time.
+ * text (ras) file that has to be given at construction time.
+ * 
  */
 class SpikeMonitor : Monitor
 {
@@ -54,12 +55,49 @@ private:
 	void free();
 	
 public:
+	/*! Switch variable to enable/disable recording. */
+	bool active;
+
+	/*! Default constructor
+	 *
+	 * \param source Specifies the source SpikingGroup to record from 
+	 * \param filename Specifies the filename to write to. 
+	 * This filename needs to be rank specific to avoid problems in parallelm mode
+	 * */
 	SpikeMonitor(SpikingGroup * source, string filename);
+
+	/*! Default constructor which records from limited number of neurons
+	 *
+	 * \param source Specifies the source SpikingGroup to record from 
+	 * \param filename Specifies the filename to write to. 
+	 * This filename needs to be rank specific to avoid problems in parallelm mode
+	 * \param to The last NeuronID to record from starting from 0.
+	 * */
 	SpikeMonitor(SpikingGroup * source, string filename, NeuronID to);
+
+	/*! Default constructor which records from a range of neurons
+	 *
+	 * \param source Specifies the source SpikingGroup to record from 
+	 * \param filename Specifies the filename to write to. 
+	 * This filename needs to be rank specific to avoid problems in parallelm mode
+	 * \param from The first NeuronID to record from.
+	 * \param to The last NeuronID to record from.
+	 * */
 	SpikeMonitor(SpikingGroup * source, string filename, NeuronID from, NeuronID to);
+
+	/*! Sets the offset added to each NeuronID. Can be used to disambiguate between differen NeuronGroups.
+	 * \param of The (positive) offset */
 	void set_offset(NeuronID of);
+
+	/*! Sets every parameter that ellow to record only from every X neuron.
+	 *
+	 * \param the number X as described above. */
 	void set_every(NeuronID every);
+
+	/*! Default destructor. */
 	virtual ~SpikeMonitor();
+
+	/*! Propagate function for internal use. */
 	void propagate();
 };
 

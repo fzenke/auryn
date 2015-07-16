@@ -53,6 +53,7 @@ void SpikeMonitor::init(SpikingGroup * source, string filename, NeuronID from, N
 	sys->register_monitor(this);
 
 	// sys = system;
+	active = true;
 	n_from = from;
 	n_to = to;
 	n_every = 1;
@@ -78,6 +79,8 @@ void SpikeMonitor::set_every(NeuronID every)
 
 void SpikeMonitor::propagate()
 {
+	if ( !active ) return;
+
 	for (it = src->get_spikes_immediate()->begin() ; it < src->get_spikes_immediate()->end() ; ++it ) {
 		if (*it >= n_from ) {
 			if ( *it < n_to && (*it%n_every==0) ) 
