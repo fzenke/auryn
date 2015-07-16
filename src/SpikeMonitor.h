@@ -64,7 +64,7 @@ public:
 	/*! Switch variable to enable/disable recording. */
 	bool active;
 
-	/*! Default constructor
+	/*! \brief Default constructor
 	 *
 	 * \param source Specifies the source SpikingGroup to record from 
 	 * \param filename Specifies the filename to write to. 
