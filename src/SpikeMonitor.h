@@ -89,15 +89,14 @@ public:
 	 * \param of The (positive) offset */
 	void set_offset(NeuronID of);
 
-	/*!\brief  Sets every parameter that ellow to record only from every X neuron.
-	 *
+	/*! Sets every parameter that ellow to record only from every X neuron.
 	 * \param the number X as described above. */
 	void set_every(NeuronID every);
 
-	/*!\brief  Default destructor. */
+	/*! \brief  Default destructor. */
 	virtual ~SpikeMonitor();
 
-	/*!\brief  Propagate function for internal use. */
+	/*! \brief Propagate function for internal use. */
 	void propagate();
 };
 
