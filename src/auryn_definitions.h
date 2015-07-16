@@ -248,9 +248,9 @@ void auryn_vector_ushort_set (auryn_vector_ushort * v, const NeuronID i, unsigne
 /*! Auryn vector gets pointer to designed element. */
 unsigned short * auryn_vector_ushort_ptr (const auryn_vector_ushort * v, const NeuronID i);
 /*! Auryn spike event for binary monitors */
-struct spikeEvent_type
+struct SpikeEvent_type
 {
-    AurynDouble time;
+    AurynDouble time; // TODO For speed and precision this should be AurynTime really
     NeuronID neuronID;
 };
 

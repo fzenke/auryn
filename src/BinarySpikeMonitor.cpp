@@ -91,14 +91,14 @@ void BinarySpikeMonitor::set_every(NeuronID every)
 
 void BinarySpikeMonitor::propagate()
 {
-	struct spikeEvent_type spikeData;
+	struct SpikeEvent_type spikeData;
 	for (it = src->get_spikes_immediate()->begin() ; it < src->get_spikes_immediate()->end() ; ++it ) {
 		if (*it >= n_from ) {
 			if ( *it < n_to && (*it%n_every==0) )
             {
                 spikeData.time = dt*(sys->get_clock());
                 spikeData.neuronID = (*it + offset);
-                outfile.write((char*)&spikeData, sizeof(spikeEvent_type));
+                outfile.write((char*)&spikeData, sizeof(SpikeEvent_type));
             }
 		}
 	}
