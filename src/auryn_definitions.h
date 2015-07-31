@@ -63,7 +63,7 @@ namespace mpi = boost::mpi;
 
 
 /*! The current Auryn version number */
-#define AURYNVERSION 0.5
+#define AURYNVERSION 0.6
 #define AURYNSUBVERSION 0
 
 /*! Toggle between memory alignment for
@@ -248,9 +248,9 @@ void auryn_vector_ushort_set (auryn_vector_ushort * v, const NeuronID i, unsigne
 /*! Auryn vector gets pointer to designed element. */
 unsigned short * auryn_vector_ushort_ptr (const auryn_vector_ushort * v, const NeuronID i);
 /*! Auryn spike event for binary monitors */
-struct spikeEvent_type
+struct SpikeEvent_type
 {
-    AurynDouble time;
+    AurynDouble time; // TODO For speed and precision this should be AurynTime really
     NeuronID neuronID;
 };
 

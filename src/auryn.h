@@ -63,7 +63,6 @@
 #include "IdentityConnection.h"
 
 // Spiking and Neuron group definitions
-#include "IF2Group.h"
 #include "AIF2Group.h"
 #include "IafPscDeltaGroup.h"
 #include "IFGroup.h"
