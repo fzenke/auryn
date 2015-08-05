@@ -19,6 +19,6 @@ notifications:
     email:
         recipients: 
             - ankursinha@fedoraproject.org
-            - 
+            - fzenke@stanford.edu
         on_success: change
         on_failure: always
