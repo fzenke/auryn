@@ -134,6 +134,9 @@ int main(int ac,char *av[]) {
 	TIFGroup * neurons_e = new TIFGroup( ne);
 	TIFGroup * neurons_i = new TIFGroup( ni);
 
+	neurons_e->set_refractory_period(5.0e-3); // minimal ISI 5.1ms
+	neurons_i->set_refractory_period(5.0e-3);
+
 	neurons_e->set_state("bg_current",2e-2); // corresponding to 200pF for C=200pF and tau=20ms
 	neurons_i->set_state("bg_current",2e-2);
 
