@@ -67,6 +67,7 @@
 #include "IafPscDeltaGroup.h"
 #include "IFGroup.h"
 #include "AIFGroup.h"
+#include "AdExGroup.h"
 #include "CubaIFGroup.h"
 #include "TIFGroup.h"
 #include "SpikingGroup.h"
