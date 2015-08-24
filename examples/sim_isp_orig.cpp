@@ -190,8 +190,8 @@ int main(int ac, char* av[])
 
 
 	logger->msg("Setting up neuron groups ...",PROGRESS,true);
-	AdExGroup * neurons_e = new AdExGroup(NE);
-	AdExGroup * neurons_i = new AdExGroup(NI);
+	TIFGroup * neurons_e = new TIFGroup(NE);
+	TIFGroup * neurons_i = new TIFGroup(NI);
 	neurons_e->random_mem(-60e-3,5e-3);
 	neurons_i->random_mem(-60e-3,5e-3);
 	PoissonGroup * poisson = new PoissonGroup(NP,poisson_rate);
