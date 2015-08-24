@@ -38,7 +38,7 @@ void TripletDecayConnection::init(AurynFloat decay, AurynWeight wrest)
 	oss << "TripletDecayConnection: (" << get_name() << "):"
 		<< " decay_timestep= " << decay_timestep 
 		<< ", mul_decay= " << mul_decay;
-	logger->msg(oss.str(),DEBUG);
+	logger->msg(oss.str(),VERBOSE);
 }
 
 void TripletDecayConnection::free()

@@ -88,7 +88,7 @@ void SpikingGroup::init(NeuronID n, double loadmultiplier, NeuronID total )
 	oss << get_name() 
 		<< ":: Registering SpikeDelay (MINDELAY=" 
 		<< MINDELAY << ")";
-	logger->msg(oss.str(),DEBUG);
+	logger->msg(oss.str(),VERBOSE);
 
 	delay = new SpikeDelay( );
 	set_delay(MINDELAY+1); 
@@ -142,7 +142,7 @@ void SpikingGroup::lock_range( double rank_fraction )
 		stringstream oss;
 		oss << get_name() << ":: Passive on this rank (BLOCKLOCK: ["<< locked_rank 
 			<< ":" << locked_rank+locked_range-1 << "] )";
-		logger->msg(oss.str(),DEBUG);
+		logger->msg(oss.str(),VERBOSE);
 	}
 	
 }
@@ -314,7 +314,7 @@ PRE_TRACE_MODEL * SpikingGroup::get_pre_trace( AurynFloat x )
 		if ( pretraces[i]->get_tau() == x ) {
 			stringstream oss;
 			oss << get_name() << ":: Sharing pre trace with " << x << "s timeconstant." ;
-			logger->msg(oss.str(),DEBUG);
+			logger->msg(oss.str(),VERBOSE);
 			return pretraces[i];
 		}
 	}
@@ -334,7 +334,7 @@ DEFAULT_TRACE_MODEL * SpikingGroup::get_post_trace( AurynFloat x )
 		if ( posttraces[i]->get_tau() == x ) {
 			stringstream oss;
 			oss << get_name() << ":: Sharing post trace with " << x << "s timeconstant." ;
-			logger->msg(oss.str(),DEBUG);
+			logger->msg(oss.str(),VERBOSE);
 			return posttraces[i];
 		}
 	}
@@ -475,6 +475,8 @@ void SpikingGroup::virtual_serialize(boost::archive::binary_oarchive & ar, const
 {
 	ar & size & axonaldelay;
 	ar & *delay;
+
+	logger->msg("SpikingGroup:: serializing state vectors",VERBOSE);
 	for ( map<string,auryn_vector_float *>::const_iterator iter = state_vectors.begin() ; 
 			iter != state_vectors.end() ;
 			++iter ) {
@@ -482,9 +484,11 @@ void SpikingGroup::virtual_serialize(boost::archive::binary_oarchive & ar, const
 		ar & *(iter->second);
 	}
 
+	logger->msg("SpikingGroup:: serializing pre traces",VERBOSE);
 	for ( NeuronID i = 0 ; i < pretraces.size() ; ++i )
 		ar & *(pretraces[i]);
 
+	logger->msg("SpikingGroup:: serializing post traces",VERBOSE);
 	for ( NeuronID i = 0 ; i < posttraces.size() ; ++i )
 		ar & *(posttraces[i]);
 }
@@ -493,6 +497,8 @@ void SpikingGroup::virtual_serialize(boost::archive::binary_iarchive & ar, const
 {
 	ar & size & axonaldelay ; 
 	ar & *delay;
+
+	logger->msg("SpikingGroup:: reading state vectors",VERBOSE);
 	for ( map<string,auryn_vector_float *>::const_iterator iter = state_vectors.begin() ; 
 			iter != state_vectors.end() ;
 			++iter ) {
@@ -502,9 +508,11 @@ void SpikingGroup::virtual_serialize(boost::archive::binary_iarchive & ar, const
 		ar & *vect;
 	}
 
+	logger->msg("SpikingGroup:: reading pre traces",VERBOSE);
 	for ( NeuronID i = 0 ; i < pretraces.size() ; ++i )
 		ar & *(pretraces[i]);
 
+	logger->msg("SpikingGroup:: reading pre traces",VERBOSE);
 	for ( NeuronID i = 0 ; i < posttraces.size() ; ++i )
 		ar & *(posttraces[i]);
 }

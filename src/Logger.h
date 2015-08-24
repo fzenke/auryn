@@ -38,7 +38,7 @@
 using namespace std;
 
 /*! Enum type for significance level of a given message send to the logger */
-enum LogMessageType { EVERYTHING, DEBUG, NOTIFICATION, SETTINGS, PROGRESS, WARNING, ERROR, NONE };
+enum LogMessageType { EVERYTHING, VERBOSE, NOTIFICATION, SETTINGS, PROGRESS, WARNING, ERROR, NONE };
 
 /*! \brief A generic logger class that logs to screen and a log-file.
  *

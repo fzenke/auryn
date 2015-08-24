@@ -35,7 +35,7 @@ void NeuronGroup::init()
 
 		// stringstream oss;
 		// oss << description_string << " init";
-		// logger->msg(oss.str(),DEBUG);
+		// logger->msg(oss.str(),VERBOSE);
 
 		mem = get_state_vector("mem");
 		thr = get_state_vector("thr");
@@ -308,7 +308,7 @@ EulerTrace * NeuronGroup::get_post_state_trace( AurynFloat tau, string state_nam
 				<< " with " 
 				<< tau 
 				<< "s timeconstant." ;
-			logger->msg(oss.str(),DEBUG);
+			logger->msg(oss.str(),VERBOSE);
 			return post_state_traces[i];
 		}
 	}
@@ -347,7 +347,8 @@ void NeuronGroup::virtual_serialize(boost::archive::binary_oarchive & ar, const 
 {
 	SpikingGroup::virtual_serialize(ar, version);
 
-	for ( NeuronID i = 0 ; i < posttraces.size() ; ++i )
+	logger->msg("NeuronGroup:: serializing state traces",VERBOSE);
+	for ( NeuronID i = 0 ; i < post_state_traces.size() ; ++i )
 		ar & *(post_state_traces[i]);
 }
 
@@ -355,6 +356,7 @@ void NeuronGroup::virtual_serialize(boost::archive::binary_iarchive & ar, const 
 {
 	SpikingGroup::virtual_serialize(ar, version);
 
-	for ( NeuronID i = 0 ; i < posttraces.size() ; ++i )
+	logger->msg("NeuronGroup:: loading state traces",VERBOSE);
+	for ( NeuronID i = 0 ; i < post_state_traces.size() ; ++i )
 		ar & *(post_state_traces[i]);
 }

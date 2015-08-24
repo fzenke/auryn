@@ -54,12 +54,12 @@ void System::init() {
 	oss << "Current AurynTime good for simulations up to "
 		<< std::numeric_limits<AurynTime>::max()*dt << "s  "
 		<< "( " << std::numeric_limits<AurynTime>::max()*dt/3600 << "h )";
-	logger->msg(oss.str(),DEBUG);
+	logger->msg(oss.str(),VERBOSE);
 
 	oss.str("");
 	oss << "Current NeuronID and sync are good for simulations up to "
 		<< std::numeric_limits<NeuronID>::max()/MINDELAY << " cells.";
-	logger->msg(oss.str(),DEBUG);
+	logger->msg(oss.str(),VERBOSE);
 
 }
 
@@ -519,7 +519,7 @@ void System::save_network_state(string basename)
 	std::ofstream ofs(netstate_filename.c_str());
 	boost::archive::binary_oarchive oa(ofs);
 
-	logger->msg("Saving Connections ...",DEBUG);
+	logger->msg("Saving Connections ...",VERBOSE);
 	for ( unsigned int i = 0 ; i < connections.size() ; ++i ) {
 
 		stringstream oss;
@@ -529,44 +529,47 @@ void System::save_network_state(string basename)
 			<< connections[i]->get_name()
 			<< "\""
 			<< " to stream";
-		logger->msg(oss.str(),DEBUG);
+		logger->msg(oss.str(),VERBOSE);
 
 		oa << *(connections[i]);
 	}
 
-	logger->msg("Saving SpikingGroups",DEBUG);
+	logger->msg("Saving SpikingGroups ...",VERBOSE);
 	for ( unsigned int i = 0 ; i < spiking_groups.size() ; ++i ) {
 
 		stringstream oss;
-		oss << "Saving SpikingGroup ..."
+		oss << "Saving SpikingGroup "
 			<<  i 
+			<< " ("
+			<< spiking_groups[i]->get_name()
+			<< ")"
 			<< " to stream";
-		logger->msg(oss.str(),DEBUG);
+		logger->msg(oss.str(),VERBOSE);
 
 		oa << *(spiking_groups[i]);
 	}
 
 	// Save Monitors
-	logger->msg("Saving Monitors ...",DEBUG);
+	logger->msg("Saving Monitors ...",VERBOSE);
 	for ( unsigned int i = 0 ; i < monitors.size() ; ++i ) {
 
 		stringstream oss;
 		oss << "Saving Monitor "
 			<<  i 
 			<< " to stream";
-		logger->msg(oss.str(),DEBUG);
+		logger->msg(oss.str(),VERBOSE);
 
 		oa << *(monitors[i]);
 	}
 
-	logger->msg("Saving Checkers ...",DEBUG);
+	logger->msg("Saving Checkers ...",VERBOSE);
 	for ( unsigned int i = 0 ; i < checkers.size() ; ++i ) {
 
 		stringstream oss;
 		oss << "Saving Checker "
 			<<  i 
 			<< " to stream";
-		logger->msg(oss.str(),DEBUG);
+		logger->msg(oss.str(),VERBOSE);
 
 		oa << *(checkers[i]);
 	}
@@ -585,7 +588,7 @@ void System::save_network_state_text(string basename)
 		stringstream oss;
 		oss << "Saving connection "
 			<<  filename ;
-		logger->msg(oss.str(),DEBUG);
+		logger->msg(oss.str(),VERBOSE);
 
 		connections[i]->write_to_file(filename);
 	}
@@ -596,7 +599,7 @@ void System::save_network_state_text(string basename)
 		stringstream oss;
 		oss << "Saving group "
 			<<  filename ;
-		logger->msg(oss.str(),DEBUG);
+		logger->msg(oss.str(),VERBOSE);
 
 		spiking_groups[i]->write_to_file(filename);
 	}
@@ -627,49 +630,49 @@ void System::load_network_state(string basename)
 
 	boost::archive::binary_iarchive ia(ifs);
 
-	logger->msg("Loading connections ...",DEBUG);
+	logger->msg("Loading connections ...",VERBOSE);
 	for ( unsigned int i = 0 ; i < connections.size() ; ++i ) {
 
 		stringstream oss;
 		oss << "Loading connection "
 			<<  i ;
-		logger->msg(oss.str(),DEBUG);
+		logger->msg(oss.str(),VERBOSE);
 
 		ia >> *(connections[i]);
 		connections[i]->finalize();
 	}
 
-	logger->msg("Loading SpikingGroups ...",DEBUG);
+	logger->msg("Loading SpikingGroups ...",VERBOSE);
 	for ( unsigned int i = 0 ; i < spiking_groups.size() ; ++i ) {
 
 		stringstream oss;
 		oss << "Loading group "
 			<<  i ;
-		logger->msg(oss.str(),DEBUG);
+		logger->msg(oss.str(),VERBOSE);
 
 		ia >> *(spiking_groups[i]);
 	}
 
 	// Loading Monitors states
-	logger->msg("Loading Monitors ...",DEBUG);
+	logger->msg("Loading Monitors ...",VERBOSE);
 	for ( unsigned int i = 0 ; i < monitors.size() ; ++i ) {
 
 		stringstream oss;
 		oss << "Loading Monitor "
 			<<  i;
-		logger->msg(oss.str(),DEBUG);
+		logger->msg(oss.str(),VERBOSE);
 
 		ia >> *(monitors[i]);
 	}
 
 	
-	logger->msg("Loading Checkers ...",DEBUG);
+	logger->msg("Loading Checkers ...",VERBOSE);
 	for ( unsigned int i = 0 ; i < checkers.size() ; ++i ) {
 
 		stringstream oss;
 		oss << "Loading Checker "
 			<<  i;
-		logger->msg(oss.str(),DEBUG);
+		logger->msg(oss.str(),VERBOSE);
 
 		ia >> *(checkers[i]);
 	}

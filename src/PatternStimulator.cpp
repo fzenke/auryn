@@ -162,7 +162,7 @@ void PatternStimulator::load_patterns( string filename )
 						<< " ( "
 						<< pattern.size()
 						<< " on rank )";
-					logger->msg(oss.str(),DEBUG);
+					logger->msg(oss.str(),VERBOSE);
 					patterns->push_back(pattern);
 					pattern.clear();
 					total_pattern_size = 0;
