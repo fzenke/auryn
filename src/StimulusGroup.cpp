@@ -397,7 +397,7 @@ void StimulusGroup::load_patterns( string filename )
 						<< " ( "
 						<< pattern.size()
 						<< " on rank )";
-					logger->msg(oss.str(),DEBUG);
+					logger->msg(oss.str(),VERBOSE);
 
 					stimuli.push_back(pattern);
 					pattern.clear();
@@ -467,7 +467,7 @@ void StimulusGroup::set_active_pattern(unsigned int i)
 {
 	stringstream oss;
 	oss << "StimulusGroup:: Setting active pattern " << i ;
-	logger->msg(oss.str(),DEBUG);
+	logger->msg(oss.str(),VERBOSE);
 
 	set_all( background_rate );
 	if ( i < stimuli.size() ) {
@@ -526,7 +526,7 @@ void StimulusGroup::normalize_distribution()
 	}
 
 	oss << " ]";
-	logger->msg(oss.str(),DEBUG);
+	logger->msg(oss.str(),VERBOSE);
 }
 
 vector<type_pattern> * StimulusGroup::get_patterns()
@@ -560,7 +560,7 @@ void StimulusGroup::seed(int rndseed)
 	oss << "StimulusGroup:: " 
 		<< "seeding poisson generator with " 
 		<< rnd;
-	logger->msg(oss.str(),DEBUG);
+	logger->msg(oss.str(),VERBOSE);
 	
 	poisson_gen.seed(rnd); // is now drawn differently but reproducibly so for each rank
 }

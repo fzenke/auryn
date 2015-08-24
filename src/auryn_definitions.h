@@ -341,7 +341,7 @@ class AurynGenericException: public exception
 	  virtual const char* what() const throw()
 		    {
 				    return "Auryn encountered a problem which it deemed serious enough to break the run. \
-						To debug set logger vebosity to DEBUG or EVERYTHING and analyze the log files.";
+						To debug set logger vebosity to VERBOSE or EVERYTHING and analyze the log files.";
 		    }
 };
 
