@@ -103,7 +103,6 @@ inline void PairInteractionConnection::propagate_forward()
 	NeuronID * ind = w->get_row_begin(0); // first element of index array
 	AurynWeight * data = w->get_data_begin();
 	AurynWeight value;
-	TransmitterType transmitter = get_transmitter();
 	SpikeContainer::const_iterator spikes_end = src->get_spikes()->end();
 	// process spikes
 	for (SpikeContainer::const_iterator spike = src->get_spikes()->begin() ; // spike = pre_spike
