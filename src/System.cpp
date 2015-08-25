@@ -40,11 +40,13 @@ void System::init() {
 	stringstream oss;
 	oss.str("");
 	oss << "Auryn version "
-		<< AURYNVERSION;
-
-	if ( AURYNSUBVERSION ) {
-		oss << "."
+		<< AURYNVERSION
+		<< "."
 		<< AURYNSUBVERSION;
+
+	if ( AURYNREVISION ) {
+		oss << "."
+		<< AURYNREVISION;
 	}
 
 	oss << " ( compiled " << __DATE__ << " " << __TIME__ << " )";
@@ -84,8 +86,8 @@ System::System(mpi::communicator * communicator)
 
 	if ( mpicom->size() > 0 && (mpicom->size() & (mpicom->size()-1)) ) {
 		oss.str("");
-		oss << "Warning! The number of processes is not a power of two. "
-			<< "This could cause impaired performance or even crashes "
+		oss << "WARNING! The number of processes is not a power of two. "
+			<< "This causes impaired performance or even crashes "
 			<< "in some MPI implementations.";
 		logger->msg(oss.str(),WARNING,true);
 	}
@@ -518,6 +520,23 @@ void System::save_network_state(string basename)
 
 	std::ofstream ofs(netstate_filename.c_str());
 	boost::archive::binary_oarchive oa(ofs);
+	
+	/* Translate version values to const values */
+	const int auryn_version = AURYNVERSION;
+	const int auryn_subversion = AURYNSUBVERSION;
+	const int auryn_revision = AURYNREVISION;
+
+	// save simulator version information 
+	oa << auryn_version;
+	oa << auryn_subversion;
+	oa << auryn_revision;
+
+	// save communicator information 
+	int tmp_int = mpicom->size();
+	oa << tmp_int;
+	tmp_int = mpicom->rank();
+	oa << tmp_int;
+
 
 	logger->msg("Saving Connections ...",VERBOSE);
 	for ( unsigned int i = 0 ; i < connections.size() ; ++i ) {
@@ -609,6 +628,7 @@ void System::load_network_state(string basename)
 {
 	logger->msg("Loading network state", NOTIFICATION);
 
+
 	string netstate_filename;
 	{
 		stringstream oss;
@@ -629,6 +649,39 @@ void System::load_network_state(string basename)
 	}
 
 	boost::archive::binary_iarchive ia(ifs);
+
+
+	// verify simulator version information 
+	bool pass_version = true;
+	int tmp_version;
+	ia >> tmp_version;
+	pass_version = pass_version && AURYNVERSION==tmp_version;
+	ia >> tmp_version;
+	pass_version = pass_version && AURYNSUBVERSION==tmp_version;
+	ia >> tmp_version;
+	pass_version = pass_version && AURYNREVISION==tmp_version;
+
+	if ( !pass_version ) {
+		logger->msg("WARNING: Version check failed! Current Auryn version " 
+				"does not match the version which created the file. "
+				"This could pose a problem. " 
+				"Proceed with caution!" ,WARNING);
+	}
+
+	// verify communicator information 
+	bool pass_comm = true;
+	int tmp_int;
+	ia >> tmp_int;
+	pass_comm = pass_comm && (tmp_int == mpicom->size());
+	ia >> tmp_int;
+	pass_comm = pass_comm && (tmp_int == mpicom->rank());
+
+	if ( !pass_comm ) {
+		logger->msg("ERROR: Communicator size or rank do not match! "
+				"Presumably you are trying to load the network "
+				"state netstate from a simulation which was run "
+				"on a different number of cores." ,ERROR);
+	}  
 
 	logger->msg("Loading connections ...",VERBOSE);
 	for ( unsigned int i = 0 ; i < connections.size() ; ++i ) {
