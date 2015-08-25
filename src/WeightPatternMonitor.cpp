@@ -128,7 +128,7 @@ void WeightPatternMonitor::load_patterns( string filename, vector<type_pattern> 
 					<< " ( "
 					<< pattern.size()
 					<< " on rank )";
-				logger->msg(oss.str(),DEBUG);
+				logger->msg(oss.str(),VERBOSE);
 
 				patterns.push_back(pattern);
 				pattern.clear();

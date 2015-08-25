@@ -76,7 +76,7 @@ void WeightMonitor::init(SparseConnection * source, NeuronID i, NeuronID j, stri
 	oss << "WeightMonitor:: "
 		<< "Initialized. Writing to file "
 		<< fname;
-	logger->msg(oss.str(),DEBUG);
+	logger->msg(oss.str(),VERBOSE);
 
 	// default behavior
 	recordingmode = ELEMENTLIST;
@@ -108,7 +108,7 @@ void WeightMonitor::add_to_list( vector<neuron_pair>  vec, string label )
 	if ( recordingmode == ELEMENTLIST || recordingmode == GROUPS ) {
 		stringstream oss;
 		oss << "WeightMonitor:: Adding " << vec.size() << " elements to index list " << label;
-		logger->msg(oss.str(),DEBUG);
+		logger->msg(oss.str(),VERBOSE);
 
 		if ( label.empty() )
 			outfile << "# Added list with " << vec.size() << " elements." << endl;
@@ -144,7 +144,7 @@ void WeightMonitor::add_equally_spaced(NeuronID number)
 		<< "Adding "
 		<< number 
 		<< " equally spaced values.";
-	logger->msg(oss.str(),DEBUG);
+	logger->msg(oss.str(),VERBOSE);
 }
 
 void WeightMonitor::load_data_range( NeuronID i, NeuronID j )
@@ -159,7 +159,7 @@ void WeightMonitor::load_data_range( NeuronID i, NeuronID j )
 		<< i
 		<< " j="
 		<< j;
-	logger->msg(oss.str(),DEBUG);
+	logger->msg(oss.str(),VERBOSE);
 	for ( NeuronID a = i ; a < j ; ++a )
 		element_list->push_back( a );
 	outfile << "# Added data range " << i << "-" << j << "." << endl;
@@ -206,7 +206,7 @@ vector<type_pattern> * WeightMonitor::load_patfile( string filename, int maxpat 
 					<< " ( "
 					<< pattern.size()
 					<< " on rank )";
-				logger->msg(oss.str(),DEBUG);
+				logger->msg(oss.str(),VERBOSE);
 
 				patterns->push_back(pattern);
 				pattern.clear();
