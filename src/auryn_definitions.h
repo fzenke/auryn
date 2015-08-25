@@ -68,6 +68,7 @@ namespace mpi = boost::mpi;
 #define AURYNSUBVERSION 6
 #define AURYNREVISION 1
 
+
 /*! Toggle between memory alignment for
  * SIMD code.
  */
