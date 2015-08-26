@@ -161,7 +161,10 @@ int main(int ac,char *av[]) {
 	if ( !fwmat_ii.empty() ) con_ii->load_from_complete_file(fwmat_ii);
 
 
+
 	if ( !fast ) {
+		logger->msg("Use --fast option to turn off IO for benchmarking!", WARNING);
+
 		msg = "Setting up monitors ...";
 		logger->msg(msg,PROGRESS,true);
 
