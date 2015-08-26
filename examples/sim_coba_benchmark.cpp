@@ -196,7 +196,7 @@ int main(int ac,char *av[]) {
 	}
 
 
-	RateChecker * chk = new RateChecker( neurons_e , -0.1 , 1000. , 100e-3);
+	// RateChecker * chk = new RateChecker( neurons_e , -0.1 , 1000. , 100e-3);
 
 	logger->msg("Running sanity check ...",PROGRESS,true);
 	con_ee->sanity_check();
