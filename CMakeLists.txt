@@ -7,7 +7,7 @@ set (Auryn_VERSION_MINOR 6)
 
 # Important GCC Compiler flags for Auryn's performance
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=native -ffast-math")
-# add_definitions(-Wall) 
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -pedantic")
 
 # Display flags (for debugging only)
 # message("CMAKE_CXX_FLAGS_DEBUG is ${CMAKE_CXX_FLAGS_DEBUG}")
