@@ -221,7 +221,6 @@ int main(int ac, char* av[])
 	strbuf = basename;
 	strbuf += ".i.ras";
 	SpikeMonitor * smon_i = new SpikeMonitor( neurons_i, strbuf.c_str() );
-	smon_i->set_offset(NE);
 
 	strbuf = basename;
 	strbuf += ".volt";
