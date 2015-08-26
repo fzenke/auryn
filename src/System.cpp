@@ -327,12 +327,13 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 		<< ", synapses_total=" << get_total_synapses();
 	logger->msg(oss.str(),SETTINGS);
 
-	double runtime = (stoptime - get_clock())*dt;
 
 	oss.str("");
 	oss << "Simulation triggered ( " 
 		<< "runtime=" << runtime << "s )";
 	logger->msg(oss.str(),NOTIFICATION);
+
+	double runtime = (stoptime - get_clock())*dt;
 
 
 	if (mpicom->rank() == 0) {
