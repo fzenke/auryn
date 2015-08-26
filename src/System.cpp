@@ -321,18 +321,19 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 		logger->msg("There are no units assigned to this rank!",WARNING);
 	}
 
-	double runtime = (stoptime - get_clock())*dt;
-
 	stringstream oss;
-	oss << "Simulation triggered ( " 
-		<< "runtime=" << runtime << "s )";
-	logger->msg(oss.str(),NOTIFICATION);
-
-	oss.str("");
 	oss	<< "On this rank: neurons_total="<< get_total_neurons() 
 		<< ", effective_load=" << get_total_effective_load()
 		<< ", synapses_total=" << get_total_synapses();
 	logger->msg(oss.str(),SETTINGS);
+
+	double runtime = (stoptime - get_clock())*dt;
+
+	oss.str("");
+	oss << "Simulation triggered ( " 
+		<< "runtime=" << runtime << "s )";
+	logger->msg(oss.str(),NOTIFICATION);
+
 
 	if (mpicom->rank() == 0) {
 		AurynLong all_ranks_total_neurons;
