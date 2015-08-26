@@ -181,12 +181,6 @@ int main(int ac,char *av[]) {
 
 	RateChecker * chk = new RateChecker( neurons_e , -0.1 , 1000. , 100e-3);
 
-	logger->msg("Running sanity check ...",PROGRESS,true);
-	con_ee->sanity_check();
-	con_ei->sanity_check();
-	con_ie->sanity_check();
-	con_ii->sanity_check();
-
 	logger->msg("Simulating ..." ,PROGRESS,true);
 	if (!sys->run(simtime,true)) 
 			errcode = 1;
