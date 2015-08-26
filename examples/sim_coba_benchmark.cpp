@@ -169,27 +169,10 @@ int main(int ac,char *av[]) {
 		filename << outputfile << "e.ras";
 		SpikeMonitor * smon_e = new SpikeMonitor( neurons_e, filename.str().c_str() );
 
-		// filename.str("");
-		// filename.clear();
-		// filename << outputfile << "e.dras";
-		// DelayedSpikeMonitor * dsmon_e = new DelayedSpikeMonitor( neurons_e, filename.str().c_str() );
-
 		filename.str("");
 		filename.clear();
 		filename << outputfile << "i.ras";
 		SpikeMonitor * smon_i = new SpikeMonitor( neurons_i, filename.str().c_str() );
-		
-		filename.str("");
-		filename << outputfile << "e.mem";
-		StateMonitor * smon_mem = new StateMonitor( neurons_e, 7, "mem", filename.str() ,dt ); 
-		
-		filename.str("");
-		filename << outputfile << "e.ampa";
-		StateMonitor * smon_ampa = new StateMonitor( neurons_e, 7, "g_ampa", filename.str() );
-
-		filename.str("");
-		filename << outputfile << "e.gaba";
-		StateMonitor * smon_gaba = new StateMonitor( neurons_e, 7, "g_gaba", filename.str() );
 	}
 
 
