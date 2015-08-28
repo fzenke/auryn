@@ -86,8 +86,12 @@ int main(int ac, char* av[])
 	NeuronID group_size = spike_data.neuronID;
 
 	cout << "Timestep: " << dt << endl;
+	cout << "Length: " << length << endl;
+	cout << "Sizeof: " << sizeof(SpikeEvent_type) << endl;
+	AurynLong num_of_entries = length/sizeof(SpikeEvent_type)-1;
+	cout << "Entries: " << num_of_entries << endl;
 
-	for (AurynLong i = 0 ; i < length ; ++i ) {
+	for (AurynLong i = 0 ; i < num_of_entries ; ++i ) {
 		input->read((char*)&spike_data, sizeof(SpikeEvent_type));
 		cout << spike_data.time*dt << " " << spike_data.neuronID << "\n";
 	}
