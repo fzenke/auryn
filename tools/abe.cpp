@@ -63,6 +63,7 @@ int main(int ac, char* av[])
 	double start_time = 0.0;
 	double end_time   = 100.0;
 	double seconds_to_extract_from_end = -1.0; // negative means disabled
+	NeuronID maxid = std::numeric_limits<NeuronID>::max();
 
     try {
         po::options_description desc("Allowed options");
@@ -73,6 +74,7 @@ int main(int ac, char* av[])
             ("start", po::value<double>(), "start time in seconds")
             ("end", po::value<double>(), "end time in seconds")
             ("last", po::value<double>(), "last x seconds (overrides start/end)")
+            ("maxid", po::value<NeuronID>(), "maximum neuron id to extract")
         ;
 
         po::variables_map vm;        
@@ -102,6 +104,10 @@ int main(int ac, char* av[])
 
         if (vm.count("last")) {
 			seconds_to_extract_from_end = vm["last"].as<double>();
+        } 
+
+        if (vm.count("maxid")) {
+			maxid = vm["maxid"].as<NeuronID>();
         } 
     }
     catch(exception& e) {
@@ -159,6 +165,7 @@ int main(int ac, char* av[])
 
 #ifdef DEBUG
 	cerr << "# Timestep: " << dt << endl;
+	cerr << "# Maxid: " << maxid << endl;
 	cerr << "# Sizeof SpikeEvent struct: " << sizeof(SpikeEvent_type) << endl;
 	cerr << "# Time of last event in file: " << last_time << endl;
 	cerr << "# Start time: " << start_time << endl;
@@ -176,7 +183,8 @@ int main(int ac, char* av[])
 		while (!input->eof()) {
 			input->read((char*)&spike_data, sizeof(SpikeEvent_type));
 			if ( spike_data.time >= end_auryn_time ) break;
-			of << spike_data.time*dt << " " << spike_data.neuronID << "\n";
+			if ( spike_data.neuronID < maxid)
+				of << spike_data.time*dt << " " << spike_data.neuronID << "\n";
 		}
 		of.close();
 	} else {
@@ -184,7 +192,8 @@ int main(int ac, char* av[])
 			input->read((char*)&spike_data, sizeof(SpikeEvent_type));
 			// cout << " output " << spike_data.time << endl;
 			if ( spike_data.time >= end_auryn_time ) break;
-			cout << spike_data.time*dt << " " << spike_data.neuronID << "\n";
+			if ( spike_data.neuronID < maxid)
+				cout << spike_data.time*dt << " " << spike_data.neuronID << "\n";
 		}
 	}
 	
