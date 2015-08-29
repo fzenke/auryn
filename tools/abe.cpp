@@ -134,14 +134,28 @@ int main(int ac, char* av[])
 	input->seekg (0, input->beg);
 	input->read((char*)&spike_data, sizeof(SpikeEvent_type));
 	double dt = 1.0/spike_data.time;
-	NeuronID group_size = spike_data.neuronID;
 
-	// TODO do some version checking
+	// do some version checking
+	NeuronID tag = spike_data.neuronID;
+	if ( tag/1000 != tag_binary_spike_monitor/1000 ) {
+		cerr << "Header not recognized. " 
+			"Not a binary Auryn monitor file?" 
+			 << endl;
+		exit(EXIT_FAILURE);
+	}
 
 	// read out last time
 	input->seekg (num_events*sizeof(SpikeEvent_type), input->beg);
 	input->read((char*)&spike_data, sizeof(SpikeEvent_type));
 	double last_time = spike_data.time*dt;
+
+
+	if ( tag != tag_binary_spike_monitor ) {
+		cerr << "# Either the Auryn version does not match "
+			"the version of this tool or this is not a spike "
+			"raster file." << endl; 
+		// TODO tell user if it is a state file
+	}
 
 	if ( seconds_to_extract_from_end > 0 ) {
 		to_time = last_time;
@@ -181,16 +195,16 @@ int main(int ac, char* av[])
 		while ( true ) {
 			input->read((char*)&spike_data, sizeof(SpikeEvent_type));
 			if ( spike_data.time >= to_auryn_time || input->eof() ) break;
-			if ( spike_data.neuronID < maxid)
-				of << spike_data.time*dt << " " << spike_data.neuronID << "\n";
+			if ( spike_data.neuronID > maxid) continue;
+			of << spike_data.time*dt << " " << spike_data.neuronID << "\n";
 		}
 		of.close();
 	} else {
 		while ( true ) {
 			input->read((char*)&spike_data, sizeof(SpikeEvent_type));
 			if ( spike_data.time >= to_auryn_time || input->eof() ) break;
-			if ( spike_data.neuronID < maxid)
-				cout << spike_data.time*dt << " " << spike_data.neuronID << "\n";
+			if ( spike_data.neuronID > maxid) continue;
+			cout << spike_data.time*dt << " " << spike_data.neuronID << "\n";
 		}
 	}
 	
