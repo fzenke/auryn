@@ -37,7 +37,7 @@ AurynLong FindFrame( ifstream * file, AurynTime target )
 	file->seekg (0, file->end);
 	AurynLong num_of_frames = file->tellg()/sizeof(SpikeEvent_type);
 
-	AurynLong lo = 0;
+	AurynLong lo = 1; // first frame is used for header
 	AurynLong hi = num_of_frames;
 
 	while ( lo+1 < hi ) {
@@ -124,7 +124,7 @@ int main(int ac, char* av[])
 	// get length of the file
 	SpikeEvent_type spike_data;
 	input->seekg (0, input->end);
-	AurynLong num_events = input->tellg()/sizeof(SpikeEvent_type);
+	AurynLong num_events = input->tellg()/sizeof(SpikeEvent_type)-1;
 
 	// read first entry to infer dt 
 	input->seekg (0, input->beg);
@@ -168,21 +168,22 @@ int main(int ac, char* av[])
 
 
 	// prepare input stream
-	input->seekg (start_frame*sizeof(SpikeEvent_type)+1, input->beg);
+	input->seekg (start_frame*sizeof(SpikeEvent_type), input->beg);
+	input->clear();
 	if(!output_file_name.empty()) {
 		std::ofstream of;
 		of.open( output_file_name.c_str(), std::ofstream::out );
 		while (!input->eof()) {
-
 			input->read((char*)&spike_data, sizeof(SpikeEvent_type));
-			if ( spike_data.time > end_auryn_time ) break;
+			if ( spike_data.time >= end_auryn_time ) break;
 			of << spike_data.time*dt << " " << spike_data.neuronID << "\n";
 		}
 		of.close();
 	} else {
-		while (!input->eof()) {
+			while (!input->eof()) {
 			input->read((char*)&spike_data, sizeof(SpikeEvent_type));
-			if ( spike_data.time > end_auryn_time ) break;
+			// cout << " output " << spike_data.time << endl;
+			if ( spike_data.time >= end_auryn_time ) break;
 			cout << spike_data.time*dt << " " << spike_data.neuronID << "\n";
 		}
 	}
