@@ -73,6 +73,16 @@ void BinarySpikeMonitor::init(SpikingGroup * source, string filename, NeuronID f
 	n_every = 1;
 	src = source;
 	offset = 0;
+
+	// per convention the first entry contains
+	// the number of timesteps per second
+	// the neuronID field should contain the
+	// number of neurons recorded in the file
+	// (post_size)
+	struct SpikeEvent_type spikeData;
+	spikeData.time = (AurynTime)(1.0/dt);
+	spikeData.neuronID = src->get_post_size();
+	outfile.write((char*)&spikeData, sizeof(SpikeEvent_type));
 }
 
 void BinarySpikeMonitor::free()
@@ -92,7 +102,7 @@ void BinarySpikeMonitor::set_every(NeuronID every)
 void BinarySpikeMonitor::propagate()
 {
 	struct SpikeEvent_type spikeData;
-	spikeData.time = sys->get_time();
+	spikeData.time = sys->get_clock();
 	for (it = src->get_spikes_immediate()->begin() ; it < src->get_spikes_immediate()->end() ; ++it ) {
 		if (*it >= n_from ) {
 			if ( *it < n_to && (*it%n_every==0) )
