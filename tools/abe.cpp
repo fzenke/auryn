@@ -18,8 +18,7 @@
 * along with Auryn.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/*! Auryn Binary Extract ABE extracts spikes or timeseries data from
- * binary files written by BinarySpikeMonitor or BinaryStateMonitor. */
+#define DEBUG
 
 #include "auryn.h"
 #include <iostream>
@@ -29,54 +28,51 @@ using namespace std;
 
 namespace po = boost::program_options;
 
-SpikeEvent_type get( AurynLong index, ifstream * input ) 
-{
-	input->seekg (0, input->beg); 
-	SpikeEvent_type tmp;
-	for (AurynLong i = 0 ; i < index ; ++i ) {
-		input->read((char*)&tmp, sizeof(SpikeEvent_type));
-	}
-	return tmp;
-}
 
-
-/*! Finds element index associated with timestamp
- * given. Return first or last element if the 
- * timestamp is out of range. */
-AurynLong find( AurynDouble timestamp, ifstream * file )
+/*! Perform binary search on ifstream to extract frame number
+ * from a target time reference that should be given in discrete time. */
+AurynLong FindFrame( ifstream * file, AurynTime target )
 {
-	long unsigned int lo = 0;
+	// get number of elements
 	file->seekg (0, file->end);
-	long unsigned int hi = file->tellg()/sizeof(SpikeEvent_type);
+	AurynLong num_of_frames = file->tellg()/sizeof(SpikeEvent_type);
 
-	while ( (lo+1) < hi ) {	
-		long unsigned int pivot = lo + ( hi + lo )/2;
+	AurynLong lo = 0;
+	AurynLong hi = num_of_frames;
 
-		SpikeEvent_type spike_data = get( pivot, file);
-		cout << lo << " " << hi << " " 
-			<< pivot << " " << spike_data.time << endl;
+	while ( lo+1 < hi ) {
+		AurynLong pivot = lo + (hi-lo)/2;
+		file->seekg (pivot*sizeof(SpikeEvent_type), file->beg);
 
-		if ( timestamp >= spike_data.time ) {
-			lo = pivot;
-		} else {
-			hi = pivot;
-		}
-		
+		SpikeEvent_type spike_data;
+		file->read((char*)&spike_data, sizeof(SpikeEvent_type));
+
+		if ( spike_data.time < target ) lo = pivot;
+		else hi = pivot;
 	}
 
-	return hi;
-}
+	//cout << lo << " " << hi << endl;
 
+	return lo;
+}
 
 int main(int ac, char* av[]) 
 {
-	string input_file_name = "-";
+	string input_filename = "";
+	string output_file_name = "";
+	double start_time = 0.0;
+	double end_time   = 100.0;
+	double seconds_to_extract_from_end = -1.0; // negative means disabled
 
     try {
         po::options_description desc("Allowed options");
         desc.add_options()
             ("help", "produce help message")
             ("file", po::value<string>(), "input file")
+            ("output", po::value<string>(), "output file (output to stout if not given)")
+            ("start", po::value<double>(), "start time in seconds")
+            ("end", po::value<double>(), "end time in seconds")
+            ("last", po::value<double>(), "last x seconds (overrides start/end)")
         ;
 
         po::variables_map vm;        
@@ -89,9 +85,24 @@ int main(int ac, char* av[])
         }
 
         if (vm.count("file")) {
-			input_file_name = vm["file"].as<string>();
+			input_filename = vm["file"].as<string>();
         } 
 
+        if (vm.count("output")) {
+			output_file_name = vm["output"].as<string>();
+        } 
+
+        if (vm.count("start")) {
+			start_time = vm["start"].as<double>();
+        } 
+
+        if (vm.count("end")) {
+			end_time = vm["end"].as<double>();
+        } 
+
+        if (vm.count("last")) {
+			seconds_to_extract_from_end = vm["last"].as<double>();
+        } 
     }
     catch(exception& e) {
         cerr << "error: " << e.what() << "\n";
@@ -103,39 +114,79 @@ int main(int ac, char* av[])
 
 
 	ifstream * input;
-	input = new ifstream( input_file_name.c_str(), std::ios::in );
+
+	input = new ifstream( input_filename.c_str(), ios::binary );
 	if (!(*input)) {
 		std::cerr << "Unable to open input file" << endl;
 		exit(EXIT_FAILURE);
 	}
 
 	// get length of the file
+	SpikeEvent_type spike_data;
 	input->seekg (0, input->end);
-	AurynLong length = input->tellg();
-	input->seekg (0, input->beg); 
+	AurynLong num_events = input->tellg()/sizeof(SpikeEvent_type);
 
 	// read first entry to infer dt 
-	struct SpikeEvent_type spike_data;
+	input->seekg (0, input->beg);
 	input->read((char*)&spike_data, sizeof(SpikeEvent_type));
 	double dt = 1.0/spike_data.time;
-	dt = 1e-4; // FIXME
 	NeuronID group_size = spike_data.neuronID;
 
-	cout << "Timestep: " << dt << endl;
-	cout << "Length: " << length << endl;
-	cout << "Sizeof: " << sizeof(SpikeEvent_type) << endl;
-	AurynLong num_of_entries = length/sizeof(SpikeEvent_type);
+	// TODO do some version checking
 
-	int res = find(0.5, input);
-	SpikeEvent_type tmp = get( res, input );
-	cout << "index " << res << " time " << tmp.time << endl;
+	// read out last time
+	input->seekg (num_events*sizeof(SpikeEvent_type), input->beg);
+	input->read((char*)&spike_data, sizeof(SpikeEvent_type));
+	double last_time = spike_data.time*dt;
+
+	if ( seconds_to_extract_from_end > 0 ) {
+		end_time = last_time;
+		start_time = end_time-seconds_to_extract_from_end;
+	}
+
+	if ( start_time < 0 ) start_time = 0.0 ;
+
+	if ( start_time > end_time || start_time < 0 ) {
+		cerr << "Times must be positive and start "
+			"time needs to be < end time." << endl;
+		exit(EXIT_FAILURE);
+	}
+
+	// compute start and end frames
+	AurynLong start_frame = FindFrame(input, start_time/dt);
+	AurynTime end_auryn_time = end_time/dt;
 
 
-	// for (AurynLong i = res ; i < num_of_entries ; ++i ) {
-	// 	input->read((char*)&spike_data, sizeof(SpikeEvent_type));
-	// 	cout << spike_data.time << " " << spike_data.neuronID << "\n"; // FIXME
-	// }
+#ifdef DEBUG
+	cerr << "# Timestep: " << dt << endl;
+	cerr << "# Sizeof SpikeEvent struct: " << sizeof(SpikeEvent_type) << endl;
+	cerr << "# Time of last event in file: " << last_time << endl;
+	cerr << "# Start time: " << start_time << endl;
+	cerr << "# End time: " << end_time << endl;
+	cerr << "# Start frame: " << start_frame << endl;
+#endif // DEBUG
 
 
+	// prepare input stream
+	input->seekg (start_frame*sizeof(SpikeEvent_type)+1, input->beg);
+	if(!output_file_name.empty()) {
+		std::ofstream of;
+		of.open( output_file_name.c_str(), std::ofstream::out );
+		while (!input->eof()) {
+
+			input->read((char*)&spike_data, sizeof(SpikeEvent_type));
+			if ( spike_data.time > end_auryn_time ) break;
+			of << spike_data.time*dt << " " << spike_data.neuronID << "\n";
+		}
+		of.close();
+	} else {
+		while (!input->eof()) {
+			input->read((char*)&spike_data, sizeof(SpikeEvent_type));
+			if ( spike_data.time > end_auryn_time ) break;
+			cout << spike_data.time*dt << " " << spike_data.neuronID << "\n";
+		}
+	}
+	
+	input->close();
 	return EXIT_SUCCESS;
 }
