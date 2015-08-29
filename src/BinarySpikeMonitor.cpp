@@ -76,12 +76,11 @@ void BinarySpikeMonitor::init(SpikingGroup * source, string filename, NeuronID f
 
 	// per convention the first entry contains
 	// the number of timesteps per second
-	// the neuronID field should contain the
-	// number of neurons recorded in the file
-	// (post_size)
+	// the neuronID field contains a tag 
+	// encoding the version number
 	struct SpikeEvent_type spikeData;
 	spikeData.time = (AurynTime)(1.0/dt);
-	spikeData.neuronID = src->get_post_size();
+	spikeData.neuronID = tag_binary_spike_monitor;
 	outfile.write((char*)&spikeData, sizeof(SpikeEvent_type));
 }
 
