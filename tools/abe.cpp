@@ -18,8 +18,6 @@
 * along with Auryn.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define DEBUG
-
 #include "auryn.h"
 #include <iostream>
 #include <fstream>
@@ -60,46 +58,46 @@ int main(int ac, char* av[])
 {
 	string input_filename = "";
 	string output_file_name = "";
-	double start_time = 0.0;
-	double end_time   = 100.0;
+	double from_time = 0.0;
+	double to_time   = 100.0;
 	double seconds_to_extract_from_end = -1.0; // negative means disabled
 	NeuronID maxid = std::numeric_limits<NeuronID>::max();
 
-    try {
-        po::options_description desc("Allowed options");
-        desc.add_options()
-            ("help", "produce help message")
-            ("file", po::value<string>(), "input file")
-            ("output", po::value<string>(), "output file (output to stout if not given)")
-            ("start", po::value<double>(), "start time in seconds")
-            ("end", po::value<double>(), "end time in seconds")
-            ("last", po::value<double>(), "last x seconds (overrides start/end)")
-            ("maxid", po::value<NeuronID>(), "maximum neuron id to extract")
-        ;
+	try {
+		po::options_description desc("Allowed options");
+		desc.add_options()
+			("help", "produce help message")
+			("file", po::value<string>(), "input file")
+			("output", po::value<string>(), "output file (output to stout if not given)")
+			("start", po::value<double>(), "start time in seconds")
+			("to", po::value<double>(), "to time in seconds")
+			("last", po::value<double>(), "last x seconds (overrides start/end)")
+			("maxid", po::value<NeuronID>(), "maximum neuron id to extract")
+			;
 
-        po::variables_map vm;        
-        po::store(po::parse_command_line(ac, av, desc), vm);
-        po::notify(vm);    
+		po::variables_map vm;        
+		po::store(po::parse_command_line(ac, av, desc), vm);
+		po::notify(vm);    
 
-        if (vm.count("help")) {
-            cout << desc << "\n";
-            return 1;
-        }
+		if (vm.count("help")) {
+			cout << desc << "\n";
+			return 1;
+		}
 
-        if (vm.count("file")) {
+		if (vm.count("file")) {
 			input_filename = vm["file"].as<string>();
-        } 
+		} 
 
-        if (vm.count("output")) {
+		if (vm.count("output")) {
 			output_file_name = vm["output"].as<string>();
+		} 
+
+		if (vm.count("start")) {
+			from_time = vm["start"].as<double>();
         } 
 
-        if (vm.count("start")) {
-			start_time = vm["start"].as<double>();
-        } 
-
-        if (vm.count("end")) {
-			end_time = vm["end"].as<double>();
+        if (vm.count("to")) {
+			to_time = vm["to"].as<double>();
         } 
 
         if (vm.count("last")) {
@@ -146,21 +144,21 @@ int main(int ac, char* av[])
 	double last_time = spike_data.time*dt;
 
 	if ( seconds_to_extract_from_end > 0 ) {
-		end_time = last_time;
-		start_time = end_time-seconds_to_extract_from_end;
+		to_time = last_time;
+		from_time = to_time-seconds_to_extract_from_end;
 	}
 
-	if ( start_time < 0 ) start_time = 0.0 ;
+	if ( from_time < 0 ) from_time = 0.0 ;
 
-	if ( start_time > end_time || start_time < 0 ) {
+	if ( from_time > to_time || from_time < 0 ) {
 		cerr << "Times must be positive and start "
-			"time needs to be < end time." << endl;
+			"time needs to be < to time." << endl;
 		exit(EXIT_FAILURE);
 	}
 
 	// compute start and end frames
-	AurynLong start_frame = FindFrame(input, start_time/dt);
-	AurynTime end_auryn_time = end_time/dt;
+	AurynLong start_frame = FindFrame(input, from_time/dt);
+	AurynTime to_auryn_time = to_time/dt;
 
 
 #ifdef DEBUG
@@ -168,8 +166,8 @@ int main(int ac, char* av[])
 	cerr << "# Maxid: " << maxid << endl;
 	cerr << "# Sizeof SpikeEvent struct: " << sizeof(SpikeEvent_type) << endl;
 	cerr << "# Time of last event in file: " << last_time << endl;
-	cerr << "# Start time: " << start_time << endl;
-	cerr << "# End time: " << end_time << endl;
+	cerr << "# From time: " << from_time << endl;
+	cerr << "# To time: " << to_time << endl;
 	cerr << "# Start frame: " << start_frame << endl;
 #endif // DEBUG
 
@@ -180,18 +178,17 @@ int main(int ac, char* av[])
 	if(!output_file_name.empty()) {
 		std::ofstream of;
 		of.open( output_file_name.c_str(), std::ofstream::out );
-		while (!input->eof()) {
+		while ( true ) {
 			input->read((char*)&spike_data, sizeof(SpikeEvent_type));
-			if ( spike_data.time >= end_auryn_time ) break;
+			if ( spike_data.time >= to_auryn_time || input->eof() ) break;
 			if ( spike_data.neuronID < maxid)
 				of << spike_data.time*dt << " " << spike_data.neuronID << "\n";
 		}
 		of.close();
 	} else {
-			while (!input->eof()) {
+		while ( true ) {
 			input->read((char*)&spike_data, sizeof(SpikeEvent_type));
-			// cout << " output " << spike_data.time << endl;
-			if ( spike_data.time >= end_auryn_time ) break;
+			if ( spike_data.time >= to_auryn_time || input->eof() ) break;
 			if ( spike_data.neuronID < maxid)
 				cout << spike_data.time*dt << " " << spike_data.neuronID << "\n";
 		}
