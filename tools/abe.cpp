@@ -18,6 +18,9 @@
 * along with Auryn.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*! Auryn Binary Extract ABE extracts spikes or timeseries data from
+ * binary files written by BinarySpikeMonitor or BinaryStateMonitor. */
+
 #include "auryn.h"
 #include <iostream>
 #include <fstream>
@@ -26,6 +29,43 @@ using namespace std;
 
 namespace po = boost::program_options;
 
+SpikeEvent_type get( AurynLong index, ifstream * input ) 
+{
+	input->seekg (0, input->beg); 
+	SpikeEvent_type tmp;
+	for (AurynLong i = 0 ; i < index ; ++i ) {
+		input->read((char*)&tmp, sizeof(SpikeEvent_type));
+	}
+	return tmp;
+}
+
+
+/*! Finds element index associated with timestamp
+ * given. Return first or last element if the 
+ * timestamp is out of range. */
+AurynLong find( AurynDouble timestamp, ifstream * file )
+{
+	long unsigned int lo = 0;
+	file->seekg (0, file->end);
+	long unsigned int hi = file->tellg()/sizeof(SpikeEvent_type);
+
+	while ( (lo+1) < hi ) {	
+		long unsigned int pivot = lo + ( hi + lo )/2;
+
+		SpikeEvent_type spike_data = get( pivot, file);
+		cout << lo << " " << hi << " " 
+			<< pivot << " " << spike_data.time << endl;
+
+		if ( timestamp >= spike_data.time ) {
+			lo = pivot;
+		} else {
+			hi = pivot;
+		}
+		
+	}
+
+	return hi;
+}
 
 
 int main(int ac, char* av[]) 
@@ -62,39 +102,39 @@ int main(int ac, char* av[])
     }
 
 
-	istream * input;
-
-	if ( input_file_name == "-" ) {
-		input = &std::cin;
-	} else {
-		input = new ifstream( input_file_name.c_str(), std::ios::in );
-		if (!(*input)) {
-			std::cerr << "Unable to open input file" << endl;
-			exit(EXIT_FAILURE);
-		}
+	ifstream * input;
+	input = new ifstream( input_file_name.c_str(), std::ios::in );
+	if (!(*input)) {
+		std::cerr << "Unable to open input file" << endl;
+		exit(EXIT_FAILURE);
 	}
 
 	// get length of the file
 	input->seekg (0, input->end);
 	AurynLong length = input->tellg();
-	input->seekg (0, input->beg);
+	input->seekg (0, input->beg); 
 
 	// read first entry to infer dt 
 	struct SpikeEvent_type spike_data;
 	input->read((char*)&spike_data, sizeof(SpikeEvent_type));
 	double dt = 1.0/spike_data.time;
+	dt = 1e-4; // FIXME
 	NeuronID group_size = spike_data.neuronID;
 
 	cout << "Timestep: " << dt << endl;
 	cout << "Length: " << length << endl;
 	cout << "Sizeof: " << sizeof(SpikeEvent_type) << endl;
-	AurynLong num_of_entries = length/sizeof(SpikeEvent_type)-1;
-	cout << "Entries: " << num_of_entries << endl;
+	AurynLong num_of_entries = length/sizeof(SpikeEvent_type);
 
-	for (AurynLong i = 0 ; i < num_of_entries ; ++i ) {
-		input->read((char*)&spike_data, sizeof(SpikeEvent_type));
-		cout << spike_data.time*dt << " " << spike_data.neuronID << "\n";
-	}
+	int res = find(0.5, input);
+	SpikeEvent_type tmp = get( res, input );
+	cout << "index " << res << " time " << tmp.time << endl;
+
+
+	// for (AurynLong i = res ; i < num_of_entries ; ++i ) {
+	// 	input->read((char*)&spike_data, sizeof(SpikeEvent_type));
+	// 	cout << spike_data.time << " " << spike_data.neuronID << "\n"; // FIXME
+	// }
 
 
 	return EXIT_SUCCESS;
