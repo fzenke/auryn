@@ -64,7 +64,7 @@ int main(int ac, char* av[])
 	NeuronID maxid = std::numeric_limits<NeuronID>::max();
 
 	try {
-		po::options_description desc("Allowed options");
+		po::options_description desc("Auryn Binary Extract -- Allowed options");
 		desc.add_options()
 			("help", "produce help message")
 			("file", po::value<string>(), "input file")
