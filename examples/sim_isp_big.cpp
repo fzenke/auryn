@@ -262,7 +262,6 @@ int main(int ac, char* av[])
 	strbuf = outputfile;
 	strbuf += ".i.ras";
 	SpikeMonitor * smon_i = new SpikeMonitor( neurons_i, strbuf );
-	smon_i->set_offset(NE);
 
 
 	if ( record_voltage ) {

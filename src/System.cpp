@@ -321,6 +321,7 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 		logger->msg("There are no units assigned to this rank!",WARNING);
 	}
 
+
 	double runtime = (stoptime - get_clock())*dt;
 
 	stringstream oss;
@@ -333,6 +334,7 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 		<< ", effective_load=" << get_total_effective_load()
 		<< ", synapses_total=" << get_total_synapses();
 	logger->msg(oss.str(),SETTINGS);
+
 
 	if (mpicom->rank() == 0) {
 		AurynLong all_ranks_total_neurons;

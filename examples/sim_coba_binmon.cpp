@@ -18,6 +18,9 @@
 * along with Auryn.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*! This example illustrates the use of BinarySpikeMonitor s. 
+ * Otherwise its identical to sim_coba_benchmark. */
+
 #include "auryn.h"
 
 using namespace std;
@@ -134,9 +137,6 @@ int main(int ac,char *av[]) {
 	TIFGroup * neurons_e = new TIFGroup( ne);
 	TIFGroup * neurons_i = new TIFGroup( ni);
 
-	neurons_e->set_refractory_period(5.0e-3); // minimal ISI 5.1ms
-	neurons_i->set_refractory_period(5.0e-3);
-
 	neurons_e->set_state("bg_current",2e-2); // corresponding to 200pF for C=200pF and tau=20ms
 	neurons_i->set_state("bg_current",2e-2);
 
@@ -172,17 +172,17 @@ int main(int ac,char *av[]) {
 		logger->msg(msg,PROGRESS,true);
 
 		stringstream filename;
-		filename << outputfile << "e.ras";
-		SpikeMonitor * smon_e = new SpikeMonitor( neurons_e, filename.str().c_str() );
+		filename << outputfile << "e.bras";
+		BinarySpikeMonitor * smon_e = new BinarySpikeMonitor( neurons_e, filename.str().c_str() );
 
 		filename.str("");
 		filename.clear();
-		filename << outputfile << "i.ras";
-		SpikeMonitor * smon_i = new SpikeMonitor( neurons_i, filename.str().c_str() );
+		filename << outputfile << "i.bras";
+		BinarySpikeMonitor * smon_i = new BinarySpikeMonitor( neurons_i, filename.str().c_str() );
 	}
 
 
-	// RateChecker * chk = new RateChecker( neurons_e , -0.1 , 1000. , 100e-3);
+	RateChecker * chk = new RateChecker( neurons_e , -0.1 , 1000. , 100e-3);
 
 	logger->msg("Simulating ..." ,PROGRESS,true);
 	if (!sys->run(simtime,true)) 

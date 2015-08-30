@@ -39,7 +39,7 @@ private:
 	auryn_vector_float * bg_current;
 	auryn_vector_ushort * ref;
 	unsigned short refractory_time;
-	AurynFloat e_rest,e_rev_gaba,e_rev_ampa,thr,tau_mem, r_mem, c_mem;
+	AurynFloat e_rest,e_rev_gaba,thr,tau_mem, r_mem, c_mem;
 	AurynFloat tau_ampa,tau_gaba;
 	AurynFloat scale_ampa, scale_gaba, scale_mem;
 

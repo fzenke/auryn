@@ -57,6 +57,8 @@ void StateMonitor::init(NeuronGroup * source, NeuronID id, string statename, str
 void StateMonitor::propagate()
 {
 	if ((sys->get_clock())%ssize==0 && src->get_rank_size() > nid ) {
-		outfile << dt*(sys->get_clock()) << " " << *target_variable << "\n";
+		char buffer[255];
+		int n = sprintf(buffer,"%f %f\n",sys->get_time(), *target_variable); 
+		outfile.write(buffer,n); 
 	}
 }

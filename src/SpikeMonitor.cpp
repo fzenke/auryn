@@ -58,7 +58,6 @@ void SpikeMonitor::init(SpikingGroup * source, string filename, NeuronID from, N
 	n_to = to;
 	n_every = 1;
 	src = source;
-	offset = 0;
 	outfile.setf(ios::fixed);
 	outfile.precision(log(dt)/log(10)+1 );
 }
@@ -67,10 +66,6 @@ void SpikeMonitor::free()
 {
 }
 
-void SpikeMonitor::set_offset(NeuronID of)
-{
-	offset = of;
-}
 
 void SpikeMonitor::set_every(NeuronID every)
 {
@@ -83,8 +78,12 @@ void SpikeMonitor::propagate()
 
 	for (it = src->get_spikes_immediate()->begin() ; it < src->get_spikes_immediate()->end() ; ++it ) {
 		if (*it >= n_from ) {
-			if ( *it < n_to && (*it%n_every==0) ) 
-			 outfile << dt*(sys->get_clock()) << "  " << *it+offset << "\n";
+			if ( *it < n_to && (*it%n_every==0) ) {
+			  // using the good old stdio.h for formatting seems a bit faster 
+			  char buffer[255];
+			  int n = sprintf(buffer,"%f %i\n",sys->get_time(), *it); 
+			  outfile.write(buffer,n); 
+			}
 		}
 	}
 }

@@ -253,9 +253,15 @@ unsigned short * auryn_vector_ushort_ptr (const auryn_vector_ushort * v, const N
 /*! Auryn spike event for binary monitors */
 struct SpikeEvent_type
 {
-    AurynDouble time; // TODO For speed and precision this should be AurynTime really
+    AurynTime time; 
     NeuronID neuronID;
 };
+
+/*! Tag for header in binary encoded spike monitor files. The first digits are 28796 for Auryn in 
+ * phone dial notation. The remaining 4 digits encode type of binary file and the current Auryn 
+ * version */
+const NeuronID tag_binary_spike_monitor = 287960000+100*AURYNVERSION+10*AURYNSUBVERSION+1*AURYNREVISION;
+const NeuronID tag_binary_state_monitor = 287961000+100*AURYNVERSION+10*AURYNSUBVERSION+1*AURYNREVISION;
 
 // Exceptions
 class AurynOpenFileException: public exception

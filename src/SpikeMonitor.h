@@ -56,7 +56,6 @@ private:
     NeuronID n_every;
 	SpikeContainer::const_iterator it;
 	SpikingGroup * src;
-	NeuronID offset;
 	void init(SpikingGroup * source, string filename, NeuronID from, NeuronID to);
 	void free();
 	
@@ -90,10 +89,6 @@ public:
 	 * \param to The last NeuronID to record from.
 	 * */
 	SpikeMonitor(SpikingGroup * source, string filename, NeuronID from, NeuronID to);
-
-	/*! \brief Sets the offset added to each NeuronID. Can be used to disambiguate between differen NeuronGroups.
-	 * \param of The (positive) offset */
-	void set_offset(NeuronID of);
 
 	/*!\brief  Sets every parameter that ellow to record only from every X neuron.
 	 *
