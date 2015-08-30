@@ -1,3 +1,3 @@
-ADD_EXECUTABLE( abe abe.cpp )
-TARGET_LINK_LIBRARIES( abe auryn ${Boost_LIBRARIES} )
+ADD_EXECUTABLE( aube aube.cpp )
+TARGET_LINK_LIBRARIES( aube auryn ${Boost_LIBRARIES} )
 
