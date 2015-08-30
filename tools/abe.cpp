@@ -18,9 +18,13 @@
 * along with Auryn.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+
+// #define DEBUG
+
 #include "auryn.h"
 #include <iostream>
 #include <fstream>
+#include <vector>
 
 using namespace std;
 
@@ -51,12 +55,49 @@ AurynLong FindFrame( ifstream * file, AurynTime target )
 
 	//cout << lo << " " << hi << endl;
 
-	return lo;
+	return hi;
+}
+
+
+void read_header( ifstream * input, double& dt, double& last_time, string filename )
+{
+	// get length of the file
+	SpikeEvent_type spike_data;
+	input->seekg (0, input->end);
+	AurynLong num_events = input->tellg()/sizeof(SpikeEvent_type)-1;
+
+	// read first entry to infer dt 
+	input->seekg (0, input->beg);
+	input->read((char*)&spike_data, sizeof(SpikeEvent_type));
+	dt = 1.0/spike_data.time;
+
+	// do some version checking
+	NeuronID tag = spike_data.neuronID;
+	if ( tag/1000 != tag_binary_spike_monitor/1000 ) {
+		cerr << "Header not recognized. " 
+			"Not a binary Auryn monitor file?" 
+			 << endl;
+		exit(EXIT_FAILURE);
+	}
+
+	if ( tag != tag_binary_spike_monitor ) {
+		cerr << "# Either the Auryn version does not match "
+			"the version of this tool or this is not a spike "
+			"raster file." << endl; 
+		// TODO tell user if it is a state file
+	}
+
+	// read out last time
+	input->seekg (num_events*sizeof(SpikeEvent_type), input->beg);
+	input->read((char*)&spike_data, sizeof(SpikeEvent_type));
+	last_time = spike_data.time*dt;
 }
 
 int main(int ac, char* av[]) 
 {
-	string input_filename = "";
+	vector<string> input_filenames;
+	vector<ifstream*> inputs;
+
 	string output_file_name = "";
 	double from_time = 0.0;
 	double to_time   = 100.0;
@@ -68,7 +109,7 @@ int main(int ac, char* av[])
 		desc.add_options()
 			("help", "produce help message")
 			("version", "show version information")
-			("file", po::value<string>(), "input file")
+			("inputs", po::value< vector<string> >()->multitoken(), "input files")
 			("output", po::value<string>(), "output file (output to stout if not given)")
 			("start", po::value<double>(), "start time in seconds")
 			("to", po::value<double>(), "to time in seconds")
@@ -93,8 +134,8 @@ int main(int ac, char* av[])
 			return EXIT_SUCCESS;
 		}
 
-		if (vm.count("file")) {
-			input_filename = vm["file"].as<string>();
+		if (vm.count("inputs")) {
+			 input_filenames = vm["inputs"].as< vector<string> >();
 		} 
 
 		if (vm.count("output")) {
@@ -126,45 +167,40 @@ int main(int ac, char* av[])
     }
 
 
-	ifstream * input;
+#ifdef DEBUG
+	cout << "# Number of input files " << input_filenames.size() << endl;
+#endif // DEBUG
 
-	input = new ifstream( input_filename.c_str(), ios::binary );
-	if (!(*input)) {
-		std::cerr << "Unable to open input file" << endl;
-		exit(EXIT_FAILURE);
+	double last_time = 0.0;
+	double dt = 0.0;
+
+	for ( int i = 0 ; i < input_filenames.size() ; ++i ) {
+		ifstream * tmp = new ifstream( input_filenames[i].c_str(), ios::binary );
+		inputs.push_back(tmp);
+		if (!(*tmp)) {
+			std::cerr << "Unable to open input file " 
+				<< input_filenames[i]
+				<< endl;
+			exit(EXIT_FAILURE);
+		}
+
+		double tmp_last_time;
+		double tmp_dt;
+		read_header( tmp, tmp_dt, tmp_last_time, input_filenames[i] );
+
+		if ( dt == 0 ) {
+			dt = tmp_dt;
+		} else {
+			if ( dt != tmp_dt ) { // should not happen
+				cerr << "Not all input file headers match." << endl;
+				exit(EXIT_FAILURE);
+			}
+		}
+
+		if ( tmp_last_time > last_time )
+			last_time = tmp_last_time;
 	}
 
-	// get length of the file
-	SpikeEvent_type spike_data;
-	input->seekg (0, input->end);
-	AurynLong num_events = input->tellg()/sizeof(SpikeEvent_type)-1;
-
-	// read first entry to infer dt 
-	input->seekg (0, input->beg);
-	input->read((char*)&spike_data, sizeof(SpikeEvent_type));
-	double dt = 1.0/spike_data.time;
-
-	// do some version checking
-	NeuronID tag = spike_data.neuronID;
-	if ( tag/1000 != tag_binary_spike_monitor/1000 ) {
-		cerr << "Header not recognized. " 
-			"Not a binary Auryn monitor file?" 
-			 << endl;
-		exit(EXIT_FAILURE);
-	}
-
-	// read out last time
-	input->seekg (num_events*sizeof(SpikeEvent_type), input->beg);
-	input->read((char*)&spike_data, sizeof(SpikeEvent_type));
-	double last_time = spike_data.time*dt;
-
-
-	if ( tag != tag_binary_spike_monitor ) {
-		cerr << "# Either the Auryn version does not match "
-			"the version of this tool or this is not a spike "
-			"raster file." << endl; 
-		// TODO tell user if it is a state file
-	}
 
 	if ( seconds_to_extract_from_end > 0 ) {
 		to_time = last_time;
@@ -179,8 +215,7 @@ int main(int ac, char* av[])
 		exit(EXIT_FAILURE);
 	}
 
-	// compute start and end frames
-	AurynLong start_frame = FindFrame(input, from_time/dt);
+	// translate second times into auryn time
 	AurynTime to_auryn_time = to_time/dt;
 
 
@@ -188,35 +223,95 @@ int main(int ac, char* av[])
 	cerr << "# Timestep: " << dt << endl;
 	cerr << "# Maxid: " << maxid << endl;
 	cerr << "# Sizeof SpikeEvent struct: " << sizeof(SpikeEvent_type) << endl;
-	cerr << "# Time of last event in file: " << last_time << endl;
+	cerr << "# Time of last event in files: " << last_time << endl;
 	cerr << "# From time: " << from_time << endl;
 	cerr << "# To time: " << to_time << endl;
-	cerr << "# Start frame: " << start_frame << endl;
 #endif // DEBUG
 
 
-	// prepare input stream
-	input->seekg (start_frame*sizeof(SpikeEvent_type), input->beg);
-	input->clear();
-	if(!output_file_name.empty()) {
-		std::ofstream of;
-		of.open( output_file_name.c_str(), std::ofstream::out );
-		while ( true ) {
-			input->read((char*)&spike_data, sizeof(SpikeEvent_type));
-			if ( spike_data.time >= to_auryn_time || input->eof() ) break;
-			if ( spike_data.neuronID > maxid) continue;
-			of << spike_data.time*dt << " " << spike_data.neuronID << "\n";
+	// set all streams to respetive start frame
+	for ( int i = 0 ; i < inputs.size() ; ++i ) {
+		// compute start and end frames
+		AurynLong start_frame = FindFrame(inputs[i], from_time/dt);
+
+		// prepare input stream
+		inputs[i]->seekg (start_frame*sizeof(SpikeEvent_type), inputs[i]->beg);
+		inputs[i]->clear();
+#ifdef DEBUG
+		cerr << "# Start frame stream " 
+			<< i << ": " 
+			<< start_frame << endl;
+#endif // DEBUG
+	}
+
+// 	if(!output_file_name.empty()) {
+// 		std::ofstream of;
+// 		of.open( output_file_name.c_str(), std::ofstream::out );
+// 		while ( true ) {
+// 			inputs[0]->read((char*)&spike_data, sizeof(SpikeEvent_type));
+// 			if ( spike_data.time >= to_auryn_time || inputs[0]->eof() ) break;
+// 			if ( spike_data.neuronID > maxid) continue;
+// 			of << spike_data.time*dt << " " << spike_data.neuronID << "\n";
+// 		}
+// 		of.close();
+// 	} else {
+
+	vector<SpikeEvent_type> frames(inputs.size());
+	// read first frames from all files
+	for ( int i = 0 ; i < frames.size() ; ++i ) {
+		inputs[i]->read((char*)&frames[i], sizeof(SpikeEvent_type));
+	}
+
+	AurynTime time_reference = from_time/dt;
+
+	// open output filestream if needed
+	std::ofstream of;
+	bool write_to_stdout = true;
+ 	if( !output_file_name.empty() ) {
+		write_to_stdout = false;
+ 		of.open( output_file_name.c_str(), std::ofstream::out );
+	}
+
+	while ( time_reference < to_auryn_time ) {
+		// find smallest time reference
+		int current_stream = 0;
+		AurynLong mintime = std::numeric_limits<AurynLong>::max();
+		bool eofs = true;
+		for ( int i = 0 ; i < frames.size() ; ++i ) {
+			if ( frames[i].time < mintime ) { 
+				mintime = frames[i].time;
+				current_stream = i;
+			}
+			eofs = eofs && inputs[i]->eof();
 		}
-		of.close();
-	} else {
-		while ( true ) {
-			input->read((char*)&spike_data, sizeof(SpikeEvent_type));
-			if ( spike_data.time >= to_auryn_time || input->eof() ) break;
-			if ( spike_data.neuronID > maxid) continue;
-			cout << spike_data.time*dt << " " << spike_data.neuronID << "\n";
+		time_reference = mintime;
+		if ( eofs ) break;
+
+#ifdef DEBUG
+	cout << "# current_stream " << current_stream << endl;
+	cout << "# time_reference " << time_reference << endl;
+#endif // DEBUG
+
+		// output from next_stream
+		while ( frames[current_stream].time <= time_reference && !inputs[current_stream]->eof() ) {
+			if ( frames[current_stream].neuronID < maxid) {
+				if ( write_to_stdout ) 
+					cout << frames[current_stream].time*dt << " " << frames[current_stream].neuronID << "\n";
+				else 
+					of << frames[current_stream].time*dt << " " << frames[current_stream].neuronID << "\n";
+
+			}
+			inputs[current_stream]->read((char*)&frames[current_stream], sizeof(SpikeEvent_type));
 		}
 	}
-	
-	input->close();
+
+	if ( !write_to_stdout ) 
+ 		of.close();
+
+	// close input streams
+	for ( int i = 0 ; i < frames.size() ; ++i ) {
+		inputs[i]->close();
+	}
+
 	return EXIT_SUCCESS;
 }
