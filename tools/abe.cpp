@@ -111,7 +111,7 @@ int main(int ac, char* av[])
 			("version", "show version information")
 			("inputs", po::value< vector<string> >()->multitoken(), "input files")
 			("output", po::value<string>(), "output file (output to stout if not given)")
-			("start", po::value<double>(), "start time in seconds")
+			("from", po::value<double>(), "from time in seconds")
 			("to", po::value<double>(), "to time in seconds")
 			("last", po::value<double>(), "last x seconds (overrides start/end)")
 			("maxid", po::value<NeuronID>(), "maximum neuron id to extract")
@@ -142,8 +142,8 @@ int main(int ac, char* av[])
 			output_file_name = vm["output"].as<string>();
 		} 
 
-		if (vm.count("start")) {
-			from_time = vm["start"].as<double>();
+		if (vm.count("from")) {
+			from_time = vm["from"].as<double>();
         } 
 
         if (vm.count("to")) {
@@ -244,20 +244,9 @@ int main(int ac, char* av[])
 #endif // DEBUG
 	}
 
-// 	if(!output_file_name.empty()) {
-// 		std::ofstream of;
-// 		of.open( output_file_name.c_str(), std::ofstream::out );
-// 		while ( true ) {
-// 			inputs[0]->read((char*)&spike_data, sizeof(SpikeEvent_type));
-// 			if ( spike_data.time >= to_auryn_time || inputs[0]->eof() ) break;
-// 			if ( spike_data.neuronID > maxid) continue;
-// 			of << spike_data.time*dt << " " << spike_data.neuronID << "\n";
-// 		}
-// 		of.close();
-// 	} else {
 
-	vector<SpikeEvent_type> frames(inputs.size());
 	// read first frames from all files
+	vector<SpikeEvent_type> frames(inputs.size());
 	for ( int i = 0 ; i < frames.size() ; ++i ) {
 		inputs[i]->read((char*)&frames[i], sizeof(SpikeEvent_type));
 	}
@@ -272,7 +261,7 @@ int main(int ac, char* av[])
  		of.open( output_file_name.c_str(), std::ofstream::out );
 	}
 
-	while ( time_reference < to_auryn_time ) {
+	while ( true ) {
 		// find smallest time reference
 		int current_stream = 0;
 		AurynLong mintime = std::numeric_limits<AurynLong>::max();
@@ -285,7 +274,7 @@ int main(int ac, char* av[])
 			eofs = eofs && inputs[i]->eof();
 		}
 		time_reference = mintime;
-		if ( eofs ) break;
+		if ( time_reference >= to_auryn_time || eofs ) break;
 
 #ifdef DEBUG
 	cout << "# current_stream " << current_stream << endl;
