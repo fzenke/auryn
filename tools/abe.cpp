@@ -19,8 +19,6 @@
 */
 
 
-// #define DEBUG
-
 #include "auryn.h"
 #include <iostream>
 #include <fstream>
@@ -52,8 +50,6 @@ AurynLong FindFrame( ifstream * file, AurynTime target )
 		if ( spike_data.time < target ) lo = pivot;
 		else hi = pivot;
 	}
-
-	//cout << lo << " " << hi << endl;
 
 	return hi;
 }
@@ -267,12 +263,14 @@ int main(int ac, char* av[])
 		AurynLong mintime = std::numeric_limits<AurynLong>::max();
 		bool eofs = true;
 		for ( int i = 0 ; i < frames.size() ; ++i ) {
+			eofs = eofs && inputs[i]->eof();
+			if ( inputs[i]->eof() ) continue;
 			if ( frames[i].time < mintime ) { 
 				mintime = frames[i].time;
 				current_stream = i;
 			}
-			eofs = eofs && inputs[i]->eof();
 		}
+
 		time_reference = mintime;
 		if ( time_reference >= to_auryn_time || eofs ) break;
 
