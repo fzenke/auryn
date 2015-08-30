@@ -86,7 +86,9 @@ void read_header( ifstream * input, double& dt, double& last_time, string filena
 	// read out last time
 	input->seekg (num_events*sizeof(SpikeEvent_type), input->beg);
 	input->read((char*)&spike_data, sizeof(SpikeEvent_type));
-	last_time = spike_data.time*dt;
+	last_time = (spike_data.time+1)*dt; 
+	// places last_time _behind_ the last time because we are the 
+	// exclusive interval end
 }
 
 int main(int ac, char* av[]) 
