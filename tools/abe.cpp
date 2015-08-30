@@ -64,9 +64,10 @@ int main(int ac, char* av[])
 	NeuronID maxid = std::numeric_limits<NeuronID>::max();
 
 	try {
-		po::options_description desc("Auryn Binary Extract -- Allowed options");
+		po::options_description desc("Allowed options");
 		desc.add_options()
 			("help", "produce help message")
+			("version", "show version information")
 			("file", po::value<string>(), "input file")
 			("output", po::value<string>(), "output file (output to stout if not given)")
 			("start", po::value<double>(), "start time in seconds")
@@ -82,6 +83,14 @@ int main(int ac, char* av[])
 		if (vm.count("help")) {
 			cout << desc << "\n";
 			return 1;
+		}
+
+		if (vm.count("version")) {
+			cout << "Auryn Binary Extract version " 
+				 << AURYNVERSION << "." 
+				 << AURYNSUBVERSION << "."
+				 << AURYNREVISION << "\n";
+			return EXIT_SUCCESS;
 		}
 
 		if (vm.count("file")) {
