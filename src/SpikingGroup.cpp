@@ -528,6 +528,7 @@ auryn_vector_float * SpikingGroup::get_state_vector(string key)
 	if ( state_vectors.find(key) == state_vectors.end() ) {
 		if ( get_vector_size() == 0 ) return NULL;
 		auryn_vector_float * vec = auryn_vector_float_alloc (get_vector_size()); 
+		auryn_vector_float_set_zero( vec );
 		state_vectors[key] = vec;
 		return vec;
 	} else {
