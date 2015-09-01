@@ -56,7 +56,7 @@ private:
 	/*! The target vector for follow operation. */
 	auryn_vector_float * target_ptr;
 	/*! Temp update vector for follow operation. */
-	auryn_vector_float * update;
+	auryn_vector_float * temp;
 	/*! Multiplicative factor to downscale the values in every timestep. */
 	AurynFloat scale_const;
 	/*! Decay time constant in [s]. */

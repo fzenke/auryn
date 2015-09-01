@@ -30,6 +30,7 @@ void EulerTrace::init(NeuronID n, AurynFloat timeconstant)
 	size = n;
 	set_timeconstant(timeconstant);
 	state = auryn_vector_float_alloc ( calculate_vector_size(size) ); 
+	temp = auryn_vector_float_alloc ( calculate_vector_size(size) ); // temp vector
 	set_all(0.);
 	target_ptr = NULL;
 }
@@ -37,10 +38,7 @@ void EulerTrace::init(NeuronID n, AurynFloat timeconstant)
 void EulerTrace::free()
 {
 	auryn_vector_float_free (state);
-
-	if ( target_ptr != NULL ) {
-		auryn_vector_float_free (update);
-	}
+	auryn_vector_float_free (temp);
 }
 
 EulerTrace::EulerTrace(NeuronID n, AurynFloat timeconstant)
@@ -84,7 +82,6 @@ void EulerTrace::add(NeuronID i, AurynFloat value)
 void EulerTrace::set_target( auryn_vector_float * target )
 {
 	if ( target != NULL ) {
-		update = auryn_vector_float_alloc (size); 
 	}
 	target_ptr = target ;
 }
@@ -102,9 +99,9 @@ void EulerTrace::evolve()
 
 void EulerTrace::follow()
 { 
-	auryn_vector_float_copy( state, update );
-	auryn_vector_float_saxpy( -1., target_ptr, update );
-	auryn_vector_float_saxpy( -dt/tau, update, state );
+	auryn_vector_float_copy( state, temp );
+	auryn_vector_float_saxpy( -1., target_ptr, temp );
+	auryn_vector_float_saxpy( -dt/tau, temp, state );
 }
 
 auryn_vector_float * EulerTrace::get_state_ptr()
