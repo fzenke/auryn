@@ -98,7 +98,7 @@ int main(int ac, char* av[])
 
 	string output_file_name = "";
 	double from_time = 0.0;
-	double to_time   = 100.0;
+	double to_time   = -1.0;
 	double seconds_to_extract_from_end = -1.0; // negative means disabled
 	NeuronID maxid = std::numeric_limits<NeuronID>::max();
 
@@ -200,7 +200,10 @@ int main(int ac, char* av[])
 	}
 
 
-	to_time = last_time;
+	if ( to_time < 0 ) {
+		to_time = last_time;
+	}
+
 	if ( seconds_to_extract_from_end > 0 ) {
 		from_time = to_time-seconds_to_extract_from_end;
 	}
