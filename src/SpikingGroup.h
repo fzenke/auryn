@@ -124,10 +124,12 @@ public:
 	/*! Can hold single neuron vectors such as target rates or STP states etc  */
 	map<string,auryn_vector_float *> state_vectors;
 
-	/*! Returns existing state vector by name */
+	/*! \brief Returns existing state vector by name. 
+	 *
+	 * If the state_vector does not exist the function returns NULL. */
 	auryn_vector_float * find_state_vector(string key);
 
-	/*! Creates a new or returns an existing state vector */
+	/*! \brief Creates a new or returns an existing state vector by name. */
 	auryn_vector_float * get_state_vector(string key);
 
 	/*! Randomizes the content of a state vector with Gaussian random numbers. Seeding is MPI save. */
