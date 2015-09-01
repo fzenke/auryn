@@ -200,8 +200,8 @@ int main(int ac, char* av[])
 	}
 
 
+	to_time = last_time;
 	if ( seconds_to_extract_from_end > 0 ) {
-		to_time = last_time;
 		from_time = to_time-seconds_to_extract_from_end;
 	}
 
