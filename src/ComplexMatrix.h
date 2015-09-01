@@ -277,7 +277,7 @@ template <typename T>
 T * ComplexMatrix<T>::get_data_ptr(const NeuronID * ind_ptr, const StateID z) 
 {
 	size_t ptr_offset = ind_ptr-get_ind_begin();
-	return elementdata+ptr_offset;
+	return elementdata+z*get_datasize()+ptr_offset;
 }
 
 template <typename T>
