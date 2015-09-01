@@ -59,8 +59,16 @@ void NeuronGroup::init()
 
 void NeuronGroup::free()
 {
-	for ( NeuronID i = 0 ; i < post_state_traces.size() ; ++i )
+	for ( NeuronID i = 0 ; i < post_state_traces.size() ; ++i ) {
+		stringstream oss;
+		oss << get_name() 
+			<< ":: Freeing state trace "
+			<< post_state_traces_state_names[i]
+			<< " at "
+			<< i;
+		logger->msg(oss.str() ,VERBOSE);
 		delete post_state_traces[i];
+	}
 }
 
 
@@ -303,7 +311,7 @@ EulerTrace * NeuronGroup::get_post_state_trace( AurynFloat tau, string state_nam
 				&& post_state_traces_state_names[i] == state_name ) {
 			stringstream oss;
 			oss << get_name() 
-				<< ":: Sharing post voltage trace for "
+				<< ":: Sharing post state trace for "
 				<< state_name 
 				<< " with " 
 				<< tau 
@@ -315,6 +323,7 @@ EulerTrace * NeuronGroup::get_post_state_trace( AurynFloat tau, string state_nam
 
 	// trace does not exist yet, so we are creating 
 	// it and do the book keeping
+	logger->msg("Creating new post state trace",VERBOSE);
 	EulerTrace * tmp = new EulerTrace(get_post_size(),tau);
 	tmp->set_target(get_state_vector(state_name));
 	post_state_traces.push_back(tmp);
