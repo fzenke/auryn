@@ -61,6 +61,14 @@ public:
 	 * \param sampling_interval The sampling interval in seconds
 	 */
 	StateMonitor(NeuronGroup * source, NeuronID id, string statename, string filename, AurynDouble sampling_interval=dt);
+
+	/*! Alternative constructor
+	 * \param state The soure state vector
+	 * \param filename The filename of the file to dump the output to
+	 * \param sampling_interval The sampling interval in seconds
+	 */
+	StateMonitor(auryn_vector_float * state, NeuronID id, string filename, AurynDouble sampling_interval=dt);
+
 	virtual ~StateMonitor();
 	void propagate();
 };
