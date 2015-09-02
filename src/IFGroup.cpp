@@ -42,6 +42,7 @@ void IFGroup::calculate_scale_constants()
 void IFGroup::init()
 {
 	e_rest = -70e-3;
+	e_reset = -70e-3;
 	e_rev = -80e-3;
 	thr_rest = -50e-3;
 	dthr = 100e-3;
@@ -137,7 +138,7 @@ void IFGroup::check_thresholds()
     	if ( *i > ( thr_rest + *thr_ptr ) ) {
 			NeuronID unit = i-mem->data;
 			push_spike(unit);
-		    set_val (mem, unit, e_rest); // reset
+		    set_val (mem, unit, e_reset); // reset
 	        set_val (thr, unit, dthr); //refractory
 		} 
 		thr_ptr++;

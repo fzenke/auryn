@@ -49,9 +49,9 @@ private:
 	auryn_vector_float * t_exc;
 	auryn_vector_float * t_inh;
 	AurynFloat scale_ampa,scale_gaba, scale_thr;
-	AurynFloat e_rest,e_rev,thr_rest,tau_mem,tau_thr,dthr;
 	AurynFloat tau_ampa,tau_gaba,tau_nmda;
 	AurynFloat A_ampa,A_nmda;
+	AurynFloat e_rest,e_rev,thr_rest,tau_mem,tau_thr,dthr;
 	void init();
 	void free();
 	void calculate_scale_constants();
@@ -59,6 +59,7 @@ private:
 	void integrate_linear_nmda_synapses();
 	void check_thresholds();
 public:
+	AurynFloat e_reset;
 	/*! Default constructor.
 	 *
 	 * @param size the size of the group.  @param load a load specifier that
