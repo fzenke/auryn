@@ -25,13 +25,20 @@
 
 #include "StateMonitor.h"
 
+
 StateMonitor::StateMonitor(NeuronGroup * source, NeuronID id, string statename, string filename, AurynDouble sampling_interval)  
 {
 	init(source,id,statename,filename,sampling_interval/dt);
 }
 
-StateMonitor::~StateMonitor()
+StateMonitor::StateMonitor(auryn_vector_float * state, NeuronID id, string filename, AurynDouble sampling_interval)
 {
+	Monitor::init(filename);
+	sys->register_monitor(this);
+	src = NULL;
+	target_variable = state->data+nid;
+	ssize = sampling_interval/dt;
+	outfile << setiosflags(ios::fixed) << setprecision(6);
 }
 
 void StateMonitor::init(NeuronGroup * source, NeuronID id, string statename, string filename, AurynTime stepsize)
@@ -52,6 +59,10 @@ void StateMonitor::init(NeuronGroup * source, NeuronID id, string statename, str
 		nid = src->get_rank_size() + 1;
 	}
 	outfile << setiosflags(ios::fixed) << setprecision(6);
+}
+
+StateMonitor::~StateMonitor()
+{
 }
 
 void StateMonitor::propagate()

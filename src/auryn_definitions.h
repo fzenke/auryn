@@ -202,20 +202,25 @@ void auryn_vector_float_free (auryn_vector_float * v);
 void auryn_vector_float_set_zero (auryn_vector_float * v);
 /*! Sets all elements in an auryn_vector_float to value x */
 void auryn_vector_float_set_all (auryn_vector_float * v, AurynFloat x);
-/*! Copies vector src to dst assuming they have the same size. 
+
+/*! \brief Copies vector src to dst assuming they have the same size. 
+ *
  * Otherwise this will lead to undefined results. No checking of size is
  * performed for performance reasons. */
 void auryn_vector_float_copy (auryn_vector_float * src, auryn_vector_float * dst );
+
 /*! Auryn vector getter */
 AurynFloat auryn_vector_float_get (const auryn_vector_float * v, const NeuronID i);
+
 /*! Auryn vector setter */
 void auryn_vector_float_set (auryn_vector_float * v, const NeuronID i, AurynFloat x);
+
 /*! Auryn vector gets pointer to designed element. */
 AurynFloat * auryn_vector_float_ptr (const auryn_vector_float * v, const NeuronID i);
 
 /*! Internal  version of auryn_vector_float_mul of gsl operations */
 void auryn_vector_float_mul( auryn_vector_float * a, auryn_vector_float * b);
-/*! Internal  version of auryn_vector_float_add gsl operations */
+/*! Internal  version of auryn_vector_float_add between a constant and a vector */
 void auryn_vector_float_add_constant( auryn_vector_float * a, float b );
 /*! Internal  SAXPY version */
 void auryn_vector_float_saxpy( const float a, const auryn_vector_float * x, const auryn_vector_float * y );
@@ -223,12 +228,20 @@ void auryn_vector_float_saxpy( const float a, const auryn_vector_float * x, cons
 void auryn_vector_float_scale(const float a, const auryn_vector_float * b );
 /*! Internal  version to clip all the elements of a vector between [a:b]  */
 void auryn_vector_float_clip(auryn_vector_float * v, const float a , const float b );
+
 /*! Internal  version to clip all the elements of a vector between [a:0]  */
 void auryn_vector_float_clip(auryn_vector_float * v, const float a );
-/*! Internal  version of to add GSL vectors */
+
+/*! \brief Internal  version of to add GSL vectors.
+ *
+ * Add vectors a and b and store the result in a. */
 void auryn_vector_float_add( auryn_vector_float * a, auryn_vector_float * b);
-/*! Internal  version of to subtract GSL vectors */
+
+/*! \brief Internal  version of to subtract GSL vectors.
+ * 
+ * Computes a := a-b */
 void auryn_vector_float_sub( auryn_vector_float * a, auryn_vector_float * b);
+
 
 
 // ushort vector functions

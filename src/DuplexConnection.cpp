@@ -113,7 +113,7 @@ void DuplexConnection::compute_reverse_matrix()
 	}
 
 	stringstream oss;
-	oss << "DuplexConnection: ("<< get_name() << "): Computing backward matrix ...";
+	oss << "DuplexConnection: ("<< get_name() << "): Computing transposed matrix view ...";
 	logger->msg(oss.str(),VERBOSE);
 
 	NeuronID maxrows = get_m_rows();
