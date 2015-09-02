@@ -47,18 +47,6 @@
 class NeuronGroup : public SpikingGroup
 {
 protected:
-	/*! Stores the membrane potentials. */
-	auryn_vector_float * mem __attribute__((aligned(16)));
-	/*! Stores the AMPA conductances of each point neuron. */
-	auryn_vector_float * g_ampa __attribute__((aligned(16)));
-	/*! Stores the GABA conductances of each point neuron. */
-	auryn_vector_float * g_gaba __attribute__((aligned(16)));
-	/*! Stores the NMDA conductances of each point neuron. */
-	auryn_vector_float * g_nmda __attribute__((aligned(16)));
-	/*! Stores the CURSYN states of each point neuron. */
-	auryn_vector_float * g_cursyn __attribute__((aligned(16)));
-	/*! Stores  threshold terms for moving thresholds. */
-	auryn_vector_float * thr __attribute__((aligned(16)));
 
 	/*! Post state traces */
 	vector<EulerTrace *> post_state_traces;
@@ -77,6 +65,18 @@ protected:
 
 
 public:
+	/*! Stores the membrane potentials. */
+	auryn_vector_float * mem __attribute__((aligned(16)));
+	/*! Stores the AMPA conductances of each point neuron. */
+	auryn_vector_float * g_ampa __attribute__((aligned(16)));
+	/*! Stores the GABA conductances of each point neuron. */
+	auryn_vector_float * g_gaba __attribute__((aligned(16)));
+	/*! Stores the NMDA conductances of each point neuron. */
+	auryn_vector_float * g_nmda __attribute__((aligned(16)));
+	/*! Stores the CURSYN states of each point neuron. */
+	auryn_vector_float * g_cursyn __attribute__((aligned(16)));
+	/*! Stores  threshold terms for moving thresholds. */
+	auryn_vector_float * thr __attribute__((aligned(16)));
 
 	/*! Default constructor */
 	NeuronGroup(NeuronID n, double loadmultiplier = 1. , NeuronID total = 0 );
