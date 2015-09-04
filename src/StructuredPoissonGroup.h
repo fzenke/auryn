@@ -59,9 +59,11 @@ private:
 	bool stimulus_active;
 	int current_stimulus;
 
+
 	void init ( AurynFloat duration, AurynFloat mean_interval, NeuronID no , string outputfile );
 	
 public:
+	int seedoffset;
 	StructuredPoissonGroup(NeuronID n, AurynFloat duration, AurynFloat interval, NeuronID stimuli = 1,  AurynDouble rate=5. ,
 			string tiserfile = "stimulus.dat" );
 	virtual ~StructuredPoissonGroup();

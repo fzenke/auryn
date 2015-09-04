@@ -56,7 +56,7 @@ void VoltageMonitor::init(NeuronGroup * source, NeuronID id, string filename, Au
 
 void VoltageMonitor::propagate()
 {
-	if (active && (sys->get_clock())%ssize==0 && sys->get_clock() < tStop ) {
+	if ( sys->get_clock() < tStop && (sys->get_clock())%ssize==0 ) {
 		double voltage = src->get_mem(nid);
 		if ( paste_spikes ) {
 			SpikeContainer * spikes = src->get_spikes_immediate();

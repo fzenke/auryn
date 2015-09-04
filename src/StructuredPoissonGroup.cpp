@@ -39,6 +39,8 @@ void StructuredPoissonGroup::init ( AurynFloat duration, AurynFloat mean_interva
 	current_stimulus = 0;
 	next_event = 0;
 
+	seedoffset = 0;
+
 	stringstream oss;
 	oss << "StructuredPoissonGroup:: Set up with stimulus_duration=" 
 		<< stimulus_duration 
@@ -88,7 +90,7 @@ void StructuredPoissonGroup::evolve()
 			current_stimulus = (current_stimulus+1)%no_of_stimuli;
 			x = 0;
 			tiserfile << sys->get_time() << " " << current_stimulus << endl;
-			seed(current_stimulus);
+			seed(current_stimulus+seedoffset);
 			next_event += stimulus_duration;
 		}
 	}
