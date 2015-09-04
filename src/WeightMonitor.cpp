@@ -128,7 +128,7 @@ void WeightMonitor::add_to_list( vector<neuron_pair>  vec, string label )
 	}
 }
 
-void WeightMonitor::add_equally_spaced(NeuronID number)
+void WeightMonitor::add_equally_spaced(NeuronID number, NeuronID z)
 {
 	if ( number > src->get_nonzero() ) {
 		logger->msg("WeightMonitor:: add_equally_spaced: \
@@ -137,7 +137,7 @@ void WeightMonitor::add_equally_spaced(NeuronID number)
 	}
 
 	for ( NeuronID i = 0 ; i < number ; ++i )
-		add_to_list(mat->get_data_begin()+i*mat->get_nonzero()/number);
+		add_to_list(mat->get_data_begin(z)+i*mat->get_nonzero()/number);
 
 	stringstream oss;
 	oss << "WeightMonitor:: "
