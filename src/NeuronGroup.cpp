@@ -289,10 +289,23 @@ AurynState NeuronGroup::get_val(auryn_vector_float * vec, NeuronID i)
 void NeuronGroup::tadd(NeuronID id, AurynWeight amount, TransmitterType t)
 {
 	NeuronID localid = global2rank(id);
-	if (t==GLUT) {
-		add_val(g_ampa,localid,amount);
-	} else {
-		add_val(g_gaba,localid,amount);
+	switch ( t ) {
+		case GABA:
+			add_val(g_gaba,localid,amount);
+			break;
+		case MEM:
+			add_val(mem,localid,amount);
+			break;
+		case CURSYN:
+			add_val(g_cursyn,localid,amount);
+			break;
+		case NMDA:
+			add_val(g_nmda,localid,amount);
+			break;
+		case GLUT:
+		case AMPA:
+		default:
+			add_val(g_ampa,localid,amount);
 	}
 }
 

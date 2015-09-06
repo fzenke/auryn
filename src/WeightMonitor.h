@@ -106,11 +106,14 @@ public:
 	 */
 	void add_to_list( vector<neuron_pair> vec , string label = "");
 	
-	/*! Adds number of elements to the recording list that are equally spaced in the 
-	 * data vector of SimpleMatrix. This effectively corresponds to number random 
-	 * elements if a random matrix is used. 
+	/*! \brief Adds number of elements to the recording list that are equally spaced in the 
+	 * data vector of SimpleMatrix. 
+	 *
+	 * This effectively corresponds to number random 
+	 * elements if a random matrix is used. The second argument can be used to 
+	 * specify which complex synapse state should be used for this operation.
 	 */
-	void add_equally_spaced( NeuronID number );
+	void add_equally_spaced( NeuronID number, NeuronID z=0 );
 
 	/*! Adds connections inside a pattern and between patterns. Since such lists
 	 * can become large quickly the amount of patterns and connections for each
