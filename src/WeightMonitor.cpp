@@ -130,6 +130,13 @@ void WeightMonitor::add_to_list( vector<neuron_pair>  vec, string label )
 
 void WeightMonitor::add_equally_spaced(NeuronID number, NeuronID z)
 {
+	if ( z >= mat->get_z_values() ) {
+		logger->msg("WeightMonitor:: z too large. Trying to monitor complex "
+				"synaptic values which do not exist."
+				,ERROR);
+		return;
+	}
+
 	if ( number > src->get_nonzero() ) {
 		logger->msg("WeightMonitor:: add_equally_spaced: \
 				Not enough elements in this Connection object",WARNING);
