@@ -73,3 +73,11 @@ void StateMonitor::propagate()
 		outfile.write(buffer,n); 
 	}
 }
+
+void StateMonitor::set_stop_time(AurynDouble time)
+{
+	if (time < 0) {
+		logger->msg("Warning: Negative stop times not supported -- ingoring.",WARNING);
+	} 
+	else tStop = sys->get_clock() + time/dt;
+}

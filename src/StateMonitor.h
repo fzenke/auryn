@@ -49,6 +49,8 @@ protected:
 	NeuronID nid;
 	/*! The step size (sampling interval) in units of dt */
 	AurynTime ssize;
+	/*! Defines the maximum recording time in AurynTime to save space. */
+	AurynTime tStop;
 	/*! Standard initialization */
 	void init(NeuronGroup * source, NeuronID id, string statename, string filename, AurynTime stepsize);
 	
@@ -68,6 +70,14 @@ public:
 	 * \param sampling_interval The sampling interval in seconds
 	 */
 	StateMonitor(auryn_vector_float * state, NeuronID id, string filename, AurynDouble sampling_interval=dt);
+
+	/*! \brief Sets relative time at which to stop recording 
+	 *
+	 * The time is given in seconds and interpreted as relative time with 
+	 * respect to the current clock value. This features is useful to decrease
+	 * IO. The stop time can be set again after calling run to record multiple 
+	 * snippets. */
+	void set_stop_time(AurynDouble time=10.0);
 
 	virtual ~StateMonitor();
 	void propagate();
