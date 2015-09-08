@@ -105,14 +105,14 @@ int main(int ac, char* av[])
 	try {
 		po::options_description desc("Allowed options");
 		desc.add_options()
-			("help", "produce help message")
-			("version", "show version information")
-			("inputs", po::value< vector<string> >()->multitoken(), "input files")
-			("output", po::value<string>(), "output file (output to stout if not given)")
-			("from", po::value<double>(), "from time in seconds")
-			("to", po::value<double>(), "to time in seconds")
-			("last", po::value<double>(), "last x seconds (overrides start/end)")
-			("maxid", po::value<NeuronID>(), "maximum neuron id to extract")
+			("help,h", "produce help message")
+			("version,v", "show version information")
+			("inputs,i", po::value< vector<string> >()->multitoken(), "input files")
+			("output,o", po::value<string>(), "output file (output to stout if not given)")
+			("from,f", po::value<double>(), "from time in seconds")
+			("to,t", po::value<double>(), "to time in seconds")
+			("last,l", po::value<double>(), "last x seconds (overrides start/end)")
+			("maxid,m", po::value<NeuronID>(), "maximum neuron id to extract")
 			;
 
 		po::variables_map vm;        
@@ -165,12 +165,19 @@ int main(int ac, char* av[])
     }
 
 
+
+
 #ifdef DEBUG
 	cout << "# Number of input files " << input_filenames.size() << endl;
 #endif // DEBUG
 
 	double last_time = 0.0;
 	double dt = 0.0;
+
+	if ( input_filenames.size() == 0 ) {
+		cerr << "Missing input file." << endl;
+		exit(EXIT_FAILURE);
+	}
 
 	for ( int i = 0 ; i < input_filenames.size() ; ++i ) {
 		ifstream * tmp = new ifstream( input_filenames[i].c_str(), ios::binary );
