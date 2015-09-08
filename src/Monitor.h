@@ -69,8 +69,6 @@ protected:
 	virtual void virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version ) ;
 	
 public:
-	/*! Toggles Monitor (in)active */
-	bool active;
 	/*! Standard constructor */
 	Monitor();
 	/*! Standard constructor with file name*/
