@@ -35,9 +35,12 @@
 
 using namespace std;
 
-/*! \brief Stimulator class to inject timeseries of currents to patterns (subpopulations) of neurons 
+/*! \brief Stimulator class to add values in each timestep to arbitrary neuronal states. 
+ *
+ * Most commonly used to inject "currents" to arbitraty neuronal states. Maintains an internal vector with
+ * numbers which are added in each timestep to the neuronal target vector (per default that is the membrane voltage
+ * and hence the operation corresponds to injecting a current).
  * 
- * Instances of this class inject currents that vary over time to subpopulations of the NeuronGroup assigned.
  */
 
 class CurrentStimulator : protected Monitor
@@ -49,9 +52,6 @@ private:
 
 	/*! Target membrane */
 	auryn_vector_float * target_vector;
-
-	/*! Default init method */
-	void init(NeuronGroup * target, AurynFloat initial_current );
 
 	void free();
 
@@ -66,9 +66,10 @@ protected:
 	
 public:
 	/*! Default Constructor 
+	 * @param[target] Initializes all currents with this value
 	 * @param[initial_current] Initializes all currents with this value
 	 */
-	CurrentStimulator(NeuronGroup * target, AurynFloat initial_current=1.0 );
+	CurrentStimulator(NeuronGroup * target, string neuron_state_name="mem", AurynFloat initial_current=1.0 );
 
 	/*! Sets the state to add the "current" in every timestep to */
 	void set_target_state( string state_name = "mem" );

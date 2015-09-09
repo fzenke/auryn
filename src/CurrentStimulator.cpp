@@ -26,22 +26,18 @@
 #include "CurrentStimulator.h"
 
 
-CurrentStimulator::CurrentStimulator(NeuronGroup * target, AurynFloat initial_current ) : Monitor( )
-{
-	init(target, initial_current);
-}
-
-
-void CurrentStimulator::init( NeuronGroup * target, AurynFloat initial_current )
+CurrentStimulator::CurrentStimulator(NeuronGroup * target, string neuron_state_name, AurynFloat initial_current ) : Monitor( )
 {
 	sys->register_monitor(this);
 	dst = target;
 
-	set_target_state();
+	set_target_state(neuron_state_name);
 	currents = auryn_vector_float_alloc(dst->get_vector_size()); 
 
 	auryn_vector_float_set_all( currents, initial_current );
 }
+
+
 
 void CurrentStimulator::free( ) 
 {
