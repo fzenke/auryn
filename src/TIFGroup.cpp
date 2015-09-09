@@ -119,6 +119,11 @@ void TIFGroup::set_bg_current(NeuronID i, AurynFloat current) {
 		auryn_vector_float_set ( bg_current , global2rank(i) , current ) ;
 }
 
+void TIFGroup::set_bg_currents(AurynFloat current) {
+	for ( NeuronID i = 0 ; i < get_rank_size() ; ++i ) 
+		auryn_vector_float_set ( bg_current , i , current ) ;
+}
+
 void TIFGroup::set_tau_mem(AurynFloat taum)
 {
 	tau_mem = taum;
