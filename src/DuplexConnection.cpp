@@ -102,7 +102,7 @@ DuplexConnection::~DuplexConnection()
 }
 
 
-void DuplexConnection::compute_reverse_matrix()
+void DuplexConnection::compute_reverse_matrix( int z )
 {
 
 	if ( fwd->get_nonzero() <= bkw->get_datasize() ) {
@@ -128,7 +128,7 @@ void DuplexConnection::compute_reverse_matrix()
 			for ( NeuronID i = 0 ; i < maxrows ; ++i ) {
 				if (rowwalker[i] < fwd->get_rowptrs()[i+1]) { // stop when reached end of row
 					if (*rowwalker[i]==j) { // if there is an element for that column add pointer to backward matrix
-						bkw->push_back(j,i,fwd->get_ptr(i,j));
+						bkw->push_back(j,i,fwd->get_ptr(i,j,z));
 						++rowwalker[i];  // move on when processed element
 					}
 				}

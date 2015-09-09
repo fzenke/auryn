@@ -57,7 +57,7 @@ private:
 	void init();
 	void free();
 protected:
-	void compute_reverse_matrix();
+	void compute_reverse_matrix(int z = 0);
 public:
 	ForwardMatrix  * fwd;
 	BackwardMatrix * bkw; // TODO make protected again later when tested
