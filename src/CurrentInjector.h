@@ -58,6 +58,9 @@ private:
 	/*! Returns the lambda parameter of the pmf for Current. */
 	AurynFloat get_lambda();
 
+	/*! Scale factor which should include dt and any respective resistance. */
+	AurynFloat alpha;
+
 protected:
 
 	/*! The target NeuronGroup */
@@ -65,6 +68,7 @@ protected:
 
 	
 public:
+
 	/*! Default Constructor 
 	 * @param[target] Initializes all currents with this value
 	 * @param[initial_current] Initializes all currents with this value
