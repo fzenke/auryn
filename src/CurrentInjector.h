@@ -23,8 +23,8 @@
 * Front Neuroinform 8, 76. doi: 10.3389/fninf.2014.00076
 */
 
-#ifndef CURRENTSTIMULATOR_H_
-#define CURRENTSTIMULATOR_H_
+#ifndef CURRENTINJECTOR_H_
+#define CURRENTINJECTOR_H_
 
 #include "auryn_definitions.h"
 #include "System.h"
@@ -43,7 +43,7 @@ using namespace std;
  * 
  */
 
-class CurrentStimulator : protected Monitor
+class CurrentInjector : protected Monitor
 {
 private:
 
@@ -69,13 +69,13 @@ public:
 	 * @param[target] Initializes all currents with this value
 	 * @param[initial_current] Initializes all currents with this value
 	 */
-	CurrentStimulator(NeuronGroup * target, string neuron_state_name="mem", AurynFloat initial_current=1.0 );
+	CurrentInjector(NeuronGroup * target, string neuron_state_name="mem", AurynFloat initial_current=1.0 );
 
 	/*! Sets the state to add the "current" in every timestep to */
 	void set_target_state( string state_name = "mem" );
 
 	/*! Default Destructor */
-	virtual ~CurrentStimulator();
+	virtual ~CurrentInjector();
 
 
 	/*! Sets the state that is stimulated with Current input.
@@ -87,4 +87,4 @@ public:
 
 };
 
-#endif /*CURRENTSTIMULATOR_H_*/
+#endif /*CURRENTINJECTOR_H_*/

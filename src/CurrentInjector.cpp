@@ -23,10 +23,10 @@
 * Front Neuroinform 8, 76. doi: 10.3389/fninf.2014.00076
 */
 
-#include "CurrentStimulator.h"
+#include "CurrentInjector.h"
 
 
-CurrentStimulator::CurrentStimulator(NeuronGroup * target, string neuron_state_name, AurynFloat initial_current ) : Monitor( )
+CurrentInjector::CurrentInjector(NeuronGroup * target, string neuron_state_name, AurynFloat initial_current ) : Monitor( )
 {
 	sys->register_monitor(this);
 	dst = target;
@@ -39,29 +39,29 @@ CurrentStimulator::CurrentStimulator(NeuronGroup * target, string neuron_state_n
 
 
 
-void CurrentStimulator::free( ) 
+void CurrentInjector::free( ) 
 {
 	auryn_vector_float_free ( currents );
 }
 
 
-CurrentStimulator::~CurrentStimulator()
+CurrentInjector::~CurrentInjector()
 {
 	free();
 }
 
-void CurrentStimulator::propagate()
+void CurrentInjector::propagate()
 {
 	if ( dst->evolve_locally() ) {
 		auryn_vector_float_add(target_vector, currents);
 	}
 }
 
-void CurrentStimulator::set_current(NeuronID i, AurynFloat current) {
+void CurrentInjector::set_current(NeuronID i, AurynFloat current) {
 	auryn_vector_float_set(currents, i, current);
 }
 
-void CurrentStimulator::set_target_state(string state_name) {
+void CurrentInjector::set_target_state(string state_name) {
 	target_vector = dst->get_state_vector(state_name);
 }
 
