@@ -53,7 +53,7 @@ CurrentInjector::~CurrentInjector()
 void CurrentInjector::propagate()
 {
 	if ( dst->evolve_locally() ) {
-		auryn_vector_float_add(target_vector, currents);
+		auryn_vector_float_saxpy(dt, currents, target_vector);
 	}
 }
 
