@@ -107,6 +107,7 @@
 #include "WeightMatrixMonitor.h"
 #include "PoissonStimulator.h"
 #include "PatternStimulator.h"
+#include "CurrentStimulator.h"
 
 
 #endif /*AURYN_H__*/
