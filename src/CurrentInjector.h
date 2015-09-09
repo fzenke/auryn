@@ -38,8 +38,8 @@ using namespace std;
 /*! \brief Stimulator class to add values in each timestep to arbitrary neuronal states. 
  *
  * Most commonly used to inject "currents" to arbitraty neuronal states. Maintains an internal vector with
- * numbers which are added in each timestep to the neuronal target vector (per default that is the membrane voltage
- * and hence the operation corresponds to injecting a current).
+ * numbers which are added (times dt) in each timestep to the neuronal target vector 
+ * (per default that is the membrane voltage and hence the operation corresponds to injecting a current).
  * 
  */
 
