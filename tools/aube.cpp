@@ -31,7 +31,7 @@ namespace po = boost::program_options;
 
 /*! Perform binary search on ifstream to extract frame number
  * from a target time reference that should be given in discrete time. */
-AurynLong FindFrame( ifstream * file, AurynTime target )
+AurynLong find_frame( ifstream * file, AurynTime target )
 {
 	// get number of elements
 	file->seekg (0, file->end);
@@ -240,7 +240,7 @@ int main(int ac, char* av[])
 	// set all streams to respetive start frame
 	for ( int i = 0 ; i < inputs.size() ; ++i ) {
 		// compute start and end frames
-		AurynLong start_frame = FindFrame(inputs[i], from_time/dt);
+		AurynLong start_frame = find_frame(inputs[i], from_time/dt);
 
 		// prepare input stream
 		inputs[i]->seekg (start_frame*sizeof(SpikeEvent_type), inputs[i]->beg);
