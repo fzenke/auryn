@@ -220,13 +220,19 @@ AurynFloat * auryn_vector_float_ptr (const auryn_vector_float * v, const NeuronI
 
 /*! Internal  version of auryn_vector_float_mul of gsl operations */
 void auryn_vector_float_mul( auryn_vector_float * a, auryn_vector_float * b);
-/*! Internal  version of auryn_vector_float_add between a constant and a vector */
+
+/*! \brief Computes a := a + b 
+ *
+ * Internal  version of auryn_vector_float_add between a constant and a vector */
 void auryn_vector_float_add_constant( auryn_vector_float * a, float b );
-/*! Internal  SAXPY version */
+
+/*! Computes y := a*x+y
+ *
+ * Internal SAXPY version */
 void auryn_vector_float_saxpy( const float a, const auryn_vector_float * x, const auryn_vector_float * y );
-/*! Internal  version to scale a vector with a constant b  */
+/*! Internal version to scale a vector with a constant b  */
 void auryn_vector_float_scale(const float a, const auryn_vector_float * b );
-/*! Internal  version to clip all the elements of a vector between [a:b]  */
+/*! Internal version to clip all the elements of a vector between [a:b]  */
 void auryn_vector_float_clip(auryn_vector_float * v, const float a , const float b );
 
 /*! Internal  version to clip all the elements of a vector between [a:0]  */
@@ -237,9 +243,9 @@ void auryn_vector_float_clip(auryn_vector_float * v, const float a );
  * Add vectors a and b and store the result in a. */
 void auryn_vector_float_add( auryn_vector_float * a, auryn_vector_float * b);
 
-/*! \brief Internal  version of to subtract GSL vectors.
+/*! \brief Computes a := a-b
  * 
- * Computes a := a-b */
+ *  Internal  version of to subtract GSL vectors.*/
 void auryn_vector_float_sub( auryn_vector_float * a, auryn_vector_float * b);
 
 
