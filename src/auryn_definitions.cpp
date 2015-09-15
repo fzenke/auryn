@@ -288,6 +288,7 @@ void auryn_vector_float_set ( auryn_vector_float * v, const NeuronID i, AurynFlo
 }
 
 void auryn_vector_float_copy ( auryn_vector_float * src, auryn_vector_float * dst ) {
+	// TODO make this a fast memcpy
 	for ( NeuronID i = 0 ; i < dst->size ; ++i ) 
 		dst->data[i] = src->data[i];
 }
