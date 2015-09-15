@@ -76,7 +76,7 @@ StateMonitor::~StateMonitor()
 
 void StateMonitor::propagate()
 {
-	if ( (sys->get_clock())%ssize==0 ) {
+	if ( sys->get_clock()< t_stop && (sys->get_clock())%ssize==0 ) {
 		char buffer[255];
 		int n = sprintf(buffer,"%f %f\n",sys->get_time(), *target_variable); 
 		outfile.write(buffer,n); 
@@ -88,5 +88,5 @@ void StateMonitor::set_stop_time(AurynDouble time)
 	if (time < 0) {
 		logger->msg("Warning: Negative stop times not supported -- ingoring.",WARNING);
 	} 
-	else tStop = sys->get_clock() + time/dt;
+	else t_stop = sys->get_clock() + time/dt;
 }

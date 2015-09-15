@@ -50,7 +50,7 @@ protected:
 	/*! The step size (sampling interval) in units of dt */
 	AurynTime ssize;
 	/*! Defines the maximum recording time in AurynTime to save space. */
-	AurynTime tStop;
+	AurynTime t_stop;
 	/*! Standard initialization */
 	void init(NeuronGroup * source, NeuronID id, string statename, string filename, AurynTime stepsize);
 	
