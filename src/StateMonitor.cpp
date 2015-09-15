@@ -33,9 +33,12 @@ StateMonitor::StateMonitor(NeuronGroup * source, NeuronID id, string statename, 
 
 StateMonitor::StateMonitor(auryn_vector_float * state, NeuronID id, string filename, AurynDouble sampling_interval)
 {
+	if ( id >= state->size ) return; // do not register if neuron is out of vector range
+
 	Monitor::init(filename);
 	sys->register_monitor(this);
 	src = NULL;
+	nid = id;
 	target_variable = state->data+nid;
 	ssize = sampling_interval/dt;
 	outfile << setiosflags(ios::fixed) << setprecision(6);
@@ -44,6 +47,11 @@ StateMonitor::StateMonitor(auryn_vector_float * state, NeuronID id, string filen
 void StateMonitor::init(NeuronGroup * source, NeuronID id, string statename, string filename, AurynTime stepsize)
 {
 	if ( !source->localrank(id) ) return; // do not register if neuron is not on the local rank
+
+	if ( nid >= src->get_rank_size() ) {
+		logger->msg("Error: StateMonitor trying to read from non-existing neuron.",ERROR);
+		throw AurynStateVectorException();
+	}
 
 	Monitor::init(filename);
 	sys->register_monitor(this);
@@ -67,7 +75,7 @@ StateMonitor::~StateMonitor()
 
 void StateMonitor::propagate()
 {
-	if ((sys->get_clock())%ssize==0 && src->get_rank_size() > nid ) {
+	if ( (sys->get_clock())%ssize==0 ) {
 		char buffer[255];
 		int n = sprintf(buffer,"%f %f\n",sys->get_time(), *target_variable); 
 		outfile.write(buffer,n); 
