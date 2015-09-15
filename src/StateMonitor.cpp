@@ -76,7 +76,7 @@ StateMonitor::~StateMonitor()
 
 void StateMonitor::propagate()
 {
-	if ( sys->get_clock() < tStop && sys->get_clock()%ssize==0  ) {
+	if ( sys->get_clock() < t_stop && sys->get_clock()%ssize==0  ) {
 		char buffer[255];
 		int n = sprintf(buffer,"%f %f\n",sys->get_time(), *target_variable); 
 		outfile.write(buffer,n); 
