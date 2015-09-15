@@ -1,25 +1,25 @@
-/* 
+/*
 * Copyright 2014-2015 Ankur Sinha and Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
-* 
+*
 * Auryn is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
 * the Free Software Foundation, either version 3 of the License, or
 * (at your option) any later version.
-* 
+*
 * Auryn is distributed in the hope that it will be useful,
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 * GNU General Public License for more details.
-* 
+*
 * You should have received a copy of the GNU General Public License
 * along with Auryn.  If not, see <http://www.gnu.org/licenses/>.
 *
 * If you are using Auryn or parts of it for your work please cite:
-* Zenke, F. and Gerstner, W., 2014. Limits to high-speed simulations 
-* of spiking neural networks using general-purpose computers. 
+* Zenke, F. and Gerstner, W., 2014. Limits to high-speed simulations
+* of spiking neural networks using general-purpose computers.
 * Front Neuroinform 8, 76. doi: 10.3389/fninf.2014.00076
 */
 
@@ -42,6 +42,8 @@ private:
     AurynFloat scale_ampa, scale_gaba, scale_mem, scale_w;
     AurynFloat * t_w;
     AurynFloat a, tau_w, b;
+    unsigned short refractory_time;
+    auryn_vector_ushort * ref;
 
     /*! Stores the adaptation current. */
     auryn_vector_float * w __attribute__((aligned(16)));
@@ -50,6 +52,7 @@ private:
     AurynFloat * t_g_gaba;
     AurynFloat * t_bg_cur;
     AurynFloat * t_mem;
+    unsigned short * t_ref;
 
     void init();
     void calculate_scale_constants();
@@ -58,6 +61,8 @@ private:
     virtual string get_output_line(NeuronID i);
     virtual void load_input_line(NeuronID i, const char * buf);
 
+	void virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version );
+	void virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version );
 public:
     /*! The default constructor of this NeuronGroup */
     AdExGroup(NeuronID size);
@@ -66,6 +71,8 @@ public:
     /*! Controls the constant current input to neuron i in natural units of g_leak (default 500pA/10ns) */
     void set_bg_current(NeuronID i, AurynFloat current);
 
+    /*! Setter for refractory time [s] */
+    void set_refractory_period(AurynDouble t);
     /*! Set value of slope factor deltat (default 2mV) */
     void set_delta_t(AurynFloat d);
     /*! Set value of a in natural units of g_leak (default 2nS/10ns) */
