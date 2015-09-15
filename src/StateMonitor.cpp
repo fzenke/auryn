@@ -48,15 +48,16 @@ void StateMonitor::init(NeuronGroup * source, NeuronID id, string statename, str
 {
 	if ( !source->localrank(id) ) return; // do not register if neuron is not on the local rank
 
-	if ( nid >= src->get_rank_size() ) {
-		logger->msg("Error: StateMonitor trying to read from non-existing neuron.",ERROR);
-		throw AurynStateVectorException();
-	}
 
 	Monitor::init(filename);
 	sys->register_monitor(this);
 	src = source;
-	nid = source->global2rank(id);
+	nid = src->global2rank(id);
+
+	if ( nid >= src->get_rank_size() ) {
+		logger->msg("Error: StateMonitor trying to read from non-existing neuron.",ERROR);
+		throw AurynStateVectorException();
+	}
 
 	ssize = stepsize;
 	if ( ssize < 1 ) ssize = 1;
