@@ -77,6 +77,9 @@ public:
 	 * respect to the current clock value. This features is useful to decrease
 	 * IO. The stop time can be set again after calling run to record multiple 
 	 * snippets. */
+	void record_for(AurynDouble time=10.0);
+
+	/*! Same as record for(time) */
 	void set_stop_time(AurynDouble time=10.0);
 
 	VoltageMonitor(NeuronGroup * source, NeuronID id, string filename,  AurynDouble stepsize=dt);

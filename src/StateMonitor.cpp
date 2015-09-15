@@ -90,3 +90,8 @@ void StateMonitor::set_stop_time(AurynDouble time)
 	} 
 	else t_stop = sys->get_clock() + time/dt;
 }
+
+void StateMonitor::record_for(AurynDouble time)
+{
+	set_stop_time(time);
+}

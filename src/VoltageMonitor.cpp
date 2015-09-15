@@ -73,6 +73,11 @@ void VoltageMonitor::propagate()
 
 
 
+void VoltageMonitor::record_for(AurynDouble time)
+{
+	set_stop_time(time);
+}
+
 void VoltageMonitor::set_stop_time(AurynDouble time)
 {
 	if (time < 0) {
