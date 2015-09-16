@@ -96,6 +96,11 @@ protected:
 	/*! Posttraces */
 	vector<DEFAULT_TRACE_MODEL *> posttraces;
 
+	/*! Post state traces */
+	vector<EulerTrace *> post_state_traces;
+	vector<AurynFloat> post_state_traces_spike_biases;
+	vector<string> post_state_traces_state_names;
+
 	/*! Identifying name for object */
 	string group_name;
 
@@ -200,6 +205,19 @@ public:
 
 	/*! Clear all spikes stored in the delays which is useful to reset a network during runtime */
 	void clear_spikes();
+
+
+	/*! \brief Returns a post trace of a neuronal state variable e.g. the membrane 
+	 * potential with time constant tau. 
+	 *
+	 * This trace is an cotinuously integrated EulerTrace which uses the follow 
+	 * function on the mem state vector. 
+	 * @param tau The time constant of the trace.
+	 * @param b The optional parameter b allows to specify a spike triggered contribution
+	 * which will be added instantaneously to the trace upon each 
+	 * postsynaptic spike.
+	 * */
+	EulerTrace * get_post_state_trace( AurynFloat tau, string state_name="mem", AurynFloat b=0.0 );
 
 	/*! Sets axonal delay for this SpikingGroup */
 	void set_delay( int d );
