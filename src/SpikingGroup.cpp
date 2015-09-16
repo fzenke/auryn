@@ -586,11 +586,11 @@ void SpikingGroup::virtual_serialize(boost::archive::binary_iarchive & ar, const
 	for ( NeuronID i = 0 ; i < pretraces.size() ; ++i )
 		ar & *(pretraces[i]);
 
-	logger->msg("SpikingGroup:: reading pre traces",VERBOSE);
+	logger->msg("SpikingGroup:: reading post traces",VERBOSE);
 	for ( NeuronID i = 0 ; i < posttraces.size() ; ++i )
 		ar & *(posttraces[i]);
 
-	logger->msg("NeuronGroup:: loading state traces",VERBOSE);
+	logger->msg("NeuronGroup:: loading post state traces",VERBOSE);
 	for ( NeuronID i = 0 ; i < post_state_traces.size() ; ++i )
 		ar & *(post_state_traces[i]);
 }
