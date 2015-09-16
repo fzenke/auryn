@@ -595,13 +595,19 @@ void SpikingGroup::virtual_serialize(boost::archive::binary_iarchive & ar, const
 		ar & *(post_state_traces[i]);
 }
 
+
+void SpikingGroup::add_state_vector(string key, auryn_vector_float * state_vector)
+{
+	state_vectors[key] = state_vector;
+}
+
 auryn_vector_float * SpikingGroup::get_state_vector(string key)
 {
 	if ( state_vectors.find(key) == state_vectors.end() ) {
 		if ( get_vector_size() == 0 ) return NULL;
 		auryn_vector_float * vec = auryn_vector_float_alloc (get_vector_size()); 
 		auryn_vector_float_set_zero( vec );
-		state_vectors[key] = vec;
+		add_state_vector(key, vec);
 		return vec;
 	} else {
 		return state_vectors.find(key)->second;

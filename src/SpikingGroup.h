@@ -134,6 +134,9 @@ public:
 	 * If the state_vector does not exist the function returns NULL. */
 	auryn_vector_float * find_state_vector(string key);
 
+	/*! \brief Adds a state vector passed as an argument to the dictinary. */
+	void add_state_vector( string key, auryn_vector_float * state_vector );
+
 	/*! \brief Creates a new or returns an existing state vector by name. */
 	auryn_vector_float * get_state_vector(string key);
 
