@@ -177,6 +177,7 @@ void SpikingGroup::free()
 	for ( map<string,auryn_vector_float *>::const_iterator iter = state_vectors.begin() ; 
 			iter != state_vectors.end() ;
 			++iter ) {
+		if ( iter->first[0] == '_' ) continue; // do not process volatile state_vector
 		auryn_vector_float_free ( iter->second );
 	}
 	state_vectors.clear();
@@ -475,6 +476,7 @@ bool SpikingGroup::write_to_file(const char * filename)
 	for ( map<string,auryn_vector_float *>::const_iterator iter = state_vectors.begin() ; 
 			iter != state_vectors.end() ;
 			++iter ) {
+		if ( iter->first[0] == '_' ) continue; // do not process volatile state_vector
 		outfile << scientific << iter->first << " ";
 	}
 	outfile << "(plus traces)";
@@ -550,6 +552,7 @@ void SpikingGroup::virtual_serialize(boost::archive::binary_oarchive & ar, const
 	for ( map<string,auryn_vector_float *>::const_iterator iter = state_vectors.begin() ; 
 			iter != state_vectors.end() ;
 			++iter ) {
+		if ( iter->first[0] == '_' ) continue; // do not process volatile state_vector
 		ar & iter->first;
 		ar & *(iter->second);
 	}
@@ -576,6 +579,7 @@ void SpikingGroup::virtual_serialize(boost::archive::binary_iarchive & ar, const
 	for ( map<string,auryn_vector_float *>::const_iterator iter = state_vectors.begin() ; 
 			iter != state_vectors.end() ;
 			++iter ) {
+		if ( iter->first[0] == '_' ) continue; // do not process volatile state_vector
 		string key;
 		ar & key;
 		auryn_vector_float * vect = get_state_vector(key);
@@ -598,6 +602,15 @@ void SpikingGroup::virtual_serialize(boost::archive::binary_iarchive & ar, const
 
 void SpikingGroup::add_state_vector(string key, auryn_vector_float * state_vector)
 {
+
+	if ( key[0] == '_' ) {
+		stringstream oss;
+		oss << "SpikingGroup:: State vector " 
+			<< key 
+			<< " marked as volatile alias vector."
+			<< " It will neither be saved nor freed.";
+		logger->msg(oss.str(), VERBOSE);
+	}
 	state_vectors[key] = state_vector;
 }
 
@@ -647,6 +660,7 @@ string SpikingGroup::get_output_line(NeuronID i)
 	for ( map<string,auryn_vector_float *>::const_iterator iter = state_vectors.begin() ; 
 			iter != state_vectors.end() ;
 			++iter ) {
+		if ( iter->first[0] == '_' ) continue; // do not process volatile state_vector
 		oss << scientific << auryn_vector_float_get( iter->second, i ) << " ";
 	}
 
@@ -680,6 +694,7 @@ void SpikingGroup::load_input_line(NeuronID i, const char * buf)
 		for ( map<string,auryn_vector_float *>::const_iterator iter = state_vectors.begin() ; 
 			iter != state_vectors.end() ;
 			++iter ) {
+			if ( iter->first[0] == '_' ) continue; // do not process volatile state_vector
 			if ( ( nums_now = sscanf( buf + bytes_consumed, "%f%n", & temp, & bytes_now ) ) <= 0 )
 			{
 				// error handling
