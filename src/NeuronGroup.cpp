@@ -59,16 +59,6 @@ void NeuronGroup::init()
 
 void NeuronGroup::free()
 {
-	for ( NeuronID i = 0 ; i < post_state_traces.size() ; ++i ) {
-		stringstream oss;
-		oss << get_name() 
-			<< ":: Freeing state trace "
-			<< post_state_traces_state_names[i]
-			<< " at "
-			<< i;
-		logger->msg(oss.str() ,VERBOSE);
-		delete post_state_traces[i];
-	}
 }
 
 
@@ -310,75 +300,4 @@ void NeuronGroup::tadd(NeuronID id, AurynWeight amount, TransmitterType t)
 }
 
 
-EulerTrace * NeuronGroup::get_post_state_trace( AurynFloat tau, string state_name, AurynFloat b ) 
-{
-	// first let's check if a state with that name exists
-	if ( find_state_vector( state_name ) == NULL ) {
-		logger->msg("A state vector with this name "+state_name+" does not exist");
-		throw AurynStateVectorException();
-	} // good to go
 
-	for ( NeuronID i = 0 ; i < post_state_traces.size() ; i++ ) {
-		if ( post_state_traces[i]->get_tau() == tau 
-				&& post_state_traces_spike_biases[i] == b
-				&& post_state_traces_state_names[i] == state_name ) {
-			stringstream oss;
-			oss << get_name() 
-				<< ":: Sharing post state trace for "
-				<< state_name 
-				<< " with " 
-				<< tau 
-				<< "s timeconstant." ;
-			logger->msg(oss.str(),VERBOSE);
-			return post_state_traces[i];
-		}
-	}
-
-	// trace does not exist yet, so we are creating 
-	// it and do the book keeping
-	logger->msg("Creating new post state trace",VERBOSE);
-	EulerTrace * tmp = new EulerTrace(get_post_size(),tau);
-	tmp->set_target(get_state_vector(state_name));
-	post_state_traces.push_back(tmp);
-	post_state_traces_spike_biases.push_back(b);
-	post_state_traces_state_names.push_back(state_name);
-	return tmp;
-}
-
-
-void NeuronGroup::evolve_traces()
-{
-	SpikingGroup::evolve_traces();
-
-	for ( NeuronID i = 0 ; i < post_state_traces.size() ; i++ ) {
-
-		// spike triggered component
-		for (SpikeContainer::const_iterator spike = get_spikes_immediate()->begin() ; 
-				spike != get_spikes_immediate()->end() ; 
-				++spike ) {
-			NeuronID translated_spike = global2rank(*spike); // only to be used for post traces
-			post_state_traces[i]->add(translated_spike, post_state_traces_spike_biases[i]);
-		}
-
-		// follow the target vector (instead of evolve)
-		post_state_traces[i]->follow();
-	}
-}
-
-void NeuronGroup::virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version ) 
-{
-	SpikingGroup::virtual_serialize(ar, version);
-
-	logger->msg("NeuronGroup:: serializing state traces",VERBOSE);
-	for ( NeuronID i = 0 ; i < post_state_traces.size() ; ++i )
-		ar & *(post_state_traces[i]);
-}
-
-void NeuronGroup::virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version ) 
-{
-	SpikingGroup::virtual_serialize(ar, version);
-
-	logger->msg("NeuronGroup:: loading state traces",VERBOSE);
-	for ( NeuronID i = 0 ; i < post_state_traces.size() ; ++i )
-		ar & *(post_state_traces[i]);
-}

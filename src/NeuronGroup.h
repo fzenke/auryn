@@ -48,11 +48,6 @@ class NeuronGroup : public SpikingGroup
 {
 protected:
 
-	/*! Post state traces */
-	vector<EulerTrace *> post_state_traces;
-	vector<AurynFloat> post_state_traces_spike_biases;
-	vector<string> post_state_traces_state_names;
-
 	/*! Init procedure called by default constructor. */
 	void init();
 
@@ -60,8 +55,6 @@ protected:
 	void free();
 
 
-	virtual void virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version );
-	virtual void virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version );
 
 
 public:
@@ -85,20 +78,6 @@ public:
 
 	virtual void clear() = 0;
 
-	/*! Evolves traces */
-	virtual void evolve_traces();
-
-	/*! \brief Returns a post trace of a neuronal state variable e.g. the membrane 
-	 * potential with time constant tau. 
-	 *
-	 * This trace is an cotinuously integrated EulerTrace which uses the follow 
-	 * function on the mem state vector. 
-	 * @param tau The time constant of the trace.
-	 * @param b The optional parameter b allows to specify a spike triggered contribution
-	 * which will be added instantaneously to the trace upon each 
-	 * postsynaptic spike.
-	 * */
-	EulerTrace * get_post_state_trace( AurynFloat tau, string state_name="mem", AurynFloat b=0.0 );
 
 	AurynState get_val(auryn_vector_float* vec, NeuronID i);
 	void set_val(auryn_vector_float* vec, NeuronID i, AurynState val);
