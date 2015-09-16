@@ -367,7 +367,7 @@ EulerTrace * SpikingGroup::get_post_state_trace( AurynFloat tau, string state_na
 {
 	// first let's check if a state with that name exists
 	if ( find_state_vector( state_name ) == NULL ) {
-		logger->msg("A state vector with this name "+state_name+" does not exist");
+		logger->msg("A state vector with this name "+state_name+" does not exist", ERROR);
 		throw AurynStateVectorException();
 	} // good to go
 
