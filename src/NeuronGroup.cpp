@@ -300,4 +300,8 @@ void NeuronGroup::tadd(NeuronID id, AurynWeight amount, TransmitterType t)
 }
 
 
-
+void NeuronGroup::tadd(auryn_vector_float * state, NeuronID id, AurynWeight amount)
+{
+	NeuronID localid = global2rank(id);
+	add_val(state, localid, amount);
+}

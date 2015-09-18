@@ -126,6 +126,9 @@ public:
 	/*! Adds given transmitter to neuron as from a synaptic event. DEPRECATED. Moving slowly to SparseConnection transmit. */
 	void tadd(NeuronID id, AurynWeight amount, TransmitterType t=GLUT);
 
+	/*! Adds given amount of transmitter to neuron state/id. */
+	void tadd(auryn_vector_float * state, NeuronID id, AurynWeight amount);
+
 };
 
 
