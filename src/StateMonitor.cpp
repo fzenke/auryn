@@ -26,7 +26,7 @@
 #include "StateMonitor.h"
 
 
-StateMonitor::StateMonitor(NeuronGroup * source, NeuronID id, string statename, string filename, AurynDouble sampling_interval)  
+StateMonitor::StateMonitor(SpikingGroup * source, NeuronID id, string statename, string filename, AurynDouble sampling_interval)  
 {
 	init(source,id,statename,filename,sampling_interval/dt);
 }
@@ -44,7 +44,7 @@ StateMonitor::StateMonitor(auryn_vector_float * state, NeuronID id, string filen
 	outfile << setiosflags(ios::fixed) << setprecision(6);
 }
 
-void StateMonitor::init(NeuronGroup * source, NeuronID id, string statename, string filename, AurynTime stepsize)
+void StateMonitor::init(SpikingGroup * source, NeuronID id, string statename, string filename, AurynTime stepsize)
 {
 	if ( !source->localrank(id) ) return; // do not register if neuron is not on the local rank
 
