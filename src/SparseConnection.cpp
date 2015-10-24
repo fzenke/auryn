@@ -152,7 +152,7 @@ void SparseConnection::seed(NeuronID randomseed)
 	has_been_seeded = true;
 }
 
-AurynLong SparseConnection::estimate_required_nonzero_entires( AurynLong nonzero , double sigma )
+AurynLong SparseConnection::estimate_required_nonzero_entires( AurynLong nonzero, double sigma )
 {
 	return nonzero + sigma*sqrt(nonzero) ;
 }
@@ -296,7 +296,8 @@ void SparseConnection::set_upper_triangular(AurynWeight weight)
 }
 
 
-void SparseConnection::connect_block_random(AurynWeight weight, float sparseness,
+void SparseConnection::connect_block_random(AurynWeight weight, 
+		double sparseness,
 		NeuronID lo_row, 
 		NeuronID hi_row, 
 		NeuronID lo_col, 
@@ -319,7 +320,9 @@ void SparseConnection::connect_block_random(AurynWeight weight, float sparseness
 	r = communicator->rank()-dst->get_locked_rank(); 
 	s = dst->get_locked_range();
 
-	boost::exponential_distribution<> dist(sparseness);
+	// correction for "refractoriness"
+	double lambda = 1.0/(1.0/sparseness-1.0);
+	boost::exponential_distribution<> dist(lambda);
 	boost::variate_generator<boost::mt19937&, boost::exponential_distribution<> > die(SparseConnection::sparse_connection_gen, dist);
 
 	if (!has_been_allocated)
@@ -385,11 +388,8 @@ void SparseConnection::connect_block_random(AurynWeight weight, float sparseness
 		}
 
 		if ( sparseness < 1.0 ) { 
-			AurynLong jump = (AurynLong) (die()+0.5);
-			if ( jump == 0 )  
-				x += 1 ;
-			else
-				x += jump ;
+			AurynLong jump = (AurynLong) (die()+1.5);
+			x += jump ;
 		} else { // dense matrices
 			x += 1 ;
 		}

@@ -40,6 +40,7 @@ StateMonitor::StateMonitor(auryn_vector_float * state, NeuronID id, string filen
 	src = NULL;
 	nid = id;
 	target_variable = state->data+nid;
+	set_stop_time(10.0);
 	ssize = sampling_interval/dt;
 	outfile << setiosflags(ios::fixed) << setprecision(6);
 }
@@ -53,6 +54,7 @@ void StateMonitor::init(SpikingGroup * source, NeuronID id, string statename, st
 	sys->register_monitor(this);
 	src = source;
 	nid = src->global2rank(id);
+	set_stop_time(10.0);
 
 	if ( nid >= src->get_rank_size() ) {
 		logger->msg("Error: StateMonitor trying to read from non-existing neuron.",ERROR);

@@ -248,6 +248,9 @@ void auryn_vector_float_add( auryn_vector_float * a, auryn_vector_float * b);
  *  Internal  version of to subtract GSL vectors.*/
 void auryn_vector_float_sub( auryn_vector_float * a, auryn_vector_float * b);
 
+/*! \brief Computes r := a-b */
+void auryn_vector_float_sub( auryn_vector_float * a, auryn_vector_float * b, auryn_vector_float * r);
+
 
 
 // ushort vector functions

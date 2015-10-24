@@ -175,7 +175,7 @@ public:
 	 * of ranks. 
 	 */ 
 	void connect_block_random(AurynWeight weight, 
-			float sparseness, 
+			double sparseness, 
 			NeuronID lo_row, 
 			NeuronID hi_row, 
 			NeuronID lo_col, 
