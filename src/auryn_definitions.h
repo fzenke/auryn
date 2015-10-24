@@ -65,8 +65,8 @@ namespace mpi = boost::mpi;
 /*! The current Auryn version/revision number. 
  * Should be all ints. */
 #define AURYNVERSION 0
-#define AURYNSUBVERSION 6
-#define AURYNREVISION 1
+#define AURYNSUBVERSION 7
+#define AURYNREVISION 0
 
 
 /*! Toggle between memory alignment for
