@@ -219,7 +219,6 @@ int main(int ac, char* av[])
 			gamma*w,sparseness,
 			gamma*eta,kappa,tau_stdp,wmax,
 			GABA);
-	con_ee->write_to_file("con_ee.txt");
 
 
 	if (winh>=0)
