@@ -137,26 +137,40 @@ public:
 	 * that stores the connectinos. */
 	ForwardMatrix * w; 
 
-	/*! Empty constructor which should not be used -- TODO should be deprecated at some point. */
+	/*! \brief Empty constructor which should not be used -- TODO should be deprecated at some point. */
 	SparseConnection();
 	SparseConnection(const char * filename);
 	SparseConnection(NeuronID rows, NeuronID cols);
 
 	SparseConnection(SpikingGroup * source, NeuronGroup * destination, TransmitterType transmitter = GLUT);
 	SparseConnection(SpikingGroup * source, NeuronGroup * destination, const char * filename, TransmitterType transmitter=GLUT);
-	SparseConnection(SpikingGroup * source, NeuronGroup * destination, AurynWeight weight, AurynFloat sparseness=0.05, TransmitterType transmitter=GLUT, string name="SparseConnection");
-	/*! This constructor tries to clone a connection by guessing all parameters except source and destination from another connection instance. */
+
+	/*! \brief Default constructor which sets up a random sparse matrix with fixed weight between the source and destination group. 
+	 *
+	 * The constructor takes the weight and sparseness as secondary arguments. The latter allows Auryn to 
+	 * allocate the approximately right amount of memory inadvance. It is good habit to specify at time of initialization also 
+	 * a connection name and the transmitter type. Both can be set separately with set_transmitter and set_name if the function call gets
+	 * too long and ugly. A connection name is often handy during debugging and the transmitter type is a crucial for obvious resons ...  */
+	SparseConnection(SpikingGroup * source, NeuronGroup * destination, 
+			AurynWeight weight, AurynFloat sparseness=0.05, 
+			TransmitterType transmitter=GLUT, string name="SparseConnection");
+
+	/*! \brief This constructor tries to clone a connection by guessing all parameters 
+	 * except source and destination from another connection instance. */
 	SparseConnection(SpikingGroup * source, NeuronGroup * destination, SparseConnection * con, string name="SparseConnection");
+
 	SparseConnection(SpikingGroup * source, NeuronGroup * destination, AurynWeight weight, AurynFloat sparseness, NeuronID lo_row, NeuronID hi_row, NeuronID lo_col, NeuronID hi_col, TransmitterType transmitter=GLUT);
+	
+	/*! \brief The default destructor */
 	virtual ~SparseConnection();
 
-	/*! Is used whenever memory has to be allocated manually. Automatically adjust for number of ranks and for security margin */
+	/*! \brief Is used whenever memory has to be allocated manually. Automatically adjust for number of ranks and for security margin */
 	void allocate_manually(AurynLong expected_size);
 
-	/*! This function estimates the required size of the nonzero entry buffer. */
+	/*! \brief This function estimates the required size of the nonzero entry buffer. */
 	AurynLong estimate_required_nonzero_entires( AurynLong nonzero , double sigma = 5.);
 
-	/*! This function seeds the generator for all random fill operatios */
+	/*! \brief This function seeds the generator for all random fill operatios */
 	void seed(NeuronID randomseed);
 
 	/*! \brief Returns weight value of a given element if it exists */
@@ -171,37 +185,37 @@ public:
 	/*! \brief Sets weight value of a given element referenced by its index in the data array. */
 	virtual void set_data(NeuronID i, AurynWeight value);
 
-	/*! Sets a single connection to value if it exists  */
+	/*! \brief Sets a single connection to value if it exists  */
 	virtual void set(NeuronID i, NeuronID j, AurynWeight value);
 
-	/*! Sets a list of connection to value if they exists  */
+	/*! \brief Sets a list of connection to value if they exists  */
 	virtual void set(vector<neuron_pair> element_list, AurynWeight value);
 
-	/*! Synonym for random_data_lognormal  */
+	/*! \brief Synonym for random_data_lognormal  */
 	void random_data(AurynWeight mean, AurynWeight sigma); 
 
-	/*! Set weights of all existing connections randomly using a normal distrubtion */
+	/*! \brief Set weights of all existing connections randomly using a normal distrubtion */
 	void random_data_normal(AurynWeight mean, AurynWeight sigma); 
 
-	/*! Set weights of all existing connections randomly using a lognormal distribution */
+	/*! \brief Set weights of all existing connections randomly using a lognormal distribution */
 	void random_data_lognormal(AurynWeight m, AurynWeight s); 
 
-	/*! Sets weights in cols to the same value drewn from a Gaussian distribution  */
+	/*! \brief Sets weights in cols to the same value drewn from a Gaussian distribution  */
 	void random_col_data(AurynWeight mean, AurynWeight sigma); 
 
-	/*! Sets all weights of existing connections in a block spanned by the first 4 parameters to the value given. */
+	/*! \brief Sets all weights of existing connections in a block spanned by the first 4 parameters to the value given. */
 	void set_block(NeuronID lo_row, NeuronID hi_row, NeuronID lo_col, NeuronID hi_col, AurynWeight weight);
 
-	/*! Sets all weights of existing connections to the given value. */
+	/*! \brief Sets all weights of existing connections to the given value. */
 	virtual void set_all(AurynWeight weight);
 
-	/*! Scales all weights in the weight matrix with the given value. */
+	/*! \brief Scales all weights in the weight matrix with the given value. */
 	virtual void scale_all(AurynFloat value);
 
-	/*! Clip weights */
+	/*! \brief Clip weights */
 	virtual void clip(AurynWeight lo, AurynWeight hi);
 
-	/*! Sets weights in a upper triangular matrix */
+	/*! \brief Sets weights in a upper triangular matrix */
 	void set_upper_triangular(AurynWeight weight);
 
 	/*! \brief Sets a sparse random subset of connection elements wight the given value */
@@ -212,7 +226,7 @@ public:
 	 * This function should be usually called from the constructor directly. */
 	void connect_random(AurynWeight weight=1.0, float sparseness=0.05, bool skip_diag=false);
 
-	/*! Underlying sparse fill method. 
+	/*! \brief Underlying sparse fill method. 
 	 *
 	 * Set dist_optimized to false and seed all ranks the same to get the same
 	 * matrix independent of the number of ranks. 
@@ -254,10 +268,10 @@ public:
 	 * TODO add more explanation here.*/
 	void put_pattern(type_pattern * pattern1, type_pattern * pattern2, AurynWeight strength, bool overwrite );
 
-	/*! Reads patterns from a .pat file and adds them as Hebbian assemblies onto an existing weight matrix */
+	/*! \brief Reads patterns from a .pat file and adds them as Hebbian assemblies onto an existing weight matrix */
 	void load_patterns( string filename, AurynWeight strength, bool overwrite = false, bool chainmode = false);
 
-	/*! Reads first n patterns from a .pat file and adds them as Hebbian assemblies onto an existing weight matrix */
+	/*! \brief Reads first n patterns from a .pat file and adds them as Hebbian assemblies onto an existing weight matrix */
 	void load_patterns( string filename, AurynWeight strength, int n, bool overwrite = false, bool chainmode = false);
 
 	/*! \brief Internally used propagate method
@@ -265,7 +279,7 @@ public:
 	 * This method propagates spikes in the main simulation loop. Should usually not be called directly by the user.*/
 	virtual void propagate();
 
-	/*! Quick an dirty function that checks if all units on the local rank are connected */
+	/*! \brief Quick an dirty function that checks if all units on the local rank are connected */
 	void sanity_check();
 
 	/*! \brief Computes sum of all weight elements in the Connection */
@@ -321,25 +335,25 @@ public:
 	 * method. */
 	bool load_from_file(ForwardMatrix * m, string filename, AurynLong data_size = 0 );
 
-	/*! Sets minimum weight (for plastic connections). */
+	/*! \brief Sets minimum weight (for plastic connections). */
 	virtual void set_min_weight(AurynWeight minimum_weight);
 
-	/*! Gets minimum weight (for plastic connections). */
+	/*! \brief Gets minimum weight (for plastic connections). */
 	AurynWeight get_min_weight();
 
-	/*! Sets maximum weight (for plastic connections). */
+	/*! \brief Sets maximum weight (for plastic connections). */
 	virtual void set_max_weight(AurynWeight maximum_weight);
 
-	/*! Gets maximum weight (for plastic connections). */
+	/*! \brief Gets maximum weight (for plastic connections). */
 	AurynWeight get_max_weight();
 
-	/*! Returns a vector of ConnectionsID of a block specified by the arguments */
+	/*! \brief Returns a vector of ConnectionsID of a block specified by the arguments */
 	vector<neuron_pair> get_block(NeuronID lo_row, NeuronID hi_row, NeuronID lo_col, NeuronID hi_col);
 
-	/*! Returns a vector of ConnectionsID of postsynaptic parterns of neuron i */
+	/*! \brief Returns a vector of ConnectionsID of postsynaptic parterns of neuron i */
 	vector<neuron_pair> get_post_partners(NeuronID i);
 
-	/*! Returns a vector of ConnectionsID of presynaptic parterns of neuron i */
+	/*! \brief Returns a vector of ConnectionsID of presynaptic parterns of neuron i */
 	vector<neuron_pair> get_pre_partners(NeuronID j);
 };
 
