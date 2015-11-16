@@ -31,6 +31,8 @@
 #include "System.h"
 
 
+namespace auryn {
+
 /*! \brief Conductance based Adaptive Exponential neuron model - Brette and Gerstner (2005). Default values are taken from Table 1 (4a)  of Naud, Marcille, Clopath and Gerstner (2008)
 */
 class AdExGroup : public NeuronGroup
@@ -58,7 +60,7 @@ private:
     void calculate_scale_constants();
     inline void integrate_state();
     inline void check_thresholds();
-    virtual string get_output_line(NeuronID i);
+    virtual std::string get_output_line(NeuronID i);
     virtual void load_input_line(NeuronID i, const char * buf);
 
 	void virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version );
@@ -106,6 +108,8 @@ public:
     /*! The evolve method internally used by System. */
     void evolve();
 };
+
+}
 
 #endif /*ADEXGROUP_H_*/
 

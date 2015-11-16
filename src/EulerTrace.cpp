@@ -25,6 +25,8 @@
 
 #include "EulerTrace.h"
 
+using namespace auryn;
+
 void EulerTrace::init(NeuronID n, AurynFloat timeconstant)
 {
 	size = n;

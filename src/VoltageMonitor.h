@@ -35,7 +35,7 @@
 #include <fstream>
 #include <iomanip>
 
-using namespace std;
+namespace auryn {
 
 /*! \brief Records the membrane potential from one unit from the source neuron group to a file. 
  *
@@ -86,5 +86,7 @@ public:
 	virtual ~VoltageMonitor();
 	void propagate();
 };
+
+}
 
 #endif /*VOLTAGEMONITOR_H_*/

@@ -42,7 +42,7 @@
 #define SOFTSTARTTIME 0.1
 #define STIMULUSGROUP_LOAD_MULTIPLIER 0.1
 
-using namespace std;
+namespace auryn {
 
 
 /*! \brief Provides a poisson stimulus at random intervals in one or more
@@ -52,11 +52,11 @@ class StimulusGroup : public SpikingGroup
 private:
 	AurynTime * clk;
 	AurynTime * ttl;
-	vector<type_pattern> stimuli;
+	std::vector<type_pattern> stimuli;
 	AurynFloat * activity;
 
 	/*! Internal name for the stimfile (tiser stands for time series). */
-	fstream tiserfile;
+	std::fstream tiserfile;
 
 	AurynFloat base_rate;
 
@@ -79,7 +79,7 @@ private:
 	StimulusGroupModeType stimulus_order ;
 
 	/*! stimulus probabilities */
-	vector<double> probabilities ;
+	std::vector<double> probabilities ;
 
 	/*! current stimulus index */
 	unsigned int cur_stim_index ;
@@ -177,9 +177,9 @@ public:
 	void set_next_action_time(double time);
 
 	/*! Setter for pattern probability distribution */
-	void set_distribution ( vector<double> probs );
+	void set_distribution ( std::vector<double> probs );
 	/*! Getter for pattern probability distribution */
-	vector<double> get_distribution ( );
+	std::vector<double> get_distribution ( );
 	/*! Getter for pattern i of the probability distribution */
 	double get_distribution ( int i );
 	/*! Initialized distribution to be flat */
@@ -187,8 +187,10 @@ public:
 	/*! Normalizes the distribution */
 	void normalize_distribution( );
 
-	vector<type_pattern> * get_patterns();
+	std::vector<type_pattern> * get_patterns();
 
 };
+
+}
 
 #endif /*STIMULUSGROUP_H_*/

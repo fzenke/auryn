@@ -25,6 +25,8 @@
 
 #include "PoissonStimulator.h"
 
+using namespace auryn;
+
 boost::mt19937 PoissonStimulator::gen = boost::mt19937();
 
 PoissonStimulator::PoissonStimulator(NeuronGroup * target, AurynFloat rate, AurynWeight w ) : Monitor( )
@@ -35,7 +37,7 @@ PoissonStimulator::PoissonStimulator(NeuronGroup * target, AurynFloat rate, Aury
 
 void PoissonStimulator::init( NeuronGroup * target, AurynFloat rate, AurynWeight w )
 {
-	sys->register_monitor(this);
+	auryn::sys->register_monitor(this);
 	dst = target;
 
 	set_target_state();
@@ -44,11 +46,11 @@ void PoissonStimulator::init( NeuronGroup * target, AurynFloat rate, AurynWeight
 	poisson_rate = rate;
 
 
-	stringstream oss;
-	oss << scientific << "PoissonStimulator:: initializing with mean " << get_lambda();
-	logger->msg(oss.str(),NOTIFICATION);
+	std::stringstream oss;
+	oss << std::scientific << "PoissonStimulator:: initializing with mean " << get_lambda();
+	auryn::logger->msg(oss.str(),NOTIFICATION);
 
-	seed(61093*communicator->rank());
+	seed(61093*auryn::communicator->rank());
 	dist = new boost::poisson_distribution<int> (get_lambda());
 	die  = new boost::variate_generator<boost::mt19937&, boost::poisson_distribution<int> > ( gen, *dist );
 }
@@ -89,7 +91,7 @@ AurynFloat PoissonStimulator::get_lambda() {
 	return get_rate()*dt;
 }
 
-void PoissonStimulator::set_target_state(string state_name) {
+void PoissonStimulator::set_target_state(std::string state_name) {
 	target_vector = dst->get_state_vector(state_name);
 }
 

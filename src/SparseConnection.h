@@ -45,7 +45,7 @@
 
 #define WARN_FILL_LEVEL 0.8
 
-using namespace std;
+namespace auryn {
 
 typedef ComplexMatrix<AurynWeight> ForwardMatrix;
 
@@ -189,7 +189,7 @@ public:
 	virtual void set(NeuronID i, NeuronID j, AurynWeight value);
 
 	/*! \brief Sets a list of connection to value if they exists  */
-	virtual void set(vector<neuron_pair> element_list, AurynWeight value);
+	virtual void set(std::vector<neuron_pair> element_list, AurynWeight value);
 
 	/*! \brief Synonym for random_data_lognormal  */
 	void random_data(AurynWeight mean, AurynWeight sigma); 
@@ -348,13 +348,15 @@ public:
 	AurynWeight get_max_weight();
 
 	/*! \brief Returns a vector of ConnectionsID of a block specified by the arguments */
-	vector<neuron_pair> get_block(NeuronID lo_row, NeuronID hi_row, NeuronID lo_col, NeuronID hi_col);
+	std::vector<neuron_pair> get_block(NeuronID lo_row, NeuronID hi_row, NeuronID lo_col, NeuronID hi_col);
 
 	/*! \brief Returns a vector of ConnectionsID of postsynaptic parterns of neuron i */
-	vector<neuron_pair> get_post_partners(NeuronID i);
+	std::vector<neuron_pair> get_post_partners(NeuronID i);
 
 	/*! \brief Returns a vector of ConnectionsID of presynaptic parterns of neuron i */
-	vector<neuron_pair> get_pre_partners(NeuronID j);
+	std::vector<neuron_pair> get_pre_partners(NeuronID j);
 };
+
+} // namespace 
 
 #endif /*SPARSECONNECTION_H_*/

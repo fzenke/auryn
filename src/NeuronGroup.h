@@ -39,6 +39,8 @@
 #include <boost/random/variate_generator.hpp>
 #include <boost/random/normal_distribution.hpp>
 
+namespace auryn {
+
 /*! \brief Abstract base class for all neuron groups.
  *
  * This class constitutes the abstract forefather of all neuron groups in the simulator. It serves as target for Connection objects and is directly derived from SpikingGroup. It directly allocated the memory for mem (membrane potential) and the synaptic conductantes (g_ampa, g_gaba, g_nmda) as well as a vector to store the thresholds.
@@ -90,8 +92,8 @@ public:
 
 	void set_mem(NeuronID i, AurynState val);
 
-	void set_state(string name, NeuronID i, AurynState val);
-	void set_state(string name, AurynState val);
+	void set_state(std::string name, NeuronID i, AurynState val);
+	void set_state(std::string name, AurynState val);
 
 	AurynState get_ampa(NeuronID i);
 	void set_ampa(NeuronID i,AurynState val);
@@ -131,6 +133,6 @@ public:
 
 };
 
-
+}
 
 #endif /*NEURONGROUP_H_*/

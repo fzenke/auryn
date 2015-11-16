@@ -31,7 +31,7 @@
 #include <boost/random/variate_generator.hpp>
 #include <boost/random/normal_distribution.hpp>
 
-using namespace std;
+namespace auryn {
 
 /*! \brief Stimulator class to inject timeseries of currents to patterns (subpopulations) of neurons 
  * 
@@ -103,5 +103,7 @@ public:
 	void propagate();
 
 };
+
+}
 
 #endif /*POISSONSTIMULATOR_H_*/

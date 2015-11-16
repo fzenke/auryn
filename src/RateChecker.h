@@ -31,7 +31,7 @@
 #include "Checker.h"
 #include "SpikingGroup.h"
 
-using namespace std;
+namespace auryn {
 
 /*! \brief A Checker class that tracks population firing rate as a moving
  * average and breaks a run if it goes out of bound.
@@ -93,5 +93,7 @@ public:
 	void set_rate(AurynFloat r);
 	void reset();
 };
+
+}
 
 #endif /*RATECHECKER_H_*/

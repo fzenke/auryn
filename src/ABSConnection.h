@@ -34,7 +34,7 @@
 #include "DuplexConnection.h"
 #include "EulerTrace.h"
 
-using namespace std;
+namespace auryn {
 
 
 class ABSConnection : public DuplexConnection
@@ -65,7 +65,7 @@ public:
 
 	ABSConnection(SpikingGroup * source, NeuronGroup * destination, 
 			AurynWeight weight, AurynFloat sparseness=0.05,
-			AurynWeight maxweight=1. , TransmitterType transmitter=GLUT, string name="ABSConnection");
+			AurynWeight maxweight=1. , TransmitterType transmitter=GLUT, std::string name="ABSConnection");
 	virtual ~ABSConnection();
 	void init(AurynWeight maxw);
 	void free();
@@ -76,5 +76,7 @@ public:
 	virtual void propagate();
 
 };
+
+}
 
 #endif /*ABSCONNECTION_H_*/

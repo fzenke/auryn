@@ -25,6 +25,7 @@
 
 #include "IFGroup.h"
 
+using namespace auryn;
 
 IFGroup::IFGroup( NeuronID size, AurynFloat load, NeuronID total ) : NeuronGroup(size,load,total)
 {

@@ -33,6 +33,8 @@
 #include "System.h"
 #include "SpikingGroup.h"
 
+namespace auryn {
+
 /*! \brief Reads files from a ras file and emits them as SpikingGroup in a simulation.
  *
  * When the FileInputGroup reaches the end of a designated ras file it can
@@ -49,7 +51,7 @@ private:
 	bool playinloop;
 	AurynTime dly;
 	AurynTime off;
-	ifstream spkfile;
+	std::ifstream spkfile;
 	char buffer[255];
 	void init(string filename );
 	
@@ -61,5 +63,7 @@ public:
 	virtual void evolve();
 
 };
+
+}
 
 #endif /*FILEINPUTROUP_H_*/

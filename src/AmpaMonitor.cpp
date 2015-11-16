@@ -25,7 +25,9 @@
 
 #include "AmpaMonitor.h"
 
-AmpaMonitor::AmpaMonitor(NeuronGroup * source, NeuronID id, string filename, AurynTime stepsize) : Monitor(filename)
+using namespace auryn;
+
+AmpaMonitor::AmpaMonitor(NeuronGroup * source, NeuronID id, std::string filename, AurynTime stepsize) : Monitor(filename)
 {
 	init(source,id,filename,stepsize);
 }
@@ -34,22 +36,22 @@ AmpaMonitor::~AmpaMonitor()
 {
 }
 
-void AmpaMonitor::init(NeuronGroup * source, NeuronID id, string filename, AurynTime stepsize)
+void AmpaMonitor::init(NeuronGroup * source, NeuronID id, std::string filename, AurynTime stepsize)
 {
-	sys->register_monitor(this);
+	auryn::sys->register_monitor(this);
 
 	src = source;
 	ssize = stepsize;
 	if ( ssize < 1 ) ssize = 1;
 
 	nid = id;
-	outfile << setiosflags(ios::fixed) << setprecision(6);
+	outfile << std::setiosflags(std::ios::fixed) << std::setprecision(6);
 }
 
 void AmpaMonitor::propagate()
 {
-	if (sys->get_clock()%ssize==0) {
-		outfile << dt*(sys->get_clock()) << " " << src->get_ampa(nid) << "\n";
+	if (auryn::sys->get_clock()%ssize==0) {
+		outfile << dt*(auryn::sys->get_clock()) << " " << src->get_ampa(nid) << "\n";
 	}
 
 }

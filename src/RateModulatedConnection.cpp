@@ -25,6 +25,8 @@
 
 #include "RateModulatedConnection.h"
 
+using namespace auryn;
+
 void RateModulatedConnection::init() 
 {
 	rate_target = 5;
@@ -76,7 +78,7 @@ RateModulatedConnection::RateModulatedConnection(NeuronID rows, NeuronID cols)
 
 RateModulatedConnection::RateModulatedConnection( SpikingGroup * source, NeuronGroup * destination, 
 		AurynWeight weight, AurynFloat sparseness, 
-		TransmitterType transmitter, string name) 
+		TransmitterType transmitter, std::string name) 
 : SparseConnection(source,destination,weight,sparseness,transmitter, name)
 {
 	init();
@@ -142,16 +144,16 @@ void RateModulatedConnection::stats(AurynFloat &mean, AurynFloat &std)
 	std *= rate_modulation_mul;
 }
 
-bool RateModulatedConnection::write_to_file(string filename)
+bool RateModulatedConnection::write_to_file(std::string filename)
 {
 
-	stringstream oss;
+	std::stringstream oss;
 	oss << filename << ".cstate";
 
-	ofstream outfile;
-	outfile.open(oss.str().c_str(),ios::out);
+	std::ofstream outfile;
+	outfile.open(oss.str().c_str(),std::ios::out);
 	if (!outfile) {
-	  cerr << "Can't open output file " << filename << endl;
+		std::cerr << "Can't open output file " << filename << std::endl;
 	  throw AurynOpenFileException();
 	}
 
@@ -164,17 +166,17 @@ bool RateModulatedConnection::write_to_file(string filename)
 	return SparseConnection::write_to_file(filename);
 }
 
-bool RateModulatedConnection::load_from_file(string filename)
+bool RateModulatedConnection::load_from_file(std::string filename)
 {
 
-	stringstream oss;
+	std::stringstream oss;
 	oss << filename << ".cstate";
-	ifstream infile (oss.str().c_str());
+	std::ifstream infile (oss.str().c_str());
 
 	if (!infile) {
-		stringstream oes;
+		std::stringstream oes;
 		oes << "Can't open input file " << filename;
-		logger->msg(oes.str(),ERROR);
+		auryn::logger->msg(oes.str(),ERROR);
 		throw AurynOpenFileException();
 	}
 

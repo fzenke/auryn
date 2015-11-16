@@ -33,7 +33,7 @@
 #include <fstream>
 #include <iomanip>
 
-using namespace std;
+namespace auryn {
 
 /*! \brief Records mean and standard deviation of a weight matrix in predefined
  *         intervals.
@@ -51,5 +51,7 @@ public:
 	virtual ~WeightStatsMonitor();
 	void propagate();
 };
+
+}
 
 #endif /*WEIGHTSTATSMONITOR_H_*/

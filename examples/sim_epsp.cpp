@@ -22,7 +22,7 @@
 
 #define N 1
 
-using namespace std;
+using namespace auryn;
 
 namespace po = boost::program_options;
 namespace mpi = boost::mpi;

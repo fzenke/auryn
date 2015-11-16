@@ -25,18 +25,20 @@
 
 #include "WeightMonitor.h"
 
-WeightMonitor::WeightMonitor(SparseConnection * source, string filename, AurynDouble interval ) : Monitor(filename)
+using namespace auryn;
+
+WeightMonitor::WeightMonitor(SparseConnection * source, std::string filename, AurynDouble interval ) : Monitor(filename)
 {
 	init(source,0,0,filename,interval/dt);
 }
 
-WeightMonitor::WeightMonitor(SparseConnection * source, ForwardMatrix * m, string filename, AurynDouble interval ) : Monitor(filename)
+WeightMonitor::WeightMonitor(SparseConnection * source, ForwardMatrix * m, std::string filename, AurynDouble interval ) : Monitor(filename)
 {
 	init(source,0,0,filename,interval/dt);
 	set_mat(m);
 }
 
-WeightMonitor::WeightMonitor(SparseConnection * source, NeuronID i, NeuronID j, string filename, AurynDouble interval, RecordingMode mode ) : Monitor(filename)
+WeightMonitor::WeightMonitor(SparseConnection * source, NeuronID i, NeuronID j, std::string filename, AurynDouble interval, RecordingMode mode ) : Monitor(filename)
 {
 	init(source,i,j,filename,interval/dt);
 
@@ -62,25 +64,25 @@ WeightMonitor::~WeightMonitor()
 
 }
 
-void WeightMonitor::init(SparseConnection * source, NeuronID i, NeuronID j, string filename, AurynTime stepsize)
+void WeightMonitor::init(SparseConnection * source, NeuronID i, NeuronID j, std::string filename, AurynTime stepsize)
 {
-	sys->register_monitor(this);
+	auryn::sys->register_monitor(this);
 	src = source;
 	set_mat(src->w);
 	ssize = stepsize;
 	if ( ssize < 1 ) ssize = 1;
 
-	outfile << setiosflags(ios::fixed) << setprecision(6);
+	outfile << std::setiosflags(std::ios::fixed) << std::setprecision(6);
 
-	stringstream oss;
+	std::stringstream oss;
 	oss << "WeightMonitor:: "
 		<< "Initialized. Writing to file "
 		<< fname;
-	logger->msg(oss.str(),VERBOSE);
+	auryn::logger->msg(oss.str(),VERBOSE);
 
 	// default behavior
 	recordingmode = ELEMENTLIST;
-	element_list = new vector<AurynLong>;
+	element_list = new std::vector<AurynLong>;
 	group_indices.push_back(0); // important for group mode
 	elem_i = 0;
 	elem_j = 0;
@@ -103,42 +105,42 @@ void WeightMonitor::add_to_list(NeuronID i, NeuronID j)
 	add_to_list( mat->get_data_index(i,j) );
 }
 
-void WeightMonitor::add_to_list( vector<neuron_pair>  vec, string label )
+void WeightMonitor::add_to_list( std::vector<neuron_pair>  vec, std::string label )
 {
 	if ( recordingmode == ELEMENTLIST || recordingmode == GROUPS ) {
-		stringstream oss;
+		std::stringstream oss;
 		oss << "WeightMonitor:: Adding " << vec.size() << " elements to index list " << label;
-		logger->msg(oss.str(),VERBOSE);
+		auryn::logger->msg(oss.str(),VERBOSE);
 
 		if ( label.empty() )
-			outfile << "# Added list with " << vec.size() << " elements." << endl;
+			outfile << "# Added list with " << vec.size() << " elements." << std::endl;
 		else 
-			outfile << "# Added list " << label << " with " << vec.size() << " elements." << endl;
+			outfile << "# Added list " << label << " with " << vec.size() << " elements." << std::endl;
 
-		for (vector<neuron_pair>::iterator iter = vec.begin() ; iter != vec.end() ; ++iter)
+		for (std::vector<neuron_pair>::iterator iter = vec.begin() ; iter != vec.end() ; ++iter)
 		{
 			add_to_list( (*iter).i, (*iter).j );
 		}
 	} else {
-		stringstream oss;
+		std::stringstream oss;
 		oss << "WeightMonitor:: "
 			<< "Cannot add weight list. Not in ELEMENTLIST or GROUP mode."
-			<< endl;
-		logger->msg(oss.str(),ERROR);
+			<< std::endl;
+		auryn::logger->msg(oss.str(),ERROR);
 	}
 }
 
 void WeightMonitor::add_equally_spaced(NeuronID number, NeuronID z)
 {
 	if ( z >= mat->get_z_values() ) {
-		logger->msg("WeightMonitor:: z too large. Trying to monitor complex "
+		auryn::logger->msg("WeightMonitor:: z too large. Trying to monitor complex "
 				"synaptic values which do not exist."
 				,ERROR);
 		return;
 	}
 
 	if ( number > src->get_nonzero() ) {
-		logger->msg("WeightMonitor:: add_equally_spaced: \
+		auryn::logger->msg("WeightMonitor:: add_equally_spaced: \
 				Not enough elements in this Connection object",WARNING);
 		number = src->get_nonzero();
 	}
@@ -146,12 +148,12 @@ void WeightMonitor::add_equally_spaced(NeuronID number, NeuronID z)
 	for ( NeuronID i = 0 ; i < number ; ++i )
 		add_to_list(mat->get_data_begin(z)+i*mat->get_nonzero()/number);
 
-	stringstream oss;
+	std::stringstream oss;
 	oss << "WeightMonitor:: "
 		<< "Adding "
 		<< number 
 		<< " equally spaced values.";
-	logger->msg(oss.str(),VERBOSE);
+	auryn::logger->msg(oss.str(),VERBOSE);
 }
 
 void WeightMonitor::load_data_range( NeuronID i, NeuronID j )
@@ -160,38 +162,38 @@ void WeightMonitor::load_data_range( NeuronID i, NeuronID j )
 
 	if ( j > mat->get_nonzero() )
 		j = mat->get_nonzero();
-	stringstream oss;
+	std::stringstream oss;
 	oss << "WeightMonitor:: "
 		<< "Adding data range i="
 		<< i
 		<< " j="
 		<< j;
-	logger->msg(oss.str(),VERBOSE);
+	auryn::logger->msg(oss.str(),VERBOSE);
 	for ( NeuronID a = i ; a < j ; ++a )
 		element_list->push_back( a );
-	outfile << "# Added data range " << i << "-" << j << "." << endl;
+	outfile << "# Added data range " << i << "-" << j << "." << std::endl;
 }
 
-vector<type_pattern> * WeightMonitor::load_patfile( string filename, int maxpat )
+std::vector<type_pattern> * WeightMonitor::load_patfile( std::string filename, int maxpat )
 {
 
-	vector<type_pattern> * patterns = new vector<type_pattern>;
+	std::vector<type_pattern> * patterns = new std::vector<type_pattern>;
 
 
-	ifstream fin (filename.c_str());
+	std::ifstream fin (filename.c_str());
 	if (!fin) {
-		stringstream oss;
+		std::stringstream oss;
 		oss << "WeightMonitor:: "
 		<< "There was a problem opening file "
 		<< filename
 		<< " for reading."
-		<< endl;
-		logger->msg(oss.str(),ERROR);
+		<< std::endl;
+		auryn::logger->msg(oss.str(),ERROR);
 		throw AurynOpenFileException();
 	}
 
 	char buffer[256];
-	string line;
+	std::string line;
 
 
 	type_pattern pattern;
@@ -205,7 +207,7 @@ vector<type_pattern> * WeightMonitor::load_patfile( string filename, int maxpat 
 		if (line[0] == '#') continue;
 		if (line == "") { 
 			if ( total_pattern_size > 0 ) {
-				stringstream oss;
+				std::stringstream oss;
 				oss << "WeightMonitor:: Read pattern " 
 					<< patterns->size() 
 					<< " with pattern size "
@@ -213,7 +215,7 @@ vector<type_pattern> * WeightMonitor::load_patfile( string filename, int maxpat 
 					<< " ( "
 					<< pattern.size()
 					<< " on rank )";
-				logger->msg(oss.str(),VERBOSE);
+				auryn::logger->msg(oss.str(),VERBOSE);
 
 				patterns->push_back(pattern);
 				pattern.clear();
@@ -222,7 +224,7 @@ vector<type_pattern> * WeightMonitor::load_patfile( string filename, int maxpat 
 			continue;
 		}
 
-		stringstream iss (line);
+		std::stringstream iss (line);
 		NeuronID i ;
 		iss >> i ;
 		pattern_member pm;
@@ -239,18 +241,18 @@ vector<type_pattern> * WeightMonitor::load_patfile( string filename, int maxpat 
 	return patterns;
 }
 
-void WeightMonitor::load_pattern_connections( string filename , int maxcon, int maxpat, PatternMode patmod )
+void WeightMonitor::load_pattern_connections( std::string filename , int maxcon, int maxpat, PatternMode patmod )
 {
 	load_pattern_connections( filename, filename, maxcon, maxpat, patmod );
 }
 
 
-void WeightMonitor::load_pattern_connections( string filename_pre, string filename_post , int maxcon, int maxpat, PatternMode patmod )
+void WeightMonitor::load_pattern_connections( std::string filename_pre, std::string filename_post , int maxcon, int maxpat, PatternMode patmod )
 {
 	if ( !src->get_destination()->evolve_locally() ) return ;
 
-	vector<type_pattern> * patterns_pre = load_patfile(filename_pre, maxpat);
-	vector<type_pattern> * patterns_post = patterns_pre;
+	std::vector<type_pattern> * patterns_pre = load_patfile(filename_pre, maxpat);
+	std::vector<type_pattern> * patterns_post = patterns_pre;
 
 	if ( filename_pre.compare(filename_post) ) 
 		patterns_pre = load_patfile(filename_post, maxpat);
@@ -260,7 +262,7 @@ void WeightMonitor::load_pattern_connections( string filename_pre, string filena
 	for ( int i = 0 ; i < patterns_pre->size() ; ++i ) {
 		for ( int j = 0 ; j < patterns_post->size() ; ++j ) {
 			if ( patmod==ASSEMBLIES_ONLY && i != j ) continue;
-			vector<neuron_pair> list;
+			std::vector<neuron_pair> list;
 			for ( int k = 0 ; k < patterns_pre->at(i).size() ; ++k ) {
 				for ( int l = 0 ; l < patterns_post->at(j).size() ; ++l ) {
 						neuron_pair p;
@@ -276,7 +278,7 @@ void WeightMonitor::load_pattern_connections( string filename_pre, string filena
 			}
 
 
-			stringstream oss;
+			std::stringstream oss;
 			oss << "(connections " << i << " to " << j << ")";
 			add_to_list(list,oss.str());
 			group_indices.push_back(element_list->size());
@@ -285,13 +287,13 @@ void WeightMonitor::load_pattern_connections( string filename_pre, string filena
 
 
 
-	stringstream oss;
+	std::stringstream oss;
 	oss << "WeightMonitor:: Finished loading connections from n_pre=" 
 		<< patterns_pre->size() 
 		<< " and n_post="
 		<< patterns_post->size() 
 		<< " patterns";
-	logger->msg(oss.str(),NOTIFICATION);
+	auryn::logger->msg(oss.str(),NOTIFICATION);
 
 
 	if ( patterns_pre != patterns_post ) 
@@ -303,7 +305,7 @@ void WeightMonitor::load_pattern_connections( string filename_pre, string filena
 
 void WeightMonitor::record_single_synapses()
 {
-	for (vector<AurynLong>::iterator iter = element_list->begin() ; iter != element_list->end() ; ++iter)
+	for (std::vector<AurynLong>::iterator iter = element_list->begin() ; iter != element_list->end() ; ++iter)
 		outfile << mat->get_data( (*iter) ) << " ";
 }
 
@@ -328,8 +330,8 @@ void WeightMonitor::record_synapse_groups()
 void WeightMonitor::propagate()
 {
 	if ( src->get_destination()->evolve_locally() ) {
-		if (sys->get_clock()%ssize==0) {
-			outfile << fixed << dt*(sys->get_clock()) << scientific << " ";
+		if (auryn::sys->get_clock()%ssize==0) {
+			outfile << std::fixed << dt*(auryn::sys->get_clock()) << std::scientific << " ";
 			if ( recordingmode == GROUPS ) record_synapse_groups();
 			else record_single_synapses();
 			outfile << "\n";

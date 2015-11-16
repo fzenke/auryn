@@ -25,7 +25,9 @@
 
 #include "WeightSumMonitor.h"
 
-WeightSumMonitor::WeightSumMonitor(Connection * source, string filename, AurynDouble binsize) : Monitor(filename)
+using namespace auryn;
+
+WeightSumMonitor::WeightSumMonitor(Connection * source, std::string filename, AurynDouble binsize) : Monitor(filename)
 {
 	init(source,filename,binsize/dt);
 }
@@ -34,24 +36,24 @@ WeightSumMonitor::~WeightSumMonitor()
 {
 }
 
-void WeightSumMonitor::init(Connection * source, string filename,AurynTime stepsize)
+void WeightSumMonitor::init(Connection * source, std::string filename,AurynTime stepsize)
 {
 	if ( !source->get_destination()->evolve_locally() ) return;
 
-	sys->register_monitor(this);
+	auryn::sys->register_monitor(this);
 
 	src = source;
 	ssize = stepsize;
 	if ( ssize < 1 ) ssize = 1;
 
-	outfile << setiosflags(ios::fixed) << setprecision(6);
+	outfile << std::setiosflags(std::ios::fixed) << std::setprecision(6);
 }
 
 void WeightSumMonitor::propagate()
 {
-	if (sys->get_clock()%ssize==0) {
+	if (auryn::sys->get_clock()%ssize==0) {
 		AurynDouble weightsum = src->sum();
-		outfile << (sys->get_time()) << " " << weightsum << endl;
+		outfile << (auryn::sys->get_time()) << " " << weightsum << std::endl;
 	}
 
 }

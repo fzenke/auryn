@@ -58,7 +58,6 @@
 
 #include "Logger.h"
 
-using namespace std;
 namespace mpi = boost::mpi;
 
 
@@ -93,8 +92,6 @@ namespace mpi = boost::mpi;
 
 // #define CODE_COLLECT_SYNC_TIMING_STATS //!< toggle  collection of timing data on sync/all_gather
 
-/*! System wide integration time step */
-const double dt = 1.0e-4;
 
 /*! System wide minimum delay which determines
  * the sync interval between nodes in units of dt.
@@ -123,257 +120,264 @@ const double dt = 1.0e-4;
 // #undef  PRE_TRACE_MODEL
 // #define PRE_TRACE_MODEL LinearTrace
 
-/*! Specifies the different transmitter types 
- * that Auryn knows. */
-enum TransmitterType { 
-	GLUT, //!< Standard Glutamatergic (excitatory) transmission.
-	GABA, //!< Standard Gabaergic (inhibitory) transmission.
-	AMPA, //!< Only targets AMPA channels.
-	NMDA, //!< Only targets NMDA.
-	MEM,   //!< Current based synapse. Adds the transmitted quantity directly to membrane voltage.
-	CURSYN   //!< Current based synapse with dynamics.
-};
 
-enum StimulusGroupModeType { MANUAL, RANDOM, SEQUENTIAL, SEQUENTIAL_REV, STIMFILE };
+namespace auryn {
+	/*! System wide integration time step */
+	const double dt = 1.0e-4;
 
+	/*! Specifies the different transmitter types 
+	 * that Auryn knows. */
+	enum TransmitterType { 
+		GLUT, //!< Standard Glutamatergic (excitatory) transmission.
+		GABA, //!< Standard Gabaergic (inhibitory) transmission.
+		AMPA, //!< Only targets AMPA channels.
+		NMDA, //!< Only targets NMDA.
+		MEM,   //!< Current based synapse. Adds the transmitted quantity directly to membrane voltage.
+		CURSYN   //!< Current based synapse with dynamics.
+	};
 
-typedef unsigned int NeuronID; //!< NeuronID is an unsigned integeger type used to index neurons in Auryn.
-typedef NeuronID AurynInt;
-typedef unsigned int StateID; //!< StateID is an unsigned integeger type used to index synaptic states in Auryn.
-typedef unsigned long AurynLong; //!< An unsigned long type used to count synapses or similar. 
-typedef NeuronID AurynTime; //!< Defines Auryns discrete time unit of the System clock.  Change to AurynLong if 120h of simtime are not sufficient
-typedef float AurynFloat; //!< Low precision floating point datatype.
-typedef double AurynDouble; //!< Higher precision floating point datatype.
-typedef AurynFloat AurynWeight; //!< Unit of synaptic weights.
-typedef AurynFloat AurynState; //!< Type for Auryn state variables (default single precision since it needs to be compatible with auryn_vector_float).
-typedef vector<NeuronID> SpikeContainer; //!< Spike container type. Used for storing spikes.
-typedef vector<float> AttributeContainer; //!< Attribute container type. Used for storing spike attributes that are needed for efficient STP implementations.
+	enum StimulusGroupModeType { MANUAL, RANDOM, SEQUENTIAL, SEQUENTIAL_REV, STIMFILE };
 
 
-//! Auryn vector template -- copies the core of GSL vector functionality
-template <typename T> 
-struct auryn_vector { 
-    NeuronID size;
-    T * data;
+	typedef unsigned int NeuronID; //!< NeuronID is an unsigned integeger type used to index neurons in Auryn.
+	typedef NeuronID AurynInt;
+	typedef unsigned int StateID; //!< StateID is an unsigned integeger type used to index synaptic states in Auryn.
+	typedef unsigned long AurynLong; //!< An unsigned long type used to count synapses or similar. 
+	typedef NeuronID AurynTime; //!< Defines Auryns discrete time unit of the System clock.  Change to AurynLong if 120h of simtime are not sufficient
+	typedef std::string string; //!< Standard library string type which is imported into Auryn namespace.
+	typedef float AurynFloat; //!< Low precision floating point datatype.
+	typedef double AurynDouble; //!< Higher precision floating point datatype.
+	typedef AurynFloat AurynWeight; //!< Unit of synaptic weights.
+	typedef AurynFloat AurynState; //!< Type for Auryn state variables (default single precision since it needs to be compatible with auryn_vector_float).
+	typedef std::vector<NeuronID> SpikeContainer; //!< Spike container type. Used for storing spikes.
+	typedef std::vector<float> AttributeContainer; //!< Attribute container type. Used for storing spike attributes that are needed for efficient STP implementations.
 
-	template<class Archive>
-	void serialize(Archive & ar, const unsigned int version)
+
+	//! Auryn vector template -- copies the core of GSL vector functionality
+	template <typename T> 
+	struct auryn_vector { 
+		NeuronID size;
+		T * data;
+
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int version)
+		{
+			ar & size;
+			for ( NeuronID i = 0 ; i < size ; ++i ) 
+				ar & data[i];
+		}
+	};
+
+	typedef auryn_vector<AurynFloat> auryn_vector_float; //!< Reimplements a simplified version of the GSL vector.
+
+	typedef auryn_vector<unsigned short> auryn_vector_ushort; //!< Reimplements a simplified version of the GSL vector for ushort.
+
+	struct neuron_pair {
+		NeuronID i,j;
+	} ;
+
+	struct pattern_member {
+		NeuronID i;
+		AurynDouble gamma;
+	} ;
+	typedef std::vector<pattern_member> type_pattern;
+
+
+
+	/*! Determines memory alignment (adapted from ATLAS library) 
+	 @param N max return value
+	 @param *vp Pointer to be aligned 
+	 @param inc size of element, in bytes
+	 @param align required alignment, in bytes */
+	int auryn_AlignOffset (const int N, const void *vp, const int inc, const int align);  
+
+	/*! Rounds vector size to multiple of four to allow using the SSE optimizations. */
+	NeuronID calculate_vector_size(NeuronID i);
+
+
+	// Float vector functions
+
+	/*! Allocates an auryn_vector_float */
+	auryn_vector_float * auryn_vector_float_alloc(const NeuronID n);
+	/*! Frees an auryn_vector_float */
+	void auryn_vector_float_free (auryn_vector_float * v);
+	/*! Initializes an auryn_vector_float with zeros */
+	void auryn_vector_float_set_zero (auryn_vector_float * v);
+	/*! Sets all elements in an auryn_vector_float to value x */
+	void auryn_vector_float_set_all (auryn_vector_float * v, AurynFloat x);
+
+	/*! \brief Copies vector src to dst assuming they have the same size. 
+	 *
+	 * Otherwise this will lead to undefined results. No checking of size is
+	 * performed for performance reasons. */
+	void auryn_vector_float_copy (auryn_vector_float * src, auryn_vector_float * dst );
+
+	/*! Auryn vector getter */
+	AurynFloat auryn_vector_float_get (const auryn_vector_float * v, const NeuronID i);
+
+	/*! Auryn vector setter */
+	void auryn_vector_float_set (auryn_vector_float * v, const NeuronID i, AurynFloat x);
+
+	/*! Auryn vector gets pointer to designed element. */
+	AurynFloat * auryn_vector_float_ptr (const auryn_vector_float * v, const NeuronID i);
+
+	/*! Internal  version of auryn_vector_float_mul of gsl operations */
+	void auryn_vector_float_mul( auryn_vector_float * a, auryn_vector_float * b);
+
+	/*! \brief Computes a := a + b 
+	 *
+	 * Internal  version of auryn_vector_float_add between a constant and a vector */
+	void auryn_vector_float_add_constant( auryn_vector_float * a, float b );
+
+	/*! Computes y := a*x+y
+	 *
+	 * Internal SAXPY version */
+	void auryn_vector_float_saxpy( const float a, const auryn_vector_float * x, const auryn_vector_float * y );
+	/*! Internal version to scale a vector with a constant b  */
+	void auryn_vector_float_scale(const float a, const auryn_vector_float * b );
+	/*! Internal version to clip all the elements of a vector between [a:b]  */
+	void auryn_vector_float_clip(auryn_vector_float * v, const float a , const float b );
+
+	/*! Internal  version to clip all the elements of a vector between [a:0]  */
+	void auryn_vector_float_clip(auryn_vector_float * v, const float a );
+
+	/*! \brief Internal  version of to add GSL vectors.
+	 *
+	 * Add vectors a and b and store the result in a. */
+	void auryn_vector_float_add( auryn_vector_float * a, auryn_vector_float * b);
+
+	/*! \brief Computes a := a-b
+	 * 
+	 *  Internal  version of to subtract GSL vectors.*/
+	void auryn_vector_float_sub( auryn_vector_float * a, auryn_vector_float * b);
+
+	/*! \brief Computes r := a-b */
+	void auryn_vector_float_sub( auryn_vector_float * a, auryn_vector_float * b, auryn_vector_float * r);
+
+
+
+	// ushort vector functions
+	/*! Allocates an auryn_vector_ushort */
+	auryn_vector_ushort * auryn_vector_ushort_alloc(const NeuronID n);
+	/*! Frees an auryn_vector_ushort */
+	void auryn_vector_ushort_free (auryn_vector_ushort * v);
+	/*! Initializes an auryn_vector_ushort with zeros */
+	void auryn_vector_ushort_set_zero (auryn_vector_ushort * v);
+	/*! Sets all elements in an auryn_vector_ushort to value x */
+	void auryn_vector_ushort_set_all (auryn_vector_ushort * v, unsigned short x);
+	/*! Copies vector src to dst assuming they have the same size. 
+	 * Otherwise this will lead to undefined results. No checking of size is
+	 * performed for performance reasons. */
+	void auryn_vector_ushort_copy (auryn_vector_ushort * src, auryn_vector_ushort * dst );
+	/*! Auryn vector getter */
+	unsigned short auryn_vector_ushort_get (const auryn_vector_ushort * v, const NeuronID i);
+	/*! Auryn vector setter */
+	void auryn_vector_ushort_set (auryn_vector_ushort * v, const NeuronID i, unsigned short x);
+	/*! Auryn vector gets pointer to designed element. */
+	unsigned short * auryn_vector_ushort_ptr (const auryn_vector_ushort * v, const NeuronID i);
+	/*! Auryn spike event for binary monitors */
+	struct SpikeEvent_type
 	{
-		ar & size;
-		for ( NeuronID i = 0 ; i < size ; ++i ) 
-			ar & data[i];
-	}
-};
+		AurynTime time; 
+		NeuronID neuronID;
+	};
 
-typedef auryn_vector<AurynFloat> auryn_vector_float; //!< Reimplements a simplified version of the GSL vector.
+	/*! Tag for header in binary encoded spike monitor files. The first digits are 28796 for Auryn in 
+	 * phone dial notation. The remaining 4 digits encode type of binary file and the current Auryn 
+	 * version */
+	const NeuronID tag_binary_spike_monitor = 287960000+100*AURYNVERSION+10*AURYNSUBVERSION+1*AURYNREVISION;
+	const NeuronID tag_binary_state_monitor = 287961000+100*AURYNVERSION+10*AURYNSUBVERSION+1*AURYNREVISION;
 
-typedef auryn_vector<unsigned short> auryn_vector_ushort; //!< Reimplements a simplified version of the GSL vector for ushort.
+	// Exceptions
+	class AurynOpenFileException: public std::exception
+	{
+		  virtual const char* what() const throw()
+				{
+						return "Failed opening file.";
+				}
+	};
 
-struct neuron_pair {
-	NeuronID i,j;
-} ;
+	class AurynMMFileException: public std::exception
+	{
+		  virtual const char* what() const throw()
+				{
+						return "Problem reading MatrixMarket file. Not row major format?";
+				}
+	};
 
-struct pattern_member {
-	NeuronID i;
-	AurynDouble gamma;
-} ;
-typedef vector<pattern_member> type_pattern;
+	class AurynMatrixDimensionalityException: public std::exception
+	{
+		  virtual const char* what() const throw()
+				{
+						return "Cannot add data outside of matrix.";
+				}
+	};
 
+	class AurynMatrixBufferException: public std::exception
+	{
+		  virtual const char* what() const throw()
+				{
+						return "Buffer full.";
+				}
+	};
 
+	class AurynMatrixPushBackException: public std::exception
+	{
+		  virtual const char* what() const throw()
+				{
+						return "Could not push_back in SimpleMatrix. Out of order execution?";
+				}
+	};
 
-/*! Determines memory alignment (adapted from ATLAS library) 
- @param N max return value
- @param *vp Pointer to be aligned 
- @param inc size of element, in bytes
- @param align required alignment, in bytes */
-int auryn_AlignOffset (const int N, const void *vp, const int inc, const int align);  
-
-/*! Rounds vector size to multiple of four to allow using the SSE optimizations. */
-NeuronID calculate_vector_size(NeuronID i);
-
-
-// Float vector functions
-
-/*! Allocates an auryn_vector_float */
-auryn_vector_float * auryn_vector_float_alloc(const NeuronID n);
-/*! Frees an auryn_vector_float */
-void auryn_vector_float_free (auryn_vector_float * v);
-/*! Initializes an auryn_vector_float with zeros */
-void auryn_vector_float_set_zero (auryn_vector_float * v);
-/*! Sets all elements in an auryn_vector_float to value x */
-void auryn_vector_float_set_all (auryn_vector_float * v, AurynFloat x);
-
-/*! \brief Copies vector src to dst assuming they have the same size. 
- *
- * Otherwise this will lead to undefined results. No checking of size is
- * performed for performance reasons. */
-void auryn_vector_float_copy (auryn_vector_float * src, auryn_vector_float * dst );
-
-/*! Auryn vector getter */
-AurynFloat auryn_vector_float_get (const auryn_vector_float * v, const NeuronID i);
-
-/*! Auryn vector setter */
-void auryn_vector_float_set (auryn_vector_float * v, const NeuronID i, AurynFloat x);
-
-/*! Auryn vector gets pointer to designed element. */
-AurynFloat * auryn_vector_float_ptr (const auryn_vector_float * v, const NeuronID i);
-
-/*! Internal  version of auryn_vector_float_mul of gsl operations */
-void auryn_vector_float_mul( auryn_vector_float * a, auryn_vector_float * b);
-
-/*! \brief Computes a := a + b 
- *
- * Internal  version of auryn_vector_float_add between a constant and a vector */
-void auryn_vector_float_add_constant( auryn_vector_float * a, float b );
-
-/*! Computes y := a*x+y
- *
- * Internal SAXPY version */
-void auryn_vector_float_saxpy( const float a, const auryn_vector_float * x, const auryn_vector_float * y );
-/*! Internal version to scale a vector with a constant b  */
-void auryn_vector_float_scale(const float a, const auryn_vector_float * b );
-/*! Internal version to clip all the elements of a vector between [a:b]  */
-void auryn_vector_float_clip(auryn_vector_float * v, const float a , const float b );
-
-/*! Internal  version to clip all the elements of a vector between [a:0]  */
-void auryn_vector_float_clip(auryn_vector_float * v, const float a );
-
-/*! \brief Internal  version of to add GSL vectors.
- *
- * Add vectors a and b and store the result in a. */
-void auryn_vector_float_add( auryn_vector_float * a, auryn_vector_float * b);
-
-/*! \brief Computes a := a-b
- * 
- *  Internal  version of to subtract GSL vectors.*/
-void auryn_vector_float_sub( auryn_vector_float * a, auryn_vector_float * b);
-
-/*! \brief Computes r := a-b */
-void auryn_vector_float_sub( auryn_vector_float * a, auryn_vector_float * b, auryn_vector_float * r);
+	class AurynConnectionAllocationException: public std::exception
+	{
+		  virtual const char* what() const throw()
+				{
+						return "Buffer has not been allocated.";
+				}
+	};
 
 
+	class AurynMemoryAlignmentException: public std::exception
+	{
+		  virtual const char* what() const throw()
+				{
+						return "Memory not aligned to 16bytes.";
+				}
+	};
 
-// ushort vector functions
-/*! Allocates an auryn_vector_ushort */
-auryn_vector_ushort * auryn_vector_ushort_alloc(const NeuronID n);
-/*! Frees an auryn_vector_ushort */
-void auryn_vector_ushort_free (auryn_vector_ushort * v);
-/*! Initializes an auryn_vector_ushort with zeros */
-void auryn_vector_ushort_set_zero (auryn_vector_ushort * v);
-/*! Sets all elements in an auryn_vector_ushort to value x */
-void auryn_vector_ushort_set_all (auryn_vector_ushort * v, unsigned short x);
-/*! Copies vector src to dst assuming they have the same size. 
- * Otherwise this will lead to undefined results. No checking of size is
- * performed for performance reasons. */
-void auryn_vector_ushort_copy (auryn_vector_ushort * src, auryn_vector_ushort * dst );
-/*! Auryn vector getter */
-unsigned short auryn_vector_ushort_get (const auryn_vector_ushort * v, const NeuronID i);
-/*! Auryn vector setter */
-void auryn_vector_ushort_set (auryn_vector_ushort * v, const NeuronID i, unsigned short x);
-/*! Auryn vector gets pointer to designed element. */
-unsigned short * auryn_vector_ushort_ptr (const auryn_vector_ushort * v, const NeuronID i);
-/*! Auryn spike event for binary monitors */
-struct SpikeEvent_type
-{
-    AurynTime time; 
-    NeuronID neuronID;
-};
+	class AurynDelayTooSmallException: public std::exception
+	{
+		  virtual const char* what() const throw()
+				{
+						return "One of the SpikeDelays was chosen shorter than the current value of MINDELAY.";
+				}
+	};
 
-/*! Tag for header in binary encoded spike monitor files. The first digits are 28796 for Auryn in 
- * phone dial notation. The remaining 4 digits encode type of binary file and the current Auryn 
- * version */
-const NeuronID tag_binary_spike_monitor = 287960000+100*AURYNVERSION+10*AURYNSUBVERSION+1*AURYNREVISION;
-const NeuronID tag_binary_state_monitor = 287961000+100*AURYNVERSION+10*AURYNSUBVERSION+1*AURYNREVISION;
+	class AurynTimeOverFlowException: public std::exception
+	{
+		  virtual const char* what() const throw()
+				{
+						return "Trying to simulate more timesteps than are available in AurynTime.";
+				}
+	};
 
-// Exceptions
-class AurynOpenFileException: public exception
-{
-	  virtual const char* what() const throw()
-		    {
-				    return "Failed opening file.";
-		    }
-};
+	class AurynStateVectorException: public std::exception
+	{
+		  virtual const char* what() const throw()
+				{
+						return "Auryn encountered an undefined problem when dealing with StateVectors.";
+				}
+	};
 
-class AurynMMFileException: public exception
-{
-	  virtual const char* what() const throw()
-		    {
-				    return "Problem reading MatrixMarket file. Not row major format?";
-		    }
-};
-
-class AurynMatrixDimensionalityException: public exception
-{
-	  virtual const char* what() const throw()
-		    {
-				    return "Cannot add data outside of matrix.";
-		    }
-};
-
-class AurynMatrixBufferException: public exception
-{
-	  virtual const char* what() const throw()
-		    {
-				    return "Buffer full.";
-		    }
-};
-
-class AurynMatrixPushBackException: public exception
-{
-	  virtual const char* what() const throw()
-		    {
-				    return "Could not push_back in SimpleMatrix. Out of order execution?";
-		    }
-};
-
-class AurynConnectionAllocationException: public exception
-{
-	  virtual const char* what() const throw()
-		    {
-				    return "Buffer has not been allocated.";
-		    }
-};
-
-
-class AurynMemoryAlignmentException: public exception
-{
-	  virtual const char* what() const throw()
-		    {
-				    return "Memory not aligned to 16bytes.";
-		    }
-};
-
-class AurynDelayTooSmallException: public exception
-{
-	  virtual const char* what() const throw()
-		    {
-				    return "One of the SpikeDelays was chosen shorter than the current value of MINDELAY.";
-		    }
-};
-
-class AurynTimeOverFlowException: public exception
-{
-	  virtual const char* what() const throw()
-		    {
-				    return "Trying to simulate more timesteps than are available in AurynTime.";
-		    }
-};
-
-class AurynStateVectorException: public exception
-{
-	  virtual const char* what() const throw()
-		    {
-				    return "Auryn encountered an undefined problem when dealing with StateVectors.";
-		    }
-};
-
-class AurynGenericException: public exception
-{
-	  virtual const char* what() const throw()
-		    {
-				    return "Auryn encountered a problem which it deemed serious enough to break the run. \
-						To debug set logger vebosity to VERBOSE or EVERYTHING and analyze the log files.";
-		    }
-};
+	class AurynGenericException: public std::exception
+	{
+		  virtual const char* what() const throw()
+				{
+						return "Auryn encountered a problem which it deemed serious enough to break the run. \
+							To debug set logger vebosity to VERBOSE or EVERYTHING and analyze the log files.";
+				}
+	};
+} // namespace
 
 #endif /*AURYN_DEFINITIONS_H__*/

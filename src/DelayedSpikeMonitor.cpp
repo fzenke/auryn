@@ -25,19 +25,21 @@
 
 #include "DelayedSpikeMonitor.h"
 
-DelayedSpikeMonitor::DelayedSpikeMonitor(SpikingGroup * source, string filename, NeuronID from, NeuronID to) 
+using namespace auryn;
+
+DelayedSpikeMonitor::DelayedSpikeMonitor(SpikingGroup * source, std::string filename, NeuronID from, NeuronID to) 
 	: Monitor(filename)
 {
 	init(source,filename,from,to);
 }
 
-DelayedSpikeMonitor::DelayedSpikeMonitor(SpikingGroup * source, string filename, NeuronID to)
+DelayedSpikeMonitor::DelayedSpikeMonitor(SpikingGroup * source, std::string filename, NeuronID to)
 	: Monitor(filename)
 {
 	init(source,filename,0,to);
 }
 
-DelayedSpikeMonitor::DelayedSpikeMonitor(SpikingGroup * source, string filename)
+DelayedSpikeMonitor::DelayedSpikeMonitor(SpikingGroup * source, std::string filename)
 	: Monitor(filename)
 {
 	init(source,filename,0,source->get_size());
@@ -48,16 +50,16 @@ DelayedSpikeMonitor::~DelayedSpikeMonitor()
 	free();
 }
 
-void DelayedSpikeMonitor::init(SpikingGroup * source, string filename, NeuronID from, NeuronID to)
+void DelayedSpikeMonitor::init(SpikingGroup * source, std::string filename, NeuronID from, NeuronID to)
 {
-	sys->register_monitor(this);
+	auryn::sys->register_monitor(this);
 
 	// sys = system;
 	n_from = from;
 	n_to = to;
 	src = source;
 	offset = 0;
-	outfile.setf(ios::fixed);
+	outfile.setf(std::ios::fixed);
 	outfile.precision(5); 
 }
 
@@ -75,7 +77,7 @@ void DelayedSpikeMonitor::propagate()
 	for (it = src->get_spikes()->begin() ; it != src->get_spikes()->end() ; ++it ) {
 		if (*it >= n_from ) {
 			if ( *it < n_to ) 
-			 outfile << dt*(sys->get_clock()) << "  " << *it+offset << "\n";
+			 outfile << dt*(auryn::sys->get_clock()) << "  " << *it+offset << "\n";
 		}
 	}
 }

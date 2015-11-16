@@ -25,6 +25,7 @@
 #include "NeuronGroup.h"
 #include "System.h"
 
+namespace auryn {
 
 /*! \brief Conductance based neuron model with absolute refractoriness used for Neural Sampling
  */
@@ -84,6 +85,8 @@ public:
 	/*! The evolve method internally used by System. */
 	void evolve();
 };
+
+}
 
 #endif /*SIFGROUP_H_*/
 

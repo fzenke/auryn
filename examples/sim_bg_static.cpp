@@ -20,7 +20,7 @@
 
 #include "auryn.h"
 
-using namespace std;
+using namespace auryn;
 
 namespace po = boost::program_options;
 namespace mpi = boost::mpi;
@@ -112,7 +112,7 @@ int main(int ac, char* av[])
         po::notify(vm);    
 
         if (vm.count("help")) {
-            cout << desc << "\n";
+            std::cout << desc << "\n";
             return 1;
         }
 
@@ -125,120 +125,120 @@ int main(int ac, char* av[])
         } 
 
         if (vm.count("load")) {
-            cout << "load from matrix " 
+            std::cout << "load from matrix " 
                  << vm["load"].as<string>() << ".\n";
 			infilename = vm["load"].as<string>();
         } 
 
         if (vm.count("patfile")) {
-            cout << "PatternFile is " 
+            std::cout << "PatternFile is " 
                  << vm["patfile"].as<string>() << ".\n";
 			patfile = vm["patfile"].as<string>();
         } 
 
         if (vm.count("prefile")) {
-            cout << "Preload patternfile is " 
+            std::cout << "Preload patternfile is " 
                  << vm["prefile"].as<string>() << ".\n";
 			prefile = vm["prefile"].as<string>();
         } 
 
         if (vm.count("wmat")) {
 			wmatdump = true;
-			cout << "wmat dump mode" << endl;
+			std::cout << "wmat dump mode" << std::endl;
         } 
 
         if (vm.count("bgrate")) {
-            cout << "bgrate set to " 
+            std::cout << "bgrate set to " 
                  << vm["bgrate"].as<double>() << ".\n";
 			bg_rate = vm["bgrate"].as<double>();
         } 
 
         if (vm.count("sparseness")) {
-            cout << "sparseness set to " 
+            std::cout << "sparseness set to " 
                  << vm["sparseness"].as<double>() << ".\n";
 			sparseness = vm["sparseness"].as<double>();
         } 
 
         if (vm.count("simtime")) {
-            cout << "simtime set to " 
+            std::cout << "simtime set to " 
                  << vm["simtime"].as<double>() << ".\n";
 			simtime = vm["simtime"].as<double>();
 			stimtime = simtime;
         } 
 
         if (vm.count("dir")) {
-            cout << "dir set to " 
+            std::cout << "dir set to " 
                  << vm["dir"].as<string>() << ".\n";
 			dir = vm["dir"].as<string>();
         } 
 
         if (vm.count("wee")) {
-            cout << "wee set to " 
+            std::cout << "wee set to " 
                  << vm["wee"].as<double>() << ".\n";
 			w_ee = vm["wee"].as<double>();
         } 
 
         if (vm.count("wei")) {
-            cout << "wei set to " 
+            std::cout << "wei set to " 
                  << vm["wei"].as<double>() << ".\n";
 			w_ei = vm["wei"].as<double>();
         } 
 
         if (vm.count("wie")) {
-            cout << "wie set to " 
+            std::cout << "wie set to " 
                  << vm["wie"].as<double>() << ".\n";
 			w_ie = vm["wie"].as<double>();
         } 
 
         if (vm.count("wii")) {
-            cout << "wii set to " 
+            std::cout << "wii set to " 
                  << vm["wii"].as<double>() << ".\n";
 			w_ii = vm["wii"].as<double>();
         } 
 
         if (vm.count("ampa")) {
-            cout << "ampa set to " 
+            std::cout << "ampa set to " 
                  << vm["ampa"].as<double>() << ".\n";
 			ampa_nmda_ratio = vm["ampa"].as<double>();
         } 
 
 
         if (vm.count("ne")) {
-            cout << "ne set to " 
+            std::cout << "ne set to " 
                  << vm["ne"].as<int>() << ".\n";
 			ne = vm["ne"].as<int>();
 			ni = ne/4;
         } 
 
         if (vm.count("stimfile")) {
-            cout << "stimfile set to " 
+            std::cout << "stimfile set to " 
                  << vm["stimfile"].as<string>() << ".\n";
 			stimfile = vm["stimfile"].as<string>();
         } 
 
         if (vm.count("chk")) {
-            cout << "chk set to " 
+            std::cout << "chk set to " 
                  << vm["chk"].as<double>() << ".\n";
 			tau_chk = vm["chk"].as<double>();
         } 
 
         if (vm.count("adapt")) {
-            cout << "adaptation on " << endl;
+            std::cout << "adaptation on " << std::endl;
 			adapt = true;
         } 
 
         if (vm.count("fast")) {
-            cout << "fast on " << endl;
+            std::cout << "fast on " << std::endl;
 			fast = true;
         } 
 
     }
-    catch(exception& e) {
-        cerr << "error: " << e.what() << "\n";
+    catch(std::exception& e) {
+        std::cerr << "error: " << e.what() << "\n";
         return 1;
     }
     catch(...) {
-        cerr << "Exception of unknown type!\n";
+        std::cerr << "Exception of unknown type!\n";
     }
 
 
@@ -255,7 +255,7 @@ int main(int ac, char* av[])
 	// END Global init
 
 	if (!infilename.empty()) {
-		stringstream iss;
+		std::stringstream iss;
 		iss << infilename << "." << world.rank();
 		infilename = iss.str();
 	}

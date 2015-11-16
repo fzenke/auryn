@@ -28,12 +28,11 @@
 
 #include "auryn_global.h"
 #include "auryn_definitions.h"
-#include <string.h>
 
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/split_member.hpp>
 
-using namespace std;
+namespace auryn {
 
 /*! \brief Template for a sparse matrix with row major ordering and fast access
  * of rows and capability to store float values per matrix entry.
@@ -528,7 +527,7 @@ T * ComplexMatrix<T>::get_ptr(NeuronID i, NeuronID j)
 		c = lo + (hi-lo)/2;
 		if ( *c < j ) lo = c+1;
 		else hi = c;
-		//cout << i << ":" << j << "   " << *lo << ":" << *hi << endl;
+		//std::cout << i << ":" << j << "   " << *lo << ":" << *hi << endl;
 	}
 	
 	if ( *lo == j ) {
@@ -730,7 +729,7 @@ void ComplexMatrix<T>::print()
 {
 	for (NeuronID i = 0 ; i < m_rows ; ++i) {
 		for (NeuronID * r = get_row_begin(i) ; r != get_row_end(i) ; ++r ) {
-			cout << i << " " << *r << " " << elementdata[r-colinds] << "\n"; 
+			std::cout << i << " " << *r << " " << elementdata[r-colinds] << "\n"; 
 			// FIXME not dumping the other states yet
 		}
 	}
@@ -840,6 +839,7 @@ NeuronID ComplexMatrix<T>::get_data_offset(NeuronID * r)
 	return r-get_ind_begin();
 }
 
+}
 
 #endif /*COMPLEXMATRIX_H_*/
 

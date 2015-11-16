@@ -34,8 +34,8 @@
 
 #define TRACE EulerTrace
 
-using namespace std;
 
+namespace auryn {
 
 /*! \brief Implements triplet STDP as described by Pfister and Gerstner 2006.
  *
@@ -169,5 +169,7 @@ public:
 	virtual void evolve();
 
 };
+
+}
 
 #endif /*TRIPLETCONNECTION_H_*/

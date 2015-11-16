@@ -25,9 +25,11 @@
 
 #include "AdExGroup.h"
 
+using namespace auryn;
+
 AdExGroup::AdExGroup(NeuronID size) : NeuronGroup(size)
 {
-    sys->register_spiking_group(this);
+    auryn::sys->register_spiking_group(this);
     if ( evolve_locally() ) init();
 }
 
@@ -193,9 +195,9 @@ AurynFloat AdExGroup::get_bg_current(NeuronID i) {
         return 0;
 }
 
-string AdExGroup::get_output_line(NeuronID i)
+std::string AdExGroup::get_output_line(NeuronID i)
 {
-    stringstream oss;
+    std::stringstream oss;
     oss << get_mem(i) << " " << get_ampa(i) << " " << get_gaba(i) << " "
         << auryn_vector_ushort_get (ref, i) << " "
         << auryn_vector_float_get (bg_current, i) <<"\n";

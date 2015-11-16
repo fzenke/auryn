@@ -25,11 +25,13 @@
 
 #include "PoissonGroup.h"
 
+using namespace auryn;
+
 boost::mt19937 PoissonGroup::gen = boost::mt19937(); 
 
 void PoissonGroup::init(AurynDouble  rate)
 {
-	sys->register_spiking_group(this);
+	auryn::sys->register_spiking_group(this);
 	if ( evolve_locally() ) {
 
 		dist = new boost::uniform_01<> ();
@@ -38,9 +40,9 @@ void PoissonGroup::init(AurynDouble  rate)
 		x = 0;
 		set_rate( rate );
 
-		stringstream oss;
-		oss << "PoissonGroup:: Seeding with " << communicator->rank();
-		logger->msg(oss.str(),NOTIFICATION);
+		std::stringstream oss;
+		oss << "PoissonGroup:: Seeding with " << auryn::communicator->rank();
+		auryn::logger->msg(oss.str(),NOTIFICATION);
 	}
 }
 
@@ -94,6 +96,6 @@ void PoissonGroup::evolve()
 
 void PoissonGroup::seed(int s)
 {
-		gen.seed(s+communicator->rank()); // TODO solve seeding problem 
+		gen.seed(s+auryn::communicator->rank()); // TODO solve seeding problem 
 }
 

@@ -30,6 +30,7 @@
 #include "NeuronGroup.h"
 #include "System.h"
 
+namespace auryn {
 
 /*! \brief Conductance based neuron model with absolute refractoriness as used in Vogels and Abbott 2005.
  */
@@ -70,6 +71,8 @@ public:
 	/*! The evolve method internally used by System. */
 	void evolve();
 };
+
+}
 
 #endif /*IAFPSCDELTAGROUP_H_*/
 

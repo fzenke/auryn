@@ -32,7 +32,7 @@
 #include "System.h"
 #include <fstream>
 
-using namespace std;
+namespace auryn {
 
 /*! \brief SpikeMonitor that reads the delayed spikes as they are
  *         received by a postsynaptic neuron.
@@ -48,16 +48,18 @@ private:
 	SpikeContainer::const_iterator it;
 	SpikingGroup * src;
 	NeuronID offset;
-	void init(SpikingGroup * source, string filename, NeuronID from, NeuronID to);
+	void init(SpikingGroup * source, std::string filename, NeuronID from, NeuronID to);
 	void free();
 	
 public:
-	DelayedSpikeMonitor(SpikingGroup * source, string filename);
-	DelayedSpikeMonitor(SpikingGroup * source, string filename, NeuronID to);
-	DelayedSpikeMonitor(SpikingGroup * source, string filename, NeuronID from, NeuronID to);
+	DelayedSpikeMonitor(SpikingGroup * source, std::string filename);
+	DelayedSpikeMonitor(SpikingGroup * source, std::string filename, NeuronID to);
+	DelayedSpikeMonitor(SpikingGroup * source, std::string filename, NeuronID from, NeuronID to);
 	void set_offset(NeuronID of);
 	virtual ~DelayedSpikeMonitor();
 	void propagate();
 };
+
+}
 
 #endif /*DELAYEDSPIKEMONITOR_H_*/

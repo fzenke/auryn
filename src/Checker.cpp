@@ -25,6 +25,8 @@
 
 #include "Checker.h"
 
+using namespace auryn;
+
 Checker::Checker(SpikingGroup * source)
 {
 	src = source;

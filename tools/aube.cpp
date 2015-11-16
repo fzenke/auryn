@@ -24,14 +24,14 @@
 #include <fstream>
 #include <vector>
 
-using namespace std;
+using namespace auryn;
 
 namespace po = boost::program_options;
 
 
 /*! Perform binary search on ifstream to extract frame number
  * from a target time reference that should be given in discrete time. */
-AurynLong find_frame( ifstream * file, AurynTime target )
+AurynLong find_frame( std::ifstream * file, AurynTime target )
 {
 	// get number of elements
 	file->seekg (0, file->end);
@@ -55,7 +55,7 @@ AurynLong find_frame( ifstream * file, AurynTime target )
 }
 
 
-void read_header( ifstream * input, double& dt, double& last_time, string filename )
+void read_header( std::ifstream * input, double& dt, double& last_time, std::string filename )
 {
 	// get length of the file
 	SpikeEvent_type spike_data;
@@ -70,16 +70,16 @@ void read_header( ifstream * input, double& dt, double& last_time, string filena
 	// do some version checking
 	NeuronID tag = spike_data.neuronID;
 	if ( tag/1000 != tag_binary_spike_monitor/1000 ) {
-		cerr << "Header not recognized. " 
+		std::cerr << "Header not recognized. " 
 			"Not a binary Auryn monitor file?" 
-			 << endl;
+			 << std::endl;
 		exit(EXIT_FAILURE);
 	}
 
 	if ( tag != tag_binary_spike_monitor ) {
-		cerr << "# Either the Auryn version does not match "
+		std::cerr << "# Either the Auryn version does not match "
 			"the version of this tool or this is not a spike "
-			"raster file." << endl; 
+			"raster file." << std::endl; 
 		// TODO tell user if it is a state file
 	}
 
@@ -93,10 +93,10 @@ void read_header( ifstream * input, double& dt, double& last_time, string filena
 
 int main(int ac, char* av[]) 
 {
-	vector<string> input_filenames;
-	vector<ifstream*> inputs;
+	std::vector<std::string> input_filenames;
+	std::vector<std::ifstream*> inputs;
 
-	string output_file_name = "";
+	std::string output_file_name = "";
 	double from_time = 0.0;
 	double to_time   = -1.0;
 	double seconds_to_extract_from_end = -1.0; // negative means disabled
@@ -107,8 +107,8 @@ int main(int ac, char* av[])
 		desc.add_options()
 			("help,h", "produce help message")
 			("version,v", "show version information")
-			("inputs,i", po::value< vector<string> >()->multitoken(), "input files")
-			("output,o", po::value<string>(), "output file (output to stout if not given)")
+			("inputs,i", po::value< std::vector<std::string> >()->multitoken(), "input files")
+			("output,o", po::value<std::string>(), "output file (output to stout if not given)")
 			("from,f", po::value<double>(), "from time in seconds")
 			("to,t", po::value<double>(), "to time in seconds")
 			("last,l", po::value<double>(), "last x seconds (overrides start/end)")
@@ -120,12 +120,12 @@ int main(int ac, char* av[])
 		po::notify(vm);    
 
 		if (vm.count("help")) {
-			cout << desc << "\n";
+			std::cout << desc << "\n";
 			return 1;
 		}
 
 		if (vm.count("version")) {
-			cout << "Auryn Binary Extract version " 
+			std::cout << "Auryn Binary Extract version " 
 				 << AURYNVERSION << "." 
 				 << AURYNSUBVERSION << "."
 				 << AURYNREVISION << "\n";
@@ -133,11 +133,11 @@ int main(int ac, char* av[])
 		}
 
 		if (vm.count("inputs")) {
-			 input_filenames = vm["inputs"].as< vector<string> >();
+			 input_filenames = vm["inputs"].as< std::vector<std::string> >();
 		} 
 
 		if (vm.count("output")) {
-			output_file_name = vm["output"].as<string>();
+			output_file_name = vm["output"].as<std::string>();
 		} 
 
 		if (vm.count("from")) {
@@ -156,36 +156,36 @@ int main(int ac, char* av[])
 			maxid = vm["maxid"].as<NeuronID>();
         } 
     }
-    catch(exception& e) {
-        cerr << "error: " << e.what() << "\n";
+    catch(std::exception& e) {
+        std::cerr << "error: " << e.what() << "\n";
         return 1;
     }
     catch(...) {
-        cerr << "Exception of unknown type!\n";
+        std::cerr << "Exception of unknown type!\n";
     }
 
 
 
 
 #ifdef DEBUG
-	cout << "# Number of input files " << input_filenames.size() << endl;
+	std::cout << "# Number of input files " << input_filenames.size() << std::endl;
 #endif // DEBUG
 
 	double last_time = 0.0;
 	double dt = 0.0;
 
 	if ( input_filenames.size() == 0 ) {
-		cerr << "Missing input file." << endl;
+		std::cerr << "Missing input file." << std::endl;
 		exit(EXIT_FAILURE);
 	}
 
 	for ( int i = 0 ; i < input_filenames.size() ; ++i ) {
-		ifstream * tmp = new ifstream( input_filenames[i].c_str(), ios::binary );
+		std::ifstream * tmp = new std::ifstream( input_filenames[i].c_str(), std::ios::binary );
 		inputs.push_back(tmp);
 		if (!(*tmp)) {
 			std::cerr << "Unable to open input file " 
 				<< input_filenames[i]
-				<< endl;
+				<< std::endl;
 			exit(EXIT_FAILURE);
 		}
 
@@ -197,7 +197,7 @@ int main(int ac, char* av[])
 			dt = tmp_dt;
 		} else {
 			if ( dt != tmp_dt ) { // should not happen
-				cerr << "Not all input file headers match." << endl;
+				std::cerr << "Not all input file headers match." << std::endl;
 				exit(EXIT_FAILURE);
 			}
 		}
@@ -218,8 +218,8 @@ int main(int ac, char* av[])
 	if ( from_time < 0 ) from_time = 0.0 ;
 
 	if ( from_time > to_time || from_time < 0 ) {
-		cerr << "Times must be positive and start "
-			"time needs to be < to time." << endl;
+		std::cerr << "Times must be positive and start "
+			"time needs to be < to time." << std::endl;
 		exit(EXIT_FAILURE);
 	}
 
@@ -228,12 +228,12 @@ int main(int ac, char* av[])
 
 
 #ifdef DEBUG
-	cerr << "# Timestep: " << dt << endl;
-	cerr << "# Maxid: " << maxid << endl;
-	cerr << "# Sizeof SpikeEvent struct: " << sizeof(SpikeEvent_type) << endl;
-	cerr << "# Time of last event in files: " << last_time << endl;
-	cerr << "# From time: " << from_time << endl;
-	cerr << "# To time: " << to_time << endl;
+	std::cerr << "# Timestep: " << dt << std::endl;
+	std::cerr << "# Maxid: " << maxid << std::endl;
+	std::cerr << "# Sizeof SpikeEvent struct: " << sizeof(SpikeEvent_type) << std::endl;
+	std::cerr << "# Time of last event in files: " << last_time << std::endl;
+	std::cerr << "# From time: " << from_time << std::endl;
+	std::cerr << "# To time: " << to_time << std::endl;
 #endif // DEBUG
 
 
@@ -246,15 +246,15 @@ int main(int ac, char* av[])
 		inputs[i]->seekg (start_frame*sizeof(SpikeEvent_type), inputs[i]->beg);
 		inputs[i]->clear();
 #ifdef DEBUG
-		cerr << "# Start frame stream " 
+		std::cerr << "# Start frame stream " 
 			<< i << ": " 
-			<< start_frame << endl;
+			<< start_frame << std::endl;
 #endif // DEBUG
 	}
 
 
 	// read first frames from all files
-	vector<SpikeEvent_type> frames(inputs.size());
+	std::vector<SpikeEvent_type> frames(inputs.size());
 	for ( int i = 0 ; i < frames.size() ; ++i ) {
 		inputs[i]->read((char*)&frames[i], sizeof(SpikeEvent_type));
 	}
@@ -287,15 +287,15 @@ int main(int ac, char* av[])
 		if ( time_reference >= to_auryn_time || eofs ) break;
 
 #ifdef DEBUG
-	cout << "# current_stream " << current_stream << endl;
-	cout << "# time_reference " << time_reference << endl;
+	std::cout << "# current_stream " << current_stream << std::endl;
+	std::cout << "# time_reference " << time_reference << std::endl;
 #endif // DEBUG
 
 		// output from next_stream
 		while ( frames[current_stream].time <= time_reference && !inputs[current_stream]->eof() ) {
 			if ( frames[current_stream].neuronID < maxid) {
 				if ( write_to_stdout ) 
-					cout << frames[current_stream].time*dt << " " << frames[current_stream].neuronID << "\n";
+					std::cout << frames[current_stream].time*dt << " " << frames[current_stream].neuronID << "\n";
 				else 
 					of << frames[current_stream].time*dt << " " << frames[current_stream].neuronID << "\n";
 

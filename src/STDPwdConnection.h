@@ -33,7 +33,7 @@
 #include "SpikeDelay.h"
 
 
-using namespace std;
+namespace auryn {
 
 
 /*! \brief Doublet STDP All-to-All as implemented in NEST as stdp_synapse_hom 
@@ -118,5 +118,7 @@ public:
 	virtual void evolve();
 
 };
+
+}
 
 #endif /*STDPWDCONNECTION_H_*/

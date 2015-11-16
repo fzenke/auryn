@@ -33,7 +33,7 @@
 #include <fstream>
 #include <iomanip>
 
-using namespace std;
+namespace auryn {
 
 /*! \brief Records from an arbitray state vector of one unit from the source SpikingGroup to a file.*/
 class StateMonitor : protected Monitor
@@ -85,5 +85,7 @@ public:
 	virtual ~StateMonitor();
 	void propagate();
 };
+
+}
 
 #endif /*STATEMONITOR_H_*/

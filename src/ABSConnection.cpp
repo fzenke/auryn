@@ -25,6 +25,8 @@
 
 #include "ABSConnection.h"
 
+using namespace auryn;
+
 void ABSConnection::init(AurynWeight maxw)
 {
 	stdp_active = true;
@@ -61,7 +63,7 @@ ABSConnection::ABSConnection(SpikingGroup * source, NeuronGroup * destination,
 
 ABSConnection::ABSConnection(SpikingGroup * source, NeuronGroup * destination, 
 		AurynWeight weight, AurynFloat sparseness, 
-		AurynWeight maxweight , TransmitterType transmitter, string name) 
+		AurynWeight maxweight , TransmitterType transmitter, std::string name) 
 : DuplexConnection(source, destination, weight, sparseness, transmitter, name)
 {
 	init(maxweight);
@@ -113,8 +115,8 @@ void ABSConnection::propagate_forward()
 			  data[c-ind] += dw_fwd(*c);
 		}
 	}
-	// if ( sys->get_clock()%10000 == 0 ) 
-	// 	cout << scientific << tr_post->get(1) << endl;
+	// if ( auryn::sys->get_clock()%10000 == 0 ) 
+	// 	std::cout << std::ifstream << tr_post->get(1) << std::endl;
 	tr_post->follow();
 }
 
@@ -133,15 +135,15 @@ void ABSConnection::load_curve_from_file( const char * filename , double scale )
 {
 	if ( dst->get_post_size() == 0 ) return;
 
- 	stringstream oss;
+ 	std::stringstream oss;
  	oss << "ABSConnection:: Loading ABS voltage curve from " << filename;
- 	logger->msg(oss.str(),NOTIFICATION);
+ 	auryn::logger->msg(oss.str(),NOTIFICATION);
 
- 	ifstream infile (filename);
+	std::ifstream infile (filename);
  	if (!infile) {
- 		stringstream oes;
+ 		std::stringstream oes;
  		oes << "Can't open input file " << filename;
- 		logger->msg(oes.str(),ERROR);
+ 		auryn::logger->msg(oes.str(),ERROR);
  		return;
  	}
 
@@ -162,7 +164,7 @@ void ABSConnection::load_curve_from_file( const char * filename , double scale )
  		if ( ABS_VOLTAGE_CURVE_MIN <= voltage && voltage <= ABS_VOLTAGE_CURVE_MAX ) {
 			int i = (voltage-ABS_VOLTAGE_CURVE_MIN)*ABS_VOLTAGE_CURVE_SIZE/(ABS_VOLTAGE_CURVE_MAX-ABS_VOLTAGE_CURVE_MIN);
 			voltage_curve_post[i] = value*scale; 
-			// cout << i << " " << value << endl;
+			// std::cout << i << " " << value << std::endl;
  		}
  		count++;
  	}

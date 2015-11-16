@@ -37,7 +37,7 @@
 
 #define PROFILEPOISSON_LOAD_MULTIPLIER 0.01
 
-using namespace std;
+namespace auryn {
 
 /*! \brief A SpikingGroup that creates poissonian spikes with a given rate
  * and spatial profile.
@@ -102,5 +102,7 @@ public:
 	/*! Use this to seed the random number generator. */
 	void seed(int s);
 };
+
+}
 
 #endif /*NEURONGROUP_H_*/

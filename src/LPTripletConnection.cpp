@@ -25,6 +25,8 @@
 
 #include "LPTripletConnection.h"
 
+using namespace auryn;
+
 void LPTripletConnection::init(AurynFloat tau_hom, AurynFloat eta, AurynFloat kappa, AurynFloat maxweight)
 {
 	if ( dst->get_post_size() == 0 ) return; // avoids to run this code on silent nodes with zero post neurons.
@@ -109,7 +111,7 @@ LPTripletConnection::LPTripletConnection(SpikingGroup * source, NeuronGroup * de
 		AurynFloat eta, 
 		AurynFloat kappa, AurynFloat maxweight , 
 		TransmitterType transmitter,
-		string name) 
+		std::string name) 
 : DuplexConnection(source, 
 		destination, 
 		weight, 
@@ -232,7 +234,7 @@ void LPTripletConnection::propagate()
 
 void LPTripletConnection::evolve()
 {
-	if ( sys->get_clock()%timestep_lp == 0 && stdp_active ) {
+	if ( auryn::sys->get_clock()%timestep_lp == 0 && stdp_active ) {
 		AurynWeight * lpwval = w->get_data_begin(0);
 		AurynWeight * wval   = w->get_data_begin(1);
 		w->state_sub(wval,lpwval,temp_state);

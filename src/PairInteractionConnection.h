@@ -27,7 +27,7 @@
 #include "DuplexConnection.h"
 #include "EulerTrace.h"
 
-using namespace std;
+namespace auryn {
 
 
 class PairInteractionConnection : public DuplexConnection
@@ -70,5 +70,7 @@ public:
 	virtual void propagate();
 
 };
+
+}
 
 #endif /*PAIRINTERACTIONCONNECTION_H_*/

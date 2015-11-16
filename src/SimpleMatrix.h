@@ -32,7 +32,7 @@
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/split_member.hpp>
 
-using namespace std;
+namespace auryn {
 
 /*! \brief Template for a sparse matrix with row major ordering and fast access of rows.
  *
@@ -424,7 +424,7 @@ T * SimpleMatrix<T>::get_ptr(NeuronID i, NeuronID j)
 		c = lo + (hi-lo)/2;
 		if ( *c < j ) lo = c+1;
 		else hi = c;
-		//cout << i << ":" << j << "   " << *lo << ":" << *hi << endl;
+		//std::cout << i << ":" << j << "   " << *lo << ":" << *hi << endl;
 	}
 	
 	if ( *lo == j ) {
@@ -608,7 +608,7 @@ void SimpleMatrix<T>::print()
 {
 	for (NeuronID i = 0 ; i < m_rows ; ++i) {
 		for (NeuronID * r = get_row_begin(i) ; r != get_row_end(i) ; ++r ) {
-			cout << i << " " << *r << " " << coldata[r-colinds] << "\n";
+			std::cout << i << " " << *r << " " << coldata[r-colinds] << "\n";
 		}
 	}
 }
@@ -651,6 +651,8 @@ template <typename T>
 NeuronID SimpleMatrix<T>::get_data_offset(NeuronID * r)
 {
 	return r-get_ind_begin();
+}
+
 }
 
 

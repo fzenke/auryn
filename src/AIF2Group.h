@@ -31,6 +31,8 @@
 #include "System.h"
 
 
+namespace auryn {
+
 class AIF2Group : public AIFGroup
 {
 private:
@@ -58,6 +60,8 @@ public:
 	void clear();
 	virtual void evolve();
 };
+
+}
 
 #endif /*AIF2GROUP_H_*/
 

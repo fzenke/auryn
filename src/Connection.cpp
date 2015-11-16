@@ -25,6 +25,8 @@
 
 #include "Connection.h"
 
+using namespace auryn;
+
 Connection::Connection()
 {
 	init();
@@ -36,7 +38,7 @@ Connection::Connection(NeuronID rows, NeuronID cols)
 	set_size(rows,cols);
 }
 
-Connection::Connection(SpikingGroup * source, NeuronGroup * destination, TransmitterType transmitter, string name)
+Connection::Connection(SpikingGroup * source, NeuronGroup * destination, TransmitterType transmitter, std::string name)
 {
 	set_source(source);
 	set_destination(destination);
@@ -63,12 +65,12 @@ Connection::~Connection()
 {
 }
 
-void Connection::set_name(string name)
+void Connection::set_name(std::string name)
 {
 	connection_name = name;
 }
 
-string Connection::get_name()
+std::string Connection::get_name()
 {
 	return connection_name;
 }

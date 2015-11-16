@@ -25,6 +25,8 @@
 
 #include "NeuronGroup.h"
 
+using namespace auryn;
+
 NeuronGroup::NeuronGroup(NeuronID n, double loadmultiplier, NeuronID total ) : SpikingGroup(n, loadmultiplier, total )
 {
 	if ( evolve_locally() ) init();
@@ -33,9 +35,9 @@ NeuronGroup::NeuronGroup(NeuronID n, double loadmultiplier, NeuronID total ) : S
 void NeuronGroup::init()
 {  		group_name = "NeuronGroup";
 
-		// stringstream oss;
-		// oss << description_string << " init";
-		// logger->msg(oss.str(),VERBOSE);
+		// std::stringstream oss;
+		// oss << description_std::string << " init";
+		// auryn::logger->msg(oss.str(),VERBOSE);
 
 		mem = get_state_vector("mem");
 		thr = get_state_vector("thr");
@@ -100,14 +102,14 @@ void NeuronGroup::set_mem(NeuronID i, AurynState val)
 	set_val(mem,i,val);
 }
 
-void NeuronGroup::set_state(string name, NeuronID i, AurynState val)
+void NeuronGroup::set_state(std::string name, NeuronID i, AurynState val)
 {
 	auryn_vector_float * tmp = get_state_vector(name);
 	if ( tmp )
 		set_val(tmp,i,val);
 }
 
-void NeuronGroup::set_state(string name, AurynState val)
+void NeuronGroup::set_state(std::string name, AurynState val)
 {
 	auryn_vector_float * tmp = get_state_vector(name);
 	if ( tmp ) 
@@ -186,7 +188,7 @@ void NeuronGroup::random_mem(AurynState mean, AurynState sigma)
 
 void NeuronGroup::random_uniform_mem(AurynState lo, AurynState hi)
 {
-	boost::mt19937 ng_gen(42+communicator->rank()); // produces same series every time 
+	boost::mt19937 ng_gen(42+auryn::communicator->rank()); // produces same series every time 
 	boost::uniform_01<boost::mt19937> die = boost::uniform_01<boost::mt19937> (ng_gen);
 	AurynState rv;
 
@@ -200,7 +202,7 @@ void NeuronGroup::random_uniform_mem(AurynState lo, AurynState hi)
 
 void NeuronGroup::random_nmda(AurynState mean, AurynState sigma)
 {
-	boost::mt19937 ng_gen(53+communicator->rank()); // produces same series every time 
+	boost::mt19937 ng_gen(53+auryn::communicator->rank()); // produces same series every time 
 	boost::normal_distribution<> dist((double)mean, (double)sigma);
 	boost::variate_generator<boost::mt19937&, boost::normal_distribution<> > die(ng_gen, dist);
 	AurynState rv;

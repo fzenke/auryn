@@ -33,7 +33,7 @@
 #include <fstream>
 #include <iomanip>
 
-using namespace std;
+namespace auryn {
 
 /*! \brief Monitor class to record neural firing rates
  * 
@@ -77,5 +77,7 @@ public:
 	/*! Implementation of necessary propagate() function. */
 	void propagate();
 };
+
+}
 
 #endif /*RATEMONITOR_H_*/

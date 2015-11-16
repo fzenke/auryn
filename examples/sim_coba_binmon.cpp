@@ -23,7 +23,7 @@
 
 #include "auryn.h"
 
-using namespace std;
+using namespace auryn;
 
 namespace po = boost::program_options;
 namespace mpi = boost::mpi;
@@ -36,7 +36,7 @@ int main(int ac,char *av[]) {
 	string fwmat_ie = "";
 	string fwmat_ii = "";
 
-	stringstream oss;
+	std::stringstream oss;
 	string strbuf ;
 	string msg;
 
@@ -75,7 +75,7 @@ int main(int ac,char *av[]) {
         po::notify(vm);    
 
         if (vm.count("help")) {
-            cout << desc << "\n";
+            std::cout << desc << "\n";
             return 1;
         }
 
@@ -108,12 +108,12 @@ int main(int ac,char *av[]) {
         } 
 
     }
-    catch(exception& e) {
-        cerr << "error: " << e.what() << "\n";
+    catch(std::exception& e) {
+        std::cerr << "error: " << e.what() << "\n";
         return 1;
     }
     catch(...) {
-        cerr << "Exception of unknown type!\n";
+        std::cerr << "Exception of unknown type!\n";
     }
 
 	// BEGIN Global stuff
@@ -125,7 +125,7 @@ int main(int ac,char *av[]) {
 	string outputfile = oss.str();
 
 	char tmp [255];
-	stringstream logfile;
+	std::stringstream logfile;
 	logfile << outputfile << "log";
 	logger = new Logger(logfile.str(),world.rank(),PROGRESS,EVERYTHING);
 
@@ -136,6 +136,9 @@ int main(int ac,char *av[]) {
 
 	TIFGroup * neurons_e = new TIFGroup( ne);
 	TIFGroup * neurons_i = new TIFGroup( ni);
+
+	neurons_e->set_refractory_period(5.0e-3); // minimal ISI 5.1ms
+	neurons_i->set_refractory_period(5.0e-3);
 
 	neurons_e->set_state("bg_current",2e-2); // corresponding to 200pF for C=200pF and tau=20ms
 	neurons_i->set_state("bg_current",2e-2);
@@ -171,7 +174,7 @@ int main(int ac,char *av[]) {
 		msg = "Setting up monitors ...";
 		logger->msg(msg,PROGRESS,true);
 
-		stringstream filename;
+		std::stringstream filename;
 		filename << outputfile << "e.bras";
 		BinarySpikeMonitor * smon_e = new BinarySpikeMonitor( neurons_e, filename.str().c_str() );
 

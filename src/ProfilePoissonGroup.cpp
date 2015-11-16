@@ -25,17 +25,19 @@
 
 #include "ProfilePoissonGroup.h"
 
+using namespace auryn;
+
 boost::mt19937 ProfilePoissonGroup::gen = boost::mt19937(); 
 
 void ProfilePoissonGroup::init(AurynDouble  rate)
 {
-	sys->register_spiking_group(this);
+	auryn::sys->register_spiking_group(this);
 	if ( evolve_locally() ) {
 		lambda = rate;
 
 		dist = new boost::uniform_01<> ();
 		die  = new boost::variate_generator<boost::mt19937&, boost::uniform_01<> > ( gen, *dist );
-		seed(communicator->rank()); // seeding problem
+		seed(auryn::communicator->rank()); // seeding problem
 		x = 0;
 		jumpsize = 0;
 
@@ -43,9 +45,9 @@ void ProfilePoissonGroup::init(AurynDouble  rate)
 		profile = new AurynFloat[get_rank_size()];
 		set_flat_profile();
 
-		stringstream oss;
-		oss << "ProfilePoissonGroup:: Seeding with " << communicator->rank();
-		logger->msg(oss.str(),NOTIFICATION);
+		std::stringstream oss;
+		oss << "ProfilePoissonGroup:: Seeding with " << auryn::communicator->rank();
+		auryn::logger->msg(oss.str(),NOTIFICATION);
 	}
 }
 
@@ -109,9 +111,9 @@ void ProfilePoissonGroup::set_profile( AurynFloat * newprofile )
 
 	normalize_profile();
 
-	stringstream oss;
+	std::stringstream oss;
 	oss << "ProfilePoissonGroup:: Successfully set external profile." ;
-	logger->msg(oss.str(),NOTIFICATION);
+	auryn::logger->msg(oss.str(),NOTIFICATION);
 }
 
 void ProfilePoissonGroup::set_gaussian_profile(AurynDouble  mean, AurynDouble sigma, AurynDouble floor)
@@ -123,14 +125,14 @@ void ProfilePoissonGroup::set_gaussian_profile(AurynDouble  mean, AurynDouble si
 
 	normalize_profile();
 
-	stringstream oss;
+	std::stringstream oss;
 	oss << "ProfilePoissonGroup:: Set gaussian profile with mean=" 
 		<< mean
 		<< " and sigma="
 		<< sigma
 		<< " and floor="
 		<< floor;
-	logger->msg(oss.str(),NOTIFICATION);
+	auryn::logger->msg(oss.str(),NOTIFICATION);
 }
 
 AurynDouble  ProfilePoissonGroup::get_rate()
@@ -142,7 +144,7 @@ AurynDouble  ProfilePoissonGroup::get_rate()
 void ProfilePoissonGroup::evolve()
 {
 	while ( x < get_rank_size() ) {
-		// cout << x << endl;
+		// std::cout << x << std::endl;
 		jumpsize -= profile[x];
 		if ( jumpsize < 0 ) { // reached jump target -> spike
 			push_spike ( x );

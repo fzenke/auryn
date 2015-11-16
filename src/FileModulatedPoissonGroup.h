@@ -36,7 +36,7 @@
 #include <boost/random/variate_generator.hpp>
 #include <boost/random/exponential_distribution.hpp>
 
-using namespace std;
+namespace auryn {
 
 /*! \brief A special Poisson generator that reads its instantaneous
  * firing rate from a tiser file. Datapoints in the rate file are
@@ -54,7 +54,7 @@ private:
 	char buffer[255];
 	bool stimulus_active;
 
-	ifstream inputfile;
+	std::ifstream inputfile;
 
 	void init ( string filename );
 	
@@ -63,5 +63,7 @@ public:
 	virtual ~FileModulatedPoissonGroup();
 	virtual void evolve();
 };
+
+} // namespace 
 
 #endif /*FILEMODULATEDGROUP_H_*/

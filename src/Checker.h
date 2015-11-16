@@ -29,7 +29,7 @@
 #include "auryn_definitions.h"
 #include "SpikingGroup.h"
 
-using namespace std;
+namespace auryn {
 
 class System;
 
@@ -76,5 +76,7 @@ public:
 };
 
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(Checker)
+
+}
 
 #endif /*CHECKER_H_*/

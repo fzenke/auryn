@@ -28,7 +28,7 @@
 #include "SpikeDelay.h"
 
 
-using namespace std;
+namespace auryn {
 
 
 /*! \brief Double STDP All-to-All Connection
@@ -90,5 +90,7 @@ public:
 	virtual void evolve();
 
 };
+
+}
 
 #endif /*STDPCONNECTION_H_*/

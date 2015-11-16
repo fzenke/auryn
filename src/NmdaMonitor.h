@@ -33,7 +33,7 @@
 #include <fstream>
 #include <iomanip>
 
-using namespace std;
+namespace auryn {
 
 /*! \brief Records the NMDA conductance from one specific unit from the source group. */
 class NmdaMonitor : protected Monitor
@@ -49,5 +49,7 @@ public:
 	virtual ~NmdaMonitor();
 	void propagate();
 };
+
+}
 
 #endif /*NMDAMONITOR_H_*/

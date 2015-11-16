@@ -36,63 +36,63 @@
 #include <boost/progress.hpp>
 #include <mpi.h>
 
-using namespace std;
 
+namespace auryn {
 
 /*! \brief Buffer object to capsulate native MPI_Allgather for SpikingGroups
  *
  * The class stores the recent history of transmission buffer sizes and tries
  * to determine an optimal size on-line.
  * */
+	class SyncBuffer
+	{
+		private:
+			std::vector<NeuronID> send_buf;
+			std::vector<NeuronID> recv_buf;
 
-class SyncBuffer
-{
-	private:
-		vector<NeuronID> send_buf;
-		vector<NeuronID> recv_buf;
+			// NeuronID size_history[SYNCBUFFER_SIZE_HIST_LEN];
+			NeuronID maxSendSum;
+			NeuronID maxSendSum2;
+			NeuronID syncCount;
 
-		// NeuronID size_history[SYNCBUFFER_SIZE_HIST_LEN];
-		NeuronID maxSendSum;
-		NeuronID maxSendSum2;
-		NeuronID syncCount;
+			/*! The send buffer size that all ranks agree upon */
+			NeuronID max_send_size;
 
-		/*! The send buffer size that all ranks agree upon */
-		NeuronID max_send_size;
+			mpi::communicator * mpicom;
 
-		mpi::communicator * mpicom;
+			NeuronID overflow_value;
 
-		NeuronID overflow_value;
+			NeuronID groupPushOffset1;
+			NeuronID groupPopOffset;
 
-		NeuronID groupPushOffset1;
-		NeuronID groupPopOffset;
+			NeuronID count[MINDELAY]; // needed to decode attributes
 
-		NeuronID count[MINDELAY]; // needed to decode attributes
+			/*! vector with offset values to allow to pop more than one delay */
+			std::vector<NeuronID> pop_offsets;
 
-		/*! vector with offset values to allow to pop more than one delay */
-		vector<NeuronID> pop_offsets;
+			void reset_send_buffer();
 
-		void reset_send_buffer();
+			void init();
+			void free();
 
-		void init();
-		void free();
+		public:
 
-	public:
+			SyncBuffer( mpi::communicator * com );
 
-		SyncBuffer( mpi::communicator * com );
+			void sync();
 
-		void sync();
-
-		void push(SpikeDelay * delay, NeuronID size);
-		void pop(SpikeDelay * delay, NeuronID size);
+			void push(SpikeDelay * delay, NeuronID size);
+			void pop(SpikeDelay * delay, NeuronID size);
 
 #ifdef CODE_COLLECT_SYNC_TIMING_STATS
-		AurynDouble deltaT;
-		AurynDouble measurement_start;
-		AurynDouble get_relative_sync_time();
-		AurynDouble get_sync_time();
-		AurynDouble get_elapsed_wall_time();
-		void reset_sync_time();
+			AurynDouble deltaT;
+			AurynDouble measurement_start;
+			AurynDouble get_relative_sync_time();
+			AurynDouble get_sync_time();
+			AurynDouble get_elapsed_wall_time();
+			void reset_sync_time();
 #endif
-};
+	};
+}
 
 #endif /*SYNCBUFFER_H_*/

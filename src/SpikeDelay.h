@@ -32,7 +32,7 @@
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/split_member.hpp>
 
-using namespace std;
+namespace auryn {
 
 
 /*! \brief Delay object for spikes which is synchronized between
@@ -127,6 +127,8 @@ class SpikeDelay
 		/*! Clears all containers in delay. */
 		void clear();
 };
+
+}
 
 
 #endif /*SPIKEDELAY_H_*/

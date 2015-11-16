@@ -33,7 +33,7 @@
 #include <fstream>
 #include <iomanip>
 
-using namespace std;
+namespace auryn {
 
 /*! \brief Monitor class to record population firing rates
  * 
@@ -71,5 +71,7 @@ public:
 	/*! Implementation of necessary propagate() function. */
 	void propagate();
 };
+
+}
 
 #endif /*POPULATIONRATEMONITOR_H_*/

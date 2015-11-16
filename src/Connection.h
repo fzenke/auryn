@@ -32,6 +32,8 @@
 #include "SpikingGroup.h"
 #include "NeuronGroup.h"
 
+namespace auryn {
+
 class System;
 
 /*! \brief The abstract base class for all Connection objects in Auryn
@@ -57,7 +59,7 @@ private:
 
 
 	NeuronID m_rows,n_cols;
-	string connection_name;
+	std::string connection_name;
 
 protected:
 	/*! Serialization function for saving the Connection state. Implement in derived classes to save
@@ -86,7 +88,7 @@ protected:
 public:
 	Connection();
 	Connection(NeuronID rows, NeuronID cols);
-	Connection(SpikingGroup * source, NeuronGroup * destination, TransmitterType transmitter=GLUT, string name="Connection");
+	Connection(SpikingGroup * source, NeuronGroup * destination, TransmitterType transmitter=GLUT, std::string name="Connection");
 	virtual ~Connection();
 
 	void set_size(NeuronID i, NeuronID j);
@@ -94,10 +96,10 @@ public:
 	/*! \brief Set name of connection
 	 *
 	 * The name will appear in error messages and save files */
-	void set_name(string name);
+	void set_name(std::string name);
 
 	/*! \brief Returns name of connection */
-	string get_name();
+	std::string get_name();
 
 	/*! \brief Get number of rows (presynaptic) in connection.
 	 *
@@ -174,10 +176,10 @@ public:
 	virtual void stats(AurynFloat &mean, AurynFloat &std) = 0;
 
 	/*! \brief Implements save to file functionality. Also called in save_network_state from System class. */
-	virtual bool write_to_file(string filename) = 0;
+	virtual bool write_to_file(std::string filename) = 0;
 
 	/*! \brief Implements load from file functionality. Also called in save_network_state from System class. */
-	virtual bool load_from_file(string filename) = 0;
+	virtual bool load_from_file(std::string filename) = 0;
 
 	/*! \brief Transmits a spike to a postsynaptic partner
 	 *
@@ -192,7 +194,7 @@ public:
 	void safe_transmit(NeuronID id, AurynWeight amount);
 
 	/*! Returns a vector of ConnectionsID of a block specified by the arguments. */
-	virtual vector<neuron_pair>  get_block(NeuronID lo_row, NeuronID lo_col, NeuronID hi_row,  NeuronID hi_col) = 0;
+	virtual std::vector<neuron_pair>  get_block(NeuronID lo_row, NeuronID lo_col, NeuronID hi_row,  NeuronID hi_col) = 0;
 
 };
 
@@ -202,6 +204,7 @@ inline void Connection::transmit(NeuronID id, AurynWeight amount)
 {
 	NeuronID localid = dst->global2rank(id);
 	target[localid]+=amount;
+}
 }
 
 #endif /*CONNECTION_H_*/

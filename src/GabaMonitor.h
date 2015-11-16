@@ -33,21 +33,22 @@
 #include <fstream>
 #include <iomanip>
 
-using namespace std;
 
 /*! \brief Records the GABA conductance from one specific unit from the source group. */
-class GabaMonitor : protected Monitor
-{
-protected:
-	NeuronGroup * src;
-	NeuronID nid;
-	AurynTime ssize;
-	void init(NeuronGroup * source, NeuronID id, string filename, AurynTime stepsize);
-	
-public:
-	GabaMonitor(NeuronGroup * source, NeuronID id, string filename, AurynTime stepsize=1);
-	virtual ~GabaMonitor();
-	void propagate();
-};
+namespace auryn {
+	class GabaMonitor : protected Monitor
+	{
+	protected:
+		NeuronGroup * src;
+		NeuronID nid;
+		AurynTime ssize;
+		void init(NeuronGroup * source, NeuronID id, std::string filename, AurynTime stepsize);
+		
+	public:
+		GabaMonitor(NeuronGroup * source, NeuronID id, std::string filename, AurynTime stepsize=1);
+		virtual ~GabaMonitor();
+		void propagate();
+	};
+}
 
 #endif /*GABAMONITOR_H_*/

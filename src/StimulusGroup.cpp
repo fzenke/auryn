@@ -25,13 +25,15 @@
 
 #include "StimulusGroup.h"
 
+using namespace auryn;
+
 boost::mt19937 StimulusGroup::poisson_gen = boost::mt19937(); 
 boost::mt19937 StimulusGroup::order_gen = boost::mt19937(); 
 boost::uniform_01<boost::mt19937> StimulusGroup::order_die = boost::uniform_01<boost::mt19937> (order_gen);
 
-void StimulusGroup::init(StimulusGroupModeType stimulusmode, string stimfile, AurynFloat baserate)
+void StimulusGroup::init(StimulusGroupModeType stimulusmode, std::string stimfile, AurynFloat baserate)
 {
-	sys->register_spiking_group(this);
+	auryn::sys->register_spiking_group(this);
 	ttl = new AurynTime [get_rank_size()];
 
 	refractory_period = 1; // initialize with a default of one timestep (avoids two spikes in same time bin)
@@ -68,31 +70,31 @@ void StimulusGroup::init(StimulusGroupModeType stimulusmode, string stimfile, Au
 	// not supposed to be reading from it.
 	if ( !stimfile.empty() && stimulus_order != STIMFILE ) 
 	{
-		tiserfile.open(stimfile.c_str(),ios::out);
-		tiserfile.setf(ios::fixed);
+		tiserfile.open(stimfile.c_str(),std::ios::out);
+		tiserfile.setf(std::ios::fixed);
 	} else {
 		if (stimulus_order==STIMFILE) {
-			tiserfile.open(stimfile.c_str(),ios::in);
+			tiserfile.open(stimfile.c_str(),std::ios::in);
 		}
 	}
 
 	if (!tiserfile) {
-		stringstream oss;
+		std::stringstream oss;
 		oss << "StimulusGroup:: Cannot open stimulus file " 
 			<< stimfile
 			<< " for ";
 		if (stimulus_order==STIMFILE) oss << "reading.";
 		else oss << "writing.";
 
-		logger->msg(oss.str(),ERROR);
+		auryn::logger->msg(oss.str(),ERROR);
 		throw AurynOpenFileException();
 	}
 
-	stringstream oss;
+	std::stringstream oss;
 	oss << "StimulusGroup:: " 
 		<< "size " << get_size() << " "  
 		<< "(mode " << stimulus_order << ") ";
-	logger->msg(oss.str(),NOTIFICATION);
+	auryn::logger->msg(oss.str(),NOTIFICATION);
 
 	cur_stim_index = 0;
 	next_action_time = 0;
@@ -101,13 +103,13 @@ void StimulusGroup::init(StimulusGroupModeType stimulusmode, string stimfile, Au
 
 }
 
-StimulusGroup::StimulusGroup(NeuronID n, string filename, string stimfile, StimulusGroupModeType stimulusmode, AurynFloat baserate) : SpikingGroup( n, STIMULUSGROUP_LOAD_MULTIPLIER ) // Load multiplier is an empirical value
+StimulusGroup::StimulusGroup(NeuronID n, std::string filename, std::string stimfile, StimulusGroupModeType stimulusmode, AurynFloat baserate) : SpikingGroup( n, STIMULUSGROUP_LOAD_MULTIPLIER ) // Load multiplier is an empirical value
 {
 	init(stimulusmode, stimfile, baserate);
 	load_patterns(filename);
 }
 
-StimulusGroup::StimulusGroup(NeuronID n, string stimfile, StimulusGroupModeType stimulusmode, AurynFloat baserate) : SpikingGroup( n, STIMULUSGROUP_LOAD_MULTIPLIER ) // Load multiplier is an empirical value
+StimulusGroup::StimulusGroup(NeuronID n, std::string stimfile, StimulusGroupModeType stimulusmode, AurynFloat baserate) : SpikingGroup( n, STIMULUSGROUP_LOAD_MULTIPLIER ) // Load multiplier is an empirical value
 {
 	init(stimulusmode, stimfile, baserate);
 }
@@ -125,7 +127,7 @@ void StimulusGroup::redraw()
 	for ( NeuronID i = 0 ; i < get_rank_size() ; ++i )
 	{
 		if (activity[i]>0) 
-			ttl[i] = sys->get_clock() + (AurynTime)((AurynFloat)die()/(activity[i]*dt));
+			ttl[i] = auryn::sys->get_clock() + (AurynTime)((AurynFloat)die()/(activity[i]*dt));
 	}
 }
 
@@ -133,7 +135,7 @@ void StimulusGroup::set_baserate(AurynFloat baserate)
 {
 	base_rate = baserate;
 	redraw();
-	logger->parameter("StimulusGroup:: baserate",baserate);
+	auryn::logger->parameter("StimulusGroup:: baserate",baserate);
 }
 
 void StimulusGroup::set_maxrate(AurynFloat baserate)
@@ -144,13 +146,13 @@ void StimulusGroup::set_maxrate(AurynFloat baserate)
 void StimulusGroup::set_mean_off_period(AurynFloat period)
 {
 	mean_off_period = period;
-	logger->parameter("StimulusGroup:: mean_off_period",mean_off_period);
+	auryn::logger->parameter("StimulusGroup:: mean_off_period",mean_off_period);
 }
 
 void StimulusGroup::set_mean_on_period(AurynFloat period)
 {
 	mean_on_period = period;
-	logger->parameter("StimulusGroup:: mean_on_period",mean_on_period);
+	auryn::logger->parameter("StimulusGroup:: mean_on_period",mean_on_period);
 }
 
 void StimulusGroup::write_stimulus_file(AurynDouble time) {
@@ -161,7 +163,7 @@ void StimulusGroup::write_stimulus_file(AurynDouble time) {
 		if ( stimulus_active || off_pattern > -1 ) tiserfile << "1 "; else tiserfile << "0 ";
 		tiserfile 
 			<< cur_stim_index
-			<< endl;
+			<< std::endl;
 	}
 }
 
@@ -170,7 +172,7 @@ void StimulusGroup::read_next_stimulus_from_file(AurynDouble &time, int &active,
 	if ( tiserfile.getline (buffer,256) ) {
 		sscanf (buffer,"%lf %i %i",&time,&active,&stimulusid);
 	} else {
-		time = sys->get_time()+1000; // TODO this is a bit weird as a condition but should do the job
+		time = auryn::sys->get_time()+1000; // TODO this is a bit weird as a condition but should do the job
 		active = 0;
 		stimulusid = 0;
 	}
@@ -220,10 +222,10 @@ void StimulusGroup::evolve()
 
 			for ( NeuronID i = 0 ; i < get_rank_size() ; ++i )
 			{
-				if ( ttl[i] < sys->get_clock() && activity[i]>0.0 )
+				if ( ttl[i] < auryn::sys->get_clock() && activity[i]>0.0 )
 				{
 					push_spike ( i );
-					ttl[i] = sys->get_clock() + refractory_period + (AurynTime)((AurynFloat)die()*(1.0/(activity[i]*dt)-refractory_period));
+					ttl[i] = auryn::sys->get_clock() + refractory_period + (AurynTime)((AurynFloat)die()*(1.0/(activity[i]*dt)-refractory_period));
 				}
 			}
 		}
@@ -242,14 +244,14 @@ void StimulusGroup::evolve()
 	}
 
 	// update stimulus properties
-	if ( sys->get_clock() >= next_action_time ) { // action required
+	if ( auryn::sys->get_clock() >= next_action_time ) { // action required
 
 		if ( stimuli.size() == 0 ) {
 			set_next_action_time(10); // TODO make this a bit smarter at some point -- i.e. could send this to the end of time 
 			return;
 		}
 
-		write_stimulus_file(dt*(sys->get_clock()));
+		write_stimulus_file(dt*(auryn::sys->get_clock()));
 
 		// if we have variable rate stimuli update curscale otherwise set to scale 
 		// this is only needed for binary stimuli -- otherwise the change is done in
@@ -263,13 +265,13 @@ void StimulusGroup::evolve()
 		if ( stimulus_order == STIMFILE )  {
 			AurynDouble t = 0.0;
 			int a,i;
-			while ( t <= sys->get_time() ) {
+			while ( t <= auryn::sys->get_time() ) {
 				read_next_stimulus_from_file(t,a,i);
 				next_action_time = (AurynTime) (t/dt);
 				if (a==0) stimulus_active = true; 
 					else stimulus_active = false;
 				cur_stim_index = i;
-				// cout << sys->get_time() << " " << t << " " << a << " " << i << endl;
+				// std::cout << auryn::sys->get_time() << " " << t << " " << a << " " << i << std::endl;
 			}
 		} else { // we have to generate stimulus times
 
@@ -282,9 +284,9 @@ void StimulusGroup::evolve()
 				if ( randomintervals ) {
 					boost::exponential_distribution<> dist(1./mean_off_period);
 					boost::variate_generator<boost::mt19937&, boost::exponential_distribution<> > die(order_gen, dist);
-					next_action_time = sys->get_clock() + (AurynTime)(max(0.0,die())/dt);
+					next_action_time = auryn::sys->get_clock() + (AurynTime)(std::max(0.0,die())/dt);
 				} else {
-					next_action_time = sys->get_clock() + (AurynTime)(mean_off_period/dt);
+					next_action_time = auryn::sys->get_clock() + (AurynTime)(mean_off_period/dt);
 				}
 			} else { // stimulus was not active and is going active now
 				if ( active && stimuli.size() ) { // the group is active and there are stimuli in the array
@@ -298,11 +300,11 @@ void StimulusGroup::evolve()
 							draw = order_die();
 							cummulative = 0; 
 							cur_stim_index = 0;
-							// cout.precision(5);
-							// cout << " draw " << draw <<  endl;
+							// std::cout.precision(5);
+							// std::cout << " draw " << draw <<  std::endl;
 							for ( unsigned int i = 0 ; i < probabilities.size() ; ++i ) {
 								cummulative += probabilities[i];
-								// cout << cummulative << endl;
+								// std::cout << cummulative << std::endl;
 								if ( draw <= cummulative ) {
 									cur_stim_index = i;
 									break;
@@ -329,13 +331,13 @@ void StimulusGroup::evolve()
 					if ( randomintervals && stimulus_order != STIMFILE ) {
 						boost::normal_distribution<> dist(mean_on_period,mean_on_period/3);
 						boost::variate_generator<boost::mt19937&, boost::normal_distribution<> > die(order_gen, dist);
-						next_action_time = sys->get_clock() + (AurynTime)(max(0.0,die())/dt);
+						next_action_time = auryn::sys->get_clock() + (AurynTime)(std::max(0.0,die())/dt);
 					} else {
-						next_action_time = sys->get_clock() + (AurynTime)(mean_on_period/dt);
+						next_action_time = auryn::sys->get_clock() + (AurynTime)(mean_on_period/dt);
 					}
 				}
 			}
-			write_stimulus_file(dt*(sys->get_clock()+1));
+			write_stimulus_file(dt*(auryn::sys->get_clock()+1));
 		}
 	}
 }
@@ -359,74 +361,74 @@ AurynFloat StimulusGroup::get_activity(NeuronID i)
 		return 0;
 }
 
-void StimulusGroup::load_patterns( string filename )
+void StimulusGroup::load_patterns( std::string filename )
 {
-		ifstream fin (filename.c_str());
-		if (!fin) {
-			stringstream oss;
-			oss << "StimulusGroup:: "
-			<< "There was a problem opening file "
-			<< filename
-			<< " for reading."
-			<< endl;
-			logger->msg(oss.str(),ERROR);
-			throw AurynOpenFileException();
+	std::ifstream fin (filename.c_str());
+	if (!fin) {
+		std::stringstream oss;
+		oss << "StimulusGroup:: "
+		<< "There was a problem opening file "
+		<< filename
+		<< " for reading."
+		<< std::endl;
+		auryn::logger->msg(oss.str(),ERROR);
+		throw AurynOpenFileException();
+	}
+
+	char buffer[256];
+	std::string line;
+
+	stimuli.clear();
+
+	type_pattern pattern;
+	int total_pattern_size = 0;
+	while(!fin.eof()) {
+
+		line.clear();
+		fin.getline (buffer,255);
+		line = buffer;
+
+		if (line[0] == '#') continue;
+		if (line == "") { 
+			if ( total_pattern_size > 0 ) {
+				std::stringstream oss;
+				oss << "StimulusGroup:: Read pattern " 
+					<< stimuli.size() 
+					<< " with pattern size "
+					<< total_pattern_size
+					<< " ( "
+					<< pattern.size()
+					<< " on rank )";
+				auryn::logger->msg(oss.str(),VERBOSE);
+
+				stimuli.push_back(pattern);
+				pattern.clear();
+				total_pattern_size = 0;
+			}
+			continue;
 		}
 
-		char buffer[256];
-		string line;
-
-		stimuli.clear();
-
-		type_pattern pattern;
-		int total_pattern_size = 0;
-		while(!fin.eof()) {
-
-			line.clear();
-			fin.getline (buffer,255);
-			line = buffer;
-	
-			if (line[0] == '#') continue;
-			if (line == "") { 
-				if ( total_pattern_size > 0 ) {
-					stringstream oss;
-					oss << "StimulusGroup:: Read pattern " 
-						<< stimuli.size() 
-						<< " with pattern size "
-						<< total_pattern_size
-						<< " ( "
-						<< pattern.size()
-						<< " on rank )";
-					logger->msg(oss.str(),VERBOSE);
-
-					stimuli.push_back(pattern);
-					pattern.clear();
-					total_pattern_size = 0;
-				}
-				continue;
-			}
-
-			stringstream iss (line);
-			NeuronID i ;
-			iss >> i ;
-			if ( localrank( i ) ) {
-				pattern_member pm;
-				pm.gamma = 1.0 ;
-				iss >>  pm.gamma ;
-				pm.i = global2rank( i ) ;
-				pattern.push_back( pm ) ;
-			}
-			total_pattern_size++;
+		std::stringstream iss (line);
+		NeuronID i ;
+		iss >> i ;
+		if ( localrank( i ) ) {
+			pattern_member pm;
+			pm.gamma = 1.0 ;
+			iss >>  pm.gamma ;
+			pm.i = global2rank( i ) ;
+			pattern.push_back( pm ) ;
 		}
+		total_pattern_size++;
+	}
 
-		fin.close();
+	fin.close();
 
-		// initializing all probabilities as a flat distribution
-		flat_distribution();
+	// initializing all probabilities as a flat distribution
+	flat_distribution();
 
-		stringstream oss;
-		oss << "StimulusGroup:: Finished loading " << stimuli.size() << " patterns";
-		logger->msg(oss.str(),NOTIFICATION);
+	std::stringstream oss;
+	oss << "StimulusGroup:: Finished loading " << stimuli.size() << " patterns";
+	auryn::logger->msg(oss.str(),NOTIFICATION);
 }
 
 void StimulusGroup::set_pattern_activity(unsigned int i)
@@ -465,9 +467,9 @@ void StimulusGroup::set_pattern_activity(unsigned int i,AurynFloat setrate)
 
 void StimulusGroup::set_active_pattern(unsigned int i)
 {
-	stringstream oss;
+	std::stringstream oss;
 	oss << "StimulusGroup:: Setting active pattern " << i ;
-	logger->msg(oss.str(),VERBOSE);
+	auryn::logger->msg(oss.str(),VERBOSE);
 
 	set_all( background_rate );
 	if ( i < stimuli.size() ) {
@@ -476,7 +478,7 @@ void StimulusGroup::set_active_pattern(unsigned int i)
 	redraw();
 }
 
-void StimulusGroup::set_distribution( vector<double> probs )
+void StimulusGroup::set_distribution( std::vector<double> probs )
 {
 	for ( unsigned int i = 0 ; i < stimuli.size() ; ++i ) {
 		probabilities[i] = probs[i];
@@ -484,16 +486,16 @@ void StimulusGroup::set_distribution( vector<double> probs )
 
 	normalize_distribution();
 
-	stringstream oss;
+	std::stringstream oss;
 	oss << "StimulusGroup: Set distribution [";
 	for ( unsigned int i = 0 ; i < stimuli.size() ; ++i ) {
 		oss << " " << probabilities[i];
 	}
 	oss << " ]";
-	logger->msg(oss.str(),NOTIFICATION);
+	auryn::logger->msg(oss.str(),NOTIFICATION);
 }
 
-vector<double> StimulusGroup::get_distribution( )
+std::vector<double> StimulusGroup::get_distribution( )
 {
 	return probabilities;
 }
@@ -512,7 +514,7 @@ void StimulusGroup::flat_distribution( )
 
 void StimulusGroup::normalize_distribution()
 {
-	stringstream oss;
+	std::stringstream oss;
 	oss << "StimulusGroup: Normalizing distribution [";
 	double sum = 0 ;
 	for ( unsigned int i = 0 ; i < stimuli.size() ; ++i ) {
@@ -526,16 +528,16 @@ void StimulusGroup::normalize_distribution()
 	}
 
 	oss << " ]";
-	logger->msg(oss.str(),VERBOSE);
+	auryn::logger->msg(oss.str(),VERBOSE);
 }
 
-vector<type_pattern> * StimulusGroup::get_patterns()
+std::vector<type_pattern> * StimulusGroup::get_patterns()
 {
 	return &stimuli;
 }
 
 void StimulusGroup::set_next_action_time( double time ) {
-	next_action_time = sys->get_clock() + time/dt;
+	next_action_time = auryn::sys->get_clock() + time/dt;
 }
 
 void StimulusGroup::set_stimulation_mode( StimulusGroupModeType mode ) {
@@ -550,17 +552,17 @@ void StimulusGroup::seed(int rndseed)
 	boost::variate_generator<boost::mt19937&, boost::uniform_int<> > die(order_gen, dist);
 
 	NeuronID rnd = die();
-	for (int i = 0 ; i < communicator->rank() ; ++i ) {
+	for (int i = 0 ; i < auryn::communicator->rank() ; ++i ) {
 		rnd = die();
 	}
 
 	order_gen.seed(rndseed); // has to be again here otherwise it is different on all ranks
 
-	stringstream oss;
+	std::stringstream oss;
 	oss << "StimulusGroup:: " 
 		<< "seeding poisson generator with " 
 		<< rnd;
-	logger->msg(oss.str(),VERBOSE);
+	auryn::logger->msg(oss.str(),VERBOSE);
 	
 	poisson_gen.seed(rnd); // is now drawn differently but reproducibly so for each rank
 }

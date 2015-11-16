@@ -35,8 +35,7 @@
 
 #define CERRLEVEL WARNING
 
-using namespace std;
-
+namespace auryn {
 /*! Enum type for significance level of a given message send to the logger */
 enum LogMessageType { EVERYTHING, VERBOSE, NOTIFICATION, SETTINGS, PROGRESS, WARNING, ERROR, NONE };
 
@@ -48,23 +47,25 @@ enum LogMessageType { EVERYTHING, VERBOSE, NOTIFICATION, SETTINGS, PROGRESS, WAR
 class Logger
 {
 private:
-	string fname;
-	ofstream outfile;
+	std::string fname;
+	std::ofstream outfile;
 	int local_rank;
 	LogMessageType console_out;
 	LogMessageType file_out;
 
-	string last_message;
+	std::string last_message;
 
 	
 public:
-	Logger(string filename, int rank, LogMessageType console = PROGRESS, LogMessageType file = NOTIFICATION );
-	void msg( string text, LogMessageType type=NOTIFICATION, bool global=false, int line=-1, string srcfile="" );
-	void parameter( string name, double value );
-	void parameter( string name, int value );
-	void parameter( string name, string value );
+	Logger(std::string filename, int rank, LogMessageType console = PROGRESS, LogMessageType file = NOTIFICATION );
+	void msg( std::string text, LogMessageType type=NOTIFICATION, bool global=false, int line=-1, std::string srcfile="" );
+	void parameter( std::string name, double value );
+	void parameter( std::string name, int value );
+	void parameter( std::string name, std::string value );
 	void set_rank(int rank);
 	virtual ~Logger();
 };
+
+}
 
 #endif /*LOGGER_H_*/

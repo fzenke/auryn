@@ -25,6 +25,8 @@
 
 #include "auryn_definitions.h"
 
+namespace auryn {
+
 int auryn_AlignOffset // copied from ATLAS
 (const int N,       /* max return value */
 const void *vp,    /* pointer to be aligned */
@@ -351,3 +353,4 @@ void auryn_vector_ushort_copy ( auryn_vector_ushort * src, auryn_vector_ushort *
 		dst->data[i] = src->data[i];
 }
 
+}

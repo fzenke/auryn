@@ -30,7 +30,7 @@
 #include "SparseConnection.h"
 
 
-using namespace std;
+namespace auryn {
 
 
 
@@ -125,5 +125,7 @@ public:
 	void evolve();
 
 };
+
+}
 
 #endif /*STPCONNECTION_H_*/

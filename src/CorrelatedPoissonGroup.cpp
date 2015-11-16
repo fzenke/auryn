@@ -25,11 +25,13 @@
 
 #include "CorrelatedPoissonGroup.h"
 
+using namespace auryn;
+
 boost::mt19937 CorrelatedPoissonGroup::gen = boost::mt19937(); 
 
 void CorrelatedPoissonGroup::init(AurynDouble  rate, NeuronID gsize, AurynDouble timedelay )
 {
-	sys->register_spiking_group(this);
+	auryn::sys->register_spiking_group(this);
 	if ( evolve_locally() ) {
 		lambda = rate;
 
@@ -48,7 +50,7 @@ void CorrelatedPoissonGroup::init(AurynDouble  rate, NeuronID gsize, AurynDouble
 		timescale = 50e-3;
 		set_stoptime(0);
 
-		stringstream oss;
+		std::stringstream oss;
 		oss << "CorrelatedPoissonGroup:: Initializing with " 
 			<< ngroups << " of size " 
 			<< groupsize << " ( "
@@ -56,7 +58,7 @@ void CorrelatedPoissonGroup::init(AurynDouble  rate, NeuronID gsize, AurynDouble
 			<< " amplitude=" << amplitude << ", "
 			<< " timescale=" << timescale 
 			<< " )";
-		logger->msg(oss.str(),NOTIFICATION);
+		auryn::logger->msg(oss.str(),NOTIFICATION);
 
 		// delay_o = new AurynDouble [delay*(ngroups-1)];
 		o = 1.0;
@@ -66,7 +68,7 @@ void CorrelatedPoissonGroup::init(AurynDouble  rate, NeuronID gsize, AurynDouble
 
 		dist = new boost::uniform_01<> ();
 		die  = new boost::variate_generator<boost::mt19937&, boost::uniform_01<> > ( gen, *dist );
-		seed(communicator->rank()); // seeding problem
+		seed(auryn::communicator->rank()); // seeding problem
 
 		x = new NeuronID [ngroups];
 		for ( int i = 0 ; i < ngroups ; ++i ) {
@@ -75,8 +77,8 @@ void CorrelatedPoissonGroup::init(AurynDouble  rate, NeuronID gsize, AurynDouble
 		}
 
 		oss.str("");
-		oss << "CorrelatedPoissonGroup:: Seeding with " << communicator->rank();
-		logger->msg(oss.str(),NOTIFICATION);
+		oss << "CorrelatedPoissonGroup:: Seeding with " << auryn::communicator->rank();
+		auryn::logger->msg(oss.str(),NOTIFICATION);
 	}
 }
 
@@ -104,7 +106,7 @@ void CorrelatedPoissonGroup::set_rate(AurynDouble  rate)
 
 void CorrelatedPoissonGroup::set_threshold(AurynDouble  threshold)
 {
-	thr = max(1e-6,threshold);
+	thr = std::max(1e-6,threshold);
 }
 
 AurynDouble  CorrelatedPoissonGroup::get_rate()
@@ -116,7 +118,7 @@ AurynDouble  CorrelatedPoissonGroup::get_rate()
 void CorrelatedPoissonGroup::evolve()
 {
 	// check if the group has timed out
-	if ( tstop && sys->get_clock() > tstop ) return;
+	if ( tstop && auryn::sys->get_clock() > tstop ) return;
 
 	// move amplitude
 	amplitude += (target_amplitude-amplitude)*dt/tau_amplitude;
@@ -128,10 +130,10 @@ void CorrelatedPoissonGroup::evolve()
 	o += 2.0*((AurynDouble)(*die)()-0.5)*sqrt(dt/timescale)*amplitude;
 
 	int len = delay*ngroups;
-	delay_o[sys->get_clock()%len] = max(thr,o*lambda);
+	delay_o[auryn::sys->get_clock()%len] = std::max(thr,o*lambda);
 
 	for ( int g = 0 ; g < ngroups ; ++g ) {
-		AurynDouble grouprate = delay_o[(sys->get_clock()-(g+offset)*delay)%len];
+		AurynDouble grouprate = delay_o[(auryn::sys->get_clock()-(g+offset)*delay)%len];
 		AurynDouble r = -log(1-(AurynDouble)(*die)())/(dt*grouprate); // think before tempering with this! 
 		// I already broke the corde here once!
 		x[g] = (NeuronID)(r); 
@@ -151,35 +153,35 @@ void CorrelatedPoissonGroup::seed(int s)
 void CorrelatedPoissonGroup::set_amplitude(AurynDouble amp)
 {
 	amplitude = amp;
-	logger->parameter("amplitude",amplitude);
+	auryn::logger->parameter("amplitude",amplitude);
 }
 
 void CorrelatedPoissonGroup::set_target_amplitude(AurynDouble amp)
 {
 	target_amplitude = amp;
-	logger->parameter("target_amplitude",target_amplitude);
+	auryn::logger->parameter("target_amplitude",target_amplitude);
 }
 
 void CorrelatedPoissonGroup::set_timescale(AurynDouble scale)
 {
 	timescale = scale;
-	logger->parameter("timescale",timescale);
+	auryn::logger->parameter("timescale",timescale);
 }
 
 void CorrelatedPoissonGroup::set_tau_amplitude(AurynDouble tau)
 {
 	tau_amplitude = tau;
-	logger->parameter("tau_amplitude",tau_amplitude);
+	auryn::logger->parameter("tau_amplitude",tau_amplitude);
 }
 
 void CorrelatedPoissonGroup::set_offset(int off)
 {
 	offset = off;
-	logger->parameter("offset",offset);
+	auryn::logger->parameter("offset",offset);
 }
 
 void CorrelatedPoissonGroup::set_stoptime(AurynDouble stoptime)
 {
 	tstop = stoptime*dt;
-	logger->parameter("stoptime",stoptime);
+	auryn::logger->parameter("stoptime",stoptime);
 }
