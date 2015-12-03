@@ -37,6 +37,9 @@ void System::init() {
 	online_rate_monitor_id = 0; 
 	online_rate_monitor_state = 0.0;
 
+
+	progressbar_update_interval = PROGRESSBAR_DEFAULT_UPDATE_INTERVAL;
+
 	syncbuffer = new SyncBuffer(mpicom);
 
 	std::stringstream oss;
@@ -364,7 +367,7 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 
 	while ( get_clock() < stoptime ) {
 
-	    if ( (mpicom->rank()==0) && (not quiet) && ( (get_clock()%PROGRESSBAR_UPDATE_INTERVAL==0) || get_clock()==(stoptime-1) ) ) {
+	    if ( (mpicom->rank()==0) && (not quiet) && ( (get_clock()%progressbar_update_interval==0) || get_clock()==(stoptime-1) ) ) {
 			double fraction = 1.0*(get_clock()-starttime+1)*dt/total_time;
 			progressbar(fraction,get_clock()); // TODO find neat solution for the rate
 		}

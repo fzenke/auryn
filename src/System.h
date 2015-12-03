@@ -39,7 +39,7 @@
 #include <boost/mpi.hpp>
 #include <boost/progress.hpp>
 
-#define PROGRESSBAR_UPDATE_INTERVAL 1000
+#define PROGRESSBAR_DEFAULT_UPDATE_INTERVAL 1000
 #define LOGGER_MARK_INTERVAL (10000*1000) // 1000s
 
 namespace auryn {
@@ -112,6 +112,8 @@ namespace auryn {
 	public:
 		/*! Switch to turn output to quiet mode (no progress bar). */
 		bool quiet;
+
+		unsigned int progressbar_update_interval;
 
 		System();
 		System(mpi::communicator * communicator);
