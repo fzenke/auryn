@@ -101,6 +101,8 @@ int main(int ac, char* av[])
 	double to_time   = -1.0;
 	double seconds_to_extract_from_end = -1.0; // negative means disabled
 	NeuronID maxid = std::numeric_limits<NeuronID>::max();
+	// one more decimal than neede to show values are not rounded
+	int decimal_places = -std::log(dt)/std::log(10)+2; 
 
 	try {
 		po::options_description desc("Allowed options");
@@ -267,7 +269,10 @@ int main(int ac, char* av[])
  	if( !output_file_name.empty() ) {
 		write_to_stdout = false;
  		of.open( output_file_name.c_str(), std::ofstream::out );
+		of << std::fixed << std::setprecision(decimal_places);
 	}
+	// sets output format to right number of decimal places
+	std::cout << std::fixed << std::setprecision(decimal_places);
 
 	while ( true ) {
 		// find smallest time reference
