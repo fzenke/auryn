@@ -105,6 +105,11 @@ void Connection::set_transmitter(TransmitterType transmitter)
 	} else set_transmitter((AurynWeight *)NULL);
 }
 
+void Connection::set_transmitter(string state_name)
+{
+	set_transmitter(dst->get_state_vector(state_name));
+}
+
 void Connection::set_transmitter(AurynWeight * ptr)
 {
 	target = ptr;
