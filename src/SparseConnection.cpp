@@ -220,6 +220,7 @@ void SparseConnection::random_data(AurynWeight mean, AurynWeight sigma)
 	for ( AurynLong i = 0 ; i<w->get_nonzero() ; ++i ) {
 		rv = die();
 		if ( rv<get_min_weight() ) rv = get_min_weight();
+		if ( rv>get_max_weight() ) rv = get_max_weight();
 		w->set_data(i,rv);
 	}
 }
