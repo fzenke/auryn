@@ -92,7 +92,20 @@ public:
 	void set_rate(AurynDouble rate);
 
 	void normalize_profile();
+
+	/*! \begin Sets firing rate profile to the array elements given in newprofile 
+	 *
+	 * Expects a vector of the size n of the SpikingGroup. */
 	void set_profile(AurynFloat * newprofile);
+
+	/*! \begin Sets firing rate profile to a state vector 
+	 *
+	 * Note, does not normalize the profile to a probability distribution! 
+	 * Net firing rate can change! Expects a state vector with appropriate 
+	 * size on the rank which is smaller than or equal to the size of this 
+	 * group.*/
+	void set_profile(auryn_vector_float * newprofile);
+
 	void set_flat_profile();
 	void set_gaussian_profile(AurynDouble  mean, AurynDouble sigma, AurynDouble floor=0.0);
 

@@ -116,6 +116,20 @@ void ProfilePoissonGroup::set_profile( AurynFloat * newprofile )
 	auryn::logger->msg(oss.str(),NOTIFICATION);
 }
 
+void ProfilePoissonGroup::set_profile( auryn_vector_float * newprofile ) 
+{
+	for ( NeuronID i = 0 ; i < get_rank_size() ; ++i ) {
+		profile[i] = newprofile->data[i];
+	}
+
+	// normalize_profile();
+
+	std::stringstream oss;
+	oss << "ProfilePoissonGroup:: Successfully set external profile." ;
+	auryn::logger->msg(oss.str(),NOTIFICATION);
+}
+
+
 void ProfilePoissonGroup::set_gaussian_profile(AurynDouble  mean, AurynDouble sigma, AurynDouble floor)
 {
 	for ( NeuronID i = 0 ; i < get_size() ; ++i ) {
