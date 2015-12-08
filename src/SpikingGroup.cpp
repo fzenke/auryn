@@ -616,6 +616,11 @@ void SpikingGroup::add_state_vector(std::string key, auryn_vector_float * state_
 	state_vectors[key] = state_vector;
 }
 
+void SpikingGroup::remove_state_vector( std::string key )
+{
+	state_vectors.erase(key);
+}
+
 auryn_vector_float * SpikingGroup::get_state_vector(std::string key)
 {
 	if ( state_vectors.find(key) == state_vectors.end() ) {

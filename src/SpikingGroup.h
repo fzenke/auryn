@@ -136,6 +136,11 @@ public:
 	/*! \brief Adds a state vector passed as an argument to the dictinary. */
 	void add_state_vector( std::string key, auryn_vector_float * state_vector );
 
+	/*! \brief Removes a state vector passed as an argument to the dictinary.
+	 *
+	 * The state vector is not freed automatically! */
+	void remove_state_vector( std::string key );
+
 	/*! \brief Creates a new or returns an existing state vector by name. */
 	auryn_vector_float * get_state_vector(std::string key);
 
