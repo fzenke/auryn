@@ -81,12 +81,16 @@ private:
 	/*! stimulus probabilities */
 	std::vector<double> probabilities ;
 
+protected:
 	/*! current stimulus index */
 	unsigned int cur_stim_index ;
 	bool stimulus_active;
 
-	/*! next stimulus time requiring change in rates */
+	/*! \brief next stimulus time requiring change in rates */
 	AurynTime next_action_time ;
+
+	/*! \brief last stimulus time requiring change in rates */
+	AurynTime last_action_time ;
 
 	/*! Standard initialization */
 	void init(StimulusGroupModeType stimulusmode, string stimfile, AurynFloat baserate);
@@ -182,6 +186,13 @@ public:
 	std::vector<double> get_distribution ( );
 	/*! Getter for pattern i of the probability distribution */
 	double get_distribution ( int i );
+
+	/*! \brief returns the last action (stim on/off) time in units of AurynTime */
+	AurynTime get_last_action_time();
+
+	/*! \brief returns the index of the current (or last -- if not active anymore) active stimulus */
+	unsigned int get_cur_stim();
+
 	/*! Initialized distribution to be flat */
 	void flat_distribution( );
 	/*! Normalizes the distribution */

@@ -98,6 +98,7 @@ void StimulusGroup::init(StimulusGroupModeType stimulusmode, std::string stimfil
 
 	cur_stim_index = 0;
 	next_action_time = 0;
+	last_action_time = 0;
 	active = true;
 	off_pattern = -1;
 
@@ -245,6 +246,7 @@ void StimulusGroup::evolve()
 
 	// update stimulus properties
 	if ( auryn::sys->get_clock() >= next_action_time ) { // action required
+		last_action_time = next_action_time; // store last time before updating next_action_time
 
 		if ( stimuli.size() == 0 ) {
 			set_next_action_time(10); // TODO make this a bit smarter at some point -- i.e. could send this to the end of time 
@@ -565,4 +567,14 @@ void StimulusGroup::seed(int rndseed)
 	auryn::logger->msg(oss.str(),VERBOSE);
 	
 	poisson_gen.seed(rnd); // is now drawn differently but reproducibly so for each rank
+}
+
+AurynTime StimulusGroup::get_last_action_time()
+{
+	return last_action_time;
+}
+
+unsigned int StimulusGroup::get_cur_stim()
+{
+	return cur_stim_index;
 }
