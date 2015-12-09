@@ -25,6 +25,8 @@
 
 #include "SpikingGroup.h"
 
+using namespace auryn;
+
 int SpikingGroup::last_locked_rank = 0;
 
 NeuronID SpikingGroup::unique_id_count = 0;
@@ -32,7 +34,7 @@ NeuronID SpikingGroup::unique_id_count = 0;
 
 AurynTime * SpikingGroup::clock_ptr = NULL;
 
-vector<mpi::request> SpikingGroup::reqs;
+std::vector<mpi::request> SpikingGroup::reqs;
 
 NeuronID SpikingGroup::anticipated_total = 0;
 
@@ -57,15 +59,15 @@ void SpikingGroup::init(NeuronID n, double loadmultiplier, NeuronID total )
 
 	if ( total > 0 ) {
 		anticipated_total = total;
-		stringstream oss;
+		std::stringstream oss;
 		oss << get_name() << ":: Anticipating " << anticipated_total << " units in total." ;
-		logger->msg(oss.str(),NOTIFICATION);
+		auryn::logger->msg(oss.str(),NOTIFICATION);
 	}
 
 	// setting up default values
 	evolve_locally_bool = true;
 	locked_rank = 0;
-	locked_range = communicator->size();
+	locked_range = auryn::communicator->size();
 	rank_size = calculate_rank_size(); // set the rank size
 
 	double fraction = (double)calculate_rank_size(0)*effective_load_multiplier/DEFAULT_MINDISTRIBUTEDSIZE;
@@ -77,18 +79,18 @@ void SpikingGroup::init(NeuronID n, double loadmultiplier, NeuronID total )
 		lock_range( fraction );
 	} else { // ROUNDROBIN which is default
 		locked_rank = 0;
-		locked_range = communicator->size();
+		locked_range = auryn::communicator->size();
 
-		stringstream oss;
+		std::stringstream oss;
 		oss << get_name() << ":: Size " << get_rank_size() << " (ROUNDROBIN)";
-		logger->msg(oss.str(),NOTIFICATION);
+		auryn::logger->msg(oss.str(),NOTIFICATION);
 	}
 
-	stringstream oss;
+	std::stringstream oss;
 	oss << get_name() 
 		<< ":: Registering SpikeDelay (MINDELAY=" 
 		<< MINDELAY << ")";
-	logger->msg(oss.str(),VERBOSE);
+	auryn::logger->msg(oss.str(),VERBOSE);
 
 	delay = new SpikeDelay( );
 	set_delay(MINDELAY+1); 
@@ -98,51 +100,51 @@ void SpikingGroup::init(NeuronID n, double loadmultiplier, NeuronID total )
 
 void SpikingGroup::lock_range( double rank_fraction )
 {
-	locked_rank = last_locked_rank%communicator->size(); // TODO might cause a bug with the block lock stuff
+	locked_rank = last_locked_rank%auryn::communicator->size(); // TODO might cause a bug with the block lock stuff
 
 	// TODO get the loads for the different ranks and try to minimize this
 
 	if ( rank_fraction == 0 ) { // this is the classical rank lock to one single rank
-		stringstream oss;
+		std::stringstream oss;
 		oss << get_name() << ":: Groups demands to run on single rank only (RANKLOCK).";
-		logger->msg(oss.str(),NOTIFICATION);
+		auryn::logger->msg(oss.str(),NOTIFICATION);
 		locked_range = 1;
 	} else { // this is for multiple rank ranges
-		unsigned int free_ranks = communicator->size()-last_locked_rank;
+		unsigned int free_ranks = auryn::communicator->size()-last_locked_rank;
 
-		locked_range = rank_fraction*communicator->size()+0.5;
+		locked_range = rank_fraction*auryn::communicator->size()+0.5;
 		if ( locked_range == 0 ) { // needs at least one rank
 			locked_range = 1; 
 		}
 
 		if ( locked_range > free_ranks ) {
-			stringstream oss;
+			std::stringstream oss;
 			// oss << "SpikingGroup:: Not enough free ranks to put SpikingGroup defaulting to ROUNDROBIN distribution.";
 			oss << get_name() << ":: Not enough free ranks for RANGELOCK. Starting to fill at zero again.";
-			logger->msg(oss.str(),NOTIFICATION);
+			auryn::logger->msg(oss.str(),NOTIFICATION);
 			locked_rank = 0;
-			free_ranks = communicator->size();
+			free_ranks = auryn::communicator->size();
 			// return;
 		}
 	}
 
-	unsigned int rank = (unsigned int) communicator->rank();
+	unsigned int rank = (unsigned int) auryn::communicator->rank();
 	evolve_locally_bool = ( rank >= locked_rank && rank < (locked_rank+locked_range) );
 
-	last_locked_rank = (locked_rank+locked_range)%communicator->size();
+	last_locked_rank = (locked_rank+locked_range)%auryn::communicator->size();
 	rank_size = calculate_rank_size(); // recalculate the rank size
 
 	// logging
 	if ( evolve_locally_bool ) {
-		stringstream oss;
+		std::stringstream oss;
 		oss << get_name() << ":: Size "<< get_rank_size() <<" (BLOCKLOCK: ["<< locked_rank 
 			<< ":" << locked_rank+locked_range-1 << "] )";
-		logger->msg(oss.str(),NOTIFICATION);
+		auryn::logger->msg(oss.str(),NOTIFICATION);
 	} else {
-		stringstream oss;
+		std::stringstream oss;
 		oss << get_name() << ":: Passive on this rank (BLOCKLOCK: ["<< locked_rank 
 			<< ":" << locked_rank+locked_range-1 << "] )";
-		logger->msg(oss.str(),VERBOSE);
+		auryn::logger->msg(oss.str(),VERBOSE);
 	}
 	
 }
@@ -150,21 +152,34 @@ void SpikingGroup::lock_range( double rank_fraction )
 
 void SpikingGroup::free()
 {
-	logger->msg("SpikingGroup:: Deleting delay",VERBOSE);
+	auryn::logger->msg("SpikingGroup:: Deleting delay",VERBOSE);
 	delete delay;
 
-	logger->msg("SpikingGroup:: Freeing pretraces",VERBOSE);
+	auryn::logger->msg("SpikingGroup:: Freeing pretraces",VERBOSE);
 	for ( NeuronID i = 0 ; i < pretraces.size() ; ++i )
 		delete pretraces[i];
 
-	logger->msg("SpikingGroup:: Freeing posttraces",VERBOSE);
+	auryn::logger->msg("SpikingGroup:: Freeing posttraces",VERBOSE);
 	for ( NeuronID i = 0 ; i < posttraces.size() ; ++i )
 		delete posttraces[i];
 
-	logger->msg("SpikingGroup:: Freeing state vectors",VERBOSE);
-	for ( map<string,auryn_vector_float *>::const_iterator iter = state_vectors.begin() ; 
+	auryn::logger->msg("SpikingGroup:: Freeing state traces",VERBOSE);
+	for ( NeuronID i = 0 ; i < post_state_traces.size() ; ++i ) {
+		std::stringstream oss;
+		oss << get_name() 
+			<< ":: Freeing state trace "
+			<< post_state_traces_state_names[i]
+			<< " at "
+			<< i;
+		auryn::logger->msg(oss.str() ,VERBOSE);
+		delete post_state_traces[i];
+	}
+
+	auryn::logger->msg("SpikingGroup:: Freeing state vectors",VERBOSE);
+	for ( std::map<std::string,auryn_vector_float *>::const_iterator iter = state_vectors.begin() ; 
 			iter != state_vectors.end() ;
 			++iter ) {
+		if ( iter->first[0] == '_' ) continue; // do not process volatile state_vector
 		auryn_vector_float_free ( iter->second );
 	}
 	state_vectors.clear();
@@ -236,7 +251,7 @@ NeuronID SpikingGroup::calculate_rank_size(int rank)
 	if ( rank >= 0 ) 
 		comrank = rank;
 	else
-		comrank = (unsigned int) communicator->rank();
+		comrank = (unsigned int) auryn::communicator->rank();
 
 	if ( comrank >= locked_rank && comrank < (locked_rank+locked_range) ) {
 		if (comrank-locked_rank >= size%locked_range)
@@ -275,7 +290,7 @@ AurynDouble SpikingGroup::get_effective_load()
 
 
 NeuronID SpikingGroup::rank2global(NeuronID i) {
-	return i*locked_range+(communicator->rank()-locked_rank);
+	return i*locked_range+(auryn::communicator->rank()-locked_rank);
 }
 
 bool SpikingGroup::evolve_locally()
@@ -318,9 +333,9 @@ PRE_TRACE_MODEL * SpikingGroup::get_pre_trace( AurynFloat x )
 {
 	for ( int i = 0 ; i < pretraces.size() ; i++ ) {
 		if ( pretraces[i]->get_tau() == x ) {
-			stringstream oss;
+			std::stringstream oss;
 			oss << get_name() << ":: Sharing pre trace with " << x << "s timeconstant." ;
-			logger->msg(oss.str(),VERBOSE);
+			auryn::logger->msg(oss.str(),VERBOSE);
 			return pretraces[i];
 		}
 	}
@@ -338,9 +353,9 @@ DEFAULT_TRACE_MODEL * SpikingGroup::get_post_trace( AurynFloat x )
 {
 	for ( NeuronID i = 0 ; i < posttraces.size() ; i++ ) {
 		if ( posttraces[i]->get_tau() == x ) {
-			stringstream oss;
+			std::stringstream oss;
 			oss << get_name() << ":: Sharing post trace with " << x << "s timeconstant." ;
-			logger->msg(oss.str(),VERBOSE);
+			auryn::logger->msg(oss.str(),VERBOSE);
 			return posttraces[i];
 		}
 	}
@@ -351,45 +366,97 @@ DEFAULT_TRACE_MODEL * SpikingGroup::get_post_trace( AurynFloat x )
 	return tmp;
 }
 
+EulerTrace * SpikingGroup::get_post_state_trace( AurynFloat tau, std::string state_name, AurynFloat b ) 
+{
+	// first let's check if a state with that name exists
+	if ( find_state_vector( state_name ) == NULL ) {
+		auryn::logger->msg("A state vector with this name "+state_name+" does not exist", ERROR);
+		throw AurynStateVectorException();
+	} // good to go
+
+	for ( NeuronID i = 0 ; i < post_state_traces.size() ; i++ ) {
+		if ( post_state_traces[i]->get_tau() == tau 
+				&& post_state_traces_spike_biases[i] == b
+				&& post_state_traces_state_names[i] == state_name ) {
+			std::stringstream oss;
+			oss << get_name() 
+				<< ":: Sharing post state trace for "
+				<< state_name 
+				<< " with " 
+				<< tau 
+				<< "s timeconstant." ;
+			auryn::logger->msg(oss.str(),VERBOSE);
+			return post_state_traces[i];
+		}
+	}
+
+	// trace does not exist yet, so we are creating 
+	// it and do the book keeping
+	auryn::logger->msg("Creating new post state trace",VERBOSE);
+	EulerTrace * tmp = new EulerTrace(get_post_size(),tau);
+	tmp->set_target(get_state_vector(state_name));
+	post_state_traces.push_back(tmp);
+	post_state_traces_spike_biases.push_back(b);
+	post_state_traces_state_names.push_back(state_name);
+	return tmp;
+}
+
 void SpikingGroup::evolve_traces()
 {
 
+	// evolve pre synaptic traces
 	for ( NeuronID i = 0 ; i < pretraces.size() ; i++ ) { // loop over all traces 
 		for (SpikeContainer::const_iterator spike = get_spikes()->begin() ; // spike = pre_spike
 				spike != get_spikes()->end() ; 
 				++spike ) {
-			// cout << " bar " << *spike << endl;
+			// std::cout << " bar " << *spike << std::endl;
 			pretraces[i]->inc(*spike);
 		}
 		pretraces[i]->evolve();
 	}
 
+	// evolve post synaptic traces
 	for ( NeuronID i = 0 ; i < posttraces.size() ; i++ ) {
 		for (SpikeContainer::const_iterator spike = get_spikes_immediate()->begin() ; 
 				spike != get_spikes_immediate()->end() ; 
 				++spike ) {
 			NeuronID translated_spike = global2rank(*spike); // only to be used for post traces
-			// cout << " foo " << translated_spike << endl;
+			// std::cout << " foo " << translated_spike << std::endl;
 			posttraces[i]->inc(translated_spike);
 		}
 		posttraces[i]->evolve();
 	}
+
+	// evolve state traces
+	for ( NeuronID i = 0 ; i < post_state_traces.size() ; i++ ) {
+
+		// spike triggered component
+		for (SpikeContainer::const_iterator spike = get_spikes_immediate()->begin() ; 
+				spike != get_spikes_immediate()->end() ; 
+				++spike ) {
+			NeuronID translated_spike = global2rank(*spike); // only to be used for post traces
+			post_state_traces[i]->add(translated_spike, post_state_traces_spike_biases[i]);
+		}
+
+		// follow the target vector (instead of evolve)
+		post_state_traces[i]->follow();
+	}
 }
 
-void SpikingGroup::set_name( string s ) 
+void SpikingGroup::set_name( std::string s ) 
 {
 	group_name = s;
 }
 
-string SpikingGroup::get_name()
+std::string SpikingGroup::get_name()
 {
 	return group_name;
 }
 
 bool SpikingGroup::localrank(NeuronID i) {
-	bool t = ( (i+locked_rank)%locked_range==communicator->rank() )
-		 && (int) communicator->rank() >= locked_rank
-		 && (int) communicator->rank() < (locked_rank+locked_range)
+	bool t = ( (i+locked_rank)%locked_range==auryn::communicator->rank() )
+		 && (int) auryn::communicator->rank() >= locked_rank
+		 && (int) auryn::communicator->rank() < (locked_rank+locked_range)
 		 && i/locked_range < get_rank_size(); 
 	return t; 
 }
@@ -399,27 +466,28 @@ bool SpikingGroup::write_to_file(const char * filename)
 {
 	if ( !evolve_locally() ) return true;
 
-	ofstream outfile;
-	outfile.open(filename,ios::out);
+	std::ofstream outfile;
+	outfile.open(filename,std::ios::out);
 	if (!outfile) {
-	  cerr << "Can't open output file " << filename << endl;
+		std::cerr << "Can't open output file " << filename << std::endl;
 	  throw AurynOpenFileException();
 	}
 
-	outfile << "# Auryn SpikingGroup state file for n="<< get_rank_size() <<" neurons (ver. " << AURYNVERSION << ")" << endl;
+	outfile << "# Auryn SpikingGroup state file for n="<< get_rank_size() <<" neurons (ver. " << AURYNVERSION << ")" << std::endl;
 	outfile << "# Default field order (might be overwritten): ";
-	for ( map<string,auryn_vector_float *>::const_iterator iter = state_vectors.begin() ; 
+	for ( std::map<std::string,auryn_vector_float *>::const_iterator iter = state_vectors.begin() ; 
 			iter != state_vectors.end() ;
 			++iter ) {
-		outfile << scientific << iter->first << " ";
+		if ( iter->first[0] == '_' ) continue; // do not process volatile state_vector
+		outfile << std::scientific << iter->first << " ";
 	}
 	outfile << "(plus traces)";
-	outfile << endl;
+	outfile << std::endl;
 
 
 	boost::archive::text_oarchive oa(outfile);
 	oa << *(delay); 
-	outfile << endl;
+	outfile << std::endl;
 
 	for ( NeuronID i = 0 ; i < get_rank_size() ; ++i ) 
 	{
@@ -434,16 +502,16 @@ bool SpikingGroup::load_from_file(const char * filename)
 {
 	if ( !evolve_locally() ) return true;
 
-	stringstream oss;
+	std::stringstream oss;
 	oss << "Loading SpikingGroup from " << filename;
-	logger->msg(oss.str(),NOTIFICATION);
+	auryn::logger->msg(oss.str(),NOTIFICATION);
 	
-	ifstream infile (filename);
+	std::ifstream infile (filename);
 
 	if (!infile) {
-		stringstream oes;
+		std::stringstream oes;
 		oes << "Can't open input file " << filename;
-		logger->msg(oes.str(),ERROR);
+		auryn::logger->msg(oes.str(),ERROR);
 		throw AurynOpenFileException();
 	}
 
@@ -466,11 +534,11 @@ bool SpikingGroup::load_from_file(const char * filename)
 
 	if ( get_rank_size() != count ) {
 		// issue warning
-		stringstream oes;
+		std::stringstream oes;
 		oes << "SpikingGroup:: NeuronState file corrupted. Read " 
 			<< count << " entries, but " 
 			<< get_rank_size() << " expected in " << filename;
-		logger->msg(oes.str(),WARNING);
+		auryn::logger->msg(oes.str(),WARNING);
 	}
 
 	infile.close();
@@ -482,21 +550,26 @@ void SpikingGroup::virtual_serialize(boost::archive::binary_oarchive & ar, const
 	ar & size & axonaldelay;
 	ar & *delay;
 
-	logger->msg("SpikingGroup:: serializing state vectors",VERBOSE);
-	for ( map<string,auryn_vector_float *>::const_iterator iter = state_vectors.begin() ; 
+	auryn::logger->msg("SpikingGroup:: serializing state vectors",VERBOSE);
+	for ( std::map<std::string,auryn_vector_float *>::const_iterator iter = state_vectors.begin() ; 
 			iter != state_vectors.end() ;
 			++iter ) {
+		if ( iter->first[0] == '_' ) continue; // do not process volatile state_vector
 		ar & iter->first;
 		ar & *(iter->second);
 	}
 
-	logger->msg("SpikingGroup:: serializing pre traces",VERBOSE);
+	auryn::logger->msg("SpikingGroup:: serializing pre traces",VERBOSE);
 	for ( NeuronID i = 0 ; i < pretraces.size() ; ++i )
 		ar & *(pretraces[i]);
 
-	logger->msg("SpikingGroup:: serializing post traces",VERBOSE);
+	auryn::logger->msg("SpikingGroup:: serializing post traces",VERBOSE);
 	for ( NeuronID i = 0 ; i < posttraces.size() ; ++i )
 		ar & *(posttraces[i]);
+
+	auryn::logger->msg("NeuronGroup:: serializing state traces",VERBOSE);
+	for ( NeuronID i = 0 ; i < post_state_traces.size() ; ++i )
+		ar & *(post_state_traces[i]);
 }
 
 void SpikingGroup::virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version ) 
@@ -504,39 +577,64 @@ void SpikingGroup::virtual_serialize(boost::archive::binary_iarchive & ar, const
 	ar & size & axonaldelay ; 
 	ar & *delay;
 
-	logger->msg("SpikingGroup:: reading state vectors",VERBOSE);
-	for ( map<string,auryn_vector_float *>::const_iterator iter = state_vectors.begin() ; 
+	auryn::logger->msg("SpikingGroup:: reading state vectors",VERBOSE);
+	for ( std::map<std::string,auryn_vector_float *>::const_iterator iter = state_vectors.begin() ; 
 			iter != state_vectors.end() ;
 			++iter ) {
-		string key;
+		if ( iter->first[0] == '_' ) continue; // do not process volatile state_vector
+		std::string key;
 		ar & key;
 		auryn_vector_float * vect = get_state_vector(key);
 		ar & *vect;
 	}
 
-	logger->msg("SpikingGroup:: reading pre traces",VERBOSE);
+	auryn::logger->msg("SpikingGroup:: reading pre traces",VERBOSE);
 	for ( NeuronID i = 0 ; i < pretraces.size() ; ++i )
 		ar & *(pretraces[i]);
 
-	logger->msg("SpikingGroup:: reading pre traces",VERBOSE);
+	auryn::logger->msg("SpikingGroup:: reading post traces",VERBOSE);
 	for ( NeuronID i = 0 ; i < posttraces.size() ; ++i )
 		ar & *(posttraces[i]);
+
+	auryn::logger->msg("NeuronGroup:: loading post state traces",VERBOSE);
+	for ( NeuronID i = 0 ; i < post_state_traces.size() ; ++i )
+		ar & *(post_state_traces[i]);
 }
 
-auryn_vector_float * SpikingGroup::get_state_vector(string key)
+
+void SpikingGroup::add_state_vector(std::string key, auryn_vector_float * state_vector)
+{
+
+	if ( key[0] == '_' ) {
+		std::stringstream oss;
+		oss << "SpikingGroup:: State vector " 
+			<< key 
+			<< " marked as volatile alias vector."
+			<< " It will neither be saved nor freed.";
+		auryn::logger->msg(oss.str(), VERBOSE);
+	}
+	state_vectors[key] = state_vector;
+}
+
+void SpikingGroup::remove_state_vector( std::string key )
+{
+	state_vectors.erase(key);
+}
+
+auryn_vector_float * SpikingGroup::get_state_vector(std::string key)
 {
 	if ( state_vectors.find(key) == state_vectors.end() ) {
 		if ( get_vector_size() == 0 ) return NULL;
 		auryn_vector_float * vec = auryn_vector_float_alloc (get_vector_size()); 
 		auryn_vector_float_set_zero( vec );
-		state_vectors[key] = vec;
+		add_state_vector(key, vec);
 		return vec;
 	} else {
 		return state_vectors.find(key)->second;
 	}
 }
 
-auryn_vector_float * SpikingGroup::find_state_vector(string key)
+auryn_vector_float * SpikingGroup::find_state_vector(std::string key)
 {
 	if ( state_vectors.find(key) == state_vectors.end() ) {
 		return NULL;
@@ -545,9 +643,9 @@ auryn_vector_float * SpikingGroup::find_state_vector(string key)
 	}
 }
 
-void SpikingGroup::randomize_state_vector_gauss(string state_vector_name, AurynState mean, AurynState sigma, int seed)
+void SpikingGroup::randomize_state_vector_gauss(std::string state_vector_name, AurynState mean, AurynState sigma, int seed)
 {
-	boost::mt19937 ng_gen(seed+communicator->rank()); // produces same series every time 
+	boost::mt19937 ng_gen(seed+auryn::communicator->rank()); // produces same series every time 
 	boost::normal_distribution<> dist((double)mean, (double)sigma);
 	boost::variate_generator<boost::mt19937&, boost::normal_distribution<> > die(ng_gen, dist);
 	AurynState rv;
@@ -562,14 +660,15 @@ void SpikingGroup::randomize_state_vector_gauss(string state_vector_name, AurynS
 
 }
 
-string SpikingGroup::get_output_line(NeuronID i)
+std::string SpikingGroup::get_output_line(NeuronID i)
 {
-	stringstream oss;
+	std::stringstream oss;
 
-	for ( map<string,auryn_vector_float *>::const_iterator iter = state_vectors.begin() ; 
+	for ( std::map<std::string,auryn_vector_float *>::const_iterator iter = state_vectors.begin() ; 
 			iter != state_vectors.end() ;
 			++iter ) {
-		oss << scientific << auryn_vector_float_get( iter->second, i ) << " ";
+		if ( iter->first[0] == '_' ) continue; // do not process volatile state_vector
+		oss << std::scientific << auryn_vector_float_get( iter->second, i ) << " ";
 	}
 
 	for ( NeuronID k = 0 ; k < pretraces.size() ; k++ ) { 
@@ -599,13 +698,14 @@ void SpikingGroup::load_input_line(NeuronID i, const char * buf)
 		float temp;
 
 		// read the state_vectors
-		for ( map<string,auryn_vector_float *>::const_iterator iter = state_vectors.begin() ; 
+		for ( std::map<std::string,auryn_vector_float *>::const_iterator iter = state_vectors.begin() ; 
 			iter != state_vectors.end() ;
 			++iter ) {
+			if ( iter->first[0] == '_' ) continue; // do not process volatile state_vector
 			if ( ( nums_now = sscanf( buf + bytes_consumed, "%f%n", & temp, & bytes_now ) ) <= 0 )
 			{
 				// error handling
-				logger->msg("Expected additional fields for single neuron parameters. Corrupted nstate file? Aborting.",ERROR);
+				auryn::logger->msg("Expected additional fields for single neuron parameters. Corrupted nstate file? Aborting.",ERROR);
 				return;
 			}
 			bytes_consumed += bytes_now;
@@ -618,7 +718,7 @@ void SpikingGroup::load_input_line(NeuronID i, const char * buf)
 				if ( ( nums_now = sscanf( buf + bytes_consumed, "%f%n", & temp, & bytes_now ) ) <= 0 )
 				{
 					// error handling
-					logger->msg("Expected additional fields for pretrace values. Corrupted nstate file? Aborting.",ERROR);
+					auryn::logger->msg("Expected additional fields for pretrace values. Corrupted nstate file? Aborting.",ERROR);
 					return;
 				}
 				bytes_consumed += bytes_now;
@@ -627,7 +727,7 @@ void SpikingGroup::load_input_line(NeuronID i, const char * buf)
 				if ( t<get_size() )
 					pretraces[k]->set(t,temp);
 
-				// cout << temp << endl;
+				// std::cout << temp << std::endl;
 			}
 		}
 
@@ -635,7 +735,7 @@ void SpikingGroup::load_input_line(NeuronID i, const char * buf)
 			if ( ( nums_now = sscanf( buf + bytes_consumed, "%f%n", & temp, & bytes_now ) ) <= 0 )
 			{
 				// error handling
-				logger->msg("Expected additional fields for posttrace values. Corrupted nstate file? Aborting.",ERROR);
+				auryn::logger->msg("Expected additional fields for posttrace values. Corrupted nstate file? Aborting.",ERROR);
 				return;
 			}
 			bytes_consumed += bytes_now;
@@ -648,7 +748,7 @@ void SpikingGroup::load_input_line(NeuronID i, const char * buf)
 		if ( ( nums_now = sscanf( buf + bytes_consumed, "%f%n", & temp, & bytes_now ) ) > 0 )
 		{
 			// error handling
-			logger->msg("There were unprocessed values in nstatefile.",WARNING);
+			auryn::logger->msg("There were unprocessed values in nstatefile.",WARNING);
 		}
 }
 

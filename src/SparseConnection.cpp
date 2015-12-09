@@ -25,6 +25,8 @@
 
 #include "SparseConnection.h"
 
+using namespace auryn;
+
 // static members
 boost::mt19937 SparseConnection::sparse_connection_gen = boost::mt19937();
 bool SparseConnection::has_been_seeded = false;
@@ -61,15 +63,15 @@ SparseConnection::SparseConnection(
 		AurynWeight weight, 
 		AurynFloat sparseness, 
 		TransmitterType transmitter, 
-		string name) 
+		std::string name) 
 	: Connection(source,destination,transmitter,name)
 {
 	init();
-	stringstream oss;
+	std::stringstream oss;
 	AurynLong anticipatedsize = (AurynLong) (estimate_required_nonzero_entires ( sparseness*src->get_pre_size()*dst->get_post_size() ) );
 	oss << "SparseConnection: ("<< get_name() <<"): Assuming memory demand for pre #" << src->get_pre_size() << " and post #" << dst->get_post_size() 
-													<< std::scientific << setprecision(4) << " ( total " << anticipatedsize << ")";
-	logger->msg(oss.str(),VERBOSE);
+													<< std::scientific << std::setprecision(4) << " ( total " << anticipatedsize << ")";
+	auryn::logger->msg(oss.str(),VERBOSE);
 	allocate(anticipatedsize);
 	connect_random(weight,sparseness,skip_diagonal);
 }
@@ -99,7 +101,7 @@ SparseConnection::SparseConnection(
 		SpikingGroup * source, 
 		NeuronGroup * destination, 
 		SparseConnection * con, 
-		string name ) 
+		std::string name ) 
 	: Connection(source,destination)
 {
 	set_transmitter(con->get_transmitter());
@@ -118,18 +120,18 @@ SparseConnection::~SparseConnection()
 void SparseConnection::init() 
 {
 	if ( dst->evolve_locally() == true )
-		sys->register_connection(this);
+		auryn::sys->register_connection(this);
 	has_been_allocated = false;
 	if ( src == dst ) {
 		skip_diagonal = true; 
-		stringstream oss;
+		std::stringstream oss;
 		oss << "SparseConnection: ("<< get_name() <<"): Detected recurrent connection. skip_diagonal was activated!";
-		logger->msg(oss.str(),VERBOSE);
+		auryn::logger->msg(oss.str(),VERBOSE);
 	}
 	else skip_diagonal = false;
 
 	if ( !has_been_seeded ) { // seed it only once 
-		int rseed = 12345*communicator->rank() ;
+		int rseed = 12345*auryn::communicator->rank() ;
 		seed(rseed);
 	}
 
@@ -145,14 +147,14 @@ void SparseConnection::init()
 
 void SparseConnection::seed(NeuronID randomseed) 
 {
-	stringstream oss;
+	std::stringstream oss;
 	oss << "SparseConnection: ("<< get_name() <<"): Seeding with " << randomseed;
-	logger->msg(oss.str(),VERBOSE);
+	auryn::logger->msg(oss.str(),VERBOSE);
 	SparseConnection::sparse_connection_gen.seed(randomseed); 
 	has_been_seeded = true;
 }
 
-AurynLong SparseConnection::estimate_required_nonzero_entires( AurynLong nonzero , double sigma )
+AurynLong SparseConnection::estimate_required_nonzero_entires( AurynLong nonzero, double sigma )
 {
 	return nonzero + sigma*sqrt(nonzero) ;
 }
@@ -168,13 +170,13 @@ void SparseConnection::allocate(AurynLong bufsize)
 	NeuronID m = get_m_rows();  
 	NeuronID n = get_n_cols();
 
-	stringstream oss;
-	oss << "SparseConnection: (" << get_name() << "): Allocating sparse matrix (" << m << ", " << n << ") with space for "  << std::scientific << setprecision(4) << (double) bufsize <<  " nonzero elements ";
-	logger->msg(oss.str(),VERBOSE);
+	std::stringstream oss;
+	oss << "SparseConnection: (" << get_name() << "): Allocating sparse matrix (" << m << ", " << n << ") with space for "  << std::scientific << std::setprecision(4) << (double) bufsize <<  " nonzero elements ";
+	auryn::logger->msg(oss.str(),VERBOSE);
 
 	AurynLong maxsize = m*n;
 	
-	w = new ForwardMatrix ( m, n , min(maxsize,bufsize) );
+	w = new ForwardMatrix ( m, n , std::min(maxsize,bufsize) );
 
 	has_been_allocated = true;
 }
@@ -207,9 +209,9 @@ AurynWeight SparseConnection::get_max_weight()
 
 void SparseConnection::random_data(AurynWeight mean, AurynWeight sigma) 
 {
-	stringstream oss;
+	std::stringstream oss;
 	oss << "SparseConnection: (" << get_name() << "): randomizing non-zero connections (gaussian) with mean=" << mean << " sigma=" << sigma ;
-	logger->msg(oss.str(),NOTIFICATION);
+	auryn::logger->msg(oss.str(),NOTIFICATION);
 
 	boost::normal_distribution<> dist((double)mean, (double)sigma);
 	boost::variate_generator<boost::mt19937&, boost::normal_distribution<> > die(SparseConnection::sparse_connection_gen, dist);
@@ -218,15 +220,16 @@ void SparseConnection::random_data(AurynWeight mean, AurynWeight sigma)
 	for ( AurynLong i = 0 ; i<w->get_nonzero() ; ++i ) {
 		rv = die();
 		if ( rv<get_min_weight() ) rv = get_min_weight();
+		if ( rv>get_max_weight() ) rv = get_max_weight();
 		w->set_data(i,rv);
 	}
 }
 
 void SparseConnection::sparse_set_data(AurynDouble sparseness, AurynWeight value) 
 {
-	stringstream oss;
+	std::stringstream oss;
 	oss << "SparseConnection: (" << get_name() << "): setting data sparsely with sparseness=" << sparseness << " value=" << value ;
-	logger->msg(oss.str(),VERBOSE);
+	auryn::logger->msg(oss.str(),VERBOSE);
 
 	boost::exponential_distribution<> dist(sparseness);
 	boost::variate_generator<boost::mt19937&, boost::exponential_distribution<> > die(SparseConnection::sparse_connection_gen, dist);
@@ -242,9 +245,9 @@ void SparseConnection::sparse_set_data(AurynDouble sparseness, AurynWeight value
 
 void SparseConnection::random_col_data(AurynWeight mean, AurynWeight sigma) 
 {
-	stringstream oss;
+	std::stringstream oss;
 	oss << "SparseConnection: (" << get_name() << "): Randomly scaling cols (gaussian) with mean=" << mean << " sigma=" << sigma ;
-	logger->msg(oss.str(),VERBOSE);
+	auryn::logger->msg(oss.str(),VERBOSE);
 
 	boost::normal_distribution<> dist((double)mean, (double)sigma);
 	boost::variate_generator<boost::mt19937&, boost::normal_distribution<> > die(SparseConnection::sparse_connection_gen, dist);
@@ -260,7 +263,7 @@ void SparseConnection::random_col_data(AurynWeight mean, AurynWeight sigma)
 
 void SparseConnection::set_block(NeuronID lo_row, NeuronID hi_row, NeuronID lo_col, NeuronID hi_col, AurynWeight weight)
 {
-	AurynWeight temp = max(weight,get_min_weight());
+	AurynWeight temp = std::max(weight,get_min_weight());
 	for ( NeuronID i = 0 ; i < get_m_rows() ; ++i ) 
 	{
 		for ( NeuronID * j = w->get_row_begin(i) ; j != w->get_row_end(i) ; ++j )
@@ -284,7 +287,7 @@ void SparseConnection::scale_all(AurynFloat value)
 void SparseConnection::set_upper_triangular(AurynWeight weight)
 {
 	w->set_all( 0.0 );
-	AurynWeight temp = max(weight,get_min_weight());
+	AurynWeight temp = std::max(weight,get_min_weight());
 	for ( NeuronID i = 0 ; i < get_m_rows() ; ++i ) 
 	{
 		for ( NeuronID * j = w->get_row_begin(i) ; j != w->get_row_end(i) ; ++j )
@@ -296,7 +299,8 @@ void SparseConnection::set_upper_triangular(AurynWeight weight)
 }
 
 
-void SparseConnection::connect_block_random(AurynWeight weight, float sparseness,
+void SparseConnection::connect_block_random(AurynWeight weight, 
+		double sparseness,
 		NeuronID lo_row, 
 		NeuronID hi_row, 
 		NeuronID lo_col, 
@@ -305,21 +309,23 @@ void SparseConnection::connect_block_random(AurynWeight weight, float sparseness
 {
 	// do some sanity checks
 	if ( sparseness <= 0.0 ) {
-		logger->msg("Trying to set up a SparseConnection with sparseness smaller or equal to zero, which doesn't make sense",ERROR);
+		auryn::logger->msg("Trying to set up a SparseConnection with sparseness smaller or equal to zero, which doesn't make sense",ERROR);
 		throw AurynGenericException();
 	}
 	if ( sparseness > 1.0 ) {
-		logger->msg("Sparseness larger than 1 not allowed. Setting to 1.",WARNING);
+		auryn::logger->msg("Sparseness larger than 1 not allowed. Setting to 1.",WARNING);
 		sparseness = 1.0;
 	}
 
 	int r = 0; // these variables are used to speed up building the matrix if the destination is distributed
 	int s = 1;
 
-	r = communicator->rank()-dst->get_locked_rank(); 
+	r = auryn::communicator->rank()-dst->get_locked_rank(); 
 	s = dst->get_locked_range();
 
-	boost::exponential_distribution<> dist(sparseness);
+	// correction for "refractoriness"
+	double lambda = 1.0/(1.0/sparseness-1.0);
+	boost::exponential_distribution<> dist(lambda);
 	boost::variate_generator<boost::mt19937&, boost::exponential_distribution<> > die(SparseConnection::sparse_connection_gen, dist);
 
 	if (!has_been_allocated)
@@ -346,7 +352,7 @@ void SparseConnection::connect_block_random(AurynWeight weight, float sparseness
 			}
 			catch ( AurynMatrixDimensionalityException )
 			{
-				stringstream oss;
+				std::stringstream oss;
 				oss << "SparseConnection: ("
 					<< get_name() 
 					<<"): Trying to add elements outside of matrix (i=" 
@@ -356,60 +362,57 @@ void SparseConnection::connect_block_random(AurynWeight weight, float sparseness
 					<< ", "
 					<< count 
 					<< "th element) ";
-				logger->msg(oss.str(),ERROR);
+				auryn::logger->msg(oss.str(),ERROR);
 				return;
 			} 
 			catch ( AurynMatrixPushBackException )
 			{
-				stringstream oss;
+				std::stringstream oss;
 				oss << "SparseConnection: ("<< get_name() 
 					<< "): Failed pushing back element. Maybe due to out of order pushing? "
 					<< " (" << i << "," << j << ") "
 					<< " with count=" << count 
 					<< " in connect_block_random ( fill_level= " << w->get_fill_level() << " )";
-				logger->msg(oss.str(),ERROR);
+				auryn::logger->msg(oss.str(),ERROR);
 				return;
 			} 
 			catch ( AurynMatrixBufferException )
 			{
-				stringstream oss;
+				std::stringstream oss;
 				oss << "SparseConnection: ("
 					<< get_name() 
 					<<"): Buffer full after pushing " 
 					<< count 
 					<< " elements."
 					<< " There are pruned connections!";
-				logger->msg(oss.str(),ERROR);
+				auryn::logger->msg(oss.str(),ERROR);
 				return;
 			} 
 		}
 
 		if ( sparseness < 1.0 ) { 
-			AurynLong jump = (AurynLong) (die()+0.5);
-			if ( jump == 0 )  
-				x += 1 ;
-			else
-				x += jump ;
+			AurynLong jump = (AurynLong) (die()+1.5);
+			x += jump ;
 		} else { // dense matrices
 			x += 1 ;
 		}
 	}
 
-	stringstream oss;
+	std::stringstream oss;
 	oss << "SparseConnection: ("<< get_name() <<"): Finished connect_block_random ["
 		<< lo_row << ", " << hi_row << ", " << lo_col << ", " << hi_col <<  "] " << " (stop count " 
-		<< std::scientific << setprecision(4) << (double) stop 
+		<< std::scientific << std::setprecision(4) << (double) stop 
 		<< ") and successfully pushed " << (double) count <<  " entries. " 
     	<< "Resulting overall sparseness " << 1.*get_nonzero()/src->get_pre_size()/dst->get_post_size();
-	logger->msg(oss.str(),VERBOSE);
+	auryn::logger->msg(oss.str(),VERBOSE);
 }
 
 void SparseConnection::connect_random(AurynWeight weight, float sparseness, bool skip_diag)
 {
 	if ( dst->evolve_locally() ) { // if there are no local units there is no need for synapses
-		stringstream oss;
+		std::stringstream oss;
 		oss << "SparseConnection: ("<< get_name() <<"): Randomfill with weight "<< weight <<  " and sparseness " << sparseness;
-		logger->msg(oss.str(),VERBOSE);
+		auryn::logger->msg(oss.str(),VERBOSE);
 		w->clear();
 		connect_block_random(weight,sparseness,0,get_m_rows(),0,get_n_cols(),skip_diag);
 	}
@@ -420,14 +423,14 @@ void SparseConnection::finalize()
 {
 	w->fill_zeros();
 	if ( dst->evolve_locally() ) {
-		stringstream oss;
+		std::stringstream oss;
 		oss << "SparseConnection: ("<< get_name() <<"): Finalized with fill level " << w->get_fill_level();
-		logger->msg(oss.str(),VERBOSE);
+		auryn::logger->msg(oss.str(),VERBOSE);
 		if (w->get_fill_level()<WARN_FILL_LEVEL)
 		{
-			stringstream oss2;
+			std::stringstream oss2;
 			oss2 << "SparseConnection: ("<< get_name() <<"): Wasteful fill level (" << w->get_fill_level() << ")! Make sure everything is in order!";
-			logger->msg(oss2.str(),WARNING);
+			auryn::logger->msg(oss2.str(),WARNING);
 		}
 	}
 }
@@ -478,26 +481,26 @@ void SparseConnection::sanity_check()
 		total_weight += sum[i];
 		if ( sum[i] == 0 && dst->localrank(i) ) {
 			unconnected_count++;
-			stringstream oss;
+			std::stringstream oss;
 			oss << "Sanity check: Neuron "
 				<< i 
 				<< " local (" 
 				<< dst->global2rank(i) 
 				<< ") has no inputs." ;
-			logger->msg(oss.str(),WARNING);
+			auryn::logger->msg(oss.str(),WARNING);
 		}
 	}
 
-	logger->parameter("sanity_check:total weight",total_weight);
+	auryn::logger->parameter("sanity_check:total weight",total_weight);
 
 	if ( unconnected_count ) { 
-		stringstream oss;
+		std::stringstream oss;
 		oss << "Sanity check failed ("
 			<< get_name()
 			<< "). Found " 
 			<< unconnected_count
 			<< " unconnected neurons.";
-		logger->msg(oss.str(),WARNING);
+		auryn::logger->msg(oss.str(),WARNING);
 	}
 
 	delete [] sum;
@@ -518,15 +521,15 @@ void SparseConnection::sanity_check()
 
 	for ( NeuronID i = 0 ; i < src->get_size() ; ++i ) {
 		if ( sum_rows[i] == 0  ) {
-			stringstream oss;
+			std::stringstream oss;
 			oss << "Sanity check: Neuron "
 			 << i 
 			 << " local (" 
 			 << src->global2rank(i) 
 			 << ") has no outputs on this rank. This might be normal when run distributed." ;
-			logger->msg(oss.str(),VERBOSE);
+			auryn::logger->msg(oss.str(),VERBOSE);
 			if ( w->get_row_begin(i) != w->get_row_end(i) ) {
-				logger->msg("wmat inconsistency",ERROR);
+				auryn::logger->msg("wmat inconsistency",ERROR);
 			}
 		}
 	}
@@ -537,29 +540,22 @@ void SparseConnection::sanity_check()
 
 void SparseConnection::stats(AurynFloat &mean, AurynFloat &std)
 {
-	NeuronID count = 0;
-	AurynFloat sum = 0;
-	AurynFloat sum2 = 0;
-	// for ( NeuronID i = 0 ; i < get_m_rows() ; ++i ) 
-	// {
-	// 	for ( NeuronID * j = w->get_row_begin(i) ; j != w->get_row_end(i) ; ++j )
-	// 	{
-	// 		count++;
-	// 		t = w->get_data_begin()[j-w->get_row_begin(0)];
-	// 		sum += t;
-	// 		sum2 += (t*t);
-	// 	}
-	// }
+	double sum = 0; // needs double here -- machine precision really matters here
+	double sum2 = 0;
+
 	for ( AurynWeight * iter = w->get_data_begin() ; iter != w->get_data_end() ; ++iter ) {
 		sum  += *iter;
 		sum2 += (*iter * *iter);
 	}
-	count = w->get_nonzero();
+
+	NeuronID count = w->get_nonzero();
+
 	if ( count <= 1 ) {
 		mean = sum;
 		std = 0;
 		return;
 	}
+
 	mean = sum/count;
 	std = sqrt(sum2/count-mean*mean);
 }
@@ -595,9 +591,9 @@ AurynWeight * SparseConnection::get_ptr(NeuronID i, NeuronID j)
 	return w->get_ptr(i,j);
 }
 
-void SparseConnection::set(vector<neuron_pair> element_list, AurynWeight value)
+void SparseConnection::set(std::vector<neuron_pair> element_list, AurynWeight value)
 {
-	for (vector<neuron_pair>::iterator iter = element_list.begin() ; iter != element_list.end() ; ++iter)
+	for (std::vector<neuron_pair>::iterator iter = element_list.begin() ; iter != element_list.end() ; ++iter)
 	{
 		w->set((*iter).i, (*iter).j,value);
 	}
@@ -605,20 +601,20 @@ void SparseConnection::set(vector<neuron_pair> element_list, AurynWeight value)
 
 void SparseConnection::set(NeuronID i, NeuronID j, AurynWeight value)
 {
-	value = max(value,get_min_weight());
+	value = std::max(value,get_min_weight());
 	w->set(i,j,value);
 }
 
-bool SparseConnection::write_to_file(ForwardMatrix * m, string filename )
+bool SparseConnection::write_to_file(ForwardMatrix * m, std::string filename )
 {
 	if ( !dst->evolve_locally() ) return true;
 
-	ofstream outfile;
-	outfile.open(filename.c_str(),ios::out);
+	std::ofstream outfile;
+	outfile.open(filename.c_str(),std::ios::out);
 	if (!outfile) {
-		stringstream oss;
+		std::stringstream oss;
 	    oss << "Can't open output file " << filename;
-		logger->msg(oss.str(),ERROR);
+		auryn::logger->msg(oss.str(),ERROR);
 		throw AurynOpenFileException();
 	}
 
@@ -627,36 +623,42 @@ bool SparseConnection::write_to_file(ForwardMatrix * m, string filename )
 		<< "% Connection name: " << get_name() << "\n"
 		<< "% Locked range: " << dst->get_locked_range() << "\n"
 		<< "%\n"
-		<< get_m_rows() << " " << get_n_cols() << " " << m->get_nonzero() << endl;
+		<< get_m_rows() << " " << get_n_cols() << " " << m->get_nonzero() << std::endl;
 
+	AurynLong count = 0;
 	for ( NeuronID i = 0 ; i < get_m_rows() ; ++i ) 
 	{
-		outfile << setprecision(7);
+		outfile << std::setprecision(7);
 		for ( NeuronID * j = m->get_row_begin(i) ; j != m->get_row_end(i) ; ++j )
 		{
-			outfile << i+1 << " " << *j+1 << " " << scientific << m->get_data_begin()[j-m->get_row_begin(0)] << fixed << "\n";
+			outfile << i+1 << " " << *j+1 << " " << std::scientific << m->get_data_begin()[j-m->get_row_begin(0)] << std::fixed << "\n";
+			++count;
 		}
+	}
+
+	if ( count != m->get_nonzero() ) {
+		logger->msg("SparseConnection:: count inconsistency while writing MatrixMarket to file.", WARNING);
 	}
 
 	outfile.close();
 	return true;
 }
 
-bool SparseConnection::write_to_file(string filename)
+bool SparseConnection::write_to_file(std::string filename)
 {
 	return write_to_file(w,filename.c_str());
 }
 
-AurynLong SparseConnection::dryrun_from_file(string filename)
+AurynLong SparseConnection::dryrun_from_file(std::string filename)
 {
 	if ( !dst->evolve_locally() ) return 0;
 
 	char buffer[256];
-	ifstream infile (filename.c_str());
+	std::ifstream infile (filename.c_str());
 	if (!infile) {
-		stringstream oss;
+		std::stringstream oss;
 		oss << "Can't open input file " << filename;
-		logger->msg(oss.str(),ERROR);
+		auryn::logger->msg(oss.str(),ERROR);
 		throw AurynOpenFileException();
 	}
 
@@ -668,12 +670,12 @@ AurynLong SparseConnection::dryrun_from_file(string filename)
 
 	// read connection details
 	infile.getline (buffer,256); count++;
-	string header("%%MatrixMarket matrix coordinate real general");
+	std::string header("%%MatrixMarket matrix coordinate real general");
 	if (header.compare(buffer)!=0)
 	{
-		stringstream oss;
+		std::stringstream oss;
 		oss << "Input format not recognized.";
-		logger->msg(oss.str(),ERROR);
+		auryn::logger->msg(oss.str(),ERROR);
 		return false;
 	}
 	while ( buffer[0]=='%' ) {
@@ -696,16 +698,16 @@ AurynLong SparseConnection::dryrun_from_file(string filename)
 	return pushback_count;
 }
 
-bool SparseConnection::load_from_file(ForwardMatrix * m, string filename, AurynLong data_size )
+bool SparseConnection::load_from_file(ForwardMatrix * m, std::string filename, AurynLong data_size )
 {
 	if ( !dst->evolve_locally() ) return true;
 
 	char buffer[256];
-	ifstream infile (filename.c_str());
+	std::ifstream infile (filename.c_str());
 	if (!infile) {
-		stringstream oss;
+		std::stringstream oss;
 		oss << "Can't open input file " << filename;
-		logger->msg(oss.str(),ERROR);
+		auryn::logger->msg(oss.str(),ERROR);
 		throw AurynOpenFileException();
 	}
 
@@ -719,12 +721,12 @@ bool SparseConnection::load_from_file(ForwardMatrix * m, string filename, AurynL
 
 	// read connection details
 	infile.getline (buffer,256); count++;
-	string header("%%MatrixMarket matrix coordinate real general");
+	std::string header("%%MatrixMarket matrix coordinate real general");
 	if (header.compare(buffer)!=0)
 	{
-		stringstream oss;
+		std::stringstream oss;
 		oss << "Input format not recognized.";
-		logger->msg(oss.str(),ERROR);
+		auryn::logger->msg(oss.str(),ERROR);
 		return false;
 	}
 	while ( buffer[0]=='%' ) {
@@ -742,22 +744,22 @@ bool SparseConnection::load_from_file(ForwardMatrix * m, string filename, AurynL
 	if ( m->get_datasize() >= k ) {
 		m->clear();
 	} else {
-		stringstream oss;
+		std::stringstream oss;
 		oss << "Buffer too small ("
 			<< m->get_datasize()
 			<< " -> "
 			<< k
 			<< " elements). Reallocating.";
-		logger->msg(oss.str() ,NOTIFICATION);
+		auryn::logger->msg(oss.str() ,NOTIFICATION);
 		m->resize_buffer_and_clear(k);
 	}
 
-	stringstream oss;
+	std::stringstream oss;
 	oss << get_name() 
 		<< ": Reading from file ("
 		<< get_m_rows()<<"x"<<get_n_cols()
 		<< " @ "<<1.*k/(src->get_size()*dst->get_rank_size())<<")";
-	logger->msg(oss.str(),NOTIFICATION);
+	auryn::logger->msg(oss.str(),NOTIFICATION);
 
 
 	while ( infile.getline (buffer,255) )
@@ -772,30 +774,30 @@ bool SparseConnection::load_from_file(ForwardMatrix * m, string filename, AurynL
 		}
 		catch ( AurynMatrixPushBackException )
 		{
-			stringstream oss;
+			std::stringstream oss;
 			oss << "Push back failed. Error in line=" << count << ", "
 				<< " i=" << i 
 				<< " j=" << j 
 				<< " v=" << val << ". "
 				<< " After pushing " << pushback_count << " elements. "
 				<< " Bad row major order?";
-			logger->msg(oss.str(),ERROR);
+			auryn::logger->msg(oss.str(),ERROR);
 			throw AurynMMFileException();
 			return false;
 		} 
 		catch ( AurynMatrixBufferException )
 		{
-			stringstream oss;
+			std::stringstream oss;
 			oss << get_name() 
 				<< ": Buffer full after pushing " 
 				<< count << " elements."
 				<< " There are pruned connections!";
-			logger->msg(oss.str(),ERROR);
+			auryn::logger->msg(oss.str(),ERROR);
 			return false;
 		} 
 		catch ( AurynMatrixDimensionalityException )
 		{
-			stringstream oss;
+			std::stringstream oss;
 			oss << "SparseConnection: ("
 				<< get_name() 
 				<<"): Trying to add elements outside of matrix (i=" 
@@ -805,7 +807,7 @@ bool SparseConnection::load_from_file(ForwardMatrix * m, string filename, AurynL
 				<< ", "
 				<< count 
 				<< "th element) ";
-			logger->msg(oss.str(),ERROR);
+			auryn::logger->msg(oss.str(),ERROR);
 			return false;
 		} 
 	}
@@ -820,13 +822,13 @@ bool SparseConnection::load_from_file(ForwardMatrix * m, string filename, AurynL
 			<< " elements pushed, but only "
 			<< m->get_nonzero()
 			<< " in matrix matrix.";
-		logger->msg(oss.str(),ERROR);
+		auryn::logger->msg(oss.str(),ERROR);
 	} else {
 		oss.str("");
 		oss << get_name() << ": OK, " 
 			<< pushback_count 
 			<< " elements pushed.";
-		logger->msg(oss.str(),VERBOSE);
+		auryn::logger->msg(oss.str(),VERBOSE);
 	}
 
 	m->fill_zeros();
@@ -835,21 +837,21 @@ bool SparseConnection::load_from_file(ForwardMatrix * m, string filename, AurynL
 	return true;
 }
 
-bool SparseConnection::load_from_complete_file(string filename)
+bool SparseConnection::load_from_complete_file(std::string filename)
 {
 	AurynLong datasize = dryrun_from_file(filename);
-	stringstream oss;
+	std::stringstream oss;
 	oss << "Loading from complete wmat file \
 		(all ranks in the same file). Element count: "
 		<< datasize 
 		<< ".";
-	logger->msg(oss.str(),NOTIFICATION);
+	auryn::logger->msg(oss.str(),NOTIFICATION);
 	bool returnvalue = load_from_file(w,filename,datasize);
 	finalize();
 	return returnvalue;
 }
 
-bool SparseConnection::load_from_file(string filename)
+bool SparseConnection::load_from_file(std::string filename)
 {
 	bool result = load_from_file(w,filename);
 	finalize();
@@ -870,9 +872,9 @@ AurynLong SparseConnection::get_nonzero()
 
 void SparseConnection::put_pattern( type_pattern * pattern, AurynWeight strength, bool overwrite )
 {
-	stringstream oss;
+	std::stringstream oss;
 	oss << "SparseConnection: ("<< get_name() <<"): Putting assembly ( size " << pattern->size() << " )";
-	logger->msg(oss.str(),VERBOSE);
+	auryn::logger->msg(oss.str(),VERBOSE);
 
 	put_pattern( pattern, pattern, strength, overwrite );
 }
@@ -904,36 +906,36 @@ void SparseConnection::put_pattern( type_pattern * pattern1, type_pattern * patt
 	}
 }
 
-void SparseConnection::load_patterns( string filename, AurynWeight strength, bool overwrite, bool chainmode )
+void SparseConnection::load_patterns( std::string filename, AurynWeight strength, bool overwrite, bool chainmode )
 {
 	load_patterns( filename, strength, 1000000, overwrite, chainmode );
 }
 
-void SparseConnection::load_patterns( string filename, AurynWeight strength, int n, bool overwrite, bool chainmode )
+void SparseConnection::load_patterns( std::string filename, AurynWeight strength, int n, bool overwrite, bool chainmode )
 {
 
-		ifstream fin (filename.c_str());
+		std::ifstream fin (filename.c_str());
 		if (!fin) {
-			stringstream oss2;
+			std::stringstream oss2;
 			oss2 << "SparseConnection: There was a problem opening file " << filename << " for reading.";
-			logger->msg(oss2.str(),WARNING);
+			auryn::logger->msg(oss2.str(),WARNING);
 			return;
 		} else {
-			stringstream oss;
+			std::stringstream oss;
 			oss << "SparseConnection: ("<< get_name() <<"): Loading patterns from " << filename << " ...";
-			logger->msg(oss.str(),NOTIFICATION);
+			auryn::logger->msg(oss.str(),NOTIFICATION);
 		}
 
 		unsigned int patcount = 0 ;
 
-		NeuronID mindimension = min( get_m_rows()*patterns_every_pre, get_n_cols()*patterns_every_post );
+		NeuronID mindimension = std::min( get_m_rows()*patterns_every_pre, get_n_cols()*patterns_every_post );
 		bool istoolarge = false;
 		
 
 		type_pattern pattern;
-		vector<type_pattern> patterns;
+		std::vector<type_pattern> patterns;
 		char buffer[256];
-		string line;
+		std::string line;
 
 		while(!fin.eof()) {
 			line.clear();
@@ -953,13 +955,13 @@ void SparseConnection::load_patterns( string filename, AurynWeight strength, int
 			}
 
 			pattern_member pm;
-			stringstream iss (line);
+			std::stringstream iss (line);
 			pm.gamma = 1 ; 
 			iss >>  pm.i ;
 			if ( !wrap_patterns && !istoolarge && pm.i > mindimension ) { 
-				stringstream oss;
+				std::stringstream oss;
 				oss << "SparseConnection: ("<< get_name() <<"): Some elements of pattern " << patcount << " are larger than the underlying NeuronGroups!";
-				logger->msg(oss.str(),WARNING);
+				auryn::logger->msg(oss.str(),WARNING);
 				istoolarge = true;
 			}
 			iss >>  pm.gamma ;
@@ -981,14 +983,14 @@ void SparseConnection::load_patterns( string filename, AurynWeight strength, int
 		// put_pattern( &pattern, strength );
 
 		fin.close();
-		stringstream oss;
+		std::stringstream oss;
 		oss << "SparseConnection: ("<< get_name() <<"): Added " << patcount << " patterns";
-		logger->msg(oss.str(),NOTIFICATION);
+		auryn::logger->msg(oss.str(),NOTIFICATION);
 }
 
-vector<neuron_pair> SparseConnection::get_block(NeuronID lo_row, NeuronID hi_row,  NeuronID lo_col, NeuronID hi_col) 
+std::vector<neuron_pair> SparseConnection::get_block(NeuronID lo_row, NeuronID hi_row,  NeuronID lo_col, NeuronID hi_col) 
 {
-	vector<neuron_pair> clist;
+	std::vector<neuron_pair> clist;
 	for ( NeuronID i = 0 ; i < get_m_rows() ; ++i ) 
 	{
 		for ( NeuronID * j = w->get_row_begin(i) ; j != w->get_row_end(i) ; ++j )
@@ -1004,9 +1006,9 @@ vector<neuron_pair> SparseConnection::get_block(NeuronID lo_row, NeuronID hi_row
 	return clist;
 }
 
-vector<neuron_pair> SparseConnection::get_post_partners(NeuronID i) 
+std::vector<neuron_pair> SparseConnection::get_post_partners(NeuronID i) 
 {
-	vector<neuron_pair> clist;
+	std::vector<neuron_pair> clist;
 	for ( NeuronID * j = w->get_row_begin(i) ; j != w->get_row_end(i) ; ++j )
 	{
 		neuron_pair a;
@@ -1017,9 +1019,9 @@ vector<neuron_pair> SparseConnection::get_post_partners(NeuronID i)
 	return clist;
 }
 
-vector<neuron_pair> SparseConnection::get_pre_partners(NeuronID j) 
+std::vector<neuron_pair> SparseConnection::get_pre_partners(NeuronID j) 
 {
-	vector<neuron_pair> clist;
+	std::vector<neuron_pair> clist;
 	for ( NeuronID i = 0 ; i < get_m_rows() ; ++i ) 
 	{
 		if ( get_ptr(i,j) != NULL ) {

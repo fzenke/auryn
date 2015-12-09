@@ -25,20 +25,22 @@
 
 #include "RealTimeMonitor.h"
 
-RealTimeMonitor::RealTimeMonitor(string filename, AurynDouble start, AurynDouble stop) : Monitor(filename)
+using namespace auryn;
+
+RealTimeMonitor::RealTimeMonitor(std::string filename, AurynDouble start, AurynDouble stop) : Monitor(filename)
 {
-	sys->register_monitor(this);
+	auryn::sys->register_monitor(this);
 
 	t_start = start/dt;
 	t_stop = stop/dt;
 
-	if (sys->get_com()->rank() == 0) {
+	if (auryn::sys->get_com()->rank() == 0) {
 		ptime_offset = boost::posix_time::microsec_clock::local_time();
-		string sendstring = boost::posix_time::to_iso_string(ptime_offset);
-		broadcast(*sys->get_com(), sendstring, 0);
+		std::string sendstring = boost::posix_time::to_iso_string(ptime_offset);
+		broadcast(*auryn::sys->get_com(), sendstring, 0);
 	} else {
-		string timestring;
-		broadcast(*sys->get_com(), timestring , 0);
+		std::string timestring;
+		broadcast(*auryn::sys->get_com(), timestring , 0);
 		ptime_offset = boost::posix_time::from_iso_string(timestring);
 	}
 }
@@ -49,9 +51,9 @@ RealTimeMonitor::~RealTimeMonitor()
 
 void RealTimeMonitor::propagate()
 {
-	if ( t_stop > sys->get_clock() && t_start < sys->get_clock() ) {
+	if ( t_stop > auryn::sys->get_clock() && t_start < auryn::sys->get_clock() ) {
 		boost::posix_time::ptime now = boost::posix_time::microsec_clock::local_time();
 		boost::posix_time::time_duration diff = now - ptime_offset;
-		outfile << (sys->get_clock()) << " " << diff.total_microseconds() << "\n";
+		outfile << (auryn::sys->get_clock()) << " " << diff.total_microseconds() << "\n";
 	}
 }

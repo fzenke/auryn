@@ -25,9 +25,11 @@
 
 #include "TIFGroup.h"
 
+using namespace auryn;
+
 TIFGroup::TIFGroup(NeuronID size) : NeuronGroup(size)
 {
-	sys->register_spiking_group(this);
+	auryn::sys->register_spiking_group(this);
 	if ( evolve_locally() ) init();
 }
 
@@ -151,9 +153,9 @@ AurynFloat TIFGroup::get_bg_current(NeuronID i) {
 		return 0;
 }
 
-string TIFGroup::get_output_line(NeuronID i)
+std::string TIFGroup::get_output_line(NeuronID i)
 {
-	stringstream oss;
+	std::stringstream oss;
 	oss << get_mem(i) << " " << get_ampa(i) << " " << get_gaba(i) << " " 
 		<< auryn_vector_ushort_get (ref, i) << " " 
 		<< auryn_vector_float_get (bg_current, i) <<"\n";

@@ -30,6 +30,7 @@
 #include "NeuronGroup.h"
 #include "System.h"
 
+namespace auryn {
 
 /*! \brief A simple extension of IFGroup with spike triggered adaptation */
 class AIFGroup : public NeuronGroup
@@ -81,6 +82,8 @@ public:
 	void clear();
 	void evolve();
 };
+
+}
 
 #endif /*AIFGROUP_H_*/
 

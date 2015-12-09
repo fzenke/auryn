@@ -33,7 +33,7 @@
 #include <fstream>
 #include <iomanip>
 
-using namespace std;
+namespace auryn {
 
 /*! \brief Records sum of all weights in synaptic weight matrix in predefined
  *         intervals.
@@ -51,5 +51,7 @@ public:
 	virtual ~WeightSumMonitor();
 	void propagate();
 };
+
+}
 
 #endif /*WEIGHTSUMMONITOR_H_*/

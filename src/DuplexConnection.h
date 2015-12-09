@@ -35,7 +35,7 @@
 #include <boost/random/variate_generator.hpp>
 #include <boost/random/exponential_distribution.hpp>
 
-using namespace std;
+namespace auryn {
 
 /*! Definition of BackwardMatrix - a sparsematrix of pointers to weight values. */
 typedef SimpleMatrix<AurynWeight*> BackwardMatrix;
@@ -57,7 +57,7 @@ private:
 	void init();
 	void free();
 protected:
-	void compute_reverse_matrix();
+	void compute_reverse_matrix(int z = 0);
 public:
 	ForwardMatrix  * fwd;
 	BackwardMatrix * bkw; // TODO make protected again later when tested
@@ -66,11 +66,13 @@ public:
 	DuplexConnection(NeuronID rows, NeuronID cols);
 	DuplexConnection(SpikingGroup * source, NeuronGroup * destination, TransmitterType transmitter=GLUT);
 	DuplexConnection(SpikingGroup * source, NeuronGroup * destination, const char * filename , TransmitterType transmitter=GLUT);
-	DuplexConnection(SpikingGroup * source, NeuronGroup * destination, AurynWeight weight, AurynFloat sparseness=0.05, TransmitterType transmitter=GLUT, string name="DuplexConnection");
+	DuplexConnection(SpikingGroup * source, NeuronGroup * destination, AurynWeight weight, AurynFloat sparseness=0.05, TransmitterType transmitter=GLUT, std::string name="DuplexConnection");
 
 	virtual ~DuplexConnection();
 	virtual void finalize();
 
 };
+
+}
 
 #endif /*DUPLEXCONNECTION_H_*/

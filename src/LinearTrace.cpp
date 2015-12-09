@@ -25,6 +25,8 @@
 
 #include "LinearTrace.h"
 
+using namespace auryn;
+
 void LinearTrace::init(NeuronID n, AurynFloat timeconstant,AurynTime * clk)
 {
 	size = n;
@@ -34,7 +36,7 @@ void LinearTrace::init(NeuronID n, AurynFloat timeconstant,AurynTime * clk)
 
 	zerotime_auryntime = zerointerval;
 
-	// clock = sys->get_clock_ptr();
+	// clock = auryn::sys->get_clock_ptr();
 	clock = clk;
 	state = new AurynFloat[size];
 	timestamp = new AurynTime[size];

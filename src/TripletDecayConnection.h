@@ -32,7 +32,7 @@
 
 #define TRIPLETDECAYCONNECTION_EULERUPGRADE_STEP 0.999
 
-using namespace std;
+namespace auryn {
 
 
 class TripletDecayConnection : public TripletConnection
@@ -69,5 +69,7 @@ public:
 	virtual void propagate();
 
 };
+
+}
 
 #endif /*TRIPLETDECAYCONNECTION_H_*/

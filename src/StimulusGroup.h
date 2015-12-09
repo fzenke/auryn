@@ -42,7 +42,7 @@
 #define SOFTSTARTTIME 0.1
 #define STIMULUSGROUP_LOAD_MULTIPLIER 0.1
 
-using namespace std;
+namespace auryn {
 
 
 /*! \brief Provides a poisson stimulus at random intervals in one or more
@@ -52,11 +52,11 @@ class StimulusGroup : public SpikingGroup
 private:
 	AurynTime * clk;
 	AurynTime * ttl;
-	vector<type_pattern> stimuli;
+	std::vector<type_pattern> stimuli;
 	AurynFloat * activity;
 
 	/*! Internal name for the stimfile (tiser stands for time series). */
-	fstream tiserfile;
+	std::fstream tiserfile;
 
 	AurynFloat base_rate;
 
@@ -79,14 +79,18 @@ private:
 	StimulusGroupModeType stimulus_order ;
 
 	/*! stimulus probabilities */
-	vector<double> probabilities ;
+	std::vector<double> probabilities ;
 
+protected:
 	/*! current stimulus index */
 	unsigned int cur_stim_index ;
 	bool stimulus_active;
 
-	/*! next stimulus time requiring change in rates */
+	/*! \brief next stimulus time requiring change in rates */
 	AurynTime next_action_time ;
+
+	/*! \brief last stimulus time requiring change in rates */
+	AurynTime last_action_time ;
 
 	/*! Standard initialization */
 	void init(StimulusGroupModeType stimulusmode, string stimfile, AurynFloat baserate);
@@ -177,18 +181,27 @@ public:
 	void set_next_action_time(double time);
 
 	/*! Setter for pattern probability distribution */
-	void set_distribution ( vector<double> probs );
+	void set_distribution ( std::vector<double> probs );
 	/*! Getter for pattern probability distribution */
-	vector<double> get_distribution ( );
+	std::vector<double> get_distribution ( );
 	/*! Getter for pattern i of the probability distribution */
 	double get_distribution ( int i );
+
+	/*! \brief returns the last action (stim on/off) time in units of AurynTime */
+	AurynTime get_last_action_time();
+
+	/*! \brief returns the index of the current (or last -- if not active anymore) active stimulus */
+	unsigned int get_cur_stim();
+
 	/*! Initialized distribution to be flat */
 	void flat_distribution( );
 	/*! Normalizes the distribution */
 	void normalize_distribution( );
 
-	vector<type_pattern> * get_patterns();
+	std::vector<type_pattern> * get_patterns();
 
 };
+
+}
 
 #endif /*STIMULUSGROUP_H_*/

@@ -37,8 +37,7 @@
 #include <map>
 
 
-using namespace std;
-namespace mpi = boost::mpi;
+namespace auryn {
 
 class System;
 
@@ -64,7 +63,7 @@ private:
 	/*! Stores the current value of the gid count */
 	static NeuronID unique_id_count;
 
-	static vector<mpi::request> reqs;
+	static std::vector<mpi::request> reqs;
 
 	/*! Standard initialization of the object. */
 	void init(NeuronID size, double loadmultiplier, NeuronID total );
@@ -91,13 +90,18 @@ private:
 
 protected:
 	/*! Pretraces */
-	vector<PRE_TRACE_MODEL *> pretraces;
+	std::vector<PRE_TRACE_MODEL *> pretraces;
 
 	/*! Posttraces */
-	vector<DEFAULT_TRACE_MODEL *> posttraces;
+	std::vector<DEFAULT_TRACE_MODEL *> posttraces;
+
+	/*! Post state traces */
+	std::vector<EulerTrace *> post_state_traces;
+	std::vector<AurynFloat> post_state_traces_spike_biases;
+	std::vector<std::string> post_state_traces_state_names;
 
 	/*! Identifying name for object */
-	string group_name;
+	std::string group_name;
 
 	/*! Stores the size of the group */
     NeuronID size;
@@ -113,7 +117,7 @@ protected:
 
 	/* Functions related to loading and storing the state from files */
 	virtual void load_input_line(NeuronID i, const char * buf);
-	virtual string get_output_line(NeuronID i);
+	virtual std::string get_output_line(NeuronID i);
 
 	virtual void virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version );
 	virtual void virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version );
@@ -122,18 +126,26 @@ public:
 	SpikeDelay * delay;
 
 	/*! Can hold single neuron vectors such as target rates or STP states etc  */
-	map<string,auryn_vector_float *> state_vectors;
+	std::map<std::string,auryn_vector_float *> state_vectors;
 
 	/*! \brief Returns existing state vector by name. 
 	 *
 	 * If the state_vector does not exist the function returns NULL. */
-	auryn_vector_float * find_state_vector(string key);
+	auryn_vector_float * find_state_vector(std::string key);
+
+	/*! \brief Adds a state vector passed as an argument to the dictinary. */
+	void add_state_vector( std::string key, auryn_vector_float * state_vector );
+
+	/*! \brief Removes a state vector passed as an argument to the dictinary.
+	 *
+	 * The state vector is not freed automatically! */
+	void remove_state_vector( std::string key );
 
 	/*! \brief Creates a new or returns an existing state vector by name. */
-	auryn_vector_float * get_state_vector(string key);
+	auryn_vector_float * get_state_vector(std::string key);
 
 	/*! Randomizes the content of a state vector with Gaussian random numbers. Seeding is MPI save. */
-	void randomize_state_vector_gauss(string state_vector_name, AurynState mean, AurynState sigma, int seed=12239);
+	void randomize_state_vector_gauss(std::string state_vector_name, AurynState mean, AurynState sigma, int seed=12239);
 
 	/*! Default constructor */
 	SpikingGroup(NeuronID size, double loadmultiplier = 1., NeuronID total = 0 );
@@ -144,10 +156,10 @@ public:
 	virtual void evolve_traces();
 
 	/*! Give a name */
-	void set_name(string s);
+	void set_name(std::string s);
 
 	/*! Retrieves the groups name */
-	string get_name();
+	std::string get_name();
 
 	void set_num_spike_attributes(int x);
 	int get_num_spike_attributes();
@@ -201,6 +213,19 @@ public:
 	/*! Clear all spikes stored in the delays which is useful to reset a network during runtime */
 	void clear_spikes();
 
+
+	/*! \brief Returns a post trace of a neuronal state variable e.g. the membrane 
+	 * potential with time constant tau. 
+	 *
+	 * This trace is an cotinuously integrated EulerTrace which uses the follow 
+	 * function on the mem state vector. 
+	 * @param tau The time constant of the trace.
+	 * @param b The optional parameter b allows to specify a spike triggered contribution
+	 * which will be added instantaneously to the trace upon each 
+	 * postsynaptic spike.
+	 * */
+	EulerTrace * get_post_state_trace( AurynFloat tau, std::string state_name="mem", AurynFloat b=0.0 );
+
 	/*! Sets axonal delay for this SpikingGroup */
 	void set_delay( int d );
 
@@ -225,9 +250,9 @@ public:
 
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(SpikingGroup)
 
-extern System * sys;
-extern Logger * logger;
-extern mpi::communicator * communicator;
+	extern System * sys;
+	extern Logger * logger;
+	extern mpi::communicator * communicator;
 
 
 inline NeuronID SpikingGroup::global2rank(NeuronID i) {
@@ -239,6 +264,6 @@ inline NeuronID SpikingGroup::get_rank_size()
 	return rank_size;
 } 
 
-
+} // closing namespace brackets
 
 #endif /*SPIKINGGROUP_H_*/

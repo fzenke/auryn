@@ -32,7 +32,7 @@
 #include "System.h"
 #include <fstream>
 
-using namespace std;
+namespace auryn {
 
 /*! \brief The standard Monitor object to record spikes from a 
  * SpikingGroup and write them to a text file
@@ -56,7 +56,7 @@ private:
     NeuronID n_every;
 	SpikeContainer::const_iterator it;
 	SpikingGroup * src;
-	void init(SpikingGroup * source, string filename, NeuronID from, NeuronID to);
+	void init(SpikingGroup * source, std::string filename, NeuronID from, NeuronID to);
 	void free();
 	
 public:
@@ -69,7 +69,7 @@ public:
 	 * \param filename Specifies the filename to write to. 
 	 * This filename needs to be rank specific to avoid problems in parallelm mode
 	 * */
-	SpikeMonitor(SpikingGroup * source, string filename);
+	SpikeMonitor(SpikingGroup * source, std::string filename);
 
 	/*! \brief Default constructor which records from limited number of neurons
 	 *
@@ -78,7 +78,7 @@ public:
 	 * This filename needs to be rank specific to avoid problems in parallelm mode
 	 * \param to The last NeuronID to record from starting from 0.
 	 * */
-	SpikeMonitor(SpikingGroup * source, string filename, NeuronID to);
+	SpikeMonitor(SpikingGroup * source, std::string filename, NeuronID to);
 
 	/*! \brief Default constructor which records from a range of neurons
 	 *
@@ -88,7 +88,7 @@ public:
 	 * \param from The first NeuronID to record from.
 	 * \param to The last NeuronID to record from.
 	 * */
-	SpikeMonitor(SpikingGroup * source, string filename, NeuronID from, NeuronID to);
+	SpikeMonitor(SpikingGroup * source, std::string filename, NeuronID from, NeuronID to);
 
 	/*!\brief  Sets every parameter that ellow to record only from every X neuron.
 	 *
@@ -101,5 +101,7 @@ public:
 	/*! \brief  Propagate function for internal use. */
 	void propagate();
 };
+
+}
 
 #endif /*SPIKEMONITOR_H_*/

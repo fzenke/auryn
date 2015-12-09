@@ -31,7 +31,7 @@
 #include "EulerTrace.h"
 #include "LinearTrace.h"
 
-using namespace std;
+namespace auryn {
 
 
 /*! \brief Implements a symmetric STDP window with an optional 
@@ -101,5 +101,7 @@ public:
 	virtual void propagate();
 
 };
+
+}
 
 #endif /*SYMMETRICSTDPCONNECTION_H_*/

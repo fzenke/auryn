@@ -33,7 +33,7 @@
 #include "NeuronGroup.h"
 
 
-using namespace std;
+namespace auryn {
 
 /*! \brief Stimulator class to add values in each timestep to arbitrary neuronal states. 
  *
@@ -73,10 +73,10 @@ public:
 	 * @param[target] Initializes all currents with this value
 	 * @param[initial_current] Initializes all currents with this value
 	 */
-	CurrentInjector(NeuronGroup * target, string neuron_state_name="mem", AurynFloat initial_current=0.0 );
+	CurrentInjector(NeuronGroup * target, std::string neuron_state_name="mem", AurynFloat initial_current=0.0 );
 
 	/*! Sets the state to add the "current" in every timestep to */
-	void set_target_state( string state_name = "mem" );
+	void set_target_state( std::string state_name = "mem" );
 
 	/*! Default Destructor */
 	virtual ~CurrentInjector();
@@ -90,5 +90,7 @@ public:
 	void propagate();
 
 };
+
+}
 
 #endif /*CURRENTINJECTOR_H_*/

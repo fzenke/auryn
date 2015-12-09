@@ -25,11 +25,20 @@
 
 #include "Checker.h"
 
-Checker::Checker(SpikingGroup * source)
+using namespace auryn;
+
+Checker::Checker()
 {
-	src = source;
 }
 
 Checker::~Checker()
+{
+}
+
+void Checker::virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version ) 
+{
+}
+
+void Checker::virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version ) 
 {
 }

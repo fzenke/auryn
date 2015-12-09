@@ -25,6 +25,8 @@
 
 #include "TripletConnection.h"
 
+using namespace auryn;
+
 void TripletConnection::init(AurynFloat tau_hom, AurynFloat eta, AurynFloat kappa, AurynFloat maxweight)
 {
 	if ( dst->get_post_size() == 0 ) return; // avoids to run this code on silent nodes with zero post neurons.
@@ -102,7 +104,7 @@ TripletConnection::TripletConnection(SpikingGroup * source, NeuronGroup * destin
 		AurynFloat eta, 
 		AurynFloat kappa, AurynFloat maxweight , 
 		TransmitterType transmitter,
-		string name) 
+		std::string name) 
 : DuplexConnection(source, 
 		destination, 
 		weight, 

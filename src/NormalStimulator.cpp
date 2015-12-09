@@ -20,17 +20,19 @@
 
 #include "NormalStimulator.h"
 
+using namespace auryn;
+
 boost::mt19937 NormalStimulator::gen = boost::mt19937();
 
-NormalStimulator::NormalStimulator(NeuronGroup * target, AurynWeight sigma, string target_state ) : Monitor( )
+NormalStimulator::NormalStimulator(NeuronGroup * target, AurynWeight sigma, std::string target_state ) : Monitor( )
 {
 	init(target, sigma, target_state);
 }
 
 
-void NormalStimulator::init( NeuronGroup * target, AurynWeight sigma, string target_state )
+void NormalStimulator::init( NeuronGroup * target, AurynWeight sigma, std::string target_state )
 {
-	sys->register_monitor(this);
+	auryn::sys->register_monitor(this);
 	dst = target;
 
 	set_target_state(target_state);
@@ -38,11 +40,11 @@ void NormalStimulator::init( NeuronGroup * target, AurynWeight sigma, string tar
 	normal_sigma = sigma;
 
 
-	stringstream oss;
-	oss << scientific << "NormalStimulator:: initializing with mean " << get_lambda();
-	logger->msg(oss.str(),NOTIFICATION);
+	std::stringstream oss;
+	oss << std::scientific << "NormalStimulator:: initializing with mean " << get_lambda();
+	auryn::logger->msg(oss.str(),NOTIFICATION);
 
-	seed(61093*communicator->rank());
+	seed(61093*auryn::communicator->rank());
 	dist = new boost::normal_distribution<float> (0.0, get_lambda());
 	die  = new boost::variate_generator<boost::mt19937&, boost::normal_distribution<float> > ( gen, *dist );
 }
@@ -83,7 +85,7 @@ AurynFloat NormalStimulator::get_lambda() {
 	return get_sigma();
 }
 
-void NormalStimulator::set_target_state(string state_name) {
+void NormalStimulator::set_target_state(std::string state_name) {
 	target_vector = dst->get_state_vector(state_name);
 }
 

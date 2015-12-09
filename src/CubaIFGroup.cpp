@@ -25,9 +25,11 @@
 
 #include "CubaIFGroup.h"
 
+using namespace auryn;
+
 CubaIFGroup::CubaIFGroup(NeuronID size) : NeuronGroup(size)
 {
-	sys->register_spiking_group(this);
+	auryn::sys->register_spiking_group(this);
 	if ( evolve_locally() ) init();
 }
 
@@ -123,9 +125,9 @@ AurynFloat CubaIFGroup::get_bg_current(NeuronID i) {
 		return 0;
 }
 
-string CubaIFGroup::get_output_line(NeuronID i)
+std::string CubaIFGroup::get_output_line(NeuronID i)
 {
-	stringstream oss;
+	std::stringstream oss;
 	oss << get_mem(i) << " " << auryn_vector_ushort_get (ref, i) << "\n";
 	return oss.str();
 }

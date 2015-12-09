@@ -36,7 +36,7 @@
 #include <boost/random/variate_generator.hpp>
 #include <boost/random/exponential_distribution.hpp>
 
-using namespace std;
+namespace auryn {
 
 /*! \brief A special Poisson generator that can hide a fixed number of spatio-temporal patterns in the spike data
  *
@@ -50,25 +50,26 @@ class StructuredPoissonGroup : public PoissonGroup
 private:
 	static boost::mt19937 interval_gen;
 
-	boost::exponential_distribution<> * dist;
-	boost::variate_generator<boost::mt19937&, boost::exponential_distribution<> > * die;
-
 	NeuronID no_of_stimuli;
-	AurynFloat stimulus_duration;
-	AurynFloat mean_isi;
-	ofstream tiserfile;
+	AurynTime stimulus_duration;
+	AurynTime mean_isi;
+	std::ofstream tiserfile;
 
 	AurynTime next_event;
 	bool stimulus_active;
 	int current_stimulus;
 
+
 	void init ( AurynFloat duration, AurynFloat mean_interval, NeuronID no , string outputfile );
 	
 public:
+	int seedoffset;
 	StructuredPoissonGroup(NeuronID n, AurynFloat duration, AurynFloat interval, NeuronID stimuli = 1,  AurynDouble rate=5. ,
 			string tiserfile = "stimulus.dat" );
 	virtual ~StructuredPoissonGroup();
 	virtual void evolve();
 };
+
+}
 
 #endif /*STRUCTUREDPOISSONGROUP_H_*/

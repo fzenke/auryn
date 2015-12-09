@@ -25,6 +25,9 @@
 
 #include "auryn_global.h"
 
-System * sys;
-Logger * logger;
-mpi::communicator * communicator;
+
+namespace auryn {
+	System * sys;
+	Logger * logger;
+	mpi::communicator * communicator;
+}

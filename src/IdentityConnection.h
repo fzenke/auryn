@@ -40,7 +40,7 @@
 #include <boost/random/exponential_distribution.hpp>
 #include <boost/random/normal_distribution.hpp>
 
-using namespace std;
+namespace auryn {
 
 /*! \brief Provides a unity matrix like connectivity */
 class IdentityConnection : public Connection
@@ -81,8 +81,10 @@ public:
 	virtual AurynFloat mean();
 
 	/*! Returns a vector of ConnectionsID of a block specified by the arguments */
-	vector<neuron_pair> get_block(NeuronID lo_row, NeuronID lo_col, NeuronID hi_row,  NeuronID hi_col);
+	std::vector<neuron_pair> get_block(NeuronID lo_row, NeuronID lo_col, NeuronID hi_row,  NeuronID hi_col);
 
 };
+
+}
 
 #endif /*IDENTITYCONNECTION_H_*/

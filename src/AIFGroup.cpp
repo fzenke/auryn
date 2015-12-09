@@ -25,10 +25,12 @@
 
 #include "AIFGroup.h"
 
+using namespace auryn;
+
 
 AIFGroup::AIFGroup( NeuronID size, AurynFloat load, NeuronID total ) : NeuronGroup(size,load,total)
 {
-	sys->register_spiking_group(this);
+	auryn::sys->register_spiking_group(this);
 	if ( evolve_locally() ) init();
 }
 

@@ -25,10 +25,12 @@
 
 #include "CurrentInjector.h"
 
+using namespace auryn;
 
-CurrentInjector::CurrentInjector(NeuronGroup * target, string neuron_state_name, AurynFloat initial_current ) : Monitor( )
+
+CurrentInjector::CurrentInjector(NeuronGroup * target, std::string neuron_state_name, AurynFloat initial_current ) : Monitor( )
 {
-	sys->register_monitor(this);
+	auryn::sys->register_monitor(this);
 	dst = target;
 
 	set_target_state(neuron_state_name);
@@ -63,7 +65,7 @@ void CurrentInjector::set_current(NeuronID i, AurynFloat current) {
 	auryn_vector_float_set(currents, i, current);
 }
 
-void CurrentInjector::set_target_state(string state_name) {
+void CurrentInjector::set_target_state(std::string state_name) {
 	target_vector = dst->get_state_vector(state_name);
 }
 

@@ -31,6 +31,9 @@
 #include "System.h"
 
 
+
+namespace auryn {
+
 /*! \brief Current based neuron model with absolute refractoriness 
  * as used in Vogels and Abbott 2005.
  *
@@ -56,7 +59,7 @@ private:
 	void calculate_scale_constants();
 	inline void integrate_state();
 	inline void check_thresholds();
-	virtual string get_output_line(NeuronID i);
+	virtual std::string get_output_line(NeuronID i);
 	virtual void load_input_line(NeuronID i, const char * buf);
 public:
 	/*! The default constructor of this NeuronGroup */
@@ -81,6 +84,8 @@ public:
 	/*! The evolve method internally used by System. */
 	void evolve();
 };
+
+}
 
 #endif /*CUBAIFGROUP_H_*/
 

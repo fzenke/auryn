@@ -25,6 +25,8 @@
 
 #include "SpikeDelay.h"
 
+using namespace auryn;
+
 AurynTime * SpikeDelay::clock_ptr = NULL;
 
 SpikeDelay::SpikeDelay( int delay )

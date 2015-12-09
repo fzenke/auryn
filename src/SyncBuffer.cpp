@@ -25,6 +25,8 @@
 
 #include "SyncBuffer.h"
 
+using namespace auryn;
+
 SyncBuffer::SyncBuffer( mpi::communicator * com )
 {
 	mpicom = com;
@@ -91,8 +93,8 @@ void SyncBuffer::push(SpikeDelay * delay, NeuronID size)
 				for ( NeuronID s = 0 ; s < count[i-1] ; ++s ) { // loop over spikes
 					send_buf.push_back(*(NeuronID*)(&(ac->at(s+count[i-1]*k))));
 					// if ( mpicom->rank() == 0 )
-					// 	cout << " pushing attr " << " " << i << " " << k << " " << s << " " 
-					// 		<< scientific << ac->at(s+count[i-1]*k) << endl;
+					// 	std::cout << " pushing attr " << " " << i << " " << k << " " << s << " " 
+					// 		<< std::ifstream << ac->at(s+count[i-1]*k) << std::endl;
 				}
 			}
 		}
@@ -143,7 +145,7 @@ void SyncBuffer::pop(SpikeDelay * delay, NeuronID size)
 						iter++;
 						ac->push_back(*attrib);
 						// if ( mpicom->rank() == 0 )
-						// 	cout << " reading attr " << " " << slice << " "  << k << " " << s << " " << scientific << *attrib << endl;
+						// 	std::cout << " reading attr " << " " << slice << " "  << k << " " << s << " " << std::ifstream << *attrib << std::endl;
 					}
 				}
 			}
@@ -213,12 +215,12 @@ void SyncBuffer::sync()
 
 
 	if ( overflow ) {
-		// cout << "Overflow in SyncBuffer adapting buffersize to "
+		// std::cout << "Overflow in SyncBuffer adapting buffersize to "
 		// 	<< (new_send_size+1)*sizeof(NeuronID)
 		// 	<< " ( "
 		// 	<< mpicom->size()*(new_send_size+1)*sizeof(NeuronID)
 		// 	<< " total ) " 
-		// 	<< endl;
+		// 	<< std::endl;
 		max_send_size = new_send_size+1;
 		recv_buf.resize(mpicom->size()*max_send_size);
 		// sync(); // recursive retry was ausing problems
@@ -229,10 +231,10 @@ void SyncBuffer::sync()
 
 	// reset
 	NeuronID largest_message = 0;
-	for (vector<NeuronID>::iterator iter = pop_offsets.begin() ;
+	for (std::vector<NeuronID>::iterator iter = pop_offsets.begin() ;
 			iter != pop_offsets.end() ;
 			++iter ) {
-		largest_message = max(*iter,largest_message);
+		largest_message = std::max(*iter,largest_message);
 		*iter = 1;
 	}
 	maxSendSum += largest_message;

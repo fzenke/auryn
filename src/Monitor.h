@@ -30,60 +30,59 @@
 #include <fstream>
 #include <string>
 
-using namespace std;
+namespace auryn {
 
-class System;
+	class System;
 
-/*! \brief Abstract base class for all Monitor objects.
- * 
- * This Class constitutes the base class for all Monitors in Auryn. Per default it openes a single text file for writing (outfile) named by the name supplied in the constructor.
- * Classes inheriting from Monitor have to implement the method propagate. Unlike Checker objects propagate returns void. Use Checker if you need the Monitor to be able to interrupt a run. 
- */
+	/*! \brief Abstract base class for all Monitor objects.
+	 * 
+	 * This Class constitutes the base class for all Monitors in Auryn. Per default it openes a single text file for writing (outfile) named by the name supplied in the constructor.
+	 * Classes inheriting from Monitor have to implement the method propagate. Unlike Checker objects propagate returns void. Use Checker if you need the Monitor to be able to interrupt a run. 
+	 */
 
-class Monitor
-{
-private:
-	/*! Functions necesssary for serialization and loading saving to netstate files. */
-	friend class boost::serialization::access;
-	template<class Archive>
-	void serialize(Archive & ar, const unsigned int version)
+	class Monitor
 	{
-		virtual_serialize(ar, version);
-	}
+	private:
+		/*! Functions necesssary for serialization and loading saving to netstate files. */
+		friend class boost::serialization::access;
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int version)
+		{
+			virtual_serialize(ar, version);
+		}
 
 
-protected:
-	/*! Output filestream to be used in the derived classes */
-	ofstream outfile;
-	/*! Stores output filename */
-	string fname;
-	/*! Standard initializer to be called by the constructor */
-	void init(string filename);
-	/*! Opens a text outputfile -- for binary files redefine this function in derived class. */
-	virtual void open_output_file(string filename);
-	/*! Standard free function to be called by the destructor - closes the file stream. */
-	void free();
+	protected:
+		/*! Output filestream to be used in the derived classes */
+		std::ofstream outfile;
+		/*! Stores output filename */
+		std::string fname;
+		/*! Standard initializer to be called by the constructor */
+		void init(std::string filename);
+		/*! Opens a text outputfile -- for binary files redefine this function in derived class. */
+		virtual void open_output_file(std::string filename);
+		/*! Standard free function to be called by the destructor - closes the file stream. */
+		void free();
 
-	/*! Functions necesssary for serialization and loading saving to netstate files. */
-	virtual void virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version ) ;
-	virtual void virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version ) ;
-	
-public:
-	/*! Toggles Monitor (in)active */
-	bool active;
-	/*! Standard constructor */
-	Monitor();
-	/*! Standard constructor with file name*/
-	Monitor(string filename);
-	/*! Standard destructor  */
-	virtual ~Monitor();
-	/*! Virtual propagate function to be called in central simulation loop in System */
-	virtual void propagate() = 0;
-};
+		/*! Functions necesssary for serialization and loading saving to netstate files. */
+		virtual void virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version ) ;
+		virtual void virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version ) ;
+		
+	public:
+		/*! Standard constructor */
+		Monitor();
+		/*! Standard constructor with file name*/
+		Monitor(std::string filename);
+		/*! Standard destructor  */
+		virtual ~Monitor();
+		/*! Virtual propagate function to be called in central simulation loop in System */
+		virtual void propagate() = 0;
+	};
 
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Checker)
+	BOOST_SERIALIZATION_ASSUME_ABSTRACT(Checker)
 
-extern System * sys;
-extern Logger * logger;
+	extern System * sys;
+	extern Logger * logger;
+}
 
 #endif /*MONITOR_H_*/

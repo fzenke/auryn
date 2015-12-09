@@ -35,7 +35,7 @@
 #include <boost/random/variate_generator.hpp>
 #include <boost/random/exponential_distribution.hpp>
 
-using namespace std;
+namespace auryn {
 
 typedef SimpleMatrix<AurynWeight*> BackwardMatrix;
 
@@ -105,5 +105,7 @@ public:
 	virtual bool load_from_file(string filename);
 	virtual bool write_to_file(string filename);
 };
+
+}
 
 #endif /*RATEMODULATEDCONNECTION_H_*/

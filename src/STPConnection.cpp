@@ -25,6 +25,8 @@
 
 #include "STPConnection.h"
 
+using namespace auryn;
+
 void STPConnection::init() 
 {
 	if ( src->get_rank_size() > 0 ) {
@@ -83,7 +85,7 @@ STPConnection::STPConnection(NeuronID rows, NeuronID cols)
 
 STPConnection::STPConnection( SpikingGroup * source, NeuronGroup * destination, 
 		AurynWeight weight, AurynFloat sparseness, 
-		TransmitterType transmitter, string name) 
+		TransmitterType transmitter, std::string name) 
 : SparseConnection(source,destination,weight,sparseness,transmitter, name)
 {
 	if ( dst->get_post_size() > 0 ) 
@@ -138,7 +140,7 @@ void STPConnection::evolve()
 
 	// double x = auryn_vector_float_get( state_x, 0 );
 	// double u = auryn_vector_float_get( state_u, 0 );
-	// cout << setprecision(5) << x << " " << u << " " << x*u << endl;
+	// std::cout << setprecision(5) << x << " " << u << " " << x*u << std::endl;
 }
 
 void STPConnection::propagate()

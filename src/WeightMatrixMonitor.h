@@ -33,7 +33,7 @@
 #include <fstream>
 #include <iomanip>
 
-using namespace std;
+namespace auryn {
 
 /*! \brief Saves the weight matrix of a given connection in regular time intervals.
  */
@@ -50,5 +50,7 @@ public:
 	virtual ~WeightMatrixMonitor();
 	void propagate();
 };
+
+}
 
 #endif /*WEIGHTMATRIXMONITOR_H_*/

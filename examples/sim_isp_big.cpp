@@ -23,7 +23,7 @@
 #define NE 160000
 #define NI 40000
 
-using namespace std;
+using namespace auryn;
 namespace po = boost::program_options;
 
 int main(int ac, char* av[]) 
@@ -95,7 +95,7 @@ int main(int ac, char* av[])
         po::notify(vm);    
 
         if (vm.count("help")) {
-            cout << desc << "\n";
+            std::cout << desc << "\n";
             return 1;
         }
 
@@ -169,12 +169,12 @@ int main(int ac, char* av[])
         } 
 
     }
-    catch(exception& e) {
-        cerr << "error: " << e.what() << "\n";
+    catch(std::exception& e) {
+        std::cerr << "error: " << e.what() << "\n";
         return 1;
     }
     catch(...) {
-        cerr << "Exception of unknown type!\n";
+        std::cerr << "Exception of unknown type!\n";
     }
 
 	// BEGIN Global stuff
@@ -182,7 +182,7 @@ int main(int ac, char* av[])
 	mpi::communicator world;
 	communicator = &world;
 
-	stringstream oss;
+	std::stringstream oss;
 	oss << dir << "/" << simname << "." << world.rank();
 	outputfile = oss.str();
 	oss << ".log";
@@ -293,18 +293,18 @@ int main(int ac, char* av[])
 	if (!stimfile.empty() && poisson_stim==false) {
 		logger->msg("Loading pattern ..." ,PROGRESS,true);
 		char buffer[256];
-		ifstream fin(stimfile.c_str());
+		std::ifstream fin(stimfile.c_str());
 		if (!fin) {
-			cout << "There was a problem opening file "
+			std::cout << "There was a problem opening file "
 			<< stimfile
 			<< " for reading."
-			<< endl;
+			<< std::endl;
 			logger->msg("There was a problem opening file." ,ERROR,true);
 			return 1;
 		}
 
 		while ( fin.getline(buffer,256) ) { 
-			istringstream iss( buffer );
+			std::stringstream iss( buffer );
 			NeuronID id;
 			iss >> id;
 

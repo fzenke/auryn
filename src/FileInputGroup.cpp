@@ -25,9 +25,12 @@
 
 #include "FileInputGroup.h"
 
-void FileInputGroup::init(string filename)
+using namespace auryn;
+
+
+void FileInputGroup::init(std::string filename)
 {
-	sys->register_spiking_group(this);
+	auryn::sys->register_spiking_group(this);
 
 	ftime = 0;
 	lastspike = 0;
@@ -36,15 +39,15 @@ void FileInputGroup::init(string filename)
 	active = true;
 
 	if ( evolve_locally() ) {
-		spkfile.open(filename.c_str(),ifstream::in);
+		spkfile.open(filename.c_str(),std::ifstream::in);
 		if (!spkfile) {
-		  cerr << "Can't open input file " << filename << endl;
-		  exit(1);
+			std::cerr << "Can't open input file " << filename << std::endl;
+			std::exit(1);
 		}
 	}
 }
 
-FileInputGroup::FileInputGroup(NeuronID n, string filename) : SpikingGroup(n, 0.0 ) // last 0 enforces RankLock
+FileInputGroup::FileInputGroup(NeuronID n, std::string filename) : SpikingGroup(n, 0.0 ) // last 0 enforces RankLock
 {
 	playinloop = false;
 	dly = 0;
@@ -52,7 +55,7 @@ FileInputGroup::FileInputGroup(NeuronID n, string filename) : SpikingGroup(n, 0.
 	init(filename);
 }
 
-FileInputGroup::FileInputGroup(NeuronID n, string filename, 
+FileInputGroup::FileInputGroup(NeuronID n, std::string filename, 
 		bool loop, AurynFloat delay) 
 : SpikingGroup( n , 0.0 )
 {
@@ -75,18 +78,19 @@ void FileInputGroup::evolve()
 		NeuronID i;
 		AurynFloat t;
 
-		if (ftime == sys->get_clock() && therewasalastspike) {
+		if (ftime == auryn::sys->get_clock() && therewasalastspike) {
 			if (localrank(lastspike))
 				spikes->push_back(lastspike);
 			therewasalastspike = false;
 		}
 
-		while (ftime <= sys->get_clock() && spkfile.getline(buffer, 256) ) {
-			istringstream line ( buffer ) ;
+		while (ftime <= auryn::sys->get_clock() && spkfile.getline(buffer, 256) ) {
+			std::stringstream line ( buffer ) ;
 			line >> t;
 			ftime = t/dt+off;
 			line >> i;
-			if (ftime == sys->get_clock()) {
+			if ( i >= get_rank_size() ) continue; // ignore too large i
+			if (ftime == auryn::sys->get_clock()) {
 				if (localrank(lastspike)) 
 					spikes->push_back(i);
 			} else {
@@ -98,11 +102,11 @@ void FileInputGroup::evolve()
 		if ( playinloop && spkfile.eof() ) {
 			off = ftime+dly;
 			spkfile.clear();
-			spkfile.seekg(0,ios::beg);
+			spkfile.seekg(0,std::ios::beg);
 		}
 	}
 	else { // keep track of time
-		off = sys->get_clock();
+		off = auryn::sys->get_clock();
 		ftime = off;
 	}
 }

@@ -20,17 +20,17 @@
 
 #include "auryn.h"
 
-using namespace std;
+using namespace auryn;
 
 namespace po = boost::program_options;
 namespace mpi = boost::mpi;
 
 int main(int ac,char *av[]) {
-	string dir = ".";
+	std::string dir = ".";
 
-	stringstream oss;
-	string strbuf ;
-	string msg;
+	std::stringstream oss;
+	std::string strbuf ;
+	std::string msg;
 
 	NeuronID ne = 8000;
 	NeuronID ni = 2000;
@@ -45,13 +45,13 @@ int main(int ac,char *av[]) {
 	double gamma = 5.0;
 	double poisson_rate = 20.0e3;
 
-	string load = "";
-	string save = "";
+	std::string load = "";
+	std::string save = "";
 
-	string fwmat_ee = "";
-	string fwmat_ei = "";
-	string fwmat_ie = "";
-	string fwmat_ii = "";
+	std::string fwmat_ee = "";
+	std::string fwmat_ei = "";
+	std::string fwmat_ie = "";
+	std::string fwmat_ii = "";
 
 	int errcode = 0;
 
@@ -65,13 +65,13 @@ int main(int ac,char *av[]) {
             ("simtime", po::value<double>(), "duration of simulation")
             ("gamma", po::value<double>(), "gamma factor for inhibitory weight")
             ("nu", po::value<double>(), "the external firing rate nu")
-            ("dir", po::value<string>(), "dir from file")
-            ("load", po::value<string>(), "load from file")
-            ("save", po::value<string>(), "save to file")
-            ("fee", po::value<string>(), "file with EE connections")
-            ("fei", po::value<string>(), "file with EI connections")
-            ("fie", po::value<string>(), "file with IE connections")
-            ("fii", po::value<string>(), "file with II connections")
+            ("dir", po::value<std::string>(), "dir from file")
+            ("load", po::value<std::string>(), "load from file")
+            ("save", po::value<std::string>(), "save to file")
+            ("fee", po::value<std::string>(), "file with EE connections")
+            ("fei", po::value<std::string>(), "file with EI connections")
+            ("fie", po::value<std::string>(), "file with IE connections")
+            ("fii", po::value<std::string>(), "file with II connections")
         ;
 
         po::variables_map vm;        
@@ -79,7 +79,7 @@ int main(int ac,char *av[]) {
         po::notify(vm);    
 
         if (vm.count("help")) {
-            cout << desc << "\n";
+            std::cout << desc << "\n";
             return 1;
         }
 
@@ -96,39 +96,39 @@ int main(int ac,char *av[]) {
         } 
 
         if (vm.count("dir")) {
-			dir = vm["dir"].as<string>();
+			dir = vm["dir"].as<std::string>();
         } 
 
         if (vm.count("load")) {
-			load = vm["load"].as<string>();
+			load = vm["load"].as<std::string>();
         } 
 
         if (vm.count("save")) {
-			save = vm["save"].as<string>();
+			save = vm["save"].as<std::string>();
         } 
 
         if (vm.count("fee")) {
-			fwmat_ee = vm["fee"].as<string>();
+			fwmat_ee = vm["fee"].as<std::string>();
         } 
 
         if (vm.count("fie")) {
-			fwmat_ie = vm["fie"].as<string>();
+			fwmat_ie = vm["fie"].as<std::string>();
         } 
 
         if (vm.count("fei")) {
-			fwmat_ei = vm["fei"].as<string>();
+			fwmat_ei = vm["fei"].as<std::string>();
         } 
 
         if (vm.count("fii")) {
-			fwmat_ii = vm["fii"].as<string>();
+			fwmat_ii = vm["fii"].as<std::string>();
         } 
     }
-    catch(exception& e) {
-        cerr << "error: " << e.what() << "\n";
+    catch(std::exception& e) {
+		std::cerr << "error: " << e.what() << "\n";
         return 1;
     }
     catch(...) {
-        cerr << "Exception of unknown type!\n";
+		std::cerr << "Exception of unknown type!\n";
     }
 
 	// BEGIN Auryn init
@@ -137,9 +137,9 @@ int main(int ac,char *av[]) {
 	communicator = &world;
 
 	oss << dir  << "/brunel." << world.rank() << ".";
-	string outputfile = oss.str();
+	std::string outputfile = oss.str();
 
-	stringstream logfile;
+	std::stringstream logfile;
 	logfile << outputfile << "log";
 	logger = new Logger(logfile.str(),world.rank(),PROGRESS,EVERYTHING);
 
@@ -204,7 +204,7 @@ int main(int ac,char *av[]) {
 	msg = "Setting up monitors ...";
 	logger->msg(msg,PROGRESS,true);
 
-	stringstream filename;
+	std::stringstream filename;
 	filename << outputfile << "e.ras";
 	SpikeMonitor * smon_e = new SpikeMonitor( neurons_e, filename.str().c_str(), nrec);
 

@@ -26,20 +26,22 @@
 
 #include "BinarySpikeMonitor.h"
 
+using namespace auryn;
 
-BinarySpikeMonitor::BinarySpikeMonitor(SpikingGroup * source, string filename, NeuronID from, NeuronID to)
+
+BinarySpikeMonitor::BinarySpikeMonitor(SpikingGroup * source, std::string filename, NeuronID from, NeuronID to)
 	: Monitor(filename)
 {
 	init(source,filename,from,to);
 }
 
-BinarySpikeMonitor::BinarySpikeMonitor(SpikingGroup * source, string filename, NeuronID to)
+BinarySpikeMonitor::BinarySpikeMonitor(SpikingGroup * source, std::string filename, NeuronID to)
 	: Monitor(filename)
 {
 	init(source,filename,0,to);
 }
 
-BinarySpikeMonitor::BinarySpikeMonitor(SpikingGroup * source, string filename)
+BinarySpikeMonitor::BinarySpikeMonitor(SpikingGroup * source, std::string filename)
 	: Monitor(filename )
 {
 	init(source,filename,0,source->get_size());
@@ -50,22 +52,22 @@ BinarySpikeMonitor::~BinarySpikeMonitor()
 	free();
 }
 
-void BinarySpikeMonitor::open_output_file(string filename)
+void BinarySpikeMonitor::open_output_file(std::string filename)
 {
 	if ( filename.empty() ) return; // stimulators do not necessary need an outputfile
 
-	outfile.open( filename.c_str(), ios::binary );
+	outfile.open( filename.c_str(), std::ios::binary );
 	if (!outfile) {
-	  stringstream oss;
+	  std::stringstream oss;
 	  oss << "Can't open binary output file " << filename;
-	  logger->msg(oss.str(),ERROR);
+	  auryn::logger->msg(oss.str(),ERROR);
 	  exit(1);
 	}
 }
 
-void BinarySpikeMonitor::init(SpikingGroup * source, string filename, NeuronID from, NeuronID to)
+void BinarySpikeMonitor::init(SpikingGroup * source, std::string filename, NeuronID from, NeuronID to)
 {
-	sys->register_monitor(this);
+	auryn::sys->register_monitor(this);
 
 	// sys = system;
 	n_from = from;
@@ -101,7 +103,7 @@ void BinarySpikeMonitor::set_every(NeuronID every)
 void BinarySpikeMonitor::propagate()
 {
 	struct SpikeEvent_type spikeData;
-	spikeData.time = sys->get_clock();
+	spikeData.time = auryn::sys->get_clock();
 	for (it = src->get_spikes_immediate()->begin() ; it < src->get_spikes_immediate()->end() ; ++it ) {
 		if (*it >= n_from ) {
 			if ( *it < n_to && (*it%n_every==0) )

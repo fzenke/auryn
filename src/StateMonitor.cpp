@@ -25,30 +25,43 @@
 
 #include "StateMonitor.h"
 
+using namespace auryn;
 
-StateMonitor::StateMonitor(NeuronGroup * source, NeuronID id, string statename, string filename, AurynDouble sampling_interval)  
+
+StateMonitor::StateMonitor(SpikingGroup * source, NeuronID id, std::string statename, std::string filename, AurynDouble sampling_interval)  
 {
 	init(source,id,statename,filename,sampling_interval/dt);
 }
 
-StateMonitor::StateMonitor(auryn_vector_float * state, NeuronID id, string filename, AurynDouble sampling_interval)
+StateMonitor::StateMonitor(auryn_vector_float * state, NeuronID id, std::string filename, AurynDouble sampling_interval)
 {
+	if ( id >= state->size ) return; // do not register if neuron is out of vector range
+
 	Monitor::init(filename);
-	sys->register_monitor(this);
+	auryn::sys->register_monitor(this);
 	src = NULL;
+	nid = id;
 	target_variable = state->data+nid;
+	set_stop_time(10.0);
 	ssize = sampling_interval/dt;
-	outfile << setiosflags(ios::fixed) << setprecision(6);
+	outfile << std::setiosflags(std::ios::fixed) << std::setprecision(6);
 }
 
-void StateMonitor::init(NeuronGroup * source, NeuronID id, string statename, string filename, AurynTime stepsize)
+void StateMonitor::init(SpikingGroup * source, NeuronID id, std::string statename, std::string filename, AurynTime stepsize)
 {
 	if ( !source->localrank(id) ) return; // do not register if neuron is not on the local rank
 
+
 	Monitor::init(filename);
-	sys->register_monitor(this);
+	auryn::sys->register_monitor(this);
 	src = source;
-	nid = source->global2rank(id);
+	nid = src->global2rank(id);
+	set_stop_time(10.0);
+
+	if ( nid >= src->get_rank_size() ) {
+		auryn::logger->msg("Error: StateMonitor trying to read from non-existing neuron.",ERROR);
+		throw AurynStateVectorException();
+	}
 
 	ssize = stepsize;
 	if ( ssize < 1 ) ssize = 1;
@@ -58,7 +71,7 @@ void StateMonitor::init(NeuronGroup * source, NeuronID id, string statename, str
 	} else {
 		nid = src->get_rank_size() + 1;
 	}
-	outfile << setiosflags(ios::fixed) << setprecision(6);
+	outfile << setiosflags(std::ios::fixed) << std::setprecision(6);
 }
 
 StateMonitor::~StateMonitor()
@@ -67,9 +80,9 @@ StateMonitor::~StateMonitor()
 
 void StateMonitor::propagate()
 {
-	if ((sys->get_clock())%ssize==0 && src->get_rank_size() > nid ) {
+	if ( auryn::sys->get_clock() < t_stop && auryn::sys->get_clock()%ssize==0  ) {
 		char buffer[255];
-		int n = sprintf(buffer,"%f %f\n",sys->get_time(), *target_variable); 
+		int n = sprintf(buffer,"%f %f\n",auryn::sys->get_time(), *target_variable); 
 		outfile.write(buffer,n); 
 	}
 }
@@ -77,7 +90,12 @@ void StateMonitor::propagate()
 void StateMonitor::set_stop_time(AurynDouble time)
 {
 	if (time < 0) {
-		logger->msg("Warning: Negative stop times not supported -- ingoring.",WARNING);
+		auryn::logger->msg("Warning: Negative stop times not supported -- ingoring.",WARNING);
 	} 
-	else tStop = sys->get_clock() + time/dt;
+	else t_stop = auryn::sys->get_clock() + time/dt;
+}
+
+void StateMonitor::record_for(AurynDouble time)
+{
+	set_stop_time(time);
 }

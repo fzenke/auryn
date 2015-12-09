@@ -39,6 +39,8 @@
 #include <boost/random/variate_generator.hpp>
 #include <boost/random/normal_distribution.hpp>
 
+namespace auryn {
+
 /*! \brief Abstract base class for all neuron groups.
  *
  * This class constitutes the abstract forefather of all neuron groups in the simulator. It serves as target for Connection objects and is directly derived from SpikingGroup. It directly allocated the memory for mem (membrane potential) and the synaptic conductantes (g_ampa, g_gaba, g_nmda) as well as a vector to store the thresholds.
@@ -48,11 +50,6 @@ class NeuronGroup : public SpikingGroup
 {
 protected:
 
-	/*! Post state traces */
-	vector<EulerTrace *> post_state_traces;
-	vector<AurynFloat> post_state_traces_spike_biases;
-	vector<string> post_state_traces_state_names;
-
 	/*! Init procedure called by default constructor. */
 	void init();
 
@@ -60,8 +57,6 @@ protected:
 	void free();
 
 
-	virtual void virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version );
-	virtual void virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version );
 
 
 public:
@@ -85,20 +80,6 @@ public:
 
 	virtual void clear() = 0;
 
-	/*! Evolves traces */
-	virtual void evolve_traces();
-
-	/*! \brief Returns a post trace of a neuronal state variable e.g. the membrane 
-	 * potential with time constant tau. 
-	 *
-	 * This trace is an cotinuously integrated EulerTrace which uses the follow 
-	 * function on the mem state vector. 
-	 * @param tau The time constant of the trace.
-	 * @param b The optional parameter b allows to specify a spike triggered contribution
-	 * which will be added instantaneously to the trace upon each 
-	 * postsynaptic spike.
-	 * */
-	EulerTrace * get_post_state_trace( AurynFloat tau, string state_name="mem", AurynFloat b=0.0 );
 
 	AurynState get_val(auryn_vector_float* vec, NeuronID i);
 	void set_val(auryn_vector_float* vec, NeuronID i, AurynState val);
@@ -111,8 +92,8 @@ public:
 
 	void set_mem(NeuronID i, AurynState val);
 
-	void set_state(string name, NeuronID i, AurynState val);
-	void set_state(string name, AurynState val);
+	void set_state(std::string name, NeuronID i, AurynState val);
+	void set_state(std::string name, AurynState val);
 
 	AurynState get_ampa(NeuronID i);
 	void set_ampa(NeuronID i,AurynState val);
@@ -147,8 +128,11 @@ public:
 	/*! Adds given transmitter to neuron as from a synaptic event. DEPRECATED. Moving slowly to SparseConnection transmit. */
 	void tadd(NeuronID id, AurynWeight amount, TransmitterType t=GLUT);
 
+	/*! Adds given amount of transmitter to neuron state/id. */
+	void tadd(auryn_vector_float * state, NeuronID id, AurynWeight amount);
+
 };
 
-
+}
 
 #endif /*NEURONGROUP_H_*/

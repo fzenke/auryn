@@ -25,11 +25,11 @@
 
 #include "Monitor.h"
 
+using namespace auryn;
 
-void Monitor::init(string filename)
+void Monitor::init(std::string filename)
 {
 	fname = filename;
-	active = true;
 
 	open_output_file(filename);
 }
@@ -38,20 +38,20 @@ Monitor::Monitor()
 {
 }
 
-void Monitor::open_output_file(string filename)
+void Monitor::open_output_file(std::string filename)
 {
 	if ( filename.empty() ) return; // stimulators do not necessary need an outputfile
 
-	outfile.open( filename.c_str(), ios::out );
+	outfile.open( filename.c_str(), std::ios::out );
 	if (!outfile) {
-	  stringstream oss;
+	  std::stringstream oss;
 	  oss << "Can't open output file " << filename;
-	  logger->msg(oss.str(),ERROR);
+	  auryn::logger->msg(oss.str(),ERROR);
 	  exit(1);
 	}
 }
 
-Monitor::Monitor( string filename )
+Monitor::Monitor( std::string filename )
 {
 	init(filename);
 }

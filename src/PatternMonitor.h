@@ -34,7 +34,7 @@
 #include <fstream>
 #include <iomanip>
 
-using namespace std;
+namespace auryn {
 
 /*! \brief Monitor class to record population firing rates
  * 
@@ -55,7 +55,7 @@ private:
 	/*! Maximum number of patterns to record from */
 	NeuronID maxpat;
 	/*! Vector storing all the patterns */
-	vector<type_pattern> * patterns;
+	std::vector<type_pattern> * patterns;
 
 	bool linked_to_stimgroup;
 
@@ -94,5 +94,7 @@ public:
 	/*! Load patterns from file */
 	void load_patterns( string filename );
 };
+
+}
 
 #endif /*PATTERNMONITOR_H_*/

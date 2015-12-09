@@ -36,7 +36,7 @@
 
 #define CORRELATEDPOISSON_LOAD_MULTIPLIER 0.01
 
-using namespace std;
+namespace auryn {
 
 /*! \brief A PoissonGroup with multiple subpopulations that co-modulate their firing
  *         rate according to an Ornstein Uhlenbeck process.
@@ -107,5 +107,7 @@ public:
 	AurynDouble get_rate();
 	void seed(int s);
 };
+
+}
 
 #endif /*NEURONGROUP_H_*/

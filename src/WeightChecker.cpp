@@ -23,35 +23,55 @@
 * Front Neuroinform 8, 76. doi: 10.3389/fninf.2014.00076
 */
 
-#include "AmpaMonitor.h"
+#include "WeightChecker.h"
 
 using namespace auryn;
 
-AmpaMonitor::AmpaMonitor(NeuronGroup * source, NeuronID id, std::string filename, AurynTime stepsize) : Monitor(filename)
+WeightChecker::WeightChecker(Connection * source, AurynFloat max) : Checker()
 {
-	init(source,id,filename,stepsize);
+	init(source,0.,max,10.);
 }
 
-AmpaMonitor::~AmpaMonitor()
+WeightChecker::WeightChecker(Connection * source, AurynFloat min, AurynFloat max, AurynFloat timestep) : Checker()
+{
+	init(source,min,max,timestep);
+}
+
+WeightChecker::~WeightChecker()
 {
 }
 
-void AmpaMonitor::init(NeuronGroup * source, NeuronID id, std::string filename, AurynTime stepsize)
+void WeightChecker::init(Connection * source, AurynFloat min, AurynFloat max, AurynFloat timestep)
 {
-	auryn::sys->register_monitor(this);
+	auryn::sys->register_checker(this);
+	logger->msg("WeightChecker:: Initializing", VERBOSE);
 
-	src = source;
-	ssize = stepsize;
-	if ( ssize < 1 ) ssize = 1;
+	source_ = source;
+	wmin = min;
+	wmax = max;
 
-	nid = id;
-	outfile << std::setiosflags(std::ios::fixed) << std::setprecision(6);
+	if (timestep<0.0) {
+		logger->msg("WeightChecker:: Minimally allowed timestep is 1dt", WARNING);
+		timestep = 1;
+	} else timestep_ = timestep/dt;
+
 }
 
-void AmpaMonitor::propagate()
+
+bool WeightChecker::propagate()
 {
-	if (auryn::sys->get_clock()%ssize==0) {
-		outfile << dt*(auryn::sys->get_clock()) << " " << src->get_ampa(nid) << "\n";
+
+	if ( (sys->get_clock()%timestep_) == 0 ) {
+		AurynWeight mean, std;
+		source_->stats(mean, std);
+		if ( mean<wmin || mean>wmax ) { 
+			std::stringstream oss;
+			oss << "WeightChecker:: Detected mean weight of " << mean ;
+			logger->msg(oss.str(),WARNING);
+			return false; // break run
+		}
 	}
 
+	return true; 
 }
+

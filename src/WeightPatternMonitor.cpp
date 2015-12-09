@@ -25,7 +25,9 @@
 
 #include "WeightPatternMonitor.h"
 
-WeightPatternMonitor::WeightPatternMonitor(Connection * source, string filename, AurynDouble binsize) : Monitor(filename)
+using namespace auryn;
+
+WeightPatternMonitor::WeightPatternMonitor(Connection * source, std::string filename, AurynDouble binsize) : Monitor(filename)
 {
 	init(source,filename,binsize/dt);
 }
@@ -34,17 +36,17 @@ WeightPatternMonitor::~WeightPatternMonitor()
 {
 }
 
-void WeightPatternMonitor::init(Connection * source, string filename,AurynTime stepsize)
+void WeightPatternMonitor::init(Connection * source, std::string filename,AurynTime stepsize)
 {
 	if ( !source->get_destination()->evolve_locally() ) return;
 
-	sys->register_monitor(this);
+	auryn::sys->register_monitor(this);
 
 	src = source;
 	ssize = stepsize;
 	if ( ssize < 1 ) ssize = 1;
 
-	outfile << setiosflags(ios::fixed) << setprecision(6);
+	outfile << setiosflags(std::ios::fixed) << std::setprecision(6);
 
 	max_patterns = 5;
 }
@@ -73,39 +75,39 @@ AurynWeight WeightPatternMonitor::compute_pattern_mean(const NeuronID i, const N
 
 void WeightPatternMonitor::propagate()
 {
-	if (sys->get_clock()%ssize==0) {
-		outfile << fixed << (sys->get_time()) << " ";
+	if (auryn::sys->get_clock()%ssize==0) {
+		outfile << std::fixed << (auryn::sys->get_time()) << " ";
 
-		int p = min(min(pre_patterns.size(),post_patterns.size()),max_patterns);
+		int p = std::min(std::min(pre_patterns.size(),post_patterns.size()),max_patterns);
 
 		for ( int i = 0 ; i < p ; ++i ) {
 			for ( int j = 0 ; j < p ; ++j ) {
-				outfile << scientific 
+				outfile << std::scientific 
 					<< compute_pattern_mean(i,j) 
 					<< " ";
 			}
 		}
-		outfile << endl;
+		outfile << std::endl;
 	}
 }
 
 
-void WeightPatternMonitor::load_patterns( string filename, vector<type_pattern> & patterns )
+void WeightPatternMonitor::load_patterns( std::string filename, std::vector<type_pattern> & patterns )
 {
-	ifstream fin (filename.c_str());
+	std::ifstream fin (filename.c_str());
 	if (!fin) {
-		stringstream oss;
+		std::stringstream oss;
 		oss << "WeightPatternMonitor:: "
 		<< "There was a problem opening file "
 		<< filename
 		<< " for reading."
-		<< endl;
-		logger->msg(oss.str(),ERROR);
+		<< std::endl;
+		auryn::logger->msg(oss.str(),ERROR);
 		throw AurynOpenFileException();
 	}
 
 	char buffer[256];
-	string line;
+	std::string line;
 
 	patterns.clear();
 
@@ -120,7 +122,7 @@ void WeightPatternMonitor::load_patterns( string filename, vector<type_pattern> 
 		if (line[0] == '#') continue;
 		if (line == "") { 
 			if ( total_pattern_size > 0 ) {
-				stringstream oss;
+				std::stringstream oss;
 				oss << "WeightPatternMonitor:: Read pattern " 
 					<< patterns.size() 
 					<< " with pattern size "
@@ -128,7 +130,7 @@ void WeightPatternMonitor::load_patterns( string filename, vector<type_pattern> 
 					<< " ( "
 					<< pattern.size()
 					<< " on rank )";
-				logger->msg(oss.str(),VERBOSE);
+				auryn::logger->msg(oss.str(),VERBOSE);
 
 				patterns.push_back(pattern);
 				pattern.clear();
@@ -137,7 +139,7 @@ void WeightPatternMonitor::load_patterns( string filename, vector<type_pattern> 
 			continue;
 		}
 
-		stringstream iss (line);
+		std::stringstream iss (line);
 		NeuronID i ;
 		iss >> i ;
 		pattern_member pm;
@@ -150,22 +152,22 @@ void WeightPatternMonitor::load_patterns( string filename, vector<type_pattern> 
 
 	fin.close();
 
-	stringstream oss;
+	std::stringstream oss;
 	oss << "WeightPatternMonitor:: Finished loading " << patterns.size() << " patterns";
-	logger->msg(oss.str(),NOTIFICATION);
+	auryn::logger->msg(oss.str(),NOTIFICATION);
 }
 
-void WeightPatternMonitor::load_pre_patterns( string filename ) 
+void WeightPatternMonitor::load_pre_patterns( std::string filename ) 
 {
 	load_patterns(filename,pre_patterns);
 }
 
-void WeightPatternMonitor::load_post_patterns( string filename ) 
+void WeightPatternMonitor::load_post_patterns( std::string filename ) 
 {
 	load_patterns(filename,post_patterns);
 }
 
-void WeightPatternMonitor::load_patterns( string filename ) 
+void WeightPatternMonitor::load_patterns( std::string filename ) 
 {
 	load_pre_patterns(filename);
 	load_post_patterns(filename);

@@ -36,7 +36,7 @@
 #include <boost/random/variate_generator.hpp>
 #include <boost/random/exponential_distribution.hpp>
 
-using namespace std;
+namespace auryn {
 
 /*! \brief A special Poisson generator that mimicks thalamo-cortical input to
  * auditory cortex layer 3/4.
@@ -91,5 +91,7 @@ public:
 	virtual ~AuditoryBeepGroup();
 	virtual void evolve();
 };
+
+}
 
 #endif /*AUDITORYBEEPGROUP_H_*/

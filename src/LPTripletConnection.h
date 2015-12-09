@@ -34,7 +34,7 @@
 
 #define TRACE EulerTrace
 
-using namespace std;
+namespace auryn {
 
 
 /*! \brief Implements triplet STDP in which weight updates are low-pass filtered.
@@ -157,5 +157,7 @@ public:
 	virtual void evolve();
 
 };
+
+}
 
 #endif /*LPTRIPLETCONNECTION_H_*/

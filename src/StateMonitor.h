@@ -33,14 +33,14 @@
 #include <fstream>
 #include <iomanip>
 
-using namespace std;
+namespace auryn {
 
-/*! \brief Records from an arbitray state vector of one unit from the source neuron group to a file.*/
+/*! \brief Records from an arbitray state vector of one unit from the source SpikingGroup to a file.*/
 class StateMonitor : protected Monitor
 {
 protected:
-	/*! The source neuron group to record from */
-	NeuronGroup * src;
+	/*! The source SpikingGroup to record from */
+	SpikingGroup * src;
 
 	/*! Target variable */
 	AurynState * target_variable;
@@ -50,9 +50,9 @@ protected:
 	/*! The step size (sampling interval) in units of dt */
 	AurynTime ssize;
 	/*! Defines the maximum recording time in AurynTime to save space. */
-	AurynTime tStop;
+	AurynTime t_stop;
 	/*! Standard initialization */
-	void init(NeuronGroup * source, NeuronID id, string statename, string filename, AurynTime stepsize);
+	void init(SpikingGroup * source, NeuronID id, string statename, string filename, AurynTime stepsize);
 	
 public:
 	/*! Standard constructor 
@@ -62,7 +62,7 @@ public:
 	 * \param filename The filename of the file to dump the output to
 	 * \param sampling_interval The sampling interval in seconds
 	 */
-	StateMonitor(NeuronGroup * source, NeuronID id, string statename, string filename, AurynDouble sampling_interval=dt);
+	StateMonitor(SpikingGroup * source, NeuronID id, string statename, string filename, AurynDouble sampling_interval=dt);
 
 	/*! Alternative constructor
 	 * \param state The soure state vector
@@ -77,10 +77,15 @@ public:
 	 * respect to the current clock value. This features is useful to decrease
 	 * IO. The stop time can be set again after calling run to record multiple 
 	 * snippets. */
+	void record_for(AurynDouble time=10.0);
+
+	/*! \brief Same as record_for(time) */
 	void set_stop_time(AurynDouble time=10.0);
 
 	virtual ~StateMonitor();
 	void propagate();
 };
+
+}
 
 #endif /*STATEMONITOR_H_*/

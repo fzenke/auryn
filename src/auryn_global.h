@@ -31,8 +31,11 @@
 
 // Global variables that are exported here.
 
-extern System * sys;
-extern Logger * logger;
-extern mpi::communicator * communicator;
+namespace auryn {
+
+	extern System * sys;
+	extern Logger * logger;
+	extern mpi::communicator * communicator;
+}
 
 #endif /*AURYN_GLOBAL_H__*/

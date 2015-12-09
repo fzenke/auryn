@@ -31,7 +31,7 @@
 #include "Checker.h"
 #include "SpikingGroup.h"
 
-using namespace std;
+namespace auryn {
 
 /*! \brief A Checker class that tracks population firing rate as a moving
  * average and breaks a run if it goes out of bound.
@@ -68,19 +68,17 @@ private:
 	
 	virtual void virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version );
 	virtual void virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version );
+protected:
+	SpikingGroup * src;
+
 public:
-	/*! The default constructor.
+	/*! A more elaborate constructor specifying also a minimum rate to guard against silent networks.
 	 * @param source the source group to monitor.
-	 * @param max the maximum firing rate above which the Checker signals a break of the simulation.
-	 */
-	RateChecker(SpikingGroup * source, AurynFloat max);
-	/*! A more elaborate constructor specifying also a minimum rate to guard against silend networks.
-	 * @param source the source group to monitor.
-	 * @param min the minimum firing rate above which the Checker signals a break of the simulation.
+	 * @param min the minimum firing rate below which the Checker signals a break of the simulation.
 	 * @param max the maximum firing rate above which the Checker signals a break of the simulation.
 	 * @param tau the time constant over which to compute the moving average of the rate.
 	 */
-	RateChecker(SpikingGroup * source, AurynFloat min, AurynFloat max, AurynFloat tau);
+	RateChecker(SpikingGroup * source, AurynFloat min, AurynFloat max, AurynFloat tau=1.0);
 	virtual ~RateChecker();
 	/*! The propagate function required for internal use. */
 	virtual bool propagate();
@@ -93,5 +91,7 @@ public:
 	void set_rate(AurynFloat r);
 	void reset();
 };
+
+}
 
 #endif /*RATECHECKER_H_*/

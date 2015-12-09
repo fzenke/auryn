@@ -34,7 +34,7 @@
 #include <iomanip>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
-using namespace std;
+namespace auryn {
 
 /*! \brief Monitor class to record the system time in every timestep
  * 
@@ -60,7 +60,7 @@ public:
 	 @param[filename] The filename to write to (should be different for each rank.)
 	 @param[start] Start time.)
 	 @param[stop] Stop time.*/
-	RealTimeMonitor(string filename, AurynDouble start = 1e-3, AurynDouble stop = 100);
+	RealTimeMonitor(std::string filename, AurynDouble start = 1e-3, AurynDouble stop = 100);
 
 	/*! Default Destructor */
 	virtual ~RealTimeMonitor();
@@ -68,5 +68,7 @@ public:
 	/*! Implementation of necessary propagate() function. */
 	void propagate();
 };
+
+}
 
 #endif /*REALTIMEMONITOR_H_*/

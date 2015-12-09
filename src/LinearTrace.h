@@ -28,7 +28,7 @@
 
 #include "auryn_definitions.h"
 
-using namespace std;
+namespace auryn {
 
 class LinearTrace
 {
@@ -58,6 +58,8 @@ public:
 	AurynFloat get(NeuronID i);
 	AurynFloat * get_state_ptr();
 };
+
+}
 
 
 #endif /*LINEARTRACE_H_*/
