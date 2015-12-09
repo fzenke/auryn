@@ -248,6 +248,7 @@ public:
 	NeuronID get_z_values();
 	NeuronID ** get_rowptrs();
 	T * get_data_begin(const StateID z=0);
+	/*! \brief Returns the data value corresponding to the element behind the last nonzero element. */
 	T * get_data_end(const StateID z=0);
 	/*! Returns the data value to an item that is i-th in the colindex array */
 	T get_value(NeuronID i);

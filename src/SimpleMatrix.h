@@ -180,6 +180,7 @@ public:
 	NeuronID get_n_cols();
 	NeuronID ** get_rowptrs();
 	T * get_data_begin();
+	/*! \brief Returns value behind last element in data array corresponding to a nonzero value. */
 	T * get_data_end();
 	/*! Returns the data value to an item that is i-th in the colindex array */
 	T get_value(NeuronID i);
