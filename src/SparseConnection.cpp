@@ -537,29 +537,22 @@ void SparseConnection::sanity_check()
 
 void SparseConnection::stats(AurynFloat &mean, AurynFloat &std)
 {
-	NeuronID count = 0;
-	AurynFloat sum = 0;
-	AurynFloat sum2 = 0;
-	// for ( NeuronID i = 0 ; i < get_m_rows() ; ++i ) 
-	// {
-	// 	for ( NeuronID * j = w->get_row_begin(i) ; j != w->get_row_end(i) ; ++j )
-	// 	{
-	// 		count++;
-	// 		t = w->get_data_begin()[j-w->get_row_begin(0)];
-	// 		sum += t;
-	// 		sum2 += (t*t);
-	// 	}
-	// }
+	double sum = 0; // needs double here -- machine precision really matters here
+	double sum2 = 0;
+
 	for ( AurynWeight * iter = w->get_data_begin() ; iter != w->get_data_end() ; ++iter ) {
 		sum  += *iter;
 		sum2 += (*iter * *iter);
 	}
-	count = w->get_nonzero();
+
+	NeuronID count = w->get_nonzero();
+
 	if ( count <= 1 ) {
 		mean = sum;
 		std = 0;
 		return;
 	}
+
 	mean = sum/count;
 	std = sqrt(sum2/count-mean*mean);
 }
@@ -629,13 +622,19 @@ bool SparseConnection::write_to_file(ForwardMatrix * m, string filename )
 		<< "%\n"
 		<< get_m_rows() << " " << get_n_cols() << " " << m->get_nonzero() << endl;
 
+	AurynLong count = 0;
 	for ( NeuronID i = 0 ; i < get_m_rows() ; ++i ) 
 	{
 		outfile << setprecision(7);
 		for ( NeuronID * j = m->get_row_begin(i) ; j != m->get_row_end(i) ; ++j )
 		{
-			outfile << i+1 << " " << *j+1 << " " << scientific << m->get_data_begin()[j-m->get_row_begin(0)] << fixed << "\n";
+			outfile << i+1 << " " << *j+1 << " " << std::scientific << m->get_data_begin()[j-m->get_row_begin(0)] << std::fixed << "\n";
+			++count;
 		}
+	}
+
+	if ( count != m->get_nonzero() ) {
+		logger->msg("SparseConnection:: count inconsistency while writing MatrixMarket to file.", WARNING);
 	}
 
 	outfile.close();
