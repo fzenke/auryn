@@ -27,13 +27,11 @@
 
 using namespace auryn;
 
-RateChecker::RateChecker(SpikingGroup * source, AurynFloat max) : Checker(source)
-{
-	init(0.,max,1.);
-}
 
-RateChecker::RateChecker(SpikingGroup * source, AurynFloat min, AurynFloat max, AurynFloat tau) : Checker(source)
+
+RateChecker::RateChecker(SpikingGroup * source, AurynFloat min, AurynFloat max, AurynFloat tau) : Checker()
 {
+	src = source;
 	init(min,max,tau);
 }
 

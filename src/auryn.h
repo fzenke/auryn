@@ -85,6 +85,7 @@
 // Checker definitions
 #include "Checker.h"
 #include "RateChecker.h"
+#include "WeightChecker.h"
 
 // Monitor and stimulator definitions
 #include "Monitor.h"
