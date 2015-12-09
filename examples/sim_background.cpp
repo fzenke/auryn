@@ -646,6 +646,8 @@ int main(int ac, char* av[])
 	// SpikeMonitor * smon_i = new SpikeMonitor( neurons_i, strbuf , 500);
 
 	RateChecker * chk = new RateChecker( neurons_e , 0.1 , 20.*kappa , tau_chk);
+	// To add a weight checker uncomment the following line
+	// WeightChecker * wchk = new WeightChecker( con_ee, 0.159, 0.161 );
 
 	// Use the same time constant for the online rate estimate in the progress bar
 	sys->set_online_rate_monitor_id(0);

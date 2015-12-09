@@ -23,22 +23,55 @@
 * Front Neuroinform 8, 76. doi: 10.3389/fninf.2014.00076
 */
 
-#include "Checker.h"
+#include "WeightChecker.h"
 
 using namespace auryn;
 
-Checker::Checker()
+WeightChecker::WeightChecker(Connection * source, AurynFloat max) : Checker()
+{
+	init(source,0.,max,10.);
+}
+
+WeightChecker::WeightChecker(Connection * source, AurynFloat min, AurynFloat max, AurynFloat timestep) : Checker()
+{
+	init(source,min,max,timestep);
+}
+
+WeightChecker::~WeightChecker()
 {
 }
 
-Checker::~Checker()
+void WeightChecker::init(Connection * source, AurynFloat min, AurynFloat max, AurynFloat timestep)
 {
+	auryn::sys->register_checker(this);
+	logger->msg("WeightChecker:: Initializing", VERBOSE);
+
+	source_ = source;
+	wmin = min;
+	wmax = max;
+
+	if (timestep<0.0) {
+		logger->msg("WeightChecker:: Minimally allowed timestep is 1dt", WARNING);
+		timestep = 1;
+	} else timestep_ = timestep/dt;
+
 }
 
-void Checker::virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version ) 
+
+bool WeightChecker::propagate()
 {
+
+	if ( (sys->get_clock()%timestep_) == 0 ) {
+		AurynWeight mean, std;
+		source_->stats(mean, std);
+		if ( mean<wmin || mean>wmax ) { 
+			std::stringstream oss;
+			oss << "WeightChecker:: Detected mean weight of " << mean ;
+			logger->msg(oss.str(),WARNING);
+			return false; // break run
+		}
+	}
+
+	return true; 
 }
 
-void Checker::virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version ) 
-{
-}
