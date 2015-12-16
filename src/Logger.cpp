@@ -24,6 +24,7 @@
 */
 
 #include "Logger.h"
+#include "auryn_definitions.h"
 
 Logger::Logger(string filename, int rank, LogMessageType console, LogMessageType file)
 {
@@ -34,8 +35,8 @@ Logger::Logger(string filename, int rank, LogMessageType console, LogMessageType
 
 	outfile.open(fname.c_str(),ios::out);
 	if (!outfile) {
-	  cerr << "Can't open output file " << fname << endl;
-	  throw 1;
+		std::cerr << "Can't open output logger output file " << fname << std::endl;
+	    throw AurynOpenFileException();
 	}
 
 
