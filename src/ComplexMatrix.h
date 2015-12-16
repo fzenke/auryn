@@ -209,6 +209,8 @@ public:
 	void state_scale(T a, AurynWeight * x);
 	/*! Adds constant a to all values in x */
 	void state_add_const(T a, AurynWeight * x);
+	/*! Clips state values to interval [a,b] */
+	void state_clip(AurynWeight * x, T a, T b);
 
 	T get_value(AurynLong data_index);
 	void add_value(AurynLong data_index, T value);
@@ -807,6 +809,15 @@ void ComplexMatrix<T>::state_add_const(T a, AurynWeight * y)
 {
 	for (AurynLong i = 0 ; i < get_nonzero() ; ++i ) {
 		y[i] = a+y[i];
+	}
+}
+
+template <typename T>
+void ComplexMatrix<T>::state_clip(AurynWeight * x, T a, T b)
+{
+	for (AurynLong i = 0 ; i < get_nonzero() ; ++i ) {
+		if ( x[i] < a ) x[i] = a; 
+		else if ( x[i] > b ) x[i] = b; 
 	}
 }
 
