@@ -64,6 +64,9 @@ protected:
 	SpikingGroup * src;
 	/*! Default init method */
 	void init(SpikingGroup * source, string filename, NeuronID maximum_patterns, AurynFloat binsize);
+
+	virtual void virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version );
+	virtual void virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version );
 	
 public:
 	/*! Default Constructor 

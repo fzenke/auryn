@@ -48,7 +48,7 @@ WeightMonitor::WeightMonitor(SparseConnection * source, NeuronID i, NeuronID j, 
 	switch (recordingmode) {
 		case DATARANGE : 
 			for (AurynLong c = elem_i ; c < elem_j ; ++c)
-				add_to_list(mat->get_data_begin()+c) ;
+				add_to_list(c) ;
 			break;
 		case SINGLE :
 			add_to_list(i,j);
@@ -80,22 +80,27 @@ void WeightMonitor::init(SparseConnection * source, NeuronID i, NeuronID j, stri
 
 	// default behavior
 	recordingmode = ELEMENTLIST;
-	element_list = new vector<AurynWeight*>;
+	element_list = new vector<AurynLong>;
 	group_indices.push_back(0); // important for group mode
 	elem_i = 0;
 	elem_j = 0;
 }
 
+void WeightMonitor::add_to_list(AurynLong data_index)
+{
+	element_list->push_back( data_index );
+}
+
 void WeightMonitor::add_to_list(AurynWeight * ptr)
 {
-	if ( ptr != NULL )
-		element_list->push_back( ptr );
+	if ( ptr != NULL ) {
+		element_list->push_back( mat->get_data_index(ptr) );
+	}
 }
 
 void WeightMonitor::add_to_list(NeuronID i, NeuronID j)
 {
-	AurynWeight * ptr = mat->get_ptr(i,j);
-	add_to_list(ptr);
+	add_to_list( mat->get_data_index(i,j) );
 }
 
 void WeightMonitor::add_to_list( vector<neuron_pair>  vec, string label )
@@ -125,6 +130,12 @@ void WeightMonitor::add_to_list( vector<neuron_pair>  vec, string label )
 
 void WeightMonitor::add_equally_spaced(NeuronID number)
 {
+	if ( number > src->get_nonzero() ) {
+		logger->msg("WeightMonitor:: add_equally_spaced: \
+				Not enough elements in this Connection object",WARNING);
+		number = src->get_nonzero();
+	}
+
 	for ( NeuronID i = 0 ; i < number ; ++i )
 		add_to_list(mat->get_data_begin()+i*mat->get_nonzero()/number);
 
@@ -150,7 +161,7 @@ void WeightMonitor::load_data_range( NeuronID i, NeuronID j )
 		<< j;
 	logger->msg(oss.str(),DEBUG);
 	for ( NeuronID a = i ; a < j ; ++a )
-		element_list->push_back( mat->get_data_begin()+a );
+		element_list->push_back( a );
 	outfile << "# Added data range " << i << "-" << j << "." << endl;
 }
 
@@ -248,9 +259,10 @@ void WeightMonitor::load_pattern_connections( string filename_pre, string filena
 						neuron_pair p;
 						p.i = patterns_pre->at(i)[k].i;
 						p.j = patterns_post->at(j)[l].i;
-						AurynWeight * ptr = mat->get_ptr(p.i,p.j);
-						if ( ptr != NULL ) // make sure we are counting connections that do exist
+						AurynWeight * ptr =  mat->get_ptr(p.i,p.j);
+						if ( ptr != NULL ) { // make sure we are counting connections that do exist
 							list.push_back( p );
+						}
 					if ( list.size() >= maxcon ) break;
 				}
 				if ( list.size() >= maxcon ) break;
@@ -284,8 +296,8 @@ void WeightMonitor::load_pattern_connections( string filename_pre, string filena
 
 void WeightMonitor::record_single_synapses()
 {
-	for (vector<AurynWeight*>::iterator iter = element_list->begin() ; iter != element_list->end() ; ++iter)
-		outfile << *(*iter) << " ";
+	for (vector<AurynLong>::iterator iter = element_list->begin() ; iter != element_list->end() ; ++iter)
+		outfile << mat->get_data( (*iter) ) << " ";
 }
 
 void WeightMonitor::record_synapse_groups()
@@ -295,8 +307,8 @@ void WeightMonitor::record_synapse_groups()
 		AurynDouble sum2 = 0;
 
 		for ( int k = group_indices[i-1] ; k < group_indices[i] ; ++k ) {
-			sum += *(element_list->at(k));
-			sum2 += pow((*(element_list->at(k))),2);
+			sum += mat->get_data( element_list->at(k) );
+			sum2 += pow( mat->get_data( element_list->at(k) ), 2);
 		}
 		NeuronID n = group_indices[i]-group_indices[i-1];
 		AurynDouble mean = sum/n;

@@ -30,6 +30,11 @@ void System::init() {
 	quiet = false;
 	set_simulation_name("default");
 
+	set_online_rate_monitor_tau();
+	// assumes that we have at least one spiking group in the sim
+	online_rate_monitor_id = 0; 
+	online_rate_monitor_state = 0.0;
+
 	syncbuffer = new SyncBuffer(mpicom);
 
 	stringstream oss;
@@ -215,6 +220,9 @@ void System::evolve()
 
 	for ( iter = spiking_groups.begin() ; iter != spiking_groups.end() ; ++iter ) 
 		(*iter)->conditional_evolve(); // evolve only if existing on rank
+
+	// update the online rate estimate
+	evolve_online_rate_monitor();
 }
 
 void System::evolve_independent()
@@ -276,8 +284,8 @@ void System::progressbar ( double fraction, AurynTime clk ) {
 
 	cout<< percent << "%     "<< setiosflags(ios::fixed) << " t=" << time ;
 
-	if (checkers.size())
-		cout  << setprecision(1) << "  f=" << checkers[0]->get_property() << " Hz  ";
+	if ( online_rate_monitor_id >= 0 ) 
+		cout  << setprecision(1) << "  f=" << online_rate_monitor_state << " Hz  ";
 
 	cout << std::flush;
 
@@ -497,6 +505,8 @@ void System::set_simulation_name(string name)
 
 void System::save_network_state(string basename)
 {
+	logger->msg("Saving network state", NOTIFICATION);
+
 	string netstate_filename;
 	{
 		stringstream oss;
@@ -509,35 +519,93 @@ void System::save_network_state(string basename)
 	std::ofstream ofs(netstate_filename.c_str());
 	boost::archive::binary_oarchive oa(ofs);
 
+	logger->msg("Saving Connections ...",DEBUG);
 	for ( unsigned int i = 0 ; i < connections.size() ; ++i ) {
-		// sprintf(filename, "%s.%d.%d.wmat", basename.c_str(), i, mpicom->rank());
 
 		stringstream oss;
 		oss << "Saving connection "
 			<<  i 
+			<< " \""
+			<< connections[i]->get_name()
+			<< "\""
 			<< " to stream";
-		logger->msg(oss.str(),NOTIFICATION);
+		logger->msg(oss.str(),DEBUG);
 
 		oa << *(connections[i]);
 	}
 
+	logger->msg("Saving SpikingGroups",DEBUG);
 	for ( unsigned int i = 0 ; i < spiking_groups.size() ; ++i ) {
-		// sprintf(filename, "%s.%d.%d.gstate", basename.c_str(), i, mpicom->rank());
 
 		stringstream oss;
-		oss << "Saving SpikingGroup "
+		oss << "Saving SpikingGroup ..."
 			<<  i 
 			<< " to stream";
-		logger->msg(oss.str(),NOTIFICATION);
+		logger->msg(oss.str(),DEBUG);
 
 		oa << *(spiking_groups[i]);
+	}
+
+	// Save Monitors
+	logger->msg("Saving Monitors ...",DEBUG);
+	for ( unsigned int i = 0 ; i < monitors.size() ; ++i ) {
+
+		stringstream oss;
+		oss << "Saving Monitor "
+			<<  i 
+			<< " to stream";
+		logger->msg(oss.str(),DEBUG);
+
+		oa << *(monitors[i]);
+	}
+
+	logger->msg("Saving Checkers ...",DEBUG);
+	for ( unsigned int i = 0 ; i < checkers.size() ; ++i ) {
+
+		stringstream oss;
+		oss << "Saving Checker "
+			<<  i 
+			<< " to stream";
+		logger->msg(oss.str(),DEBUG);
+
+		oa << *(checkers[i]);
 	}
 
 	ofs.close();
 }
 
+void System::save_network_state_text(string basename)
+{
+	logger->msg("Saving network state to textfile", NOTIFICATION);
+
+	char filename [255];
+	for ( unsigned int i = 0 ; i < connections.size() ; ++i ) {
+		sprintf(filename, "%s.%d.%d.wmat", basename.c_str(), i, mpicom->rank());
+
+		stringstream oss;
+		oss << "Saving connection "
+			<<  filename ;
+		logger->msg(oss.str(),DEBUG);
+
+		connections[i]->write_to_file(filename);
+	}
+
+	for ( unsigned int i = 0 ; i < spiking_groups.size() ; ++i ) {
+		sprintf(filename, "%s.%d.%d.gstate", basename.c_str(), i, mpicom->rank());
+
+		stringstream oss;
+		oss << "Saving group "
+			<<  filename ;
+		logger->msg(oss.str(),DEBUG);
+
+		spiking_groups[i]->write_to_file(filename);
+	}
+}
+
 void System::load_network_state(string basename)
 {
+	logger->msg("Loading network state", NOTIFICATION);
+
 	string netstate_filename;
 	{
 		stringstream oss;
@@ -548,30 +616,89 @@ void System::load_network_state(string basename)
 	} // oss goes out of focus
 
 	std::ifstream ifs(netstate_filename.c_str());
+
+	if ( !ifs.is_open() ) {
+		stringstream oss;
+		oss << "Error opening netstate file: "
+			<< netstate_filename;
+		logger->msg(oss.str(),ERROR);
+		throw AurynOpenFileException();
+	}
+
 	boost::archive::binary_iarchive ia(ifs);
 
+	logger->msg("Loading connections ...",DEBUG);
 	for ( unsigned int i = 0 ; i < connections.size() ; ++i ) {
 
 		stringstream oss;
 		oss << "Loading connection "
 			<<  i ;
-		logger->msg(oss.str(),NOTIFICATION);
+		logger->msg(oss.str(),DEBUG);
 
 		ia >> *(connections[i]);
 		connections[i]->finalize();
 	}
 
+	logger->msg("Loading SpikingGroups ...",DEBUG);
 	for ( unsigned int i = 0 ; i < spiking_groups.size() ; ++i ) {
 
 		stringstream oss;
 		oss << "Loading group "
 			<<  i ;
-		logger->msg(oss.str(),NOTIFICATION);
+		logger->msg(oss.str(),DEBUG);
 
 		ia >> *(spiking_groups[i]);
 	}
 
+	// Loading Monitors states
+	logger->msg("Loading Monitors ...",DEBUG);
+	for ( unsigned int i = 0 ; i < monitors.size() ; ++i ) {
+
+		stringstream oss;
+		oss << "Loading Monitor "
+			<<  i;
+		logger->msg(oss.str(),DEBUG);
+
+		ia >> *(monitors[i]);
+	}
+
+	
+	logger->msg("Loading Checkers ...",DEBUG);
+	for ( unsigned int i = 0 ; i < checkers.size() ; ++i ) {
+
+		stringstream oss;
+		oss << "Loading Checker "
+			<<  i;
+		logger->msg(oss.str(),DEBUG);
+
+		ia >> *(checkers[i]);
+	}
+
 	ifs.close();
+}
+
+void System::set_online_rate_monitor_tau(AurynDouble tau)
+{
+	online_rate_monitor_tau = tau;
+	online_rate_monitor_mul = exp(-dt/tau);
+}
+
+void System::evolve_online_rate_monitor()
+{
+	if ( online_rate_monitor_id >= 0 ) {
+		online_rate_monitor_state *= online_rate_monitor_mul;
+		SpikingGroup * src = spiking_groups[online_rate_monitor_id];
+		online_rate_monitor_state += 1.0*src->get_spikes()->size()/online_rate_monitor_tau/src->get_size();
+	}
+}
+
+void System::set_online_rate_monitor_id( int id )
+{
+	online_rate_monitor_state = 0.0;
+	if ( id < spiking_groups.size() ) 
+		online_rate_monitor_id = id;
+	else
+		online_rate_monitor_id = -1;
 }
 
 #ifdef CODE_COLLECT_SYNC_TIMING_STATS

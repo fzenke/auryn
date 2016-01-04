@@ -48,7 +48,13 @@ namespace mpi = boost::mpi;
 
 /*! \brief Class that implements system wide variables and methods to manage and run simulations.
  *
- * This Class contains methods to manage and run sets of classes that make up the simulation. In particular it distinguishes between constituents of types SpikingGroup, Connection, Monitor and Checker. A MPI implementation should implement communicators and all that stuff in here. All the constituent object of a single simulation are stored in STL vectors. The methods evolve() and propagate() from each object in these vectors are called alternatingly from within the run procedure.
+ * This Class contains methods to manage and run sets of classes that make up
+ * the simulation. In particular it distinguishes between constituents of types
+ * SpikingGroup, Connection, Monitor and Checker. A MPI implementation should
+ * implement communicators and all that stuff in here. All the constituent
+ * object of a single simulation are stored in STL vectors. The methods
+ * evolve() and propagate() from each object in these vectors are called
+ * alternatingly from within the run procedure.
  */
 class System
 {
@@ -60,12 +66,21 @@ private:
 
 	SyncBuffer * syncbuffer;
 
+
 	vector<SpikingGroup *> spiking_groups;
 	vector<Connection *> connections;
 	vector<Monitor *> monitors;
 	vector<Checker *> checkers;
 
 	double simulation_time_realtime_ratio;
+
+	int online_rate_monitor_id;
+	double online_rate_monitor_tau;
+	double online_rate_monitor_mul;
+	double online_rate_monitor_state;
+
+	/*! Evolves the online rate monitor for the status bar. */
+	void evolve_online_rate_monitor();
 
 	/*! Returns string with a human readable time. */
 	string get_nice_time ( AurynTime clk );	
@@ -97,9 +112,48 @@ public:
 	/*! Initialializes the recvs for all the MPI sync */
 	void sync_prepare();
 
+	/*! Sets the SpikingGroup ID used to display the rate estimate in the
+	 * progressbar (this typically is reflected by the order in
+	 * which you define the SpikingGroup and NeuronGroup classes. It starts
+	 * numbering from 0.). */
+	void set_online_rate_monitor_id( int id=0 );
+
+	/*! Sets the timeconstant to compute the online rate average for the status bar. */
+	void set_online_rate_monitor_tau( AurynDouble tau=100e-3 );
+
+	/*! \brief Saves network state to a netstate file
+	 *
+	 * This function saves the network state to one serialized file. The network 
+	 * state includes the internal state variables of all neurons and the synaptic 
+	 * connections. It currently does not save the state of any random number
+	 * generators (v0.5) but this is planned to change in the future. Note that
+	 * netstate files do not contain any parameters either. This was done to
+	 * allow to run a simulation with a certain parameter set for a given amount
+	 * of time. Save the network state and then continue the simulation from
+	 * that point with a changed parameter set (e.g. a new stimulus set or
+	 * similar).
+	 *
+	 * \param Prefix (including directory path) of the netstate file without extension
+	 */
 	void save_network_state(string basename);
 
+	/*! \brief Loads network state from a netstate file
+	 *
+	 * \param Basename (directory and prefix of file) of the netstate file without extension
+	 */
 	void load_network_state(string basename);
+
+	/*! \brief Saves the network state to human readable text files
+	 *
+	 * This deprecated method of saving the network state generates a large number of files 
+	 * because each Connection object or SpikingGroup creates their own respective file. This 
+	 * function might still be useful if you have code in which you analaze these files offline.
+	 * In most cases you will want to use save_network_state and only dump a limited subset (e.g. 
+	 * all the plastic connections) in human-readable text files for analysis.
+	 *
+	 * \param Basename (directory and prefix of file) of the netstate file without extension
+	 */
+	void save_network_state_text(string basename);
 
 	/*! Synchronizes SpikingGroups */
 	void sync();

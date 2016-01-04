@@ -10,11 +10,23 @@ to simulate recurrent spiking neural networks with spike timing dependent
 plasticity (STDP). It comes with the GPLv3 (please see COPYING).
 
 
+Quick start
+-----------
+
+To download and compile the examples try:
+
+```
+sudo apt-get install cmake git build-essential libboost-all-dev
+git clone https://github.com/fzenke/auryn.git && cd auryn 
+git checkout -b develop origin/develop
+mkdir build && cd build
+cmake ../ -DCMAKE_BUILD_TYPE=Release && make
+```
+
 Documentation & Installation/Use
 --------------------------------
 
-Please visit http://www.fzenke.net/auryn/
-
+Please visit the wiki at http://www.fzenke.net/auryn/
 
 
 Requirements

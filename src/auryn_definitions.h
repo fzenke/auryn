@@ -63,8 +63,8 @@ namespace mpi = boost::mpi;
 
 
 /*! The current Auryn version number */
-#define AURYNVERSION 0.5
-#define AURYNSUBVERSION 0
+#define AURYNVERSION 0.6
+#define AURYNSUBVERSION 1
 
 /*! Toggle between memory alignment for
  * SIMD code.
@@ -127,7 +127,8 @@ enum TransmitterType {
 	GABA, //!< Standard Gabaergic (inhibitory) transmission.
 	AMPA, //!< Only targets AMPA channels.
 	NMDA, //!< Only targets NMDA.
-	MEM   //!< Current based synapse. Adds the transmitted quantity directly to membrane voltage.
+	MEM,   //!< Current based synapse. Adds the transmitted quantity directly to membrane voltage.
+	CURSYN   //!< Current based synapse with dynamics.
 };
 
 enum StimulusGroupModeType { MANUAL, RANDOM, SEQUENTIAL, SEQUENTIAL_REV, STIMFILE };
@@ -327,5 +328,21 @@ class AurynTimeOverFlowException: public exception
 		    }
 };
 
+class AurynStateVectorException: public exception
+{
+	  virtual const char* what() const throw()
+		    {
+				    return "Auryn encountered an undefined problem when dealing with StateVectors.";
+		    }
+};
+
+class AurynGenericException: public exception
+{
+	  virtual const char* what() const throw()
+		    {
+				    return "Auryn encountered a problem which it deemed serious enough to break the run. \
+						To debug set logger vebosity to EVERYTHING and analyze the log files.";
+		    }
+};
 
 #endif /*AURYN_DEFINITIONS_H__*/

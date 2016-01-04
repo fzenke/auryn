@@ -42,6 +42,16 @@ class System;
 
 class Monitor
 {
+private:
+	/*! Functions necesssary for serialization and loading saving to netstate files. */
+	friend class boost::serialization::access;
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		virtual_serialize(ar, version);
+	}
+
+
 protected:
 	/*! Output filestream to be used in the derived classes */
 	ofstream outfile;
@@ -53,6 +63,10 @@ protected:
 	virtual void open_output_file(string filename);
 	/*! Standard free function to be called by the destructor - closes the file stream. */
 	void free();
+
+	/*! Functions necesssary for serialization and loading saving to netstate files. */
+	virtual void virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version ) ;
+	virtual void virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version ) ;
 	
 public:
 	/*! Toggles Monitor (in)active */
@@ -66,6 +80,8 @@ public:
 	/*! Virtual propagate function to be called in central simulation loop in System */
 	virtual void propagate() = 0;
 };
+
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Checker)
 
 extern System * sys;
 extern Logger * logger;
