@@ -69,6 +69,8 @@ private:
 	bool has_been_allocated;
 	void init();
 	bool init_from_file(const char * filename);
+	/*! \brief Used to test loading of a weight matrix and to count number of elements in wmat files */
+	AurynLong dryrun_from_file(string filename);
 
 protected:
 	void virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version ) 
@@ -83,30 +85,49 @@ protected:
 		ar & *w;
 	}
 
+	/*! /brief Static random number generator used for random connect */
 	static boost::mt19937 sparse_connection_gen;
 
+	/*! /brief Minimum allowed weight value
+	 *
+	 * This property is stored for Connection objects with plasticity. The value can be set and accessed 
+	 * with the setters get_min_weight() and set_min_weight(x) */
 	AurynWeight wmin;
+
+	/*! /brief Maximum allowed weight value
+	 *
+	 * This property is stored for Connection objects with plasticity. The value can be set and accessed 
+	 * with the setters get_max_weight() and set_max_weight(x) */
 	AurynWeight wmax;
+
+	/*! Switch that specifies whether or not to skip diagonal elemens during random connect. This 
+	 * is usefull for random connects to exclude autapses from the connections. */
 	bool skip_diagonal;
 
 	void free();
+
+	/*! Allocates memory for a given sparse connectivity matrix. Usually SimpleMatrix or ComplexMatrix */
 	void allocate(AurynLong bufsize);
+
 
 	
 public:
 	/*! Switch that toggles for the load_patterns function whether or 
 	 * not to use the intensity (gamma) value. Default is false. */
 	bool patterns_ignore_gamma; 
+
 	/*! The every_pre parameter allows to skip presynaptically over pattern IDs 
 	 * when loading patterns. Default is 1. This can be useful to 
 	 * when loading patterns into the exc->inh connections and 
 	 * there significantly less inhibitory cells than exc ones. */
 	NeuronID patterns_every_pre;
+
 	/*! The every_post parameter allows to skip postsynaptically over pattern IDs 
 	 * when loading patterns. Default is 1. This can be useful to 
 	 * when loading patterns into the exc->inh connections and 
 	 * there significantly less inhibitory cells than exc ones. */
 	NeuronID patterns_every_post;
+
 	/*! Switch that toggles the behavior when loading a pattern to
 	 * wrap neuron IDs back onto existing cells via the modulo 
 	 * function. */
@@ -116,91 +137,174 @@ public:
 	 * that stores the connectinos. */
 	ForwardMatrix * w; 
 
+	/*! \brief Empty constructor which should not be used -- TODO should be deprecated at some point. */
 	SparseConnection();
 	SparseConnection(const char * filename);
 	SparseConnection(NeuronID rows, NeuronID cols);
+
 	SparseConnection(SpikingGroup * source, NeuronGroup * destination, TransmitterType transmitter = GLUT);
 	SparseConnection(SpikingGroup * source, NeuronGroup * destination, const char * filename, TransmitterType transmitter=GLUT);
-	SparseConnection(SpikingGroup * source, NeuronGroup * destination, AurynWeight weight, AurynFloat sparseness=0.05, TransmitterType transmitter=GLUT, string name="SparseConnection");
-	/*! This constructor tries to clone a connection by guessing all parameters except source and destination from another connection instance. */
+
+	/*! \brief Default constructor which sets up a random sparse matrix with fixed weight between the source and destination group. 
+	 *
+	 * The constructor takes the weight and sparseness as secondary arguments. The latter allows Auryn to 
+	 * allocate the approximately right amount of memory inadvance. It is good habit to specify at time of initialization also 
+	 * a connection name and the transmitter type. Both can be set separately with set_transmitter and set_name if the function call gets
+	 * too long and ugly. A connection name is often handy during debugging and the transmitter type is a crucial for obvious resons ...  */
+	SparseConnection(SpikingGroup * source, NeuronGroup * destination, 
+			AurynWeight weight, AurynFloat sparseness=0.05, 
+			TransmitterType transmitter=GLUT, string name="SparseConnection");
+
+	/*! \brief This constructor tries to clone a connection by guessing all parameters 
+	 * except source and destination from another connection instance. */
 	SparseConnection(SpikingGroup * source, NeuronGroup * destination, SparseConnection * con, string name="SparseConnection");
+
 	SparseConnection(SpikingGroup * source, NeuronGroup * destination, AurynWeight weight, AurynFloat sparseness, NeuronID lo_row, NeuronID hi_row, NeuronID lo_col, NeuronID hi_col, TransmitterType transmitter=GLUT);
+	
+	/*! \brief The default destructor */
 	virtual ~SparseConnection();
 
-	/*! Is used whenever memory has to be allocated manually. Automatically adjust for number of ranks and for security margin */
+	/*! \brief Is used whenever memory has to be allocated manually. Automatically adjust for number of ranks and for security margin */
 	void allocate_manually(AurynLong expected_size);
 
-	/*! This function estimates the required size of the nonzero entry buffer. */
+	/*! \brief This function estimates the required size of the nonzero entry buffer. */
 	AurynLong estimate_required_nonzero_entires( AurynLong nonzero , double sigma = 5.);
 
-	/*! This function seeds the generator for all random fill operatios */
+	/*! \brief This function seeds the generator for all random fill operatios */
 	void seed(NeuronID randomseed);
 
+	/*! \brief Returns weight value of a given element if it exists */
 	virtual AurynWeight get(NeuronID i, NeuronID j);
+
+	/*! \brief Returns pointer to given weight element if it exists. Returns NULL if element does not exist. */
 	virtual AurynWeight * get_ptr(NeuronID i, NeuronID j);
+
+	/*! \brief Returns weight value of a given element referenced by index in the data array. */
 	virtual AurynWeight get_data(NeuronID i);
+
+	/*! \brief Sets weight value of a given element referenced by its index in the data array. */
 	virtual void set_data(NeuronID i, AurynWeight value);
-	/*! Sets a single connection to value if it exists  */
+
+	/*! \brief Sets a single connection to value if it exists  */
 	virtual void set(NeuronID i, NeuronID j, AurynWeight value);
-	/*! Sets a list of connection to value if they exists  */
+
+	/*! \brief Sets a list of connection to value if they exists  */
 	virtual void set(vector<neuron_pair> element_list, AurynWeight value);
-	/*! Synonym for random_data_lognormal  */
+
+	/*! \brief Synonym for random_data_lognormal  */
 	void random_data(AurynWeight mean, AurynWeight sigma); 
-	/*! Set weights of all existing connections randomly using a normal distrubtion */
+
+	/*! \brief Set weights of all existing connections randomly using a normal distrubtion */
 	void random_data_normal(AurynWeight mean, AurynWeight sigma); 
-	/*! Set weights of all existing connections randomly using a lognormal distribution */
+
+	/*! \brief Set weights of all existing connections randomly using a lognormal distribution */
 	void random_data_lognormal(AurynWeight m, AurynWeight s); 
-	/*! Sets weights in cols to the same value drewn from a Gaussian distribution  */
+
+	/*! \brief Sets weights in cols to the same value drewn from a Gaussian distribution  */
 	void random_col_data(AurynWeight mean, AurynWeight sigma); 
-	/*! Sets all weights of existing connections in a block spanned by the first 4 parameters to the value given. */
+
+	/*! \brief Sets all weights of existing connections in a block spanned by the first 4 parameters to the value given. */
 	void set_block(NeuronID lo_row, NeuronID hi_row, NeuronID lo_col, NeuronID hi_col, AurynWeight weight);
-	/*! Sets all weights of existing connections to the given value. */
+
+	/*! \brief Sets all weights of existing connections to the given value. */
 	virtual void set_all(AurynWeight weight);
 
-	/*! Scales all weights in the weight matrix with the given value. */
+	/*! \brief Scales all weights in the weight matrix with the given value. */
 	virtual void scale_all(AurynFloat value);
 
-	/*! Clip weights */
+	/*! \brief Clip weights */
 	virtual void clip(AurynWeight lo, AurynWeight hi);
 
-	/*! Sets weights in a upper triangular matrix */
+	/*! \brief Sets weights in a upper triangular matrix */
 	void set_upper_triangular(AurynWeight weight);
 
+	/*! \brief Sets a sparse random subset of connection elements wight the given value */
 	virtual void sparse_set_data(AurynDouble sparseness, AurynWeight value);
 
+	/*! \brief Connect src and dst SpikingGroup and NeuronGroup randomly with given sparseness 
+	 *
+	 * This function should be usually called from the constructor directly. */
 	void connect_random(AurynWeight weight=1.0, float sparseness=0.05, bool skip_diag=false);
 
-	/*! Underlying sparse fill method. Set dist_optimized to false and seed
-	 * all ranks the same to get the same matrix independent of the number
-	 * of ranks. 
+	/*! \brief Underlying sparse fill method. 
+	 *
+	 * Set dist_optimized to false and seed all ranks the same to get the same
+	 * matrix independent of the number of ranks. 
 	 */ 
 	void connect_block_random(AurynWeight weight, 
-			float sparseness, 
+			double sparseness, 
 			NeuronID lo_row, 
 			NeuronID hi_row, 
 			NeuronID lo_col, 
 			NeuronID hi_col, 
 			bool skip_diag=false );
+
+	/*! \brief Finalizes connection after random or manual initialization of the weights.
+	 *
+	 * Essentially pads zeros or non-existing elements at the end of ComplexMatrix. */
 	virtual void finalize();
+	
+	/*! \brief Pushes a single element to the ComplexMatrix.
+	 *
+	 * Note that Auryn sparse matrices need to be filled row by row in column increasing order (similar 
+	 * to writing in a text document). Hence, usually this function is called internally during weight initialization 
+	 * through a connect_random method. However, it can also be invoked manually to build custum
+	 * weight matrices on the fly. The recommended method however is to build specific weight matrices
+	 * in another high level programming language such as Python and to save the in the Auryn specific 
+	 * Matrix Market format which can then be loaded using load_from_file or load_from_complete_file 
+	 * methods. */
 	bool push_back(NeuronID i, NeuronID j, AurynWeight weight);
+
+	/*! \brief Returns number of nonzero elements in this SparseConnection */
 	AurynLong get_nonzero();
+
+	/*! \brief Puts cell assembly to existing sparse weights 
+	 *
+	 * TODO add more explanation here.*/
 	void put_pattern(type_pattern * pattern, AurynWeight strength, bool overwrite );
+
+	/*! \brief Puts cell assembly or synfire pattern to existing sparse weights
+	 *
+	 * TODO add more explanation here.*/
 	void put_pattern(type_pattern * pattern1, type_pattern * pattern2, AurynWeight strength, bool overwrite );
-	/*! Reads patterns from a .pat file and adds them as Hebbian assemblies onto an existing weight matrix */
+
+	/*! \brief Reads patterns from a .pat file and adds them as Hebbian assemblies onto an existing weight matrix */
 	void load_patterns( string filename, AurynWeight strength, bool overwrite = false, bool chainmode = false);
+
+	/*! \brief Reads first n patterns from a .pat file and adds them as Hebbian assemblies onto an existing weight matrix */
 	void load_patterns( string filename, AurynWeight strength, int n, bool overwrite = false, bool chainmode = false);
+
+	/*! \brief Internally used propagate method
+	 *
+	 * This method propagates spikes in the main simulation loop. Should usually not be called directly by the user.*/
 	virtual void propagate();
 
-	/*! Quick an dirty function that checks if all units on the local rank are connected */
+	/*! \brief Quick an dirty function that checks if all units on the local rank are connected */
 	void sanity_check();
 
+	/*! \brief Computes sum of all weight elements in the Connection */
 	virtual AurynDouble sum();
+
+	/*! \brief Computes mean and variance of weights in default weight matrix
+	 *
+	 * Returns mean and variance of default weight matrix (typically referenced as w 
+	 * in a given SparseConnection */
 	virtual void stats(AurynFloat &mean, AurynFloat &std);
 
-	AurynLong dryrun_from_file(string filename);
-	bool write_to_file(ForwardMatrix * m, string filename );
-	bool load_from_file(ForwardMatrix * m, string filename, AurynLong data_size = 0 );
 
+	/*! \brief Writes rank specific weight matrix on the same rank to a file
+	 *
+	 * This function writes all synaptic weights from the specified weight matrix which are stored on the same rank 
+	 * to a Matrix Market file in real coordinate format. The file can later be read with load_from_file to continue 
+	 * a simulation or can be processed offline using standard tools such as MATLAB or Python.
+	 */
+	bool write_to_file(ForwardMatrix * m, string filename );
+
+	/*! \brief Writes rank specific default weight matrix on the same rank to a file
+	 *
+	 * This call is a shortcut for write_to_file(w, filename) where w is the default weight matrix of
+	 * the underlying SparseConnectoin.
+	 */
 	virtual bool write_to_file(string filename);
 
 	/*! \brief Loads weight matrix from a single file
@@ -212,21 +316,44 @@ public:
 	 * and distribute the established file-counts to all the stations
 	 */
 	virtual bool load_from_complete_file(string filename);
+
+	/*! \brief Loads weight matrix from Matrix Market (wmat) file
+	 *
+	 * This function expects an Auryn readable Matrix Market file such as generated by
+	 * write_to_file methods which only includes weight elements which belong on this very rank.
+	 * To load wmat files containing all weights indepent of rank use the load_from_complete_file 
+	 * method. Note that these methods only store information of the first element of a ComplexMatrix. 
+	 * To store all informtion of a ComplexMatrix use the mechanisms in place to save the network state
+	 * which are implemented in the System class. */
 	virtual bool load_from_file(string filename);
 
-	/*! Sets minimum weight (for plastic connections). */
+	/*! \brief Loads weight matrix from Matrix Market (wmat) file to specified weight matrix
+	 *
+	 * This function expects an Auryn readable Matrix Market file such as generated by
+	 * write_to_file methods which only includes weight elements which belong on this very rank.
+	 * To load wmat files containing all weights indepent of rank use the load_from_complete_file 
+	 * method. */
+	bool load_from_file(ForwardMatrix * m, string filename, AurynLong data_size = 0 );
+
+	/*! \brief Sets minimum weight (for plastic connections). */
 	virtual void set_min_weight(AurynWeight minimum_weight);
+
+	/*! \brief Gets minimum weight (for plastic connections). */
 	AurynWeight get_min_weight();
 
-	/*! Sets maximum weight (for plastic connections). */
+	/*! \brief Sets maximum weight (for plastic connections). */
 	virtual void set_max_weight(AurynWeight maximum_weight);
+
+	/*! \brief Gets maximum weight (for plastic connections). */
 	AurynWeight get_max_weight();
 
-	/*! Returns a vector of ConnectionsID of a block specified by the arguments */
+	/*! \brief Returns a vector of ConnectionsID of a block specified by the arguments */
 	vector<neuron_pair> get_block(NeuronID lo_row, NeuronID hi_row, NeuronID lo_col, NeuronID hi_col);
-	/*! Returns a vector of ConnectionsID of postsynaptic parterns of neuron i */
+
+	/*! \brief Returns a vector of ConnectionsID of postsynaptic parterns of neuron i */
 	vector<neuron_pair> get_post_partners(NeuronID i);
-	/*! Returns a vector of ConnectionsID of presynaptic parterns of neuron i */
+
+	/*! \brief Returns a vector of ConnectionsID of presynaptic parterns of neuron i */
 	vector<neuron_pair> get_pre_partners(NeuronID j);
 };
 

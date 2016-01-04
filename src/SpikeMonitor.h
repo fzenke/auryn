@@ -35,11 +35,18 @@
 using namespace std;
 
 /*! \brief The standard Monitor object to record spikes from a 
- * SpikingGroup and write them to file
+ * SpikingGroup and write them to a text file
  *
  * SpikeMonitor is specified with a source group of type SpikingGroup
  * and writes all or a specified range of the neurons spikes to a
- * file that has to be given at construction time.
+ * text (ras) file that has to be given at construction time.
+ *
+ * SpikeMonitor writes spikes into rank specific files and timestamps 
+ * them before the axonal delay (this is generally what you want). 
+ * DelaySpikeMonitor in contrast writes spikes after the axonal delay 
+ * and records all spikes from all ranks and all all ranks (this is 
+ * maninly for debugging).
+ * 
  */
 class SpikeMonitor : Monitor
 {
@@ -49,17 +56,49 @@ private:
     NeuronID n_every;
 	SpikeContainer::const_iterator it;
 	SpikingGroup * src;
-	NeuronID offset;
 	void init(SpikingGroup * source, string filename, NeuronID from, NeuronID to);
 	void free();
 	
 public:
+	/*! Switch variable to enable/disable recording. */
+	bool active;
+
+	/*! \brief Default constructor
+	 *
+	 * \param source Specifies the source SpikingGroup to record from 
+	 * \param filename Specifies the filename to write to. 
+	 * This filename needs to be rank specific to avoid problems in parallelm mode
+	 * */
 	SpikeMonitor(SpikingGroup * source, string filename);
+
+	/*! \brief Default constructor which records from limited number of neurons
+	 *
+	 * \param source Specifies the source SpikingGroup to record from 
+	 * \param filename Specifies the filename to write to. 
+	 * This filename needs to be rank specific to avoid problems in parallelm mode
+	 * \param to The last NeuronID to record from starting from 0.
+	 * */
 	SpikeMonitor(SpikingGroup * source, string filename, NeuronID to);
+
+	/*! \brief Default constructor which records from a range of neurons
+	 *
+	 * \param source Specifies the source SpikingGroup to record from 
+	 * \param filename Specifies the filename to write to. 
+	 * This filename needs to be rank specific to avoid problems in parallelm mode
+	 * \param from The first NeuronID to record from.
+	 * \param to The last NeuronID to record from.
+	 * */
 	SpikeMonitor(SpikingGroup * source, string filename, NeuronID from, NeuronID to);
-	void set_offset(NeuronID of);
+
+	/*!\brief  Sets every parameter that ellow to record only from every X neuron.
+	 *
+	 * \param the number X as described above. */
 	void set_every(NeuronID every);
+
+	/*! \brief  Default destructor. */
 	virtual ~SpikeMonitor();
+
+	/*! \brief  Propagate function for internal use. */
 	void propagate();
 };
 

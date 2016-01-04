@@ -100,12 +100,17 @@ void Connection::set_transmitter(TransmitterType transmitter)
 			default:
 				set_transmitter(dst->get_ampa_ptr()->data);
 		}
-	} else set_transmitter(NULL);
+	} else set_transmitter((AurynWeight *)NULL);
 }
 
 void Connection::set_transmitter(AurynWeight * ptr)
 {
 	target = ptr;
+}
+
+void Connection::set_transmitter(auryn_vector_float * ptr)
+{
+	target = ptr->data;
 }
 
 NeuronID Connection::get_m_rows()

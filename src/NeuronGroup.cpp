@@ -35,7 +35,7 @@ void NeuronGroup::init()
 
 		// stringstream oss;
 		// oss << description_string << " init";
-		// logger->msg(oss.str(),DEBUG);
+		// logger->msg(oss.str(),VERBOSE);
 
 		mem = get_state_vector("mem");
 		thr = get_state_vector("thr");
@@ -279,10 +279,29 @@ AurynState NeuronGroup::get_val(auryn_vector_float * vec, NeuronID i)
 void NeuronGroup::tadd(NeuronID id, AurynWeight amount, TransmitterType t)
 {
 	NeuronID localid = global2rank(id);
-	if (t==GLUT) {
-		add_val(g_ampa,localid,amount);
-	} else {
-		add_val(g_gaba,localid,amount);
+	switch ( t ) {
+		case GABA:
+			add_val(g_gaba,localid,amount);
+			break;
+		case MEM:
+			add_val(mem,localid,amount);
+			break;
+		case CURSYN:
+			add_val(g_cursyn,localid,amount);
+			break;
+		case NMDA:
+			add_val(g_nmda,localid,amount);
+			break;
+		case GLUT:
+		case AMPA:
+		default:
+			add_val(g_ampa,localid,amount);
 	}
 }
 
+
+void NeuronGroup::tadd(auryn_vector_float * state, NeuronID id, AurynWeight amount)
+{
+	NeuronID localid = global2rank(id);
+	add_val(state, localid, amount);
+}

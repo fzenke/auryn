@@ -29,7 +29,6 @@
 #include "auryn_definitions.h"
 #include "SparseConnection.h"
 #include "SimpleMatrix.h"
-#include "ComplexMatrix.h"
 
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int.hpp>
@@ -58,7 +57,7 @@ private:
 	void init();
 	void free();
 protected:
-	void compute_reverse_matrix();
+	void compute_reverse_matrix(int z = 0);
 public:
 	ForwardMatrix  * fwd;
 	BackwardMatrix * bkw; // TODO make protected again later when tested

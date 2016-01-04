@@ -39,7 +39,7 @@ private:
 	auryn_vector_float * bg_current;
 	auryn_vector_ushort * ref;
 	unsigned short refractory_time;
-	AurynFloat e_rest,e_rev_gaba,e_rev_ampa,thr,tau_mem, r_mem, c_mem;
+	AurynFloat e_rest,e_rev_gaba,thr,tau_mem, r_mem, c_mem;
 	AurynFloat tau_ampa,tau_gaba;
 	AurynFloat scale_ampa, scale_gaba, scale_mem;
 
@@ -65,6 +65,9 @@ public:
 
 	/*! Controls the constant current input (per default set so zero) to neuron i */
 	void set_bg_current(NeuronID i, AurynFloat current);
+
+	/*! Controls the constant current input to all neurons */
+	void set_bg_currents(AurynFloat current);
 
 	/*! Setter for refractory time [s] */
 	void set_refractory_period(AurynDouble t);

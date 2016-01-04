@@ -36,6 +36,7 @@ int main(int ac, char* av[])
 	double wmax = 10*gamma*w;
 
 	double sparseness = 0.02 ;
+	NeuronID seed = 1;
 
 	double eta = 1e-4 ;
 	double kappa = 3. ;
@@ -80,6 +81,7 @@ int main(int ac, char* av[])
             ("winh", po::value<double>(), "inhibitory weight multiplier")
             ("wei", po::value<double>(), "ei weight multiplier")
             ("chi", po::value<double>(), "chi current multiplier")
+            ("seed", po::value<int>(), "random seed")
         ;
 
         po::variables_map vm;        
@@ -162,6 +164,12 @@ int main(int ac, char* av[])
 			chi = vm["chi"].as<double>();
         } 
 
+        if (vm.count("seed")) {
+            cout << "seed set to " 
+                 << vm["seed"].as<int>() << ".\n";
+			seed = vm["seed"].as<int>();
+        } 
+
     }
     catch(exception& e) {
         cerr << "error: " << e.what() << "\n";
@@ -198,10 +206,13 @@ int main(int ac, char* av[])
 
 
 	logger->msg("Setting up connections ...",PROGRESS,true);
+	SparseConnection * con_exte = new SparseConnection(poisson,neurons_e,0,sparseness_afferents,GLUT);
+	con_exte->seed(seed);
+
 	SparseConnection * con_ei = new SparseConnection(neurons_e,neurons_i,wei*w,sparseness,GLUT);
+
 	SparseConnection * con_ii = new SparseConnection(neurons_i,neurons_i,gamma*w,sparseness,GABA);
 
-	SparseConnection * con_exte = new SparseConnection(poisson,neurons_e,0,sparseness_afferents,GLUT);
 	
 	SparseConnection * con_ee = new SparseConnection(neurons_e,neurons_e,w,sparseness,GLUT);
 	SymmetricSTDPConnection * con_ie = new SymmetricSTDPConnection(neurons_i,neurons_e,
@@ -221,7 +232,6 @@ int main(int ac, char* av[])
 	strbuf = basename;
 	strbuf += ".i.ras";
 	SpikeMonitor * smon_i = new SpikeMonitor( neurons_i, strbuf.c_str() );
-	smon_i->set_offset(NE);
 
 	strbuf = basename;
 	strbuf += ".volt";

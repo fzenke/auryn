@@ -47,6 +47,17 @@
 class NeuronGroup : public SpikingGroup
 {
 protected:
+
+	/*! Init procedure called by default constructor. */
+	void init();
+
+	/*! Called by default destructor */
+	void free();
+
+
+
+
+public:
 	/*! Stores the membrane potentials. */
 	auryn_vector_float * mem __attribute__((aligned(16)));
 	/*! Stores the AMPA conductances of each point neuron. */
@@ -60,21 +71,13 @@ protected:
 	/*! Stores  threshold terms for moving thresholds. */
 	auryn_vector_float * thr __attribute__((aligned(16)));
 
-	/*! Init procedure called by default constructor. */
-	void init();
-
-	/*! Called by default destructor */
-	void free();
-
-
-public:
-
 	/*! Default constructor */
 	NeuronGroup(NeuronID n, double loadmultiplier = 1. , NeuronID total = 0 );
 	/*! Default destructor */
 	virtual ~NeuronGroup();
 
 	virtual void clear() = 0;
+
 
 	AurynState get_val(auryn_vector_float* vec, NeuronID i);
 	void set_val(auryn_vector_float* vec, NeuronID i, AurynState val);
@@ -106,7 +109,7 @@ public:
 	void set_nmda(NeuronID i,AurynState val);
 	auryn_vector_float * get_nmda_ptr();
 
-	void random_mem(AurynState mean, AurynState sigma);
+	void random_mem(AurynState mean=-60e-3, AurynState sigma=5e-3);
 	void random_uniform_mem(AurynState lo, AurynState hi);
 
 	void random_nmda(AurynState mean, AurynState sigma);
@@ -122,6 +125,9 @@ public:
 	void safe_tadd(NeuronID id, AurynWeight amount, TransmitterType t=GLUT);
 	/*! Adds given transmitter to neuron as from a synaptic event. DEPRECATED. Moving slowly to SparseConnection transmit. */
 	void tadd(NeuronID id, AurynWeight amount, TransmitterType t=GLUT);
+
+	/*! Adds given amount of transmitter to neuron state/id. */
+	void tadd(auryn_vector_float * state, NeuronID id, AurynWeight amount);
 
 };
 

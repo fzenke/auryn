@@ -128,9 +128,10 @@ void STDPConnection::propagate_forward()
 				// performs weight update
 			    *weight += dw_pre(*c);
 
-			    // clips too small weights
-			    if ( *weight < get_min_weight() ) 
-					*weight = get_min_weight();
+				// clips weights
+				if ( *weight > get_max_weight() ) *weight = get_max_weight(); 
+				else
+			    if ( *weight < get_min_weight() ) *weight = get_min_weight();
 			}
 		}
 	}
@@ -157,8 +158,10 @@ void STDPConnection::propagate_backward()
 				AurynWeight * weight = bkw->get_data(c); 
 				*weight += dw_post(*c);
 
-				// clips too large weights
-				if (*weight>get_max_weight()) *weight=get_max_weight();
+				// clips weights
+				if ( *weight > get_max_weight() ) *weight = get_max_weight(); 
+				else
+			    if ( *weight < get_min_weight() ) *weight = get_min_weight();
 			}
 		}
 	}

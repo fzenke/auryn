@@ -56,7 +56,7 @@ void VoltageMonitor::init(NeuronGroup * source, NeuronID id, string filename, Au
 
 void VoltageMonitor::propagate()
 {
-	if (active && (sys->get_clock())%ssize==0 && sys->get_clock() < tStop && nid < src->get_size() ) {
+	if ( sys->get_clock() < tStop && (sys->get_clock())%ssize==0 ) {
 		double voltage = src->get_mem(nid);
 		if ( paste_spikes ) {
 			SpikeContainer * spikes = src->get_spikes_immediate();
@@ -69,4 +69,19 @@ void VoltageMonitor::propagate()
 		}
 		outfile << (sys->get_time()) << " " << voltage << "\n";
 	}
+}
+
+
+
+void VoltageMonitor::record_for(AurynDouble time)
+{
+	set_stop_time(time);
+}
+
+void VoltageMonitor::set_stop_time(AurynDouble time)
+{
+	if (time < 0) {
+		logger->msg("Warning: Negative stop times not supported -- ingoring.",WARNING);
+	} 
+	else tStop = sys->get_clock() + time/dt;
 }

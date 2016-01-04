@@ -81,60 +81,117 @@ protected:
 	TransmitterType trans;
 	AurynFloat * target;
 
+	void init(TransmitterType transmitter=GLUT);
+
 public:
 	Connection();
 	Connection(NeuronID rows, NeuronID cols);
 	Connection(SpikingGroup * source, NeuronGroup * destination, TransmitterType transmitter=GLUT, string name="Connection");
 	virtual ~Connection();
-	void init(TransmitterType transmitter=GLUT);
 
 	void set_size(NeuronID i, NeuronID j);
+
+	/*! \brief Set name of connection
+	 *
+	 * The name will appear in error messages and save files */
 	void set_name(string name);
+
+	/*! \brief Returns name of connection */
 	string get_name();
 
+	/*! \brief Get number of rows (presynaptic) in connection.
+	 *
+	 * Note that Matrices in Auryn have to be thought of as multiplied from the left. The number of rows thus
+	 * corresponds to the maximum number of presynaptic cells. */
 	NeuronID get_m_rows();
+
+	/*! \brief Get number of columns (postsynaptic) in connection.
+	 *
+	 * Note that Matrices in Auryn have to be thought of as multiplied from the left. The number of columns thus
+	 * corresponds to the maximum number of postsynaptic cells. */
 	NeuronID get_n_cols();
+
+	/*! \brief Returns transmitter type 
+	 *
+	 * This is one of Auryn default transmitter types. It essentially characterizes an array of a state vector
+	 * to which this Connections weight will be added upon synaptic transmission. */
 	TransmitterType get_transmitter();
+
+	/*! \brief Sets target state of this connection directly via a pointer */
 	void set_transmitter(AurynWeight * ptr);
+
+	/*! \brief Sets target state of this connection directly via a StateVector */
+	void set_transmitter(auryn_vector_float * ptr);
+
+	/*! \brief Sets target state of this connection as one of Auryn's default transmitter types */
 	void set_transmitter(TransmitterType transmitter);
 
+	/*! \brief Sets source SpikingGroup of this connection. */
 	void set_source(SpikingGroup * source);
+
+	/*! \brief Returns pointer to the presynaptic group. */
 	SpikingGroup * get_source();
+
+	/*! \brief Sets destination SpikingGroup of this connection. */
 	void set_destination(NeuronGroup * source);
+
+	/*! \brief Returns pointer to the postsynaptic group. */
 	NeuronGroup * get_destination();
 
+	/* Purely virtual functions */
+	/*! \brief Get weight value i,j if it exists. Otherwise the value is undefined. */
 	virtual AurynWeight get(NeuronID i, NeuronID j) = 0;
+
+	/*! \brief Return pointer to weight element i,j if it exists, otherwise return NULL. */
 	virtual AurynWeight * get_ptr(NeuronID i, NeuronID j) = 0;
+
+	/*! \brief Return weight element as index in data array */
 	virtual AurynWeight get_data(NeuronID i) = 0;
+
+	/*! \brief Set existing weight element i,j with value. */
 	virtual void set(NeuronID i, NeuronID j, AurynWeight value) = 0;
+
+	/*! \brief Return number of nonzero elements in this Connection. */
 	virtual AurynLong get_nonzero() = 0;
 
+	/*! \brief Finalize Connection after initialization to prepare for use in simulation. */
 	virtual void finalize() = 0;
+
+	/*! \brief Propagate method to propagate spikes. Called by System run method. */
 	virtual void propagate() = 0;
+
+	/*! \brief Evolve method to update internal connection state. Called by System run method. */
 	virtual void evolve();
 
-	/*! DEPRECATED. (Such connections should not be registered in the first place) Calls propagate only if the postsynaptic NeuronGroup exists on the local rank. */
+	/*! \brief DEPRECATED. (Such connections should not be registered in the first place) 
+	 * Calls propagate only if the postsynaptic NeuronGroup exists on the local rank. */
 	void conditional_propagate();
 
-	/*! Computes the sum of all weights in the connection. */
+	/*! \brief Computes the sum of all weights in the connection. */
 	virtual AurynDouble sum() = 0;
 
-	/*! Computes mean synaptic weight and std dev of all weights in this connection. */
+	/*! \brief Computes mean synaptic weight and std dev of all weights in this connection. */
 	virtual void stats(AurynFloat &mean, AurynFloat &std) = 0;
 
-	/*! Implements save to file functionality. Also called in save_network_state from System class. */
+	/*! \brief Implements save to file functionality. Also called in save_network_state from System class. */
 	virtual bool write_to_file(string filename) = 0;
 
-	/*! Implements load from file functionality. Also called in save_network_state from System class. */
+	/*! \brief Implements load from file functionality. Also called in save_network_state from System class. */
 	virtual bool load_from_file(string filename) = 0;
 
-	/*! This is a new approach towards replacing tadd, increments transmitter specific state variables in neuron i*/
+	/*! \brief Transmits a spike to a postsynaptic partner
+	 *
+	 * The method adds a given amount to the respective element in the target/transmitter array of the postsynaptic
+	 * neuron specifeid by id. This is a new approach which replaces tadd to old method, increments 
+	 * transmitter specific state variables in neuron id. It turned out much faster that way, because the transmit
+	 * function is one of the most often called function in the simulation and it can be efficiently inlined by the 
+	 * compiler. */
 	inline void transmit(NeuronID id, AurynWeight amount);
 
-	/*! Same as transmit but checks if the target neuron exists */
+	/*! \brief Same as transmit but first checks if the target neuron exists and avoids segfaults that way (but it's also slower). */
 	void safe_transmit(NeuronID id, AurynWeight amount);
 
-	/*! Returns a vector of ConnectionsID of a block specified by the arguments */
+	/*! Returns a vector of ConnectionsID of a block specified by the arguments. */
 	virtual vector<neuron_pair>  get_block(NeuronID lo_row, NeuronID lo_col, NeuronID hi_row,  NeuronID hi_col) = 0;
 
 };

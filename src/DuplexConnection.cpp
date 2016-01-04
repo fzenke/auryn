@@ -37,7 +37,7 @@ void DuplexConnection::finalize() // finalize at this level is called only for r
 {
 	stringstream oss;
 	oss << "DuplexConnection: Finalizing ...";
-	logger->msg(oss.str(),NOTIFICATION);
+	logger->msg(oss.str(),VERBOSE);
 
 	bkw->clear();
 	if ( bkw->get_nonzero() > w->get_nonzero() ) {
@@ -102,19 +102,19 @@ DuplexConnection::~DuplexConnection()
 }
 
 
-void DuplexConnection::compute_reverse_matrix()
+void DuplexConnection::compute_reverse_matrix( int z )
 {
 
 	if ( fwd->get_nonzero() <= bkw->get_datasize() ) {
 		bkw->clear();
 	} else {
-		logger->msg("Bkw buffer too small reallocating..." ,NOTIFICATION);
+		logger->msg("Bkw buffer too small reallocating..." ,VERBOSE);
 		bkw->resize_buffer_and_clear(fwd->get_datasize());
 	}
 
 	stringstream oss;
-	oss << "DuplexConnection: ("<< get_name() << "): Computing backward matrix ...";
-	logger->msg(oss.str(),NOTIFICATION);
+	oss << "DuplexConnection: ("<< get_name() << "): Computing transposed matrix view ...";
+	logger->msg(oss.str(),VERBOSE);
 
 	NeuronID maxrows = get_m_rows();
 	NeuronID maxcols = get_n_cols();
@@ -128,7 +128,7 @@ void DuplexConnection::compute_reverse_matrix()
 			for ( NeuronID i = 0 ; i < maxrows ; ++i ) {
 				if (rowwalker[i] < fwd->get_rowptrs()[i+1]) { // stop when reached end of row
 					if (*rowwalker[i]==j) { // if there is an element for that column add pointer to backward matrix
-						bkw->push_back(j,i,fwd->get_ptr(i,j));
+						bkw->push_back(j,i,fwd->get_ptr(i,j,z));
 						++rowwalker[i];  // move on when processed element
 					}
 				}
@@ -149,7 +149,7 @@ void DuplexConnection::compute_reverse_matrix()
 		oss << "DuplexConnection: ("<< get_name() << "): " 
 			<< bkw->get_nonzero() 
 			<< " elements processed.";
-		logger->msg(oss.str(),DEBUG);
+		logger->msg(oss.str(),VERBOSE);
 	}
 }
 

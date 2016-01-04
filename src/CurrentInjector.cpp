@@ -23,44 +23,45 @@
 * Front Neuroinform 8, 76. doi: 10.3389/fninf.2014.00076
 */
 
-
-#include "auryn_definitions.h"
-// #include "SpikeContainer.h"
+#include "CurrentInjector.h"
 
 
-int main(int ac, char* av[]) 
+CurrentInjector::CurrentInjector(NeuronGroup * target, string neuron_state_name, AurynFloat initial_current ) : Monitor( )
 {
-	SpikeContainer * sc = new SpikeContainer();
+	sys->register_monitor(this);
+	dst = target;
 
-	cout << "Loading 1 2 3 ... " << endl;
+	set_target_state(neuron_state_name);
+	currents = auryn_vector_float_alloc(dst->get_vector_size()); 
 
-	sc->push_back(1);
-	sc->push_back(2);
-	sc->push_back(3);
-
-	cout << "Reading ";
-
-	for ( NeuronID * iter = sc->begin() ; iter != sc->end() ; ++iter )
-		cout << *iter << " ";
-
-	cout << endl;
-
-	sc->clear();
-
-	cout << "Loading 5 6 7 ... " << endl;
-
-	sc->push_back(5);
-	sc->push_back(6);
-	sc->push_back(7);
-
-	cout << "Reading ";
-
-	for ( NeuronID * iter = sc->begin() ; iter != sc->end() ; ++iter )
-		cout << *iter << " ";
-
-	cout << endl;
-
-	delete sc;
-
-	return 0;
+	auryn_vector_float_set_all( currents, initial_current );
 }
+
+
+
+void CurrentInjector::free( ) 
+{
+	auryn_vector_float_free ( currents );
+}
+
+
+CurrentInjector::~CurrentInjector()
+{
+	free();
+}
+
+void CurrentInjector::propagate()
+{
+	if ( dst->evolve_locally() ) {
+		auryn_vector_float_saxpy(dt, currents, target_vector);
+	}
+}
+
+void CurrentInjector::set_current(NeuronID i, AurynFloat current) {
+	auryn_vector_float_set(currents, i, current);
+}
+
+void CurrentInjector::set_target_state(string state_name) {
+	target_vector = dst->get_state_vector(state_name);
+}
+

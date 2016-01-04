@@ -41,9 +41,17 @@ int main(int ac, char* av[])
 	mpi::communicator world;
 	communicator = &world;
 
-	sprintf(strbuf, "out_epsp.%d.log", world.rank());
-	string logfile = strbuf;
-	logger = new Logger(logfile,world.rank(),PROGRESS,EVERYTHING);
+	try
+	{
+		sprintf(strbuf, "out_epsp.%d.log", world.rank());
+		string logfile = strbuf;
+		logger = new Logger(logfile,world.rank(),PROGRESS,EVERYTHING);
+	}
+	catch ( AurynOpenFileException excpt )
+	{
+		std::cerr << "Cannot proceed without log file. Exiting all ranks ..." << '\n';
+		env.abort(1);
+	}
 
 	sys = new System(&world);
 	// END Global definitions

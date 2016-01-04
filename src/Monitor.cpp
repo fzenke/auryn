@@ -29,7 +29,6 @@
 void Monitor::init(string filename)
 {
 	fname = filename;
-	active = true;
 
 	open_output_file(filename);
 }

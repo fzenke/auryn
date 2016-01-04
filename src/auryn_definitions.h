@@ -62,9 +62,12 @@ using namespace std;
 namespace mpi = boost::mpi;
 
 
-/*! The current Auryn version number */
-#define AURYNVERSION 0.6
-#define AURYNSUBVERSION 1
+/*! The current Auryn version/revision number. 
+ * Should be all ints. */
+#define AURYNVERSION 0
+#define AURYNSUBVERSION 7
+#define AURYNREVISION 0
+
 
 /*! Toggle between memory alignment for
  * SIMD code.
@@ -199,33 +202,55 @@ void auryn_vector_float_free (auryn_vector_float * v);
 void auryn_vector_float_set_zero (auryn_vector_float * v);
 /*! Sets all elements in an auryn_vector_float to value x */
 void auryn_vector_float_set_all (auryn_vector_float * v, AurynFloat x);
-/*! Copies vector src to dst assuming they have the same size. 
+
+/*! \brief Copies vector src to dst assuming they have the same size. 
+ *
  * Otherwise this will lead to undefined results. No checking of size is
  * performed for performance reasons. */
 void auryn_vector_float_copy (auryn_vector_float * src, auryn_vector_float * dst );
+
 /*! Auryn vector getter */
 AurynFloat auryn_vector_float_get (const auryn_vector_float * v, const NeuronID i);
+
 /*! Auryn vector setter */
 void auryn_vector_float_set (auryn_vector_float * v, const NeuronID i, AurynFloat x);
+
 /*! Auryn vector gets pointer to designed element. */
 AurynFloat * auryn_vector_float_ptr (const auryn_vector_float * v, const NeuronID i);
 
 /*! Internal  version of auryn_vector_float_mul of gsl operations */
 void auryn_vector_float_mul( auryn_vector_float * a, auryn_vector_float * b);
-/*! Internal  version of auryn_vector_float_add gsl operations */
+
+/*! \brief Computes a := a + b 
+ *
+ * Internal  version of auryn_vector_float_add between a constant and a vector */
 void auryn_vector_float_add_constant( auryn_vector_float * a, float b );
-/*! Internal  SAXPY version */
+
+/*! Computes y := a*x+y
+ *
+ * Internal SAXPY version */
 void auryn_vector_float_saxpy( const float a, const auryn_vector_float * x, const auryn_vector_float * y );
-/*! Internal  version to scale a vector with a constant b  */
+/*! Internal version to scale a vector with a constant b  */
 void auryn_vector_float_scale(const float a, const auryn_vector_float * b );
-/*! Internal  version to clip all the elements of a vector between [a:b]  */
+/*! Internal version to clip all the elements of a vector between [a:b]  */
 void auryn_vector_float_clip(auryn_vector_float * v, const float a , const float b );
+
 /*! Internal  version to clip all the elements of a vector between [a:0]  */
 void auryn_vector_float_clip(auryn_vector_float * v, const float a );
-/*! Internal  version of to add GSL vectors */
+
+/*! \brief Internal  version of to add GSL vectors.
+ *
+ * Add vectors a and b and store the result in a. */
 void auryn_vector_float_add( auryn_vector_float * a, auryn_vector_float * b);
-/*! Internal  version of to subtract GSL vectors */
+
+/*! \brief Computes a := a-b
+ * 
+ *  Internal  version of to subtract GSL vectors.*/
 void auryn_vector_float_sub( auryn_vector_float * a, auryn_vector_float * b);
+
+/*! \brief Computes r := a-b */
+void auryn_vector_float_sub( auryn_vector_float * a, auryn_vector_float * b, auryn_vector_float * r);
+
 
 
 // ushort vector functions
@@ -248,11 +273,17 @@ void auryn_vector_ushort_set (auryn_vector_ushort * v, const NeuronID i, unsigne
 /*! Auryn vector gets pointer to designed element. */
 unsigned short * auryn_vector_ushort_ptr (const auryn_vector_ushort * v, const NeuronID i);
 /*! Auryn spike event for binary monitors */
-struct spikeEvent_type
+struct SpikeEvent_type
 {
-    AurynDouble time;
+    AurynTime time; 
     NeuronID neuronID;
 };
+
+/*! Tag for header in binary encoded spike monitor files. The first digits are 28796 for Auryn in 
+ * phone dial notation. The remaining 4 digits encode type of binary file and the current Auryn 
+ * version */
+const NeuronID tag_binary_spike_monitor = 287960000+100*AURYNVERSION+10*AURYNSUBVERSION+1*AURYNREVISION;
+const NeuronID tag_binary_state_monitor = 287961000+100*AURYNVERSION+10*AURYNSUBVERSION+1*AURYNREVISION;
 
 // Exceptions
 class AurynOpenFileException: public exception
@@ -341,7 +372,7 @@ class AurynGenericException: public exception
 	  virtual const char* what() const throw()
 		    {
 				    return "Auryn encountered a problem which it deemed serious enough to break the run. \
-						To debug set logger vebosity to EVERYTHING and analyze the log files.";
+						To debug set logger vebosity to VERBOSE or EVERYTHING and analyze the log files.";
 		    }
 };
 

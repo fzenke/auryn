@@ -106,7 +106,7 @@ void CubaIFGroup::set_bg_current(NeuronID i, AurynFloat current) {
 }
 
 void CubaIFGroup::set_all_bg_currents( AurynFloat current ) {
-	for ( int i = 0 ; i < get_rank_size() ; ++i ) 
+	for ( NeuronID i = 0 ; i < get_rank_size() ; ++i ) 
 		auryn_vector_float_set ( bg_current, i, current ) ;
 }
 

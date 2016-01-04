@@ -86,6 +86,7 @@ void FileInputGroup::evolve()
 			line >> t;
 			ftime = t/dt+off;
 			line >> i;
+			if ( i >= get_rank_size() ) continue; // ignore too large i
 			if (ftime == sys->get_clock()) {
 				if (localrank(lastspike)) 
 					spikes->push_back(i);

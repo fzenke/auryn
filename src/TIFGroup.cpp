@@ -41,7 +41,6 @@ void TIFGroup::calculate_scale_constants()
 void TIFGroup::init()
 {
 	e_rest = -60e-3;
-    e_rev_ampa = 0;
 	e_rev_gaba = -80e-3;
 	thr = -50e-3;
 	tau_ampa = 5e-3;
@@ -94,7 +93,7 @@ void TIFGroup::evolve()
 	for (NeuronID i = 0 ; i < get_rank_size() ; ++i ) {
     	if (t_ref[i]==0) {
 			const AurynFloat dg_mem = ( (e_rest-t_mem[i]) 
-					- t_g_ampa[i] * (t_mem[i]-e_rev_ampa)
+					- t_g_ampa[i] * (t_mem[i])
 					- t_g_gaba[i] * (t_mem[i]-e_rev_gaba)
 					+ t_bg_cur[i] );
 			t_mem[i] += dg_mem*scale_mem;
@@ -118,6 +117,11 @@ void TIFGroup::evolve()
 void TIFGroup::set_bg_current(NeuronID i, AurynFloat current) {
 	if ( localrank(i) )
 		auryn_vector_float_set ( bg_current , global2rank(i) , current ) ;
+}
+
+void TIFGroup::set_bg_currents(AurynFloat current) {
+	for ( NeuronID i = 0 ; i < get_rank_size() ; ++i ) 
+		auryn_vector_float_set ( bg_current , i , current ) ;
 }
 
 void TIFGroup::set_tau_mem(AurynFloat taum)

@@ -63,11 +63,11 @@
 #include "IdentityConnection.h"
 
 // Spiking and Neuron group definitions
-#include "IF2Group.h"
 #include "AIF2Group.h"
 #include "IafPscDeltaGroup.h"
 #include "IFGroup.h"
 #include "AIFGroup.h"
+#include "AdExGroup.h"
 #include "CubaIFGroup.h"
 #include "TIFGroup.h"
 #include "SpikingGroup.h"
@@ -107,6 +107,7 @@
 #include "WeightMatrixMonitor.h"
 #include "PoissonStimulator.h"
 #include "PatternStimulator.h"
+#include "CurrentInjector.h"
 
 
 #endif /*AURYN_H__*/

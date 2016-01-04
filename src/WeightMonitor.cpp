@@ -76,7 +76,7 @@ void WeightMonitor::init(SparseConnection * source, NeuronID i, NeuronID j, stri
 	oss << "WeightMonitor:: "
 		<< "Initialized. Writing to file "
 		<< fname;
-	logger->msg(oss.str(),DEBUG);
+	logger->msg(oss.str(),VERBOSE);
 
 	// default behavior
 	recordingmode = ELEMENTLIST;
@@ -108,7 +108,7 @@ void WeightMonitor::add_to_list( vector<neuron_pair>  vec, string label )
 	if ( recordingmode == ELEMENTLIST || recordingmode == GROUPS ) {
 		stringstream oss;
 		oss << "WeightMonitor:: Adding " << vec.size() << " elements to index list " << label;
-		logger->msg(oss.str(),DEBUG);
+		logger->msg(oss.str(),VERBOSE);
 
 		if ( label.empty() )
 			outfile << "# Added list with " << vec.size() << " elements." << endl;
@@ -128,8 +128,15 @@ void WeightMonitor::add_to_list( vector<neuron_pair>  vec, string label )
 	}
 }
 
-void WeightMonitor::add_equally_spaced(NeuronID number)
+void WeightMonitor::add_equally_spaced(NeuronID number, NeuronID z)
 {
+	if ( z >= mat->get_z_values() ) {
+		logger->msg("WeightMonitor:: z too large. Trying to monitor complex "
+				"synaptic values which do not exist."
+				,ERROR);
+		return;
+	}
+
 	if ( number > src->get_nonzero() ) {
 		logger->msg("WeightMonitor:: add_equally_spaced: \
 				Not enough elements in this Connection object",WARNING);
@@ -137,14 +144,14 @@ void WeightMonitor::add_equally_spaced(NeuronID number)
 	}
 
 	for ( NeuronID i = 0 ; i < number ; ++i )
-		add_to_list(mat->get_data_begin()+i*mat->get_nonzero()/number);
+		add_to_list(mat->get_data_begin(z)+i*mat->get_nonzero()/number);
 
 	stringstream oss;
 	oss << "WeightMonitor:: "
 		<< "Adding "
 		<< number 
 		<< " equally spaced values.";
-	logger->msg(oss.str(),DEBUG);
+	logger->msg(oss.str(),VERBOSE);
 }
 
 void WeightMonitor::load_data_range( NeuronID i, NeuronID j )
@@ -159,7 +166,7 @@ void WeightMonitor::load_data_range( NeuronID i, NeuronID j )
 		<< i
 		<< " j="
 		<< j;
-	logger->msg(oss.str(),DEBUG);
+	logger->msg(oss.str(),VERBOSE);
 	for ( NeuronID a = i ; a < j ; ++a )
 		element_list->push_back( a );
 	outfile << "# Added data range " << i << "-" << j << "." << endl;
@@ -206,7 +213,7 @@ vector<type_pattern> * WeightMonitor::load_patfile( string filename, int maxpat 
 					<< " ( "
 					<< pattern.size()
 					<< " on rank )";
-				logger->msg(oss.str(),DEBUG);
+				logger->msg(oss.str(),VERBOSE);
 
 				patterns->push_back(pattern);
 				pattern.clear();

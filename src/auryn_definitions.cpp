@@ -201,6 +201,24 @@ void auryn_vector_float_sub( auryn_vector_float * a, auryn_vector_float * b)
 #endif
 }
 
+void auryn_vector_float_sub( auryn_vector_float * a, auryn_vector_float * b, auryn_vector_float * r)
+{
+#ifdef CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY
+	float * bd = b->data;
+	for ( NeuronID i = 0 ; i < a->size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )
+	{
+		__m128 chunk_a = sse_load( a->data+i );
+		__m128 chunk_b = sse_load( b->data+i ); 
+		__m128 result = _mm_sub_ps(chunk_a, chunk_b);
+		sse_store( r->data+i, result );
+	}
+#else
+	for ( NeuronID i = 0 ; i < a->size ; ++i ) {
+		r->data[i] = a->data[i] - b->data[i];
+	}
+#endif
+}
+
 void auryn_vector_float_clip( auryn_vector_float * v, const float a, const float b ) {
 #ifdef CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY
 	#ifdef CODE_ACTIVATE_CILK_INSTRUCTIONS
@@ -288,6 +306,7 @@ void auryn_vector_float_set ( auryn_vector_float * v, const NeuronID i, AurynFlo
 }
 
 void auryn_vector_float_copy ( auryn_vector_float * src, auryn_vector_float * dst ) {
+	// TODO make this a fast memcpy
 	for ( NeuronID i = 0 ; i < dst->size ; ++i ) 
 		dst->data[i] = src->data[i];
 }

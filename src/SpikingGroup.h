@@ -96,6 +96,11 @@ protected:
 	/*! Posttraces */
 	vector<DEFAULT_TRACE_MODEL *> posttraces;
 
+	/*! Post state traces */
+	vector<EulerTrace *> post_state_traces;
+	vector<AurynFloat> post_state_traces_spike_biases;
+	vector<string> post_state_traces_state_names;
+
 	/*! Identifying name for object */
 	string group_name;
 
@@ -110,6 +115,7 @@ protected:
 	/*! Stores the length of output delay */
 	static AurynTime * clock_ptr;
 
+
 	/* Functions related to loading and storing the state from files */
 	virtual void load_input_line(NeuronID i, const char * buf);
 	virtual string get_output_line(NeuronID i);
@@ -123,10 +129,15 @@ public:
 	/*! Can hold single neuron vectors such as target rates or STP states etc  */
 	map<string,auryn_vector_float *> state_vectors;
 
-	/*! Returns existing state vector by name */
+	/*! \brief Returns existing state vector by name. 
+	 *
+	 * If the state_vector does not exist the function returns NULL. */
 	auryn_vector_float * find_state_vector(string key);
 
-	/*! Creates a new or returns an existing state vector */
+	/*! \brief Adds a state vector passed as an argument to the dictinary. */
+	void add_state_vector( string key, auryn_vector_float * state_vector );
+
+	/*! \brief Creates a new or returns an existing state vector by name. */
 	auryn_vector_float * get_state_vector(string key);
 
 	/*! Randomizes the content of a state vector with Gaussian random numbers. Seeding is MPI save. */
@@ -136,6 +147,9 @@ public:
 	SpikingGroup(NeuronID size, double loadmultiplier = 1., NeuronID total = 0 );
 	/*! Default destructor */
 	virtual ~SpikingGroup();
+
+	/*! Evolves traces */
+	virtual void evolve_traces();
 
 	/*! Give a name */
 	void set_name(string s);
@@ -174,8 +188,6 @@ public:
 	/*! Returns true if this group is hosted at a single CPU. */
 	bool evolve_locally();
 
-	/*! Evolves traces */
-	void evolve_traces();
 
 	/*! Get the unique ID of the class */
 	NeuronID get_uid();
@@ -196,6 +208,19 @@ public:
 
 	/*! Clear all spikes stored in the delays which is useful to reset a network during runtime */
 	void clear_spikes();
+
+
+	/*! \brief Returns a post trace of a neuronal state variable e.g. the membrane 
+	 * potential with time constant tau. 
+	 *
+	 * This trace is an cotinuously integrated EulerTrace which uses the follow 
+	 * function on the mem state vector. 
+	 * @param tau The time constant of the trace.
+	 * @param b The optional parameter b allows to specify a spike triggered contribution
+	 * which will be added instantaneously to the trace upon each 
+	 * postsynaptic spike.
+	 * */
+	EulerTrace * get_post_state_trace( AurynFloat tau, string state_name="mem", AurynFloat b=0.0 );
 
 	/*! Sets axonal delay for this SpikingGroup */
 	void set_delay( int d );

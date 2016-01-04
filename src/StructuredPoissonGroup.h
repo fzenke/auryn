@@ -50,21 +50,20 @@ class StructuredPoissonGroup : public PoissonGroup
 private:
 	static boost::mt19937 interval_gen;
 
-	boost::exponential_distribution<> * dist;
-	boost::variate_generator<boost::mt19937&, boost::exponential_distribution<> > * die;
-
 	NeuronID no_of_stimuli;
-	AurynFloat stimulus_duration;
-	AurynFloat mean_isi;
+	AurynTime stimulus_duration;
+	AurynTime mean_isi;
 	ofstream tiserfile;
 
 	AurynTime next_event;
 	bool stimulus_active;
 	int current_stimulus;
 
+
 	void init ( AurynFloat duration, AurynFloat mean_interval, NeuronID no , string outputfile );
 	
 public:
+	int seedoffset;
 	StructuredPoissonGroup(NeuronID n, AurynFloat duration, AurynFloat interval, NeuronID stimuli = 1,  AurynDouble rate=5. ,
 			string tiserfile = "stimulus.dat" );
 	virtual ~StructuredPoissonGroup();

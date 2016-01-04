@@ -27,7 +27,6 @@
 #define SPIKEDELAY_H_
 
 #include "auryn_definitions.h"
-// #include "SpikeContainer.h"
 #include <vector>
 
 #include <boost/serialization/utility.hpp>
@@ -75,31 +74,57 @@ class SpikeDelay
 	public:
 
 
+		/*! \brief The default constructor. */
 		SpikeDelay( int delaysteps = MINDELAY+1 );
+
+		/*! \brief The default destructor. */
 		virtual ~SpikeDelay();
 
+		/*! \brief Set delay in number of timesteps. 
+		 *
+		 * This allows to set the size of the delay in timesteps. The delay has to be at least of
+		 * size MINDELAY+1. */
 		void set_delay( int delay);
+
+		/*! \brief Internal function to set clock pointer
+		 *
+		 * Sets internal clock pointer to system wide clock pointer. It is used 
+		 * by the System class */
 		void set_clock_ptr(AurynTime * clock);
 
-		/*! Allows to insert spikes so many time steps ahead with less than max delay. */
+		/*! \brief Allows to insert spikes so many time steps ahead with less than max delay. */
 		void insert_spike(NeuronID i, AurynTime ahead); 
 
-		/*! Allows to use SpikeDelay like a queue. This pushes into get_spikes() */
+		/*! \brief Allows to use SpikeDelay like a queue. 
+		 *
+		 * This pushes into get_spikes_immediate() */
 		void push_back(NeuronID i); 
 
-		/*! Returns the number of attributes per spike. */
+		/*! \brief Returns the number of spike attributes per spike. 
+		 *
+		 * Spike attributes are used to implement short-term plasticity or similar mechanisms efficiently.*/
 		int get_num_attributes();
 
-		/*! Used by SyncBuffer to submit x attributes with spikes in this delay. */
+		/*! \brief Internally used by SyncBuffer to submit x attributes with spikes in this delay. */
 		void inc_num_attributes(int x);
 
+		/*! \brief Returns the spikes at a given delay position.
+		 *
+		 * pos == 1 corresponds to the maximum delay of the SpikeDelay and at 
+		 * least to MINDELAY+1. pos == 2 corresponds to the maximum delay -1,
+		 * and so forth ...*/
 		SpikeContainer * get_spikes(unsigned int pos = 1);
+
+		/*! \brief Returns the spikes stored into the delay within this very same time step. */
 		SpikeContainer * get_spikes_immediate();
 
+		/*! \brief Like get_spikes but returns the spike attributes. */
 		AttributeContainer * get_attributes(unsigned int pos = 1);
+
+		/*! \brief Like get_spikes_immediate but returns the spike attributes. */
 		AttributeContainer * get_attributes_immediate();
 
-		/*! Clears all containers in delay */
+		/*! Clears all containers in delay. */
 		void clear();
 };
 

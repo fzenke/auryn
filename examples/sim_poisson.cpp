@@ -48,6 +48,7 @@ int main(int ac, char* av[])
             ("help", "produce help message")
             ("simtime", po::value<double>(), "simulation time")
             ("kappa", po::value<double>(), "poisson group rate")
+            ("dir", po::value<string>(), "output directory")
             ("size", po::value<int>(), "poisson group size")
             ("seed", po::value<int>(), "random seed")
         ;
@@ -61,11 +62,16 @@ int main(int ac, char* av[])
             return 1;
         }
 
-
         if (vm.count("kappa")) {
             cout << "kappa set to " 
                  << vm["kappa"].as<double>() << ".\n";
 			kappa = vm["kappa"].as<double>();
+        } 
+
+        if (vm.count("dir")) {
+            std::cout << "dir set to " 
+                 << vm["dir"].as<string>() << ".\n";
+			dir = vm["dir"].as<string>();
         } 
 
         if (vm.count("simtime")) {
@@ -99,14 +105,23 @@ int main(int ac, char* av[])
 	mpi::communicator world;
 	communicator = &world;
 
-	sprintf(strbuf, "%s/%s.%d.log", dir.c_str(), file_prefix.c_str(), world.rank());
-	string logfile = strbuf;
-	logger = new Logger(logfile,world.rank(),PROGRESS,EVERYTHING);
+	try
+	{
+		sprintf(strbuf, "%s/%s.%d.log", dir.c_str(), file_prefix.c_str(), world.rank() );
+		string logfile = strbuf;
+		logger = new Logger(logfile,world.rank(),PROGRESS,EVERYTHING);
+	}
+	catch ( AurynOpenFileException excpt )
+	{
+		std::cerr << "Cannot proceed without log file. Exiting all ranks ..." << '\n';
+		env.abort(1);
+	}
 
 	sys = new System(&world);
 	// END Global stuff
 
 	PoissonGroup * poisson = new PoissonGroup(size,kappa);
+	poisson->seed(seed);
 
 	sprintf(strbuf, "%s/%s.%d.ras", dir.c_str(), file_prefix.c_str(), world.rank() );
 	SpikeMonitor * smon_e = new SpikeMonitor( poisson, strbuf, size);

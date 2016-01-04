@@ -40,11 +40,13 @@ void System::init() {
 	stringstream oss;
 	oss.str("");
 	oss << "Auryn version "
-		<< AURYNVERSION;
-
-	if ( AURYNSUBVERSION ) {
-		oss << "."
+		<< AURYNVERSION
+		<< "."
 		<< AURYNSUBVERSION;
+
+	if ( AURYNREVISION ) {
+		oss << "."
+		<< AURYNREVISION;
 	}
 
 	oss << " ( compiled " << __DATE__ << " " << __TIME__ << " )";
@@ -54,12 +56,12 @@ void System::init() {
 	oss << "Current AurynTime good for simulations up to "
 		<< std::numeric_limits<AurynTime>::max()*dt << "s  "
 		<< "( " << std::numeric_limits<AurynTime>::max()*dt/3600 << "h )";
-	logger->msg(oss.str(),DEBUG);
+	logger->msg(oss.str(),VERBOSE);
 
 	oss.str("");
 	oss << "Current NeuronID and sync are good for simulations up to "
 		<< std::numeric_limits<NeuronID>::max()/MINDELAY << " cells.";
-	logger->msg(oss.str(),DEBUG);
+	logger->msg(oss.str(),VERBOSE);
 
 }
 
@@ -84,8 +86,8 @@ System::System(mpi::communicator * communicator)
 
 	if ( mpicom->size() > 0 && (mpicom->size() & (mpicom->size()-1)) ) {
 		oss.str("");
-		oss << "Warning! The number of processes is not a power of two. "
-			<< "This could cause impaired performance or even crashes "
+		oss << "WARNING! The number of processes is not a power of two. "
+			<< "This causes impaired performance or even crashes "
 			<< "in some MPI implementations.";
 		logger->msg(oss.str(),WARNING,true);
 	}
@@ -319,6 +321,7 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 		logger->msg("There are no units assigned to this rank!",WARNING);
 	}
 
+
 	double runtime = (stoptime - get_clock())*dt;
 
 	stringstream oss;
@@ -331,6 +334,7 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 		<< ", effective_load=" << get_total_effective_load()
 		<< ", synapses_total=" << get_total_synapses();
 	logger->msg(oss.str(),SETTINGS);
+
 
 	if (mpicom->rank() == 0) {
 		AurynLong all_ranks_total_neurons;
@@ -363,7 +367,7 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 			progressbar(fraction,get_clock()); // TODO find neat solution for the rate
 		}
 
-		if ( get_clock()%LOGGER_MARK_INTERVAL==0 ) // set a mark 
+		if ( get_clock()%LOGGER_MARK_INTERVAL==0 && get_clock()>0 ) // set a mark 
 		{
 			time_t t_now; 
 			time(&t_now);
@@ -430,7 +434,7 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 		<< elapsed 
 		<< "s with SpeedFactor=" 
 		<< elapsed/runtime
-		<< "(clock=" << get_clock() << ")";
+		<< " (network clock=" << get_clock() << ")";
 	logger->msg(oss.str(),NOTIFICATION);
 
 
@@ -518,8 +522,25 @@ void System::save_network_state(string basename)
 
 	std::ofstream ofs(netstate_filename.c_str());
 	boost::archive::binary_oarchive oa(ofs);
+	
+	/* Translate version values to const values */
+	const int auryn_version = AURYNVERSION;
+	const int auryn_subversion = AURYNSUBVERSION;
+	const int auryn_revision = AURYNREVISION;
 
-	logger->msg("Saving Connections ...",DEBUG);
+	// save simulator version information 
+	oa << auryn_version;
+	oa << auryn_subversion;
+	oa << auryn_revision;
+
+	// save communicator information 
+	int tmp_int = mpicom->size();
+	oa << tmp_int;
+	tmp_int = mpicom->rank();
+	oa << tmp_int;
+
+
+	logger->msg("Saving Connections ...",VERBOSE);
 	for ( unsigned int i = 0 ; i < connections.size() ; ++i ) {
 
 		stringstream oss;
@@ -529,44 +550,47 @@ void System::save_network_state(string basename)
 			<< connections[i]->get_name()
 			<< "\""
 			<< " to stream";
-		logger->msg(oss.str(),DEBUG);
+		logger->msg(oss.str(),VERBOSE);
 
 		oa << *(connections[i]);
 	}
 
-	logger->msg("Saving SpikingGroups",DEBUG);
+	logger->msg("Saving SpikingGroups ...",VERBOSE);
 	for ( unsigned int i = 0 ; i < spiking_groups.size() ; ++i ) {
 
 		stringstream oss;
-		oss << "Saving SpikingGroup ..."
+		oss << "Saving SpikingGroup "
 			<<  i 
+			<< " ("
+			<< spiking_groups[i]->get_name()
+			<< ")"
 			<< " to stream";
-		logger->msg(oss.str(),DEBUG);
+		logger->msg(oss.str(),VERBOSE);
 
 		oa << *(spiking_groups[i]);
 	}
 
 	// Save Monitors
-	logger->msg("Saving Monitors ...",DEBUG);
+	logger->msg("Saving Monitors ...",VERBOSE);
 	for ( unsigned int i = 0 ; i < monitors.size() ; ++i ) {
 
 		stringstream oss;
 		oss << "Saving Monitor "
 			<<  i 
 			<< " to stream";
-		logger->msg(oss.str(),DEBUG);
+		logger->msg(oss.str(),VERBOSE);
 
 		oa << *(monitors[i]);
 	}
 
-	logger->msg("Saving Checkers ...",DEBUG);
+	logger->msg("Saving Checkers ...",VERBOSE);
 	for ( unsigned int i = 0 ; i < checkers.size() ; ++i ) {
 
 		stringstream oss;
 		oss << "Saving Checker "
 			<<  i 
 			<< " to stream";
-		logger->msg(oss.str(),DEBUG);
+		logger->msg(oss.str(),VERBOSE);
 
 		oa << *(checkers[i]);
 	}
@@ -585,7 +609,7 @@ void System::save_network_state_text(string basename)
 		stringstream oss;
 		oss << "Saving connection "
 			<<  filename ;
-		logger->msg(oss.str(),DEBUG);
+		logger->msg(oss.str(),VERBOSE);
 
 		connections[i]->write_to_file(filename);
 	}
@@ -596,7 +620,7 @@ void System::save_network_state_text(string basename)
 		stringstream oss;
 		oss << "Saving group "
 			<<  filename ;
-		logger->msg(oss.str(),DEBUG);
+		logger->msg(oss.str(),VERBOSE);
 
 		spiking_groups[i]->write_to_file(filename);
 	}
@@ -605,6 +629,7 @@ void System::save_network_state_text(string basename)
 void System::load_network_state(string basename)
 {
 	logger->msg("Loading network state", NOTIFICATION);
+
 
 	string netstate_filename;
 	{
@@ -627,49 +652,82 @@ void System::load_network_state(string basename)
 
 	boost::archive::binary_iarchive ia(ifs);
 
-	logger->msg("Loading connections ...",DEBUG);
+
+	// verify simulator version information 
+	bool pass_version = true;
+	int tmp_version;
+	ia >> tmp_version;
+	pass_version = pass_version && AURYNVERSION==tmp_version;
+	ia >> tmp_version;
+	pass_version = pass_version && AURYNSUBVERSION==tmp_version;
+	ia >> tmp_version;
+	pass_version = pass_version && AURYNREVISION==tmp_version;
+
+	if ( !pass_version ) {
+		logger->msg("WARNING: Version check failed! Current Auryn version " 
+				"does not match the version which created the file. "
+				"This could pose a problem. " 
+				"Proceed with caution!" ,WARNING);
+	}
+
+	// verify communicator information 
+	bool pass_comm = true;
+	int tmp_int;
+	ia >> tmp_int;
+	pass_comm = pass_comm && (tmp_int == mpicom->size());
+	ia >> tmp_int;
+	pass_comm = pass_comm && (tmp_int == mpicom->rank());
+
+	if ( !pass_comm ) {
+		logger->msg("ERROR: Communicator size or rank do not match! "
+				"Presumably you are trying to load the network "
+				"state netstate from a simulation which was run "
+				"on a different number of cores." ,ERROR);
+	}  
+
+	logger->msg("Loading connections ...",VERBOSE);
 	for ( unsigned int i = 0 ; i < connections.size() ; ++i ) {
 
 		stringstream oss;
 		oss << "Loading connection "
 			<<  i ;
-		logger->msg(oss.str(),DEBUG);
+		logger->msg(oss.str(),VERBOSE);
 
 		ia >> *(connections[i]);
 		connections[i]->finalize();
 	}
 
-	logger->msg("Loading SpikingGroups ...",DEBUG);
+	logger->msg("Loading SpikingGroups ...",VERBOSE);
 	for ( unsigned int i = 0 ; i < spiking_groups.size() ; ++i ) {
 
 		stringstream oss;
 		oss << "Loading group "
 			<<  i ;
-		logger->msg(oss.str(),DEBUG);
+		logger->msg(oss.str(),VERBOSE);
 
 		ia >> *(spiking_groups[i]);
 	}
 
 	// Loading Monitors states
-	logger->msg("Loading Monitors ...",DEBUG);
+	logger->msg("Loading Monitors ...",VERBOSE);
 	for ( unsigned int i = 0 ; i < monitors.size() ; ++i ) {
 
 		stringstream oss;
 		oss << "Loading Monitor "
 			<<  i;
-		logger->msg(oss.str(),DEBUG);
+		logger->msg(oss.str(),VERBOSE);
 
 		ia >> *(monitors[i]);
 	}
 
 	
-	logger->msg("Loading Checkers ...",DEBUG);
+	logger->msg("Loading Checkers ...",VERBOSE);
 	for ( unsigned int i = 0 ; i < checkers.size() ; ++i ) {
 
 		stringstream oss;
 		oss << "Loading Checker "
 			<<  i;
-		logger->msg(oss.str(),DEBUG);
+		logger->msg(oss.str(),VERBOSE);
 
 		ia >> *(checkers[i]);
 	}
