@@ -128,6 +128,9 @@ namespace auryn {
 		/*! Initialializes the recvs for all the MPI sync */
 		void sync_prepare();
 
+		/*! Return formatted version string. */
+		string get_version_string();
+
 		/*! Sets the SpikingGroup ID used to display the rate estimate in the
 		 * progressbar (this typically is reflected by the order in
 		 * which you define the SpikingGroup and NeuronGroup classes. It starts

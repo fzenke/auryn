@@ -43,16 +43,8 @@ void System::init() {
 	syncbuffer = new SyncBuffer(mpicom);
 
 	std::stringstream oss;
-	oss.str("");
 	oss << "Auryn version "
-		<< AURYNVERSION
-		<< "."
-		<< AURYNSUBVERSION;
-
-	if ( AURYNREVISION ) {
-		oss << "."
-		<< AURYNREVISION;
-	}
+		<< get_version_string();
 
 	oss << " ( compiled " << __DATE__ << " " << __TIME__ << " )";
 	auryn::logger->msg(oss.str(),NOTIFICATION);
@@ -70,6 +62,25 @@ void System::init() {
 
 }
 
+string System::get_version_string()
+{
+	std::stringstream oss;
+	oss << AURYNVERSION
+		<< "."
+		<< AURYNSUBVERSION;
+
+	if ( AURYNREVISION ) {
+		oss << "."
+		<< AURYNREVISION;
+	}
+
+#ifdef AURYNVERSIONSUFFIX
+	oss << AURYNVERSIONSUFFIX;
+#endif
+
+	return oss.str();
+}
+
 System::System()
 {
 	init();
@@ -84,8 +95,8 @@ System::System(mpi::communicator * communicator)
 
 	if ( mpicom->size() > 0 ) {
 		oss << "MPI run rank "
-			<<  mpicom->rank() << " of "
-			<<  mpicom->size() << ".";
+			<<  mpicom->rank() << " out of "
+			<<  mpicom->size() << " ranks total.";
 		auryn::logger->msg(oss.str(),NOTIFICATION);
 	}
 
