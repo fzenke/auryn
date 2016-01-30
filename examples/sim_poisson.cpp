@@ -109,7 +109,7 @@ int main(int ac, char* av[])
 	{
 		sprintf(strbuf, "%s/%s.%d.log", dir.c_str(), file_prefix.c_str(), world.rank() );
 		string logfile = strbuf;
-		logger = new Logger(logfile,world.rank(),PROGRESS,EVERYTHING);
+		logger = new Logger(logfile,world.rank(),PROGRESS);
 	}
 	catch ( AurynOpenFileException excpt )
 	{
