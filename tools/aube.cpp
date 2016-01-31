@@ -77,7 +77,7 @@ void read_header( std::ifstream * input, double& dt, double& last_time, std::str
 	}
 
 	if ( tag != tag_binary_spike_monitor ) {
-		std::cerr << "# Either the Auryn version does not match "
+		std::cerr << "# Warning: Either the Auryn version does not match "
 			"the version of this tool or this is not a spike "
 			"raster file." << std::endl; 
 		// TODO tell user if it is a state file
