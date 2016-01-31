@@ -196,7 +196,7 @@ void SyncBuffer::sync()
 	deltaT += (T2-T1);
 #endif
 
-	/* Detect over flow */
+	/* Detect overflow */
 	bool overflow = false;
 	NeuronID new_send_size = 0;
 	for (int r = 0 ; r < mpicom->size() ; ++r ) {
