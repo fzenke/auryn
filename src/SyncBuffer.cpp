@@ -89,12 +89,12 @@ void SyncBuffer::push(SpikeDelay * delay, NeuronID size)
 			for ( NeuronID k = 0 ; k < delay->get_num_attributes() ; ++k ) { // loop over attributes
 				for ( NeuronID s = 0 ; s < count[i-1] ; ++s ) { // loop over spikes
 					send_buf.push_back(*(NeuronID*)(&(ac->at(s+count[i-1]*k))));
-#ifdef DEBUG
-					if ( mpicom->rank() == 0 )
-						std::cout << " pushing attr " 
-							<< i << " " << k << " " << s << " " 
-							<< ac->at(s+count[i-1]*k) << std::endl;
-#endif // DEBUG
+// #ifdef DEBUG
+// 					if ( mpicom->rank() == 0 )
+// 						std::cout << " pushing attr " 
+// 							<< i << " " << k << " " << s << " " 
+// 							<< ac->at(s+count[i-1]*k) << std::endl;
+// #endif // DEBUG
 				}
 			}
 		}
@@ -144,13 +144,13 @@ void SyncBuffer::pop(SpikeDelay * delay, NeuronID size)
 						attrib = (AurynFloat*)(iter);
 						iter++;
 						ac->push_back(*attrib);
-#ifdef DEBUG
-						if ( mpicom->rank() == 0 )
-							std::cout << " reading attr " 
-								<< " " << slice << " "  
-								<< k << " " << s << std::setprecision(5)
-								<< " "  << *attrib << std::endl;
-#endif // DEBUG
+// #ifdef DEBUG
+// 						if ( mpicom->rank() == 0 )
+// 							std::cout << " reading attr " 
+// 								<< " " << slice << " "  
+// 								<< k << " " << s << std::setprecision(5)
+// 								<< " "  << *attrib << std::endl;
+// #endif // DEBUG
 					}
 				}
 			}
@@ -162,6 +162,17 @@ void SyncBuffer::pop(SpikeDelay * delay, NeuronID size)
 
 	groupPopOffset += size*MINDELAY;
 
+#ifdef DEBUG
+	if ( mpicom->rank() == 0 ) {
+		for ( NeuronID slice = 0 ; slice < MINDELAY ; ++slice ) {
+			if ( delay->get_attributes(slice+1)->size() != delay->get_num_attributes()*delay->get_spikes(slice+1)->size() ) {
+				std::cout << "   " << delay->get_spikes(slice+1)->size() << " spikes extracted in time slice " << slice+1 << std::endl
+					<< "   " << delay->get_attributes(slice+1)->size() << " attributes extracted in time slice " << slice+1
+					<< std::endl;
+			}
+		}
+	}
+#endif // DEBUG
 }
 
 
@@ -175,6 +186,11 @@ void SyncBuffer::sync()
 		if ( max_send_size > upper_estimate && max_send_size > 2 ) { 
 			max_send_size = (max_send_size+upper_estimate)/2;
 			recv_buf.resize(mpicom->size()*max_send_size);
+#ifdef DEBUG
+			std::cerr << "Reducing maximum send buffer size to "
+				<< max_send_size
+				<< std::endl;
+#endif //DEBUG
 		}	
 		maxSendSum = 0;
 		maxSendSum2 = 0;
@@ -259,6 +275,11 @@ void SyncBuffer::reset_send_buffer()
 	send_buf.push_back(0); // initial size first entry
 	groupPushOffset1 = 0;
 	groupPopOffset = 0;
+}
+
+int SyncBuffer::get_max_send_buffer_size()
+{
+	return max_send_size;
 }
 
 #ifdef CODE_COLLECT_SYNC_TIMING_STATS

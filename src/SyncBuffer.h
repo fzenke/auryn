@@ -26,6 +26,8 @@
 #ifndef SYNCBUFFER_H_
 #define SYNCBUFFER_H_
 
+#define DEBUG
+
 #define SYNCBUFFER_SIZE_MARGIN_MULTIPLIER 3 //!< Safety margin for receive buffer size -- a value of 3 should make overflows rare in AI state
 #define SYNCBUFFER_SIZE_HIST_LEN 512 //!< Accumulate history over this number of timesteps before updating the sendbuffer size in the absence of overflows
 
@@ -65,6 +67,8 @@ namespace auryn {
 			NeuronID groupPushOffset1;
 			NeuronID groupPopOffset;
 
+			NeuronID current_array_pos;
+
 			NeuronID count[MINDELAY]; // needed to decode attributes
 
 			/*! vector with offset values to allow to pop more than one delay */
@@ -83,6 +87,9 @@ namespace auryn {
 
 			void push(SpikeDelay * delay, NeuronID size);
 			void pop(SpikeDelay * delay, NeuronID size);
+
+			/*! Return max_send_size value which determines the size of the MPI AllGather operation. */
+			int get_max_send_buffer_size();	
 
 #ifdef CODE_COLLECT_SYNC_TIMING_STATS
 			AurynDouble deltaT;
