@@ -768,6 +768,10 @@ NeuronID SpikingGroup::get_vector_size()
 
 void SpikingGroup::inc_num_spike_attributes(int x)
 {
+	std::stringstream oss;
+	oss << get_name() << ":: Registering " << x << " spike attributes." ;
+	auryn::logger->msg(oss.str(),VERBOSE);
+
 	delay->inc_num_attributes(x);
 }
 

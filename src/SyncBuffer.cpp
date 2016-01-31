@@ -179,7 +179,7 @@ void SyncBuffer::pop(SpikeDelay * delay, NeuronID size)
 void SyncBuffer::sync() 
 {
 	if ( syncCount >= SYNCBUFFER_SIZE_HIST_LEN ) {  // update the estimate of maximum send size
-		NeuronID mean_send_size =  maxSendSum/syncCount; // allow for 5 times the max mean
+		NeuronID mean_send_size =  maxSendSum/syncCount; 
 		NeuronID var_send_size  =  (maxSendSum2-mean_send_size*mean_send_size)/syncCount;
 		NeuronID upper_estimate =  mean_send_size+SYNCBUFFER_SIZE_MARGIN_MULTIPLIER*sqrt(var_send_size);
 
