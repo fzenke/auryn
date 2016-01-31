@@ -161,7 +161,13 @@ public:
 	/*! Retrieves the groups name */
 	std::string get_name();
 
-	void set_num_spike_attributes(int x);
+	/*! \brief Instructs SpikingGroup to increase the number of spike attributes by x.
+	 *
+	 * The reason we only increment the size is that multiple Connection objects such as
+	 * STPConnection might want to add an attribute to a spike. These might be different
+	 * to allow synaptic type dependent plasticity and hence will all have to be transmitted 
+	 * without knowledge about the other synapses which might want to submit a different value.*/
+	void inc_num_spike_attributes(int x);
 	int get_num_spike_attributes();
 
 	/*! Frees potentially allocated memory */

@@ -757,7 +757,7 @@ NeuronID SpikingGroup::get_vector_size()
 	return calculate_vector_size(get_rank_size());
 }
 
-void SpikingGroup::set_num_spike_attributes(int x)
+void SpikingGroup::inc_num_spike_attributes(int x)
 {
 	delay->inc_num_attributes(x);
 }

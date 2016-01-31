@@ -83,6 +83,15 @@ protected:
 	TransmitterType trans;
 	AurynFloat * target;
 
+	/*! \brief Number of spike attributes to expect with each spike transmitted through this connection.
+	 *
+	 * Should only be set through methods called during init.
+	 */
+	NeuronID number_of_spike_attributes;
+
+	/*! \brief 	Stores spike attribute offset in attribute array */
+	NeuronID spike_attribute_offset;
+
 	void init(TransmitterType transmitter=GLUT);
 
 public:
@@ -199,6 +208,31 @@ public:
 	/*! Returns a vector of ConnectionsID of a block specified by the arguments. */
 	virtual std::vector<neuron_pair>  get_block(NeuronID lo_row, NeuronID lo_col, NeuronID hi_row,  NeuronID hi_col) = 0;
 
+	
+	/*! \brief Supplies pointer to SpikeContainer of all presynaptic spikes.
+	 *
+	 * This includes spikes from this group from all other nodes. 
+	 * This also means that these spikes have gone through the axonal dealy.
+	 * Equivalent to calling src->get_spikes(). */
+	SpikeContainer * get_pre_spikes();
+
+	/*! \brief Returns pointer to SpikeContainer for postsynaptic spikes on this node. 
+	 *
+	 * This corresponds to calling get_spikes_immediate() from the SpikingGroup. 
+	 * These spikes have been generated postsynaptically in the same timestep and have not 
+	 * been delayed yet. 
+	 * Equivalent to calling dst->get_spikes_immediate(). */
+	SpikeContainer * get_post_spikes();
+
+	/*! \brief Set up spike delay to accomodate x additional spike attributes.
+	 *
+	 * Spike attribute numbers can only be increased. 
+	 * This function can only be run during initialization.
+	 */
+	void add_number_of_spike_attributes(int x);
+
+	/*! \brief Returns spike attribute belonging to the spike at position i in the get_spikes() SpikeContainer. */
+	AurynFloat get_spike_attribute(const NeuronID i, const int attribute_id=0);
 };
 
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(Connection)

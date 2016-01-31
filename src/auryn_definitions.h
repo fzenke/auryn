@@ -379,6 +379,15 @@ namespace auryn {
 							To debug set logger vebosity to VERBOSE or EVERYTHING and analyze the log files.";
 				}
 	};
+
+	class AurynSpikeAttributeSizeException: public std::exception
+	{
+		  virtual const char* what() const throw()
+				{
+						return "The number of spike attributes can only be increased.";
+				}
+	};
+
 } // namespace
 
 #endif /*AURYN_DEFINITIONS_H__*/

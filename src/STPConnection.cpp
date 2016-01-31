@@ -49,7 +49,7 @@ void STPConnection::init()
 	// registering the right amount of spike attributes
 	// this line is very important finding bugs due to 
 	// this being wrong or missing is hard 
-	src->set_num_spike_attributes(1);
+	add_number_of_spike_attributes(1);
 
 }
 
@@ -121,7 +121,8 @@ void STPConnection::push_attributes()
 		auryn_vector_float_set( state_x, spk, x-u*x );
 		auryn_vector_float_set( state_u, spk, u+Ujump*(1-u) );
 
-		// TODO spike translation or introduce local_spikes function in SpikingGroup and implement this there ... (better option)
+		// TODO spike translation or introduce local_spikes 
+		// function in SpikingGroup and implement this there ... (better option)
 		src->push_attribute( x*u ); 
 	}
 }
@@ -150,19 +151,23 @@ void STPConnection::propagate()
 	}
 
 	if ( dst->evolve_locally() ) { // necessary 
+		NeuronID * ind = w->get_row_begin(0); // first element of index array
+		AurynWeight * data = w->get_data_begin(); // first element of data array
 
-		if (src->get_spikes()->size()>0) {
-			NeuronID * ind = w->get_row_begin(0); // first element of index array
-			AurynWeight * data = w->get_data_begin();
-			AttributeContainer::const_iterator attr = src->get_attributes()->begin();
-			SpikeContainer::const_iterator spikes_end = src->get_spikes()->end();
-			for (SpikeContainer::const_iterator spike = src->get_spikes()->begin() ;
-					spike != spikes_end ; ++spike ) {
-				for (NeuronID * c = w->get_row_begin(*spike) ; c != w->get_row_end(*spike) ; ++c ) {
-					AurynWeight value = data[c-ind] * *attr; 
-					transmit( *c , value );
-				}
-				++attr;
+		// loop over spikes
+		for (int i = 0 ; i < src->get_spikes()->size() ; ++i ) {
+			// get spike at pos i in SpikeContainer
+			NeuronID spike = src->get_spikes()->at(i);
+
+			// extract spike attribute from attribute stack;
+			AurynFloat attribute = get_spike_attribute(i);
+
+			// loop over postsynaptic targets
+			for (NeuronID * c = w->get_row_begin(spike) ; 
+					c != w->get_row_end(spike) ; 
+					++c ) {
+				AurynWeight value = data[c-ind] * attribute; 
+				transmit( *c , value );
 			}
 		}
 	}
