@@ -46,7 +46,7 @@ void STPConnection::init()
 
 	}
 
-	// registering the right amount of spike attributes
+	// Registering the right amount of spike attributes
 	// this line is very important finding bugs due to 
 	// this being wrong or missing is hard 
 	add_number_of_spike_attributes(1);
@@ -57,8 +57,7 @@ void STPConnection::init()
 STPConnection::STPConnection(const char * filename) 
 : SparseConnection(filename)
 {
-	if ( dst->get_post_size() > 0 ) 
-		init();
+	init();
 }
 
 STPConnection::STPConnection(SpikingGroup * source, NeuronGroup * destination, 
@@ -72,8 +71,7 @@ STPConnection::STPConnection(SpikingGroup * source, NeuronGroup * destination,
 		TransmitterType transmitter) 
 : SparseConnection(source, destination, filename, transmitter)
 {
-	if ( dst->get_post_size() > 0 ) 
-		init();
+	init();
 }
 
 
@@ -88,8 +86,7 @@ STPConnection::STPConnection( SpikingGroup * source, NeuronGroup * destination,
 		TransmitterType transmitter, std::string name) 
 : SparseConnection(source,destination,weight,sparseness,transmitter, name)
 {
-	if ( dst->get_post_size() > 0 ) 
-		init();
+	init();
 }
 
 void STPConnection::free()
@@ -105,12 +102,12 @@ void STPConnection::free()
 
 STPConnection::~STPConnection()
 {
-	if ( dst->get_post_size() > 0 ) 
-		free();
+	free();
 }
 
 void STPConnection::push_attributes()
 {
+	// need to push one attribute for each spike
 	SpikeContainer * spikes = src->get_spikes_immediate();
 	for (SpikeContainer::const_iterator spike = spikes->begin() ;
 			spike != spikes->end() ; ++spike ) {
@@ -124,24 +121,33 @@ void STPConnection::push_attributes()
 		// TODO spike translation or introduce local_spikes 
 		// function in SpikingGroup and implement this there ... (better option)
 		src->push_attribute( x*u ); 
+
 	}
+
+	// If we had two spike attributes in this connection we push 
+	// the second attribute for each spike here:
+	//
+	// SpikeContainer * spikes = src->get_spikes_immediate();
+	// for (SpikeContainer::const_iterator spike = spikes->begin() ;
+	// 		spike != spikes->end() ; ++spike ) {
+	// 	AurynFloat other_attribute = foo+bar;
+	// 	src->push_attribute( other_attribute ); 
+	// }
 }
 
 void STPConnection::evolve()
 {
-	// dynamics of x
-	auryn_vector_float_set_all( state_temp, 1);
-	auryn_vector_float_saxpy(-1,state_x,state_temp);
-	auryn_vector_float_saxpy(dt/tau_d,state_temp,state_x);
+	if ( src->evolve_locally() ) {
+		// dynamics of x
+		auryn_vector_float_set_all( state_temp, 1);
+		auryn_vector_float_saxpy(-1,state_x,state_temp);
+		auryn_vector_float_saxpy(dt/tau_d,state_temp,state_x);
 
-	// dynamics of u
-	auryn_vector_float_set_all( state_temp, Ujump);
-	auryn_vector_float_saxpy(-1,state_u,state_temp);
-	auryn_vector_float_saxpy(dt/tau_f,state_temp,state_u);
-
-	// double x = auryn_vector_float_get( state_x, 0 );
-	// double u = auryn_vector_float_get( state_u, 0 );
-	// std::cout << setprecision(5) << x << " " << u << " " << x*u << std::endl;
+		// dynamics of u
+		auryn_vector_float_set_all( state_temp, Ujump);
+		auryn_vector_float_saxpy(-1,state_u,state_temp);
+		auryn_vector_float_saxpy(dt/tau_f,state_temp,state_u);
+	}
 }
 
 void STPConnection::propagate()
