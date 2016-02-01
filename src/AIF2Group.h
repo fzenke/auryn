@@ -33,6 +33,8 @@
 
 namespace auryn {
 
+/*! \brief An adaptive integrate and fire group comparable to AIFGroup but with two independent adaptation timescales
+ */
 class AIF2Group : public AIFGroup
 {
 private:
