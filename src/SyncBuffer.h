@@ -65,8 +65,6 @@ namespace auryn {
 			NeuronID groupPushOffset1;
 			NeuronID groupPopOffset;
 
-			NeuronID current_array_pos;
-
 			NeuronID count[MINDELAY]; // needed to decode attributes
 
 			/*! vector with offset values to allow to pop more than one delay */
