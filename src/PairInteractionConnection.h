@@ -30,6 +30,8 @@
 namespace auryn {
 
 
+/*! \brief STDP Connection class to simulate arbitrary nearest-neighbor STDP windows.
+ */
 class PairInteractionConnection : public DuplexConnection
 {
 
