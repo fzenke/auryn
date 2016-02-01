@@ -38,12 +38,16 @@
 
 namespace auryn {
 
-/*! \brief A special Poisson generator that can hide a fixed number of spatio-temporal patterns in the spike data
+/*! \brief A special Poisson generator that can hide a fixed number of
+ * spatio-temporal patterns in the spike data
  *
- * This class achieves inserting a fixed number of spatio temporal patterns that are injected at intervals that vary stochastically.
- * In detail this means, aftern an interval drawn from an exponential distribution the PoissonGroup is seeded to a fixed value from a
- * set determinded by the no_of_stimuli variable. The PoissonGroup is then left running for a time determined by stimulus_duration 
- * and then reseeded pseudo randomly from get_clock() - therefore a seed cannot repeat due to causality.
+ * This class achieves inserting a fixed number of spatio temporal patterns
+ * that are injected at intervals that vary stochastically.  In detail this
+ * means, aftern an interval drawn from an exponential distribution the
+ * PoissonGroup is seeded to a fixed value from a set determinded by the
+ * no_of_stimuli variable. The PoissonGroup is then left running for a time
+ * determined by stimulus_duration and then reseeded pseudo randomly from
+ * get_clock() - therefore a seed cannot repeat due to causality.
  */
 class StructuredPoissonGroup : public PoissonGroup
 {

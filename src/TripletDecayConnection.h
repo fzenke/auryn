@@ -35,6 +35,12 @@
 namespace auryn {
 
 
+/*! \brief Implements triplet STDP with an exponential weight decay
+ *
+ * This is one of the Connection objects used for most simulations in Zenke et
+ * al. 2013 to simulate large plastic recurrent networks with homeostatic
+ * triplet STDP.
+ */
 class TripletDecayConnection : public TripletConnection
 {
 
