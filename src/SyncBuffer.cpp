@@ -35,10 +35,6 @@ SyncBuffer::SyncBuffer( mpi::communicator * com )
 
 void SyncBuffer::init()
 {
-	// for ( NeuronID i = 0 ; i < SYNCBUFFER_SIZE_HIST_LEN ; ++i )
-	// 	size_history[i] = 0;
-	// size_history_ptr = 0;
-	
 
 	for ( NeuronID i = 0 ; i < mpicom->size() ; ++i )
 		pop_offsets.push_back(1);
@@ -94,7 +90,7 @@ void SyncBuffer::push(SpikeDelay * delay, NeuronID size)
 					send_buf.push_back(*(NeuronID*)(&(ac->at(s+count[i-1]*k))));
 					// if ( mpicom->rank() == 0 )
 					// 	std::cout << " pushing attr " << " " << i << " " << k << " " << s << " " 
-					// 		<< std::ifstream << ac->at(s+count[i-1]*k) << std::endl;
+					// 		<< std::setprecision(5) << ac->at(s+count[i-1]*k) << std::endl;
 				}
 			}
 		}
@@ -107,7 +103,7 @@ void SyncBuffer::pop(SpikeDelay * delay, NeuronID size)
 {
 	for (NeuronID i = 1 ; i < MINDELAY+1 ; ++i ) {
 		delay->get_spikes(i)->clear();
-		delay->get_spikes(i)->clear();
+		delay->get_attributes(i)->clear();
 	}
 
 
