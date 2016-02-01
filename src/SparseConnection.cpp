@@ -119,8 +119,7 @@ SparseConnection::~SparseConnection()
 
 void SparseConnection::init() 
 {
-	if ( dst->evolve_locally() == true )
-		auryn::sys->register_connection(this);
+	auryn::sys->register_connection(this);
 	has_been_allocated = false;
 	if ( src == dst ) {
 		skip_diagonal = true; 
@@ -156,7 +155,7 @@ void SparseConnection::seed(NeuronID randomseed)
 
 AurynLong SparseConnection::estimate_required_nonzero_entires( AurynLong nonzero, double sigma )
 {
-	return nonzero + sigma*sqrt(nonzero) ;
+	return std::min( (NeuronID)(nonzero + sigma*sqrt(nonzero)), get_m_rows()*get_n_cols()) ;
 }
 
 void SparseConnection::free()
