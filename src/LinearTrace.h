@@ -30,6 +30,13 @@
 
 namespace auryn {
 
+
+/*! \brief Exponential synaptic trace which exactly solves in an event-based manner.
+ *
+ * Since this trace is normally slower than brut-force computing all traces
+ * with forward Euler, it is disabled by default.
+ */
+
 class LinearTrace
 {
 private:

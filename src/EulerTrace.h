@@ -28,11 +28,17 @@
 
 #include "auryn_definitions.h"
 
-/*! \brief Solves a set of identical linear differential equations with the Euler method. It is used to implement synaptic traces in most STDP models.
- *
- * This solver simultaneoulsy computes linear traces (mostly to implement synapses) using Euler's method. Another solver is readily available within the Auryn framework. The LinearTrace objects solves the same problem but using the analytic solution. This results in less updates. However - so far it turned out to be inferior in performance to the EulerTrace. 
- */
 namespace auryn {
+
+/*! \brief Solves a set of identical linear differential equations with the
+ * Euler method. It is used to implement synaptic traces in most STDP models.
+ *
+ * This solver simultaneoulsy computes linear traces (mostly to implement
+ * synapses) using Euler's method. Another solver is readily available within
+ * the Auryn framework. The LinearTrace objects solves the same problem but
+ * using the analytic solution. This results in less updates. However - so far
+ * it turned out to be inferior in performance to the EulerTrace. 
+ */
 class EulerTrace
 {
 private:
