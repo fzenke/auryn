@@ -366,7 +366,7 @@ DEFAULT_TRACE_MODEL * SpikingGroup::get_post_trace( AurynFloat x )
 	return tmp;
 }
 
-EulerTrace * SpikingGroup::get_post_state_trace( AurynFloat tau, std::string state_name, AurynFloat b ) 
+EulerTrace * SpikingGroup::get_post_state_trace( std::string state_name, AurynFloat tau, AurynFloat b ) 
 {
 	// first let's check if a state with that name exists
 	if ( find_state_vector( state_name ) == NULL ) {
