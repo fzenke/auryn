@@ -40,14 +40,17 @@ namespace auryn {
 
 /*! \brief A special PoissonGroup that generates jumping Gaussian bumps in the firing rate profile
  *
+ * This type of stimulation can be used as a standart sanity test for plastic Connection classes to 
+ * see whether or not they develop selectivity through some sort of competitive mechanism.
+ *
  */
 class MovingBumpGroup : public ProfilePoissonGroup
 {
 private:
 	static boost::mt19937 order_gen;
 
+	/*! Stimulus duration after which the bump switches to a new random location. */
 	AurynTime stimulus_duration;
-	AurynTime mean_isi;
 
 	/*! Width of the Gaussian in number of neurons */
 	NeuronID profile_width;
@@ -55,6 +58,7 @@ private:
 	/*! Floor firing rate relative to max */
 	AurynFloat floor_;
 
+	/*! File stream handle for output file of stimulation time series */
 	std::ofstream tiserfile;
 
 	AurynTime next_event;
@@ -88,6 +92,12 @@ public:
 	 * Width is given in relative units of neurons and characterizes the stdev of the Gaussian dist
 	 */
 	void set_width(NeuronID width);
+
+	/*! \brief Sets stimulus duration
+	 *
+	 * duration is given in units of s
+	 */
+	void set_duration(AurynFloat duration);
 
 	virtual ~MovingBumpGroup();
 	virtual void evolve();

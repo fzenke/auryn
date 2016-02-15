@@ -87,6 +87,11 @@ void MovingBumpGroup::set_width( NeuronID width )
 	profile_width = width;
 }
 
+void MovingBumpGroup::set_duration( AurynFloat duration ) 
+{
+	stimulus_duration = duration;
+}
+
 void MovingBumpGroup::evolve()
 {
 	if ( auryn::sys->get_clock() >= next_event ) {
