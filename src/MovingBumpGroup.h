@@ -53,7 +53,7 @@ private:
 	NeuronID profile_width;
 
 	/*! Floor firing rate relative to max */
-	AurynFloat floor;
+	AurynFloat floor_;
 
 	std::ofstream tiserfile;
 
@@ -76,6 +76,18 @@ public:
 			NeuronID width, 
 			AurynDouble rate=5.0,
 			string tiserfile = "stimulus.dat" );
+
+	/*! \brief Sets firing rate floor 
+	 *
+	 * Floor is given in relative units with respect to the maximum amplitude in the Gaussian
+	 */
+	void set_floor(AurynFloat floor);
+
+	/*! \brief Sets width of Gaussian rate profile 
+	 *
+	 * Width is given in relative units of neurons and characterizes the stdev of the Gaussian dist
+	 */
+	void set_width(NeuronID width);
 
 	virtual ~MovingBumpGroup();
 	virtual void evolve();
