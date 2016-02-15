@@ -31,7 +31,7 @@ boost::mt19937 MovingBumpGroup::order_gen = boost::mt19937();
 
 void MovingBumpGroup::init ( AurynFloat duration, NeuronID width, std::string outputfile )
 {
-	width = 100; // TODO
+	profile_width = 100; // TODO
 	floor = 0.1; // TODO
 
 	stimulus_duration = duration/dt;
@@ -42,7 +42,7 @@ void MovingBumpGroup::init ( AurynFloat duration, NeuronID width, std::string ou
 	oss << "MovingBumpGroup:: Set up with stimulus_duration=" 
 		<< stimulus_duration 
 		<< " and width=" 
-		<< width;
+		<< profile_width;
 	auryn::logger->msg(oss.str(),NOTIFICATION);
 
 	if ( !outputfile.empty()  ) {
@@ -89,7 +89,7 @@ void MovingBumpGroup::evolve()
 
 		tiserfile << auryn::sys->get_time() << " " << mean << std::endl;
 
-		set_gaussian_profile(mean, width, floor);
+		set_gaussian_profile(mean, profile_width, floor);
 	}
 	ProfilePoissonGroup::evolve();
 }

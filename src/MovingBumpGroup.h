@@ -50,7 +50,7 @@ private:
 	AurynTime mean_isi;
 
 	/*! Width of the Gaussian in number of neurons */
-	NeuronID width;
+	NeuronID profile_width;
 
 	/*! Floor firing rate relative to max */
 	AurynFloat floor;

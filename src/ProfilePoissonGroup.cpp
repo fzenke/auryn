@@ -146,7 +146,7 @@ void ProfilePoissonGroup::set_gaussian_profile(AurynDouble  mean, AurynDouble si
 		<< sigma
 		<< " and floor="
 		<< floor;
-	auryn::logger->msg(oss.str(),DEBUG);
+	auryn::logger->msg(oss.str(),VERBOSE);
 }
 
 AurynDouble  ProfilePoissonGroup::get_rate()
