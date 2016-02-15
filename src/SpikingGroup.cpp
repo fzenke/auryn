@@ -152,6 +152,12 @@ void SpikingGroup::lock_range( double rank_fraction )
 
 void SpikingGroup::free()
 {
+	std::stringstream oss;
+	oss << "SpikingGroup:: " << 
+		get_name()
+		<< " freeing ...";
+	auryn::logger->msg(oss.str(),VERBOSE);
+
 	auryn::logger->msg("SpikingGroup:: Deleting delay",VERBOSE);
 	delete delay;
 
