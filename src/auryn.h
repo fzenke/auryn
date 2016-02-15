@@ -76,6 +76,7 @@
 #include "ProfilePoissonGroup.h"
 #include "StructuredPoissonGroup.h"
 #include "CorrelatedPoissonGroup.h"
+#include "MovingBumpGroup.h"
 #include "FileModulatedPoissonGroup.h"
 #include "AuditoryBeepGroup.h"
 #include "StimulusGroup.h"
