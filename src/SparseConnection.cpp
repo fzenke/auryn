@@ -224,6 +224,27 @@ void SparseConnection::random_data(AurynWeight mean, AurynWeight sigma)
 	}
 }
 
+void SparseConnection::init_random_binary(AurynFloat prob, AurynWeight wlo, AurynWeight whi) 
+{
+	std::stringstream oss;
+	oss << "SparseConnection: (" << get_name() << "): randomizing non-zero connections (gaussian) with binary weights between " 
+		<< wlo << " and " << whi ;
+	auryn::logger->msg(oss.str(),NOTIFICATION);
+
+	boost::uniform_real<> dist(0.0, 1.0);
+	boost::variate_generator<boost::mt19937&, boost::uniform_real<> > die(SparseConnection::sparse_connection_gen, dist);
+	AurynWeight rv;
+
+	for ( AurynLong i = 0 ; i<w->get_nonzero() ; ++i ) {
+		rv = die();
+		if ( rv<prob ) {
+			w->set_data(i,whi);
+		} else {
+			w->set_data(i,wlo);
+		}
+	}
+}
+
 void SparseConnection::sparse_set_data(AurynDouble sparseness, AurynWeight value) 
 {
 	std::stringstream oss;
