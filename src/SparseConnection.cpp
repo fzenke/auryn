@@ -61,14 +61,15 @@ SparseConnection::SparseConnection(
 		SpikingGroup * source, 
 		NeuronGroup * destination, 
 		AurynWeight weight, 
-		AurynFloat sparseness, 
+		AurynDouble sparseness, 
 		TransmitterType transmitter, 
 		std::string name) 
 	: Connection(source,destination,transmitter,name)
 {
 	init();
 	std::stringstream oss;
-	AurynLong anticipatedsize = (AurynLong) (estimate_required_nonzero_entires ( sparseness*src->get_pre_size()*dst->get_post_size(), 6 ) );
+
+	AurynLong anticipatedsize = (AurynLong) (estimate_required_nonzero_entires ( sparseness*src->get_pre_size()*dst->get_post_size() ) );
 	oss << "SparseConnection: ("<< get_name() <<"): Assuming memory demand for pre #" << src->get_pre_size() << " and post #" << dst->get_post_size() 
 													<< std::scientific << std::setprecision(4) << " ( total " << anticipatedsize << ")";
 	auryn::logger->msg(oss.str(),VERBOSE);
@@ -79,7 +80,7 @@ SparseConnection::SparseConnection(
 
 SparseConnection::SparseConnection(SpikingGroup * source, NeuronGroup * destination, 
 		AurynWeight weight, 
-		AurynFloat sparseness, 
+		AurynDouble sparseness, 
 		NeuronID lo_row, 
 		NeuronID hi_row, 
 		NeuronID lo_col, 
@@ -105,7 +106,7 @@ SparseConnection::SparseConnection(
 	: Connection(source,destination)
 {
 	set_transmitter(con->get_transmitter());
-	double sparseness = get_nonzero()/(con->get_m_rows()*con->get_n_cols());
+	AurynDouble sparseness = get_nonzero()/(con->get_m_rows()*con->get_n_cols());
 	AurynFloat mean,std; con->stats(mean,std);
 	AurynLong anticipatedsize = (AurynLong) (estimate_required_nonzero_entires ( sparseness*src->get_pre_size()*dst->get_post_size() ) );
 	allocate(anticipatedsize);
@@ -155,7 +156,7 @@ void SparseConnection::seed(NeuronID randomseed)
 
 AurynLong SparseConnection::estimate_required_nonzero_entires( AurynLong nonzero, double sigma )
 {
-	return std::min( (AurynLong)(nonzero + sigma*sqrt(nonzero)), (AurynLong)(get_m_rows()*get_n_cols()) ) ;
+	return std::min( (AurynLong)( nonzero + sigma*sqrt(1.0*nonzero) ), (AurynLong)(get_m_rows()*get_n_cols()) ) ;
 }
 
 void SparseConnection::free()
@@ -320,7 +321,7 @@ void SparseConnection::set_upper_triangular(AurynWeight weight)
 
 
 void SparseConnection::connect_block_random(AurynWeight weight, 
-		double sparseness,
+		AurynDouble sparseness,
 		NeuronID lo_row, 
 		NeuronID hi_row, 
 		NeuronID lo_col, 
@@ -356,7 +357,12 @@ void SparseConnection::connect_block_random(AurynWeight weight,
 	if ( (hi_col-lo_col)%s > r ) { // some ranks have one more "carry" neuron
 		jdim += 1;
 	}
+
+	// we keep track of the real valued jump size ...
+    AurynDouble jump = 0.0;
+	// ... and the discretized position along the weight matrix
     AurynLong x = (AurynLong) die();
+
 	if ( sparseness == 1.0 ) x = 0; // for dense matrices
     AurynLong stop = idim*jdim;
     AurynLong count = 0;
@@ -411,8 +417,19 @@ void SparseConnection::connect_block_random(AurynWeight weight,
 		}
 
 		if ( sparseness < 1.0 ) { 
-			AurynLong jump = (AurynLong) (die()+1.5);
-			x += jump ;
+			// here we add our random exponential jump which was corrected
+			// for the 1.0 "refractory period" to account for the fact that
+			// we can have only one connection per "slot"
+			jump += die()+1.0;
+
+			// here we discretize this jump
+			AurynLong discrete_jump = jump;
+
+			// but keep the rest for the next jump to avoid discretization biases
+			jump -= discrete_jump;
+
+			// now we added discrete_jump to x and we are ready for the next connection
+			x += discrete_jump;
 		} else { // dense matrices
 			x += 1 ;
 		}
@@ -427,7 +444,7 @@ void SparseConnection::connect_block_random(AurynWeight weight,
 	auryn::logger->msg(oss.str(),VERBOSE);
 }
 
-void SparseConnection::connect_random(AurynWeight weight, float sparseness, bool skip_diag)
+void SparseConnection::connect_random(AurynWeight weight, AurynDouble sparseness, bool skip_diag)
 {
 	if ( dst->evolve_locally() ) { // if there are no local units there is no need for synapses
 		std::stringstream oss;

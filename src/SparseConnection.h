@@ -152,15 +152,20 @@ public:
 	 * allocate the approximately right amount of memory inadvance. It is good habit to specify at time of initialization also 
 	 * a connection name and the transmitter type. Both can be set separately with set_transmitter and set_name if the function call gets
 	 * too long and ugly. A connection name is often handy during debugging and the transmitter type is a crucial for obvious resons ...  */
-	SparseConnection(SpikingGroup * source, NeuronGroup * destination, 
-			AurynWeight weight, AurynFloat sparseness=0.05, 
-			TransmitterType transmitter=GLUT, string name="SparseConnection");
+	SparseConnection(
+			SpikingGroup * source, 
+			NeuronGroup * destination, 
+			AurynWeight weight, 
+			AurynDouble sparseness=0.05, 
+			TransmitterType transmitter=GLUT, 
+			string name="SparseConnection"
+			);
 
 	/*! \brief This constructor tries to clone a connection by guessing all parameters 
 	 * except source and destination from another connection instance. */
 	SparseConnection(SpikingGroup * source, NeuronGroup * destination, SparseConnection * con, string name="SparseConnection");
 
-	SparseConnection(SpikingGroup * source, NeuronGroup * destination, AurynWeight weight, AurynFloat sparseness, NeuronID lo_row, NeuronID hi_row, NeuronID lo_col, NeuronID hi_col, TransmitterType transmitter=GLUT);
+	SparseConnection(SpikingGroup * source, NeuronGroup * destination, AurynWeight weight, AurynDouble sparseness, NeuronID lo_row, NeuronID hi_row, NeuronID lo_col, NeuronID hi_col, TransmitterType transmitter=GLUT);
 	
 	/*! \brief The default destructor */
 	virtual ~SparseConnection();
@@ -169,7 +174,7 @@ public:
 	void allocate_manually(AurynLong expected_size);
 
 	/*! \brief This function estimates the required size of the nonzero entry buffer. */
-	AurynLong estimate_required_nonzero_entires( AurynLong nonzero , double sigma = 5.);
+	AurynLong estimate_required_nonzero_entires( AurynLong nonzero , double sigma = 6.);
 
 	/*! \brief This function seeds the generator for all random fill operatios */
 	void seed(NeuronID randomseed);
@@ -231,7 +236,7 @@ public:
 	/*! \brief Connect src and dst SpikingGroup and NeuronGroup randomly with given sparseness 
 	 *
 	 * This function should be usually called from the constructor directly. */
-	void connect_random(AurynWeight weight=1.0, float sparseness=0.05, bool skip_diag=false);
+	void connect_random(AurynWeight weight=1.0, AurynDouble sparseness=0.05, bool skip_diag=false);
 
 	/*! \brief Underlying sparse fill method. 
 	 *
@@ -239,7 +244,7 @@ public:
 	 * matrix independent of the number of ranks. 
 	 */ 
 	void connect_block_random(AurynWeight weight, 
-			double sparseness, 
+			AurynDouble sparseness, 
 			NeuronID lo_row, 
 			NeuronID hi_row, 
 			NeuronID lo_col, 
