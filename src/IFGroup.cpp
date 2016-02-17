@@ -194,6 +194,13 @@ void IFGroup::set_tau_nmda(AurynFloat taum)
 	calculate_scale_constants();
 }
 
+void IFGroup::set_tau_thr(AurynFloat tau)
+{
+	tau_thr = tau;
+	calculate_scale_constants();
+}
+
+
 AurynFloat IFGroup::get_tau_nmda()
 {
 	return tau_nmda;

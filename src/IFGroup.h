@@ -61,7 +61,7 @@ namespace auryn {
 		void check_thresholds();
 	public:
 		AurynFloat e_reset;
-		/*! Default constructor.
+		/*! \brief Default constructor.
 		 *
 		 * @param size the size of the group.  @param load a load specifier that
 		 * can in principle help to assign the right amount of neurons to a single
@@ -72,26 +72,32 @@ namespace auryn {
 		 */
 		IFGroup( NeuronID size, AurynFloat load = 1.0, NeuronID total = 0 );
 		virtual ~IFGroup();
-		/*! Sets the membrane time constant */
+		/*! \brief Sets the membrane time constant */
 		void set_tau_mem(AurynFloat taum);
-		/*! Returns the membrane time constant */
+		/*! \brief Returns the membrane time constant */
 		AurynFloat get_tau_mem();
 
-		/*! Sets the exponential decay time constant of the AMPA conductance (default=5ms). */
+		/*! \brief Sets the exponential decay time constant of the AMPA conductance (default=5ms). */
 		void set_tau_ampa(AurynFloat tau);
 
-		/*! Returns the exponential decay time constant of the AMPA conductance. */
+		/*! \brief Returns the exponential decay time constant of the AMPA conductance. */
 		AurynFloat get_tau_ampa();
 
-		/*! Sets the exponential decay time constant of the GABA conductance (default=10ms). */
+		/*! \brief Sets the exponential decay time constant of the GABA conductance (default=10ms). */
 		void set_tau_gaba(AurynFloat tau);
 
-		/*! Returns the exponential decay time constant of the GABA conductance. */
+		/*! \brief Returns the exponential decay time constant of the GABA conductance. */
 		AurynFloat get_tau_gaba();
 
-		/*! Sets the exponential decay time constant of the NMDA conductance (default=100ms).
+		/*! \brief Sets the exponential decay time constant of the NMDA conductance (default=100ms).
+		 *
 		 * The rise is governed by tau_ampa if tau_ampa << tau_nmda. */
 		void set_tau_nmda(AurynFloat tau);
+
+		/*! \brief Sets the exponential decay time constant of the threshold (default=5).
+		 *
+		 * Reflects absolute and relative refractory period. */
+		void set_tau_thr(AurynFloat tau);
 
 		/*! Returns the exponential decay time constant of the NMDA conductance.
 		 * The rise is governed by tau_ampa if tau_ampa << tau_nmda. */
