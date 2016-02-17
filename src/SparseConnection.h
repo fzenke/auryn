@@ -38,6 +38,7 @@
 
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int.hpp>
+#include <boost/random/uniform_real.hpp>
 #include <boost/random/variate_generator.hpp>
 #include <boost/random/exponential_distribution.hpp>
 #include <boost/random/normal_distribution.hpp>
@@ -193,6 +194,12 @@ public:
 
 	/*! \brief Synonym for random_data_lognormal  */
 	void random_data(AurynWeight mean, AurynWeight sigma); 
+
+	/*! \brief Initialize with random binary at wlo and whi.  
+	 * \param wlo The lower weight value. 
+	 * \param whi The higher weight value.
+	 * \param prob the probability for the higher value. */
+	void init_random_binary(AurynFloat prob=0.5, AurynWeight wlo=0.0, AurynWeight whi=1.0); 
 
 	/*! \brief Set weights of all existing connections randomly using a normal distrubtion */
 	void random_data_normal(AurynWeight mean, AurynWeight sigma); 

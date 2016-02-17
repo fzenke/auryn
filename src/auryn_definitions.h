@@ -248,7 +248,7 @@ namespace auryn {
 
 	/*! \brief Computes a := a-b
 	 * 
-	 *  Internal  version of to subtract GSL vectors.*/
+	 *  Internal  version of to subtract GSL vectors. */
 	void auryn_vector_float_sub( auryn_vector_float * a, auryn_vector_float * b);
 
 	/*! \brief Computes r := a-b */
@@ -376,6 +376,14 @@ namespace auryn {
 				{
 						return "Auryn encountered a problem which it deemed serious enough to break the run. \
 							To debug set logger vebosity to VERBOSE or EVERYTHING and analyze the log files.";
+				}
+	};
+
+	class AurynVectorDimensionalityException: public std::exception
+	{
+		  virtual const char* what() const throw()
+				{
+						return "Dimensions do not match. Are the vectors zero padded to a multiples of four dimension?";
 				}
 	};
 

@@ -230,7 +230,7 @@ public:
 	 * which will be added instantaneously to the trace upon each 
 	 * postsynaptic spike.
 	 * */
-	EulerTrace * get_post_state_trace( AurynFloat tau, std::string state_name="mem", AurynFloat b=0.0 );
+	EulerTrace * get_post_state_trace( std::string state_name="mem", AurynFloat tau=10e-3, AurynFloat b=0.0 );
 
 	/*! Sets axonal delay for this SpikingGroup */
 	void set_delay( int d );

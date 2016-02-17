@@ -193,6 +193,9 @@ public:
 	/*! \brief returns the index of the current (or last -- if not active anymore) active stimulus */
 	unsigned int get_cur_stim();
 
+	/*! \brief Returns true if currently a stimulus is active and false otherwise. */
+	bool get_stim_active();
+
 	/*! Initialized distribution to be flat */
 	void flat_distribution( );
 	/*! Normalizes the distribution */

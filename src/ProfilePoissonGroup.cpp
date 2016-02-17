@@ -140,13 +140,13 @@ void ProfilePoissonGroup::set_gaussian_profile(AurynDouble  mean, AurynDouble si
 	normalize_profile();
 
 	std::stringstream oss;
-	oss << "ProfilePoissonGroup:: Set gaussian profile with mean=" 
+	oss << "ProfilePoissonGroup:: Setting gaussian profile with mean=" 
 		<< mean
 		<< " and sigma="
 		<< sigma
 		<< " and floor="
 		<< floor;
-	auryn::logger->msg(oss.str(),NOTIFICATION);
+	auryn::logger->msg(oss.str(),VERBOSE);
 }
 
 AurynDouble  ProfilePoissonGroup::get_rate()

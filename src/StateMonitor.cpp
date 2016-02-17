@@ -47,6 +47,20 @@ StateMonitor::StateMonitor(auryn_vector_float * state, NeuronID id, std::string 
 	outfile << std::setiosflags(std::ios::fixed) << std::setprecision(6);
 }
 
+StateMonitor::StateMonitor(EulerTrace * trace, NeuronID id, std::string filename, AurynDouble sampling_interval)
+{
+	if ( id >= trace->get_state_ptr()->size ) return; // do not register if neuron is out of vector range
+
+	Monitor::init(filename);
+	auryn::sys->register_monitor(this);
+	src = NULL;
+	nid = id;
+	target_variable = trace->get_state_ptr()->data+nid;
+	set_stop_time(10.0);
+	ssize = sampling_interval/dt;
+	outfile << std::setiosflags(std::ios::fixed) << std::setprecision(6);
+}
+
 void StateMonitor::init(SpikingGroup * source, NeuronID id, std::string statename, std::string filename, AurynTime stepsize)
 {
 	if ( !source->localrank(id) ) return; // do not register if neuron is not on the local rank
