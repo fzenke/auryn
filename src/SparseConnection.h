@@ -174,7 +174,7 @@ public:
 	void allocate_manually(AurynLong expected_size);
 
 	/*! \brief This function estimates the required size of the nonzero entry buffer. */
-	AurynLong estimate_required_nonzero_entires( AurynLong nonzero , double sigma = 6.);
+	AurynLong estimate_required_nonzero_entires( AurynLong nonzero , double sigma = 5.);
 
 	/*! \brief This function seeds the generator for all random fill operatios */
 	void seed(NeuronID randomseed);
