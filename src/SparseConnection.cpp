@@ -68,7 +68,7 @@ SparseConnection::SparseConnection(
 {
 	init();
 	std::stringstream oss;
-	AurynLong anticipatedsize = (AurynLong) (estimate_required_nonzero_entires ( sparseness*src->get_pre_size()*dst->get_post_size() ) );
+	AurynLong anticipatedsize = (AurynLong) (estimate_required_nonzero_entires ( sparseness*src->get_pre_size()*dst->get_post_size(), 6 ) );
 	oss << "SparseConnection: ("<< get_name() <<"): Assuming memory demand for pre #" << src->get_pre_size() << " and post #" << dst->get_post_size() 
 													<< std::scientific << std::setprecision(4) << " ( total " << anticipatedsize << ")";
 	auryn::logger->msg(oss.str(),VERBOSE);
