@@ -155,7 +155,7 @@ void SparseConnection::seed(NeuronID randomseed)
 
 AurynLong SparseConnection::estimate_required_nonzero_entires( AurynLong nonzero, double sigma )
 {
-	return std::min( (NeuronID)(nonzero + sigma*sqrt(nonzero)), get_m_rows()*get_n_cols()) ;
+	return std::min( (AurynLong)(nonzero + sigma*sqrt(nonzero)), (AurynLong)(get_m_rows()*get_n_cols()) ) ;
 }
 
 void SparseConnection::free()
