@@ -211,6 +211,8 @@ public:
 	void state_add_const(T a, AurynWeight * x);
 	/*! Clips state values to interval [a,b] */
 	void state_clip(AurynWeight * x, T a, T b);
+	/*! Get data pointer for that state */
+	T * state_get_data_ptr(AurynWeight * x, NeuronID i);
 
 	T get_value(AurynLong data_index);
 	void add_value(AurynLong data_index, T value);
@@ -502,6 +504,7 @@ T * ComplexMatrix<T>::get_state_begin(NeuronID z)
 {
 	return get_ptr(get_datasize()*z);
 }
+
 
 template <typename T>
 T * ComplexMatrix<T>::get_state_end(NeuronID z)
@@ -819,6 +822,12 @@ void ComplexMatrix<T>::state_clip(AurynWeight * x, T a, T b)
 		if ( x[i] < a ) x[i] = a; 
 		else if ( x[i] > b ) x[i] = b; 
 	}
+}
+
+template <typename T>
+T * ComplexMatrix<T>::state_get_data_ptr(AurynWeight * x, NeuronID i)
+{
+	return x+i;
 }
 
 template <typename T>
