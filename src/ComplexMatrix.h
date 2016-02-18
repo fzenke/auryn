@@ -194,25 +194,25 @@ public:
 	/*! Gets pointer for the element behind the last of a given synaptic state vector */
 	T * get_state_end(StateID z=0);
 	/*! Sets all values in state x to value. */
-	void state_set_all(AurynWeight * x, T value);
+	void state_set_all(T * x, T value);
 	/*! Computes a*x + y and stores result in y */
-	void state_saxpy(T a, AurynWeight * x, AurynWeight * y);
+	void state_saxpy(T a, T * x, T * y);
 	/*! Multiplies x and y and stores result in y */
-	void state_mul(AurynWeight * x, AurynWeight * y);
+	void state_mul(T * x, T * y);
 	/*! Adds x and y and stores result in y */
-	void state_add(AurynWeight * x, AurynWeight * y);
+	void state_add(T * x, T * y);
 	/*! Computes x-y and stores result in y */
-	void state_sub(AurynWeight * x, AurynWeight * y);
+	void state_sub(T * x, T * y);
 	/*! Computes x-y and stores result in res */
-	void state_sub(AurynWeight * x, AurynWeight * y, AurynWeight * res);
+	void state_sub(T * x, T * y, T * res);
 	/*! Scale state x by a. */
-	void state_scale(T a, AurynWeight * x);
+	void state_scale(T a, T * x);
 	/*! Adds constant a to all values in x */
-	void state_add_const(T a, AurynWeight * x);
+	void state_add_const(T a, T * x);
 	/*! Clips state values to interval [a,b] */
-	void state_clip(AurynWeight * x, T a, T b);
+	void state_clip(T * x, T a, T b);
 	/*! Get data pointer for that state */
-	T * state_get_data_ptr(AurynWeight * x, NeuronID i);
+	T * state_get_data_ptr(T * x, NeuronID i);
 
 	T get_value(AurynLong data_index);
 	void add_value(AurynLong data_index, T value);
@@ -752,7 +752,7 @@ double ComplexMatrix<T>::mean()
 }
 
 template <typename T>
-void ComplexMatrix<T>::state_set_all(AurynWeight * x, T value)
+void ComplexMatrix<T>::state_set_all(T * x, T value)
 {
 	for (T * iter=x;
 			 iter!=x+get_nonzero();
@@ -762,7 +762,7 @@ void ComplexMatrix<T>::state_set_all(AurynWeight * x, T value)
 }
 
 template <typename T>
-void ComplexMatrix<T>::state_saxpy(T a, AurynWeight * x, AurynWeight * y)
+void ComplexMatrix<T>::state_saxpy(T a, T * x, T * y)
 {
 	for (AurynLong i = 0 ; i < get_nonzero() ; ++i ) {
 		y[i] = a*x[i]+y[i];
@@ -770,7 +770,7 @@ void ComplexMatrix<T>::state_saxpy(T a, AurynWeight * x, AurynWeight * y)
 }
 
 template <typename T>
-void ComplexMatrix<T>::state_mul(AurynWeight * x, AurynWeight * y)
+void ComplexMatrix<T>::state_mul(T * x, T * y)
 {
 	for (AurynLong i = 0 ; i < get_nonzero() ; ++i ) {
 		y[i] = x[i]*y[i];
@@ -778,7 +778,7 @@ void ComplexMatrix<T>::state_mul(AurynWeight * x, AurynWeight * y)
 }
 
 template <typename T>
-void ComplexMatrix<T>::state_add(AurynWeight * x, AurynWeight * y)
+void ComplexMatrix<T>::state_add(T * x, T * y)
 {
 	for (AurynLong i = 0 ; i < get_nonzero() ; ++i ) {
 		y[i] = x[i]+y[i];
@@ -786,7 +786,7 @@ void ComplexMatrix<T>::state_add(AurynWeight * x, AurynWeight * y)
 }
 
 template <typename T>
-void ComplexMatrix<T>::state_sub(AurynWeight * x, AurynWeight * y, AurynWeight * res)
+void ComplexMatrix<T>::state_sub(T * x, T * y, T * res)
 {
 	for (AurynLong i = 0 ; i < get_nonzero() ; ++i ) {
 		res[i] = x[i]-y[i];
@@ -794,13 +794,13 @@ void ComplexMatrix<T>::state_sub(AurynWeight * x, AurynWeight * y, AurynWeight *
 }
 
 template <typename T>
-void ComplexMatrix<T>::state_sub(AurynWeight * x, AurynWeight * y)
+void ComplexMatrix<T>::state_sub(T * x, T * y)
 {
 	state_sub(x,y,y);
 }
 
 template <typename T>
-void ComplexMatrix<T>::state_scale(T a, AurynWeight * y)
+void ComplexMatrix<T>::state_scale(T a, T * y)
 {
 	for (AurynLong i = 0 ; i < get_nonzero() ; ++i ) {
 		y[i] = a*y[i];
@@ -808,7 +808,7 @@ void ComplexMatrix<T>::state_scale(T a, AurynWeight * y)
 }
 
 template <typename T>
-void ComplexMatrix<T>::state_add_const(T a, AurynWeight * y)
+void ComplexMatrix<T>::state_add_const(T a, T * y)
 {
 	for (AurynLong i = 0 ; i < get_nonzero() ; ++i ) {
 		y[i] = a+y[i];
@@ -816,7 +816,7 @@ void ComplexMatrix<T>::state_add_const(T a, AurynWeight * y)
 }
 
 template <typename T>
-void ComplexMatrix<T>::state_clip(AurynWeight * x, T a, T b)
+void ComplexMatrix<T>::state_clip(T * x, T a, T b)
 {
 	for (AurynLong i = 0 ; i < get_nonzero() ; ++i ) {
 		if ( x[i] < a ) x[i] = a; 
@@ -825,7 +825,7 @@ void ComplexMatrix<T>::state_clip(AurynWeight * x, T a, T b)
 }
 
 template <typename T>
-T * ComplexMatrix<T>::state_get_data_ptr(AurynWeight * x, NeuronID i)
+T * ComplexMatrix<T>::state_get_data_ptr(T * x, NeuronID i)
 {
 	return x+i;
 }
