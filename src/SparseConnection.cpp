@@ -107,7 +107,7 @@ SparseConnection::SparseConnection(
 {
 	set_transmitter(con->get_transmitter());
 	AurynDouble sparseness = get_nonzero()/(con->get_m_rows()*con->get_n_cols());
-	AurynFloat mean,std; con->stats(mean,std);
+	AurynDouble mean,std; con->stats(mean,std);
 	AurynLong anticipatedsize = (AurynLong) (estimate_required_nonzero_entires ( sparseness*src->get_pre_size()*dst->get_post_size() ) );
 	allocate(anticipatedsize);
 	connect_random(mean,sparseness,con->skip_diagonal);
@@ -575,12 +575,17 @@ void SparseConnection::sanity_check()
 	delete [] sum_rows;
 }
 
-void SparseConnection::stats(AurynFloat &mean, AurynFloat &std)
+void SparseConnection::stats(AurynDouble &mean, AurynDouble &std)
+{
+	stats(mean, std, 0);
+}
+
+void SparseConnection::stats(AurynDouble &mean, AurynDouble &std, NeuronID zid)
 {
 	double sum = 0; // needs double here -- machine precision really matters here
 	double sum2 = 0;
 
-	for ( AurynWeight * iter = w->get_data_begin() ; iter != w->get_data_end() ; ++iter ) {
+	for ( AurynWeight * iter = w->get_data_begin(zid) ; iter != w->get_data_end(zid) ; ++iter ) {
 		sum  += *iter;
 		sum2 += (*iter * *iter);
 	}

@@ -161,10 +161,10 @@ public:
 	void copy(ComplexMatrix * mat);
 	void set_data(AurynLong i, T value);
 	void scale_data(AurynLong i, T value);
-	/*! Gets the matching data ptr for a given index i and state z*/
-	T * get_data_ptr(AurynLong i, StateID z=0);
 	/*! Gets the matching data entry for a given index i and state z*/
 	T get_data(AurynLong i, StateID z=0);
+	/*! Gets the matching data ptr for a given index i and state z*/
+	T * get_data_ptr(AurynLong i, StateID z=0);
 	/*! Gets the matching data ptr for a given index pointer and state z*/
 	T * get_data_ptr(const NeuronID * ind_ptr, StateID z=0);
 	/*! Gets the matching data value for a given index pointer and state z*/
@@ -184,8 +184,11 @@ public:
 	/*! Returns data index to a particular element specifed by i and j */
 	AurynLong get_data_index(NeuronID i, NeuronID j, NeuronID z=0);
 
-	/*! Returns data index to a particular element specifed by a data pointer */
-	AurynLong get_data_index(T * ptr);
+	/*! \brief Returns data index to a particular element specifed by an index pointer */
+	AurynLong get_data_index(const NeuronID * ind_ptr);
+
+	/*! \brief Returns data index to a particular element specifed by a data pointer */
+	AurynLong get_data_index(const T * ptr);
 
 	/* Methods concerning synaptic state vectors. */
 	void set_num_synapse_states(StateID zsize);
@@ -550,7 +553,13 @@ AurynLong ComplexMatrix<T>::get_data_index(NeuronID i, NeuronID j, NeuronID z)
 }
 
 template <typename T>
-AurynLong ComplexMatrix<T>::get_data_index(T * ptr)
+AurynLong ComplexMatrix<T>::get_data_index(const NeuronID * ind_ptr)
+{
+	return ind_ptr - get_ind_begin();
+}
+
+template <typename T>
+AurynLong ComplexMatrix<T>::get_data_index(const T * ptr)
 {
 	return ptr - get_data_begin();
 }

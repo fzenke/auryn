@@ -93,7 +93,7 @@ public:
 			string name="RateModulatedConnection");
 	virtual ~RateModulatedConnection();
 
-	virtual void stats(AurynFloat &mean, AurynFloat &std);
+	virtual void stats(AurynDouble &mean, AurynDouble &std);
 
 	void set_eta(AurynFloat value);
 

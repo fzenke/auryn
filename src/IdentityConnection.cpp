@@ -122,7 +122,7 @@ AurynLong IdentityConnection::get_nonzero()
 	return std::min(src->get_pre_size(),dst->get_post_size());
 }
 
-void IdentityConnection::stats(AurynFloat &mean, AurynFloat &std)
+void IdentityConnection::stats(AurynDouble &mean, AurynDouble &std)
 {
 	mean = connection_weight;
 	std = 0;
@@ -162,7 +162,7 @@ std::vector<neuron_pair> IdentityConnection::get_block(NeuronID lo_row, NeuronID
 
 AurynFloat IdentityConnection::mean() 
 {
-	AurynFloat m,s;
+	AurynDouble m,s;
 	stats(m,s);
 	return m;
 }

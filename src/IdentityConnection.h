@@ -75,7 +75,7 @@ public:
 	virtual void propagate();
 
 	virtual AurynDouble sum();
-	virtual void stats(AurynFloat &mean, AurynFloat &std);
+	virtual void stats(AurynDouble &mean, AurynDouble &std);
 	virtual bool write_to_file(string filename);
 	virtual bool load_from_file(string filename);
 	virtual AurynFloat mean();

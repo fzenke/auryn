@@ -301,7 +301,11 @@ public:
 	 *
 	 * Returns mean and variance of default weight matrix (typically referenced as w 
 	 * in a given SparseConnection */
-	virtual void stats(AurynFloat &mean, AurynFloat &std);
+	virtual void stats(AurynDouble &mean, AurynDouble &std);
+
+	/*! \brief Computes mean and variance of weights for matrix state zid
+	 */
+	virtual void stats(AurynDouble &mean, AurynDouble &std, NeuronID zid);
 
 
 	/*! \brief Writes rank specific weight matrix on the same rank to a file

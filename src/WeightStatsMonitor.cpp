@@ -52,7 +52,7 @@ void WeightStatsMonitor::init(Connection * source, std::string filename,AurynTim
 void WeightStatsMonitor::propagate()
 {
 	if (auryn::sys->get_clock()%ssize==0) {
-		AurynFloat mean,std;
+		AurynDouble mean,std;
 		src->stats(mean,std);
 		outfile << (auryn::sys->get_time()) << " " << mean << " "  << std << std::endl;
 	}

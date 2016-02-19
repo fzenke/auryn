@@ -50,7 +50,7 @@ void WeightMatrixMonitor::init(Connection * source, AurynFloat stepsize)
 void WeightMatrixMonitor::propagate()
 {
 	if (auryn::sys->get_clock()%ssize==0) {
-		AurynFloat mean,std;
+		AurynDouble mean,std;
 		src->stats(mean,std);
 
 		char wmatfilename [255];

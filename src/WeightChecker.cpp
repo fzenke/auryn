@@ -62,7 +62,7 @@ bool WeightChecker::propagate()
 {
 
 	if ( (sys->get_clock()%timestep_) == 0 ) {
-		AurynWeight mean, std;
+		AurynDouble mean, std;
 		source_->stats(mean, std);
 		if ( mean<wmin || mean>wmax ) { 
 			std::stringstream oss;

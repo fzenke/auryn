@@ -137,9 +137,9 @@ void RateModulatedConnection::set_eta(AurynFloat value)
 	eta = value;
 }
 
-void RateModulatedConnection::stats(AurynFloat &mean, AurynFloat &std)
+void RateModulatedConnection::stats(AurynDouble &mean, AurynDouble &std)
 {
-	SparseConnection::stats(mean,std);
+	SparseConnection::stats(mean, std);
 	mean *= rate_modulation_mul;
 	std *= rate_modulation_mul;
 }
