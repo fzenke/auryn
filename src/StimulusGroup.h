@@ -52,8 +52,6 @@ class StimulusGroup : public SpikingGroup
 private:
 	AurynTime * clk;
 	AurynTime * ttl;
-	std::vector<type_pattern> stimuli;
-	AurynFloat * activity;
 
 	/*! Internal name for the stimfile (tiser stands for time series). */
 	std::fstream tiserfile;
@@ -62,11 +60,23 @@ private:
 
 	int off_pattern;
 
+
+
+protected:
+	std::vector<type_pattern> stimuli;
+	AurynFloat * activity;
+
+	/*! Stimulus order */
+	StimulusGroupModeType stimulus_order ;
+
 	/*! Foreground Poisson field pointer */
 	NeuronID fgx;
 
 	/*! Background Poisson field pointer */
 	NeuronID bgx;
+
+	/*! stimulus probabilities */
+	std::vector<double> probabilities ;
 
 	/*! pseudo random number generators */
 	static boost::mt19937 poisson_gen; 
@@ -75,13 +85,7 @@ private:
 	static boost::mt19937 order_gen; 
 	static boost::uniform_01<boost::mt19937> order_die; 
 
-	/*! Stimulus order */
-	StimulusGroupModeType stimulus_order ;
 
-	/*! stimulus probabilities */
-	std::vector<double> probabilities ;
-
-protected:
 	/*! current stimulus index */
 	unsigned int cur_stim_index ;
 	bool stimulus_active;
