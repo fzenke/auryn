@@ -51,7 +51,6 @@ class StimulusGroup : public SpikingGroup
 {
 private:
 	AurynTime * clk;
-	AurynTime * ttl;
 
 	/*! Internal name for the stimfile (tiser stands for time series). */
 	std::fstream tiserfile;
@@ -63,6 +62,8 @@ private:
 
 
 protected:
+	AurynTime * ttl;
+
 	std::vector<type_pattern> stimuli;
 	AurynFloat * activity;
 
@@ -98,8 +99,9 @@ protected:
 
 	/*! Standard initialization */
 	void init(StimulusGroupModeType stimulusmode, string stimfile, AurynFloat baserate);
+
 	/*! Draw all Time-To-Live (ttls) typically after changing the any of the activiteis */
-	void redraw();
+	virtual void redraw();
 
 	/*! write current stimulus to stimfile */
 	void write_stimulus_file(AurynDouble time);
