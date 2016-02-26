@@ -31,6 +31,8 @@ void Monitor::init(std::string filename)
 {
 	fname = filename;
 
+	active = true;
+
 	open_output_file(filename);
 }
 

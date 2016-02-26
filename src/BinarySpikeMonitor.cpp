@@ -102,6 +102,8 @@ void BinarySpikeMonitor::set_every(NeuronID every)
 
 void BinarySpikeMonitor::propagate()
 {
+	if ( !active ) return;
+
 	struct SpikeEvent_type spikeData;
 	spikeData.time = auryn::sys->get_clock();
 	for (it = src->get_spikes_immediate()->begin() ; it < src->get_spikes_immediate()->end() ; ++it ) {
