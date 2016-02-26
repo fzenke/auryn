@@ -31,6 +31,7 @@ void System::init() {
 	clock = 0;
 	quiet = false;
 	set_simulation_name("default");
+	set_output_dir(".");
 
 	set_online_rate_monitor_tau();
 	// assumes that we have at least one spiking group in the sim
@@ -523,6 +524,20 @@ void System::set_simulation_name(std::string name)
 	simulation_name = name;
 }
 
+void System::set_output_dir(std::string path)
+{
+	outputdir = path;
+}
+
+const char * System::fn(std::string name, std::string extension)
+{
+	std::stringstream oss;
+	oss << outputdir << "/" << name
+	<< "." << mpicom->rank()
+	<< "." << extension;
+	return oss.str().c_str();
+}
+
 void System::save_network_state(std::string basename)
 {
 	auryn::logger->msg("Saving network state", NOTIFICATION);
@@ -530,7 +545,8 @@ void System::save_network_state(std::string basename)
 	std::string netstate_filename;
 	{
 		std::stringstream oss;
-		oss << basename
+		oss << outputdir 
+			<< "/" << basename
 			<< "." << mpicom->rank()
 			<< ".netstate";
 		netstate_filename = oss.str();
