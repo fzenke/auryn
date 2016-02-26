@@ -227,7 +227,7 @@ namespace auryn {
 		 * <outputdir>/<name>.<rank>.<extension>
 		 * and returns it as a c string;
 		 * */
-		const char * fn(std::string name, std::string extension);
+		string fn(std::string name, std::string extension);
 
 		/*! \brief Set output dir for fn function */
 		void set_output_dir(std::string path);

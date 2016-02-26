@@ -529,13 +529,13 @@ void System::set_output_dir(std::string path)
 	outputdir = path;
 }
 
-const char * System::fn(std::string name, std::string extension)
+string System::fn(std::string name, std::string extension)
 {
 	std::stringstream oss;
 	oss << outputdir << "/" << name
 	<< "." << mpicom->rank()
 	<< "." << extension;
-	return oss.str().c_str();
+	return oss.str();
 }
 
 void System::save_network_state(std::string basename)
