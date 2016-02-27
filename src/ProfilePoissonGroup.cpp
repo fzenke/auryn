@@ -42,7 +42,7 @@ void ProfilePoissonGroup::init(AurynDouble  rate)
 		jumpsize = 0;
 
 		// creates flat profile 
-		profile = new AurynFloat[get_rank_size()];
+		profile = get_state_vector("firing_rate_profile");
 		set_flat_profile();
 
 		std::stringstream oss;
@@ -61,7 +61,6 @@ ProfilePoissonGroup::~ProfilePoissonGroup()
 	if ( evolve_locally() ) {
 		delete dist;
 		delete die;
-		delete [] profile;
 	}
 }
 
@@ -86,19 +85,19 @@ void ProfilePoissonGroup::normalize_profile()
 {
 	AurynDouble sum = 0.0;
 	for ( NeuronID i = 0 ; i < get_rank_size() ; ++i ) {
-		sum += profile[i];
+		sum += profile->data[i];
 	}
 
 	AurynDouble normalization_factor = get_rank_size()/sum;
 	for ( NeuronID i = 0 ; i < get_rank_size() ; ++i ) {
-		profile[i] *= normalization_factor ;
+		profile->data[i] *= normalization_factor ;
 	}
 }
 
 void ProfilePoissonGroup::set_flat_profile()
 {
 	for ( NeuronID i = 0 ; i < get_rank_size() ; ++i ) {
-		profile[i] = 1.0;
+		profile->data[i] = 1.0;
 	}
 }
 
@@ -106,7 +105,7 @@ void ProfilePoissonGroup::set_profile( AurynFloat * newprofile )
 {
 	for ( NeuronID i = 0 ; i < get_size() ; ++i ) {
 		if ( localrank( i ) ) 
-			profile[global2rank(i)] = newprofile[i];
+			profile->data[global2rank(i)] = newprofile[i];
 	}
 
 	normalize_profile();
@@ -119,7 +118,7 @@ void ProfilePoissonGroup::set_profile( AurynFloat * newprofile )
 void ProfilePoissonGroup::set_profile( auryn_vector_float * newprofile ) 
 {
 	for ( NeuronID i = 0 ; i < get_rank_size() ; ++i ) {
-		profile[i] = newprofile->data[i];
+		profile->data[i] = newprofile->data[i];
 	}
 
 	// normalize_profile();
@@ -134,7 +133,7 @@ void ProfilePoissonGroup::set_gaussian_profile(AurynDouble  mean, AurynDouble si
 {
 	for ( NeuronID i = 0 ; i < get_size() ; ++i ) {
 		if ( localrank(i) )
-			profile[global2rank(i)] = exp(-pow((i-mean),2)/(2*sigma*sigma))*(1.0-floor)+floor;
+			profile->data[global2rank(i)] = exp(-pow((i-mean),2)/(2*sigma*sigma))*(1.0-floor)+floor;
 	}
 
 	normalize_profile();
@@ -159,7 +158,7 @@ void ProfilePoissonGroup::evolve()
 {
 	while ( x < get_rank_size() ) {
 		// std::cout << x << std::endl;
-		jumpsize -= profile[x];
+		jumpsize -= profile->data[x];
 		if ( jumpsize < 0 ) { // reached jump target -> spike
 			push_spike ( x );
 			AurynDouble r = -log((*die)()+1e-20)/lambda;

@@ -69,7 +69,7 @@ protected:
 	boost::uniform_01<> * dist;
 	boost::variate_generator<boost::mt19937&, boost::uniform_01<> > * die;
 
-	AurynFloat * profile; //!< stores the spatial distribution of relative firing rates
+	auryn_vector_float * profile; //!< stores the spatial distribution of relative firing rates
 	
 public:
 	/*! Standard constructor. 
