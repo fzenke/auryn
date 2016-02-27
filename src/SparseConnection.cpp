@@ -136,7 +136,7 @@ void SparseConnection::init()
 	}
 
 	set_min_weight(0.0);
-	set_max_weight(1e16); // just make it large 
+	set_max_weight(std::numeric_limits<AurynWeight>::max()); // just make it large 
 
 	patterns_ignore_gamma = false;
 	wrap_patterns = false;
@@ -336,6 +336,11 @@ void SparseConnection::connect_block_random(AurynWeight weight,
 	if ( sparseness > 1.0 ) {
 		auryn::logger->msg("Sparseness larger than 1 not allowed. Setting to 1.",WARNING);
 		sparseness = 1.0;
+	}
+
+	if ( weight < get_min_weight() ) {
+		auryn::logger->msg("Weight smaller than minimal weight. Updating minimal weight and proceeding.",WARNING);
+		set_min_weight(weight);
 	}
 
 	int r = 0; // these variables are used to speed up building the matrix if the destination is distributed
