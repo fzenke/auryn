@@ -134,7 +134,7 @@ public:
 	 * function. */
 	bool wrap_patterns;
 
-	/*! A pointer that points per defalt to the SimpleMatrix
+	/*! A pointer that points per default to the ComplexMatrix
 	 * that stores the connectinos. */
 	ForwardMatrix * w; 
 
