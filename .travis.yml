@@ -1,14 +1,14 @@
 language: cpp
+sudo: required
+dist: trusty
 compiler:
     - gcc
-before_install:
-    - sudo apt-get install libboost-all-dev mpich2 libopenmpi-dev -y
-    - sudo apt-get install cmake -y
+install:
+    - sudo apt-get update -qq
+    - sudo apt-get install -y -qq libboost-all-dev mpich2 libopenmpi-dev 
+    - sudo apt-get install -y -qq cmake 
 script: 
-    - CFLAGS="${CFLAGS:--O2 -g -pipe -Wall -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 -fexceptions --param=ssp-buffer-size=4 -m64 -mtune=generic}" ; export CFLAGS ;
-    - CXXFLAGS="${CXXFLAGS:--O2 -g -pipe -Wall -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 -fexceptions --param=ssp-buffer-size=4 -m64 -mtune=generic}" ; export CXXFLAGS ;
-    - LDFLAGS="${LDFLAGS:--Wl,-z,relro}";export LDFLAGS ;
-    - cmake         -DCMAKE_C_FLAGS_RELEASE:STRING="-DNDEBUG"         -DCMAKE_CXX_FLAGS_RELEASE:STRING="-DNDEBUG"         -DCMAKE_Fortran_FLAGS_RELEASE:STRING="-DNDEBUG"         -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON         -DCMAKE_INSTALL_PREFIX:PATH=/usr         -DINCLUDE_INSTALL_DIR:PATH=/usr/include         -DLIB_INSTALL_DIR:PATH=/usr/lib64         -DSYSCONF_INSTALL_DIR:PATH=/etc         -DSHARE_INSTALL_PREFIX:PATH=/usr/share -DLIB_SUFFIX=64 -DBUILD_SHARED_LIBS:BOOL=ON && make
+    - mkdir build && cd build && cmake ../ -DCMAKE_BUILD_TYPE=Release && make
 
 notifications:
     email:
