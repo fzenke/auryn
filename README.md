@@ -53,6 +53,6 @@ doi: 10.3389/fninf.2014.00076
 
 
 
-Copyright 2014-2015 Friedemann Zenke.
+Copyright 2014-2016 Friedemann Zenke.
 Copying and distribution of this file, with or without modification, are
 permitted provided the copyright notice and this notice are preserved.
