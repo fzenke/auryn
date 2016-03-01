@@ -18,7 +18,6 @@ To download and compile the examples try:
 ```
 sudo apt-get install cmake git build-essential libboost-all-dev
 git clone https://github.com/fzenke/auryn.git && cd auryn 
-git checkout -b develop origin/develop
 mkdir build && cd build
 cmake ../ -DCMAKE_BUILD_TYPE=Release && make
 ```
