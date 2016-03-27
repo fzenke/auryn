@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -69,11 +69,14 @@ namespace auryn {
 		virtual void virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version ) ;
 		
 	public:
-		/*! Standard constructor */
+		/*! \brief Standard active switch */
+		bool active;
+
+		/*! \brief Standard constructor */
 		Monitor();
-		/*! Standard constructor with file name*/
+		/*! \brief Standard constructor with file name*/
 		Monitor(std::string filename);
-		/*! Standard destructor  */
+		/*! \brief Standard destructor  */
 		virtual ~Monitor();
 		/*! Virtual propagate function to be called in central simulation loop in System */
 		virtual void propagate() = 0;

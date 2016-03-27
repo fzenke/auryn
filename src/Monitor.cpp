@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -30,6 +30,8 @@ using namespace auryn;
 void Monitor::init(std::string filename)
 {
 	fname = filename;
+
+	active = true;
 
 	open_output_file(filename);
 }

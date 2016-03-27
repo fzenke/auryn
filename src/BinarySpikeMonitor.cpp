@@ -1,5 +1,5 @@
 /*
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 * Contributed by Ankur Sinha
 *
 * This file is part of Auryn, a simulation package for plastic
@@ -102,6 +102,8 @@ void BinarySpikeMonitor::set_every(NeuronID every)
 
 void BinarySpikeMonitor::propagate()
 {
+	if ( !active ) return;
+
 	struct SpikeEvent_type spikeData;
 	spikeData.time = auryn::sys->get_clock();
 	for (it = src->get_spikes_immediate()->begin() ; it < src->get_spikes_immediate()->end() ; ++it ) {

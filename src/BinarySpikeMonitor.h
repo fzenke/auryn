@@ -1,5 +1,5 @@
 /*
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 * Contributed by Ankur Sinha
 *
 * This file is part of Auryn, a simulation package for plastic
@@ -42,7 +42,7 @@ namespace auryn {
  * and writes all or a specified range of the neurons spikes to a
  * file that has to be given at construction time.
  */
-class BinarySpikeMonitor : Monitor
+class BinarySpikeMonitor : public Monitor
 {
 private:
     NeuronID n_from;

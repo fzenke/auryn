@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -134,7 +134,7 @@ public:
 	 * function. */
 	bool wrap_patterns;
 
-	/*! A pointer that points per defalt to the SimpleMatrix
+	/*! A pointer that points per default to the ComplexMatrix
 	 * that stores the connectinos. */
 	ForwardMatrix * w; 
 

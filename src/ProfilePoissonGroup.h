@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -69,7 +69,7 @@ protected:
 	boost::uniform_01<> * dist;
 	boost::variate_generator<boost::mt19937&, boost::uniform_01<> > * die;
 
-	AurynFloat * profile; //!< stores the spatial distribution of relative firing rates
+	auryn_vector_float * profile; //!< stores the spatial distribution of relative firing rates
 	
 public:
 	/*! Standard constructor. 

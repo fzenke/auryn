@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -69,6 +69,8 @@ namespace auryn {
 		std::vector<Connection *> connections;
 		std::vector<Monitor *> monitors;
 		std::vector<Checker *> checkers;
+
+		string outputdir;
 
 		double simulation_time_realtime_ratio;
 
@@ -219,7 +221,18 @@ namespace auryn {
 		/*! Get total number of registered synapses */
 		AurynLong get_total_synapses();
 
+		/*! \brief Format output file name 
+		 *
+		 * Formats output files according to the following convention:
+		 * <outputdir>/<name>.<rank>.<extension>
+		 * and returns it as a c string;
+		 * */
+		string fn(std::string name, std::string extension);
 
+		/*! \brief Set output dir for fn function */
+		void set_output_dir(std::string path);
+
+		/*! \brief Returns global mpi communicator */
 		mpi::communicator * get_com();
 
 #ifdef CODE_COLLECT_SYNC_TIMING_STATS
