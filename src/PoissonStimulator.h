@@ -38,9 +38,9 @@
 
 namespace auryn {
 
-/*! \brief Stimulator class to inject timeseries of currents to patterns (subpopulations) of neurons 
+/*! \brief Stimulator class to inject timeseries of currents NeuronGroups
  * 
- * Instances of this class inject currents that vary over time to subpopulations of the NeuronGroup assigned.
+ *  Instances of this class inject independent currents from a Poisson distribution to the NeuronGroup assigned.
  */
 
 class PoissonStimulator : protected Monitor
