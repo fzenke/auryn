@@ -60,38 +60,49 @@ private:
 	void virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version );
 	void virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version );
 public:
-	/*! The default constructor of this NeuronGroup */
+	/*! \brief The default constructor of this NeuronGroup */
 	TIFGroup(NeuronID size);
 	virtual ~TIFGroup();
 
-	/*! Controls the constant current input (per default set so zero) to neuron i */
+	/*! \brief Controls the constant current input (per default set so zero) to neuron i */
 	void set_bg_current(NeuronID i, AurynFloat current);
 
-	/*! Controls the constant current input to all neurons */
+	/*! \brief Controls the constant current input to all neurons */
 	void set_bg_currents(AurynFloat current);
 
-	/*! Setter for refractory time [s] */
+	/*! \brief Setter for refractory time [s] */
 	void set_refractory_period(AurynDouble t);
 
-	/*! Gets the current background current value for neuron i */
+	/*! \brief Gets the current background current value for neuron i */
 	AurynFloat get_bg_current(NeuronID i);
-	/*! Sets the membrane time constant (default 20ms) */
+
+	/*! \brief Sets the membrane time constant (default 20ms) */
 	void set_tau_mem(AurynFloat taum);
-	/*! Sets the membrane resistance (default 100 M-ohm) */
+
+	/*! \brief Sets the membrane resistance (default 100 M-ohm) */
 	void set_r_mem(AurynFloat rm);
-	/*! Sets the membrane capacitance (default 200pF) */
+
+	/*! \brief Sets the membrane capacitance (default 200pF) */
 	void set_c_mem(AurynFloat cm);
-	/*! Sets the exponential time constant for the AMPA channel (default 5ms) */
+
+	/*! \brief Sets the exponential time constant for the AMPA channel (default 5ms) */
 	void set_tau_ampa(AurynFloat tau);
-	/*! Gets the exponential time constant for the AMPA channel */
+
+	/*! \brief Gets the exponential time constant for the AMPA channel */
 	AurynFloat get_tau_ampa();
-	/*! Sets the exponential time constant for the GABA channel (default 10ms) */
+
+	/*! \brief Sets the exponential time constant for the GABA channel (default 10ms) */
 	void set_tau_gaba(AurynFloat tau);
-	/*! Gets the exponential time constant for the GABA channel */
+
+	/*! \brief Gets the exponential time constant for the GABA channel */
 	AurynFloat get_tau_gaba();
-	/*! Resets all neurons to defined and identical initial state. */
+
+	/*! \brief Resets all neurons to defined and identical initial state. */
 	void clear();
-	/*! The evolve method internally used by System. */
+
+	/*! \brief Integrates the NeuronGroup state
+	 *
+	 * The evolve method internally used by System. */
 	void evolve();
 };
 
