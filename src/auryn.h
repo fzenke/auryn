@@ -108,6 +108,7 @@
 #include "WeightMonitor.h"
 #include "WeightMatrixMonitor.h"
 #include "PoissonStimulator.h"
+#include "NormalStimulator.h"
 #include "PatternStimulator.h"
 #include "CurrentInjector.h"
 
