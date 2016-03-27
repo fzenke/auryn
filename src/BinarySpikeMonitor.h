@@ -36,11 +36,13 @@
 namespace auryn {
 
 /*! \brief The standard Monitor object to record spikes from a
- * SpikingGroup and write them to file
+ * SpikingGroup and write them to a binary file
  *
  * BinarySpikeMonitor is specified with a source group of type SpikingGroup
  * and writes all or a specified range of the neurons spikes to a
  * file that has to be given at construction time.
+ * The output files can be read and converted to ascii ras files using the tool
+ * aube (Auryn Binary Extractor) which compiles in the tools folder.
  */
 class BinarySpikeMonitor : public Monitor
 {
