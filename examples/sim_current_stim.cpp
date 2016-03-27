@@ -40,8 +40,6 @@ int main(int ac, char* av[])
 	char strbuf [255];
 	string outputfile = "out_current_stim";
 	string tmpstr;
-	AurynWeight w = 1.0;
-	AurynFloat rate = 100.0;
 
 	// BEGIN Global definitions
 	mpi::environment env(ac, av);
@@ -64,22 +62,22 @@ int main(int ac, char* av[])
 	// END Global definitions
 	
 	IFGroup * neurons = new IFGroup(2);
-	PoissonStimulator * stim = new PoissonStimulator(neurons, rate, w);
-	// NormalStimulator * stim = new NormalStimulator(neurons);
-	stim->set_target_state("mem");
+	AurynWeight weight = 1e-2; // weight in mV if the target of the stimulator is "mem"
+	AurynFloat rate = 100.0;  // 
+	PoissonStimulator * stim = new PoissonStimulator(neurons, rate, weight);
 
 
 	tmpstr = outputfile;
 	tmpstr += ".mem0";
-	VoltageMonitor * vmon = new VoltageMonitor( neurons, 0, tmpstr.c_str() );
+	VoltageMonitor * vmon0 = new VoltageMonitor( neurons, 0, tmpstr.c_str() );
 
 	tmpstr = outputfile;
 	tmpstr += ".mem1";
-	VoltageMonitor * vmon = new VoltageMonitor( neurons, 1, tmpstr.c_str() );
+	VoltageMonitor * vmon1 = new VoltageMonitor( neurons, 1, tmpstr.c_str() );
 
 
 	logger->msg("Running ...",PROGRESS);
-	sys->run(10);
+	sys->run(1);
 
 	logger->msg("Freeing ...",PROGRESS,true);
 	delete sys;
