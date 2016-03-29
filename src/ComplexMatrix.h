@@ -172,10 +172,14 @@ public:
 	void fill_zeros();
 	AurynDouble get_fill_level();
 	T get(NeuronID i, NeuronID j, NeuronID z=0);
-	bool exists(NeuronID i, NeuronID j);
+
+	/*! \brief Returns true if the matrix element exists. */
+	bool exists(NeuronID i, NeuronID j, NeuronID z=0);
+
 	/*! Returns the pointer to a particular element */
 	T * get_ptr(NeuronID i, NeuronID j);
 
+	/*! Returns the pointer to a particular element */
 	T * get_ptr(NeuronID i, NeuronID j, NeuronID z);
 	/*! Returns the pointer to a particular element given 
 	 * its position in the data array. */
@@ -487,9 +491,9 @@ T ComplexMatrix<T>::get(NeuronID i, NeuronID j, NeuronID z)
 }
 
 template <typename T>
-bool ComplexMatrix<T>::exists(NeuronID i, NeuronID j)
+bool ComplexMatrix<T>::exists(NeuronID i, NeuronID j, NeuronID z)
 {
-	if ( get_ptr(i,j) == NULL )
+	if ( get_ptr(i,j) == NULL || z >= get_z_values() )
 		return false;
 	else 
 		return true;
@@ -536,12 +540,22 @@ T * ComplexMatrix<T>::get_ptr(NeuronID i, NeuronID j)
 		c = lo + (hi-lo)/2;
 		if ( *c < j ) lo = c+1;
 		else hi = c;
-		//std::cout << i << ":" << j << "   " << *lo << ":" << *hi << endl;
+#ifdef DEBUG
+		std::cout << i << ":" << j << "   " << *lo << ":" << *hi << std::endl;
+#endif // DEBUG
 	}
 	
 	if ( *lo == j ) {
+#ifdef DEBUG
+		std::cout << "found element at data array position " 
+			<< (lo-colinds) << std::endl;
+#endif // DEBUG
 		return elementdata+(lo-colinds);
 	}
+
+#ifdef DEBUG
+		std::cout << "element not found" << std::endl;
+#endif // DEBUG
 
 	return NULL; 
 }
