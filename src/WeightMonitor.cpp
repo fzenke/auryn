@@ -160,7 +160,7 @@ void WeightMonitor::add_equally_spaced(NeuronID number, NeuronID z)
 
 	std::stringstream oss;
 	oss << "WeightMonitor:: "
-		<< "Adding "
+		<< "Added "
 		<< number 
 		<< " equally spaced values.";
 	auryn::logger->msg(oss.str(),VERBOSE);
