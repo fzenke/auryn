@@ -888,8 +888,8 @@ bool SparseConnection::load_from_complete_file(std::string filename)
 {
 	AurynLong datasize = dryrun_from_file(filename);
 	std::stringstream oss;
-	oss << "Loading from complete wmat file \
-		(all ranks in the same file). Element count: "
+	oss << "Loading from complete wmat file "
+		<< "(all ranks in the same file). Element count: "
 		<< datasize 
 		<< ".";
 	auryn::logger->msg(oss.str(),NOTIFICATION);
