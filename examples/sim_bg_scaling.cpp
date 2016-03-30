@@ -19,7 +19,12 @@
 */
 
 /*! \brief Example simulation that simulates a balanced network with 
- * triplet STDP with homeostatic scaling */
+ * triplet STDP with homeostatic scaling 
+ *
+ * This simulation code is based on the code used in Zenke, F., Hennequin, G.,
+ * and Gerstner, W. (2013). Synaptic Plasticity in Neural Networks Needs
+ * Homeostasis with a Fast Rate Detector. PLoS Comput Biol 9, e1003330.
+ * */
 
 #include "auryn.h"
 
@@ -58,11 +63,6 @@ int main(int ac, char* av[])
 	double wmat_interval = 600.;
 	double wstim = 0.1;
 
-	string patfile = "/home/zenke/stim/2block.pat";
-	string currentfile = "updown.cur";
-
-	// string corr_file = "/home/zenke/projects/2012-bcmstab/learn/corr.wmat";
-	string corr_pat_file = "/home/zenke/projects/2012-bcmstab/learn/corr.pat";
 	double stimfreq = 100;
 
 	bool corr = false;
@@ -70,7 +70,6 @@ int main(int ac, char* av[])
 	bool noisyweights = false;
 	bool fast = false;
 	AurynWeight wdecay = w;
-	double tau_decay = 3600.;
 
 	double tau_hom = 50.;
 	double eta = 1;
@@ -78,7 +77,7 @@ int main(int ac, char* av[])
 
 	int n_strengthen = 0;
 
-	string dir = "/lcncluster/zenke/auryn/";
+	string dir = "/tmp";
 	string stimfile = "";
 	string label = "";
 	string infilename = "";
@@ -351,10 +350,6 @@ int main(int ac, char* av[])
 		sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.weight", dir.c_str(), file_prefix, beta_scaling, tau_hom, label.c_str(), world.rank());
 		WeightMatrixMonitor * wmatmon = new WeightMatrixMonitor( con_ee, strbuf , wmat_interval );
 	}
-
-	// sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.syn", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), world.rank());
-	// WeightMonitor * wmon = new WeightMonitor( con_ee, strbuf, 10 ); 
-	// wmon->load_pattern_connections(corr_pat_file,200);
 
 	if ( !fast ) {
 		sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.%c.ras", dir.c_str(), file_prefix, beta_scaling, tau_hom, label.c_str(), world.rank(), 'e');
