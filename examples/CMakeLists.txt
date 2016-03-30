@@ -1,6 +1,9 @@
 ADD_EXECUTABLE( sim_background sim_background.cpp )
 TARGET_LINK_LIBRARIES( sim_background auryn ${MPI_C_LIBRARIES} ${Boost_LIBRARIES} )
 
+ADD_EXECUTABLE( sim_bg_scaling sim_bg_scaling.cpp )
+TARGET_LINK_LIBRARIES( sim_bg_scaling auryn ${MPI_C_LIBRARIES} ${Boost_LIBRARIES} )
+
 ADD_EXECUTABLE( sim_bg_lowpass sim_bg_lowpass.cpp )
 TARGET_LINK_LIBRARIES( sim_bg_lowpass auryn ${MPI_C_LIBRARIES} ${Boost_LIBRARIES} )
 
