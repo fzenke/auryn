@@ -57,9 +57,10 @@
 #include "SymmetricSTDPConnection.h"
 #include "STPConnection.h"
 #include "ABSConnection.h"
-#include "TripletConnection.h"
 #include "DuplexConnection.h"
+#include "TripletConnection.h"
 #include "TripletDecayConnection.h"
+#include "TripletScalingConnection.h"
 #include "IdentityConnection.h"
 
 // Spiking and Neuron group definitions
@@ -70,6 +71,7 @@
 #include "AdExGroup.h"
 #include "CubaIFGroup.h"
 #include "TIFGroup.h"
+#include "SIFGroup.h"
 #include "SpikingGroup.h"
 #include "NeuronGroup.h"
 #include "PoissonGroup.h"
@@ -108,6 +110,7 @@
 #include "WeightMonitor.h"
 #include "WeightMatrixMonitor.h"
 #include "PoissonStimulator.h"
+#include "NormalStimulator.h"
 #include "PatternStimulator.h"
 #include "CurrentInjector.h"
 

@@ -38,9 +38,9 @@
 
 namespace auryn {
 
-/*! \brief Stimulator class to inject timeseries of currents to patterns (subpopulations) of neurons 
+/*! \brief Stimulator class to inject timeseries of currents NeuronGroups
  * 
- * Instances of this class inject currents that vary over time to subpopulations of the NeuronGroup assigned.
+ *  Instances of this class inject independent currents from a Poisson distribution to the NeuronGroup assigned.
  */
 
 class PoissonStimulator : protected Monitor
@@ -82,32 +82,40 @@ protected:
 
 	
 public:
-	/*! Default Constructor 
+	/*! \brief Default Constructor 
 	 * @param[target] The target spiking group. 
 	 * @param[rate]   The firing rate of each the Poisson process.
 	 * @param[weight] The weight or unit of amount of change on the state variable
 	 */
 	PoissonStimulator(NeuronGroup * target, AurynFloat rate=100.0, AurynWeight w = 0.1 );
 
-	/*! Default Destructor */
+	/*! \brief Default Destructor */
 	virtual ~PoissonStimulator();
 
 
-	/*! Sets the event rate of the underlying Poisson generator */
+	/*! \brief Sets the event rate of the underlying Poisson generator 
+	 *
+	 * @param[rate] The Poisson rate */
 	void set_rate(AurynFloat rate);
 
-	/*! Returns the  event rate of the underlying Poisson generator */
+	/*! \brief Returns the event rate of the underlying Poisson generator. */
 	AurynFloat get_rate();
 
-	/*! Seeds the random number generator of all PoissonStimulator objects */
+	/*! \brief Seeds the random number generator of all PoissonStimulator objects on this rank
+	 *
+	 * @param[s] The random seed. 
+	 * Note, that this seeding function is not rank save. To ensure that the currents are 
+	 * independent on different ranks you need to give a different seed on each rank when
+	 * running parallel simulations. */
 	void seed(int s);
 
 
-	/*! Sets the state that is stimulated with Poisson input.
-	 * This must be a valid state vector name (default = mem) */
+	/*! \brief Sets the state that is stimulated 
+	 *
+	 * This must be a valid state vector name (default = mem). */
 	void set_target_state( string state_name = "mem" );
 
-	/*! Implementation of necessary propagate() function. */
+	/*! \brief Implementation of necessary propagate() function. */
 	void propagate();
 
 };

@@ -18,9 +18,15 @@
 * along with Auryn.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "auryn.h"
 
-#define N 1
+/*! \brief Example illustrating the use of PoissonStimulator
+ *
+ * This example shows how one can add independent random Poisson currents to
+ * each neuron in a Neurongroup. The example also works for NormalStimulator
+ * in which the random currents follow a normal distribution
+ */
+
+#include "auryn.h"
 
 using namespace auryn;
 
@@ -32,9 +38,8 @@ int main(int ac, char* av[])
 
 	int errcode = 0;
 	char strbuf [255];
-	string outputfile = "out_epsp";
+	string outputfile = "out_current_stim";
 	string tmpstr;
-	AurynWeight w = 1.0;
 
 	// BEGIN Global definitions
 	mpi::environment env(ac, av);
@@ -43,7 +48,7 @@ int main(int ac, char* av[])
 
 	try
 	{
-		sprintf(strbuf, "out_epsp.%d.log", world.rank());
+		sprintf(strbuf, "out_current_stim.%d.log", world.rank());
 		string logfile = strbuf;
 		logger = new Logger(logfile,world.rank(),PROGRESS,EVERYTHING);
 	}
@@ -56,29 +61,23 @@ int main(int ac, char* av[])
 	sys = new System(&world);
 	// END Global definitions
 	
-	PoissonGroup * poisson = new PoissonGroup(N,1.);
-	IFGroup * neuron = new IFGroup(1);
+	IFGroup * neurons = new IFGroup(2);
+	AurynWeight weight = 1e-2; // weight in mV if the target of the stimulator is "mem"
+	AurynFloat rate = 100.0;  // 
+	PoissonStimulator * stim = new PoissonStimulator(neurons, rate, weight);
 
-	IdentityConnection * con = new IdentityConnection(poisson,neuron,w,GLUT);
-
-	tmpstr = outputfile;
-	tmpstr += ".ras";
-	SpikeMonitor * smon = new SpikeMonitor( neuron, tmpstr.c_str() );
 
 	tmpstr = outputfile;
-	tmpstr += ".mem";
-	VoltageMonitor * vmon = new VoltageMonitor( neuron, 0, tmpstr.c_str() );
+	tmpstr += ".mem0";
+	VoltageMonitor * vmon0 = new VoltageMonitor( neurons, 0, tmpstr.c_str() );
 
 	tmpstr = outputfile;
-	tmpstr += ".ampa";
-	AmpaMonitor * amon = new AmpaMonitor( neuron, 0, tmpstr.c_str() );
+	tmpstr += ".mem1";
+	VoltageMonitor * vmon1 = new VoltageMonitor( neurons, 1, tmpstr.c_str() );
 
-	tmpstr = outputfile;
-	tmpstr += ".nmda";
-	NmdaMonitor * nmon = new NmdaMonitor( neuron, 0, tmpstr.c_str() );
 
 	logger->msg("Running ...",PROGRESS);
-	sys->run(10);
+	sys->run(1);
 
 	logger->msg("Freeing ...",PROGRESS,true);
 	delete sys;
