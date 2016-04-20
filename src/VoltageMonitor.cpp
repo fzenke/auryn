@@ -58,18 +58,23 @@ void VoltageMonitor::init(NeuronGroup * source, NeuronID id, std::string filenam
 
 void VoltageMonitor::propagate()
 {
-	if ( auryn::sys->get_clock() < tStop && (auryn::sys->get_clock())%ssize==0 ) {
+	if ( auryn::sys->get_clock() < tStop ) {
+		// we output spikes irrespectively of the sampling interval, because 
+		// the membrane potential isn't a smooth function for most IF models when
+		// they spike, so it's easy to "miss" a spike otherwise
 		double voltage = src->get_mem(nid);
 		if ( paste_spikes ) {
 			SpikeContainer * spikes = src->get_spikes_immediate();
 			for ( int i = 0 ; i < spikes->size() ; ++i ) {
 				if ( spikes->at(i) == gid ) {
 					voltage = VOLTAGEMONITOR_PASTED_SPIKE_HEIGHT;
-					break;
+					outfile << (auryn::sys->get_time()) << " " << voltage << "\n";
+					return;
 				}
 			}
 		}
-		outfile << (auryn::sys->get_time()) << " " << voltage << "\n";
+		if ( (auryn::sys->get_clock())%ssize==0 )
+			outfile << (auryn::sys->get_time()) << " " << voltage << "\n";
 	}
 }
 
