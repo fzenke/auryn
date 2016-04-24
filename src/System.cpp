@@ -552,6 +552,7 @@ void System::save_network_state(std::string basename)
 		netstate_filename = oss.str();
 	} // oss goes out of focus
 
+	auryn::logger->msg("Opening output stream ...",VERBOSE);
 	std::ofstream ofs(netstate_filename.c_str());
 	boost::archive::binary_oarchive oa(ofs);
 	
@@ -560,11 +561,13 @@ void System::save_network_state(std::string basename)
 	const int auryn_subversion = AURYNSUBVERSION;
 	const int auryn_revision = AURYNREVISION;
 
+	auryn::logger->msg("Saving version information ...",VERBOSE);
 	// save simulator version information 
 	oa << auryn_version;
 	oa << auryn_subversion;
 	oa << auryn_revision;
 
+	auryn::logger->msg("Saving communicator information ...",VERBOSE);
 	// save communicator information 
 	int tmp_int = mpicom->size();
 	oa << tmp_int;
@@ -578,9 +581,9 @@ void System::save_network_state(std::string basename)
 		std::stringstream oss;
 		oss << "Saving connection "
 			<<  i 
-			<< " \""
+			<< " '"
 			<< connections[i]->get_name()
-			<< "\""
+			<< "' "
 			<< " to stream";
 		auryn::logger->msg(oss.str(),VERBOSE);
 
