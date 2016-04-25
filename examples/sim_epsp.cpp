@@ -67,7 +67,7 @@ int main(int ac, char* av[])
 
 	tmpstr = outputfile;
 	tmpstr += ".mem";
-	VoltageMonitor * vmon = new VoltageMonitor( neuron, 0, tmpstr.c_str() );
+	VoltageMonitor * vmon = new VoltageMonitor( neuron, 0, tmpstr.c_str(), 1e-3 );
 
 	tmpstr = outputfile;
 	tmpstr += ".ampa";
