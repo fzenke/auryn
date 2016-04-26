@@ -45,6 +45,10 @@ protected:
 	/*! Target variable */
 	AurynState * target_variable;
 
+	/*! Last value (used for compression) */
+	AurynState lastval;
+	AurynState lastder;
+
 	/*! The source neuron id to record from */
 	NeuronID nid;
 	/*! The step size (sampling interval) in units of dt */
@@ -55,7 +59,18 @@ protected:
 	void init(SpikingGroup * source, NeuronID id, string statename, string filename, AurynTime stepsize);
 	
 public:
-	/*! Standard constructor 
+	/*! \brief Switch to enable/disable output compression 
+	 *
+	 * When set to true, Auryn will compute the derivative of two consecutive datapoints of the state
+	 * and only a value if the derivative changes. The correct function can then be recovered with linear
+	 * interpolation (i.e. plotting in gnuplot with lines will yield the correct output).
+	 * When compression is enabled the last value written to file always by one timestep with respect to
+	 * the simulation clock.
+	 * enable_compression is true by default.
+	 */
+	bool enable_compression;
+
+	/*! \brief Standard constructor 
 	 * \param source The neuron group to record from
 	 * \param id The neuron id in the group to record from 
 	 * \param statename The name of the StateVector to record from
@@ -64,14 +79,14 @@ public:
 	 */
 	StateMonitor(SpikingGroup * source, NeuronID id, string statename, string filename, AurynDouble sampling_interval=dt);
 
-	/*! Alternative constructor
+	/*! \brief Alternative constructor
 	 * \param state The source state vector
 	 * \param filename The filename of the file to dump the output to
 	 * \param sampling_interval The sampling interval in seconds
 	 */
 	StateMonitor(auryn_vector_float * state, NeuronID id, string filename, AurynDouble sampling_interval=dt);
 
-	/*! EulerTrace constructor
+	/*! \brief EulerTrace constructor
 	 * \param trace The source synaptic trace
 	 * \param filename The filename of the file to dump the output to
 	 * \param sampling_interval The sampling interval in seconds
@@ -86,7 +101,7 @@ public:
 	 * snippets. */
 	void record_for(AurynDouble time=10.0);
 
-	/*! \brief Same as record_for(time) */
+	/*! \brief Set an absolute simulation time when to stop. */
 	void set_stop_time(AurynDouble time=10.0);
 
 	virtual ~StateMonitor();

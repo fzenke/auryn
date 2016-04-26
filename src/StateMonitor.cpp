@@ -71,6 +71,9 @@ void StateMonitor::init(SpikingGroup * source, NeuronID id, std::string statenam
 	src = source;
 	nid = src->global2rank(id);
 	set_stop_time(10.0);
+	enable_compression = true;
+	lastval = 0;
+	lastder = 0;
 
 	if ( nid >= src->get_rank_size() ) {
 		auryn::logger->msg("Error: StateMonitor trying to read from non-existing neuron.",ERROR);
@@ -96,8 +99,24 @@ void StateMonitor::propagate()
 {
 	if ( auryn::sys->get_clock() < t_stop && auryn::sys->get_clock()%ssize==0  ) {
 		char buffer[255];
-		int n = sprintf(buffer,"%f %f\n",auryn::sys->get_time(), *target_variable); 
-		outfile.write(buffer,n); 
+		if ( enable_compression ) {
+			AurynState value = *target_variable;
+			AurynState deriv = value-lastval;
+
+			if ( deriv == lastder ) {
+				return;
+			}
+
+			int n = sprintf(buffer,"%f %f\n",(auryn::sys->get_clock()-ssize)*dt, lastval); 
+			outfile.write(buffer,n);
+
+			lastval = value;
+			lastder = deriv;
+
+		} else {
+			int n = sprintf(buffer,"%f %f\n",auryn::sys->get_time(), *target_variable); 
+			outfile.write(buffer,n); 
+		}
 	}
 }
 
