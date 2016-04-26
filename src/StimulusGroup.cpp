@@ -574,6 +574,11 @@ AurynTime StimulusGroup::get_last_action_time()
 	return last_action_time;
 }
 
+AurynTime StimulusGroup::get_next_action_time()
+{
+	return next_action_time;
+}
+
 bool StimulusGroup::get_stim_active()
 {
 	return stimulus_active;
