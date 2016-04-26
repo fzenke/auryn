@@ -175,12 +175,12 @@ int main(int ac,char *av[]) {
 		logger->msg(msg,PROGRESS,true);
 
 		std::stringstream filename;
-		filename << outputfile << "e.bras";
+		filename << outputfile << "e.spk";
 		BinarySpikeMonitor * smon_e = new BinarySpikeMonitor( neurons_e, filename.str().c_str() );
 
 		filename.str("");
 		filename.clear();
-		filename << outputfile << "i.bras";
+		filename << outputfile << "i.spk";
 		BinarySpikeMonitor * smon_i = new BinarySpikeMonitor( neurons_i, filename.str().c_str() );
 	}
 
