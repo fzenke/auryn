@@ -101,7 +101,7 @@ public:
 	 * snippets. */
 	void record_for(AurynDouble time=10.0);
 
-	/*! \brief Set an absolute simulation time when to stop. */
+	/*! \brief Set an absolute time when to stop recording. */
 	void set_stop_time(AurynDouble time=10.0);
 
 	virtual ~StateMonitor();

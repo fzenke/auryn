@@ -72,8 +72,8 @@ void StateMonitor::init(SpikingGroup * source, NeuronID id, std::string statenam
 	nid = src->global2rank(id);
 	set_stop_time(10.0);
 	enable_compression = true;
-	lastval = 0;
-	lastder = 0;
+	lastval = 0.0;
+	lastder = 0.0;
 
 	if ( nid >= src->get_rank_size() ) {
 		auryn::logger->msg("Error: StateMonitor trying to read from non-existing neuron.",ERROR);
@@ -103,12 +103,10 @@ void StateMonitor::propagate()
 			AurynState value = *target_variable;
 			AurynState deriv = value-lastval;
 
-			if ( deriv == lastder ) {
-				return;
+			if ( deriv != lastder ) {
+				int n = sprintf(buffer,"%f %f\n",(auryn::sys->get_clock()-ssize)*dt, lastval); 
+				outfile.write(buffer,n);
 			}
-
-			int n = sprintf(buffer,"%f %f\n",(auryn::sys->get_clock()-ssize)*dt, lastval); 
-			outfile.write(buffer,n);
 
 			lastval = value;
 			lastder = deriv;
@@ -121,14 +119,15 @@ void StateMonitor::propagate()
 }
 
 void StateMonitor::set_stop_time(AurynDouble time)
+{ 
+	AurynDouble stoptime = std::min( time, std::numeric_limits<AurynTime>::max()*dt );
+	t_stop = stoptime/dt;
+}
+
+void StateMonitor::record_for(AurynDouble time)
 {
 	if (time < 0) {
 		auryn::logger->msg("Warning: Negative stop times not supported -- ingoring.",WARNING);
 	} 
 	else t_stop = auryn::sys->get_clock() + time/dt;
-}
-
-void StateMonitor::record_for(AurynDouble time)
-{
-	set_stop_time(time);
 }
