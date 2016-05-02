@@ -111,9 +111,9 @@ int main(int ac, char* av[])
 			("version,v", "show version information")
 			("inputs,i", po::value< std::vector<std::string> >()->multitoken(), "input files")
 			("output,o", po::value<std::string>(), "output file (output to stout if not given)")
-			("from,f", po::value<double>(), "from time in seconds")
-			("to,t", po::value<double>(), "to time in seconds")
-			("last,l", po::value<double>(), "last x seconds (overrides start/end)")
+			("from,f", po::value<double>(), "'from time' in seconds")
+			("to,t", po::value<double>(), "'to time' in seconds")
+			("last,l", po::value<double>(), "last x seconds (overrides from/to)")
 			("maxid,m", po::value<NeuronID>(), "maximum neuron id to extract")
 			;
 
