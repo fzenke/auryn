@@ -28,7 +28,6 @@
 
 #include "auryn_global.h"
 #include "auryn_definitions.h"
-#include "AurynVector.h"
 
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/split_member.hpp>
