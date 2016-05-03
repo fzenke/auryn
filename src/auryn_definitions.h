@@ -357,11 +357,16 @@ namespace auryn {
 
 	};
 
-	typedef AurynVector<AurynFloat> auryn_vector_float; //!< Reimplements a simplified version of the GSL vector.
 
-	typedef AurynVector<unsigned short> auryn_vector_ushort; //!< Reimplements a simplified version of the GSL vector for ushort.
 
-	// Float vector legacy functions
+	typedef AurynVector<AurynFloat> AurynVectorFloat; //!< Default Auryn state vector type
+
+	// Legacy state vector types 
+	typedef AurynVectorFloat auryn_vector_float; //!< Default legacy Auryn state vector type
+	typedef AurynVector<unsigned short> auryn_vector_ushort; //!< Default legacy Auryn ushort vector type
+
+
+	// Legacy float vector functions
 
 	/*! Allocates an auryn_vector_float */
 	auryn_vector_float * auryn_vector_float_alloc(const NeuronID n);
@@ -425,7 +430,7 @@ namespace auryn {
 
 
 
-	// ushort vector functions
+	// Legacy ushort vector functions
 	/*! Allocates an auryn_vector_ushort */
 	auryn_vector_ushort * auryn_vector_ushort_alloc(const NeuronID n);
 	/*! Frees an auryn_vector_ushort */
