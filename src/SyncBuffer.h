@@ -30,6 +30,7 @@
 #define SYNCBUFFER_SIZE_HIST_LEN 512 //!< Accumulate history over this number of timesteps before updating the sendbuffer size in the absence of overflows
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "SpikeDelay.h"
 #include <vector>
 #include <boost/mpi.hpp>

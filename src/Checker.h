@@ -27,6 +27,7 @@
 #define CHECKER_H_
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "SpikingGroup.h"
 
 namespace auryn {

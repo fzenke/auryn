@@ -27,6 +27,7 @@
 #define SPIKINGGROUP_H_
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 // #include "SpikeContainer.h"
 #include "SpikeDelay.h"
 #include "EulerTrace.h"

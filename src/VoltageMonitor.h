@@ -29,6 +29,7 @@
 #define VOLTAGEMONITOR_PASTED_SPIKE_HEIGHT 20e-3
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "Monitor.h"
 #include "System.h"
 #include "Connection.h"

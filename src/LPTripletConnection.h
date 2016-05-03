@@ -27,6 +27,7 @@
 #define LPTRIPLETCONNECTION_H_
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "DuplexConnection.h"
 #include "EulerTrace.h"
 #include "LinearTrace.h"

@@ -27,6 +27,7 @@
 #define MONITOR_H_
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include <fstream>
 #include <string>
 

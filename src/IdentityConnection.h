@@ -27,6 +27,7 @@
 #define IDENTITYCONNECTION_H_
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "Connection.h"
 #include "System.h"
 

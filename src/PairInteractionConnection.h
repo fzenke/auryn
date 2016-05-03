@@ -24,6 +24,7 @@
 #define WINDOW_MAX_SIZE 60000
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "DuplexConnection.h"
 #include "EulerTrace.h"
 

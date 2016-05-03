@@ -27,6 +27,7 @@
 #define STPCONNECTION_H_
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "SparseConnection.h"
 
 

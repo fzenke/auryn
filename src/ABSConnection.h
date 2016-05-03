@@ -31,6 +31,7 @@
 #define ABS_VOLTAGE_CURVE_MAX -40e-3
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "DuplexConnection.h"
 #include "EulerTrace.h"
 

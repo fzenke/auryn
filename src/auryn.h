@@ -39,11 +39,11 @@
 // Core simulator definitions
 #include "auryn_global.h"
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "System.h"
 #include "SyncBuffer.h"
 #include "Logger.h"
 #include "SpikeDelay.h"
-#include "AurynVector.h"
 
 // Trace definitions
 #include "LinearTrace.h"

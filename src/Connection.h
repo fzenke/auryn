@@ -29,6 +29,7 @@
 #include <string>
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "SpikingGroup.h"
 #include "NeuronGroup.h"
 

@@ -27,6 +27,7 @@
 #define AIF2GROUP_H_
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "AIFGroup.h"
 #include "System.h"
 

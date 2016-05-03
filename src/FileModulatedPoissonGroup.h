@@ -27,6 +27,7 @@
 #define FILEMODULATEDGROUP_H_
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "System.h"
 #include "SpikingGroup.h"
 #include "PoissonGroup.h"

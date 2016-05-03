@@ -28,6 +28,7 @@
 
 #include "auryn_definitions.h"
 #include "AurynVector.h"
+#include "AurynVector.h"
 
 namespace auryn {
 

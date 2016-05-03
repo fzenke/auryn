@@ -57,6 +57,7 @@
 #include <boost/random/variate_generator.hpp>
 #include <boost/random/normal_distribution.hpp>
 
+
 #include "Logger.h"
 
 namespace mpi = boost::mpi;

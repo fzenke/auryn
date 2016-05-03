@@ -27,6 +27,7 @@
 #define TIFGROUP_H_
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "NeuronGroup.h"
 #include "System.h"
 
