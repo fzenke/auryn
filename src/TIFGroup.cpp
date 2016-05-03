@@ -112,8 +112,10 @@ void TIFGroup::evolve()
 
 	}
 
-    auryn_vector_float_scale(scale_ampa,g_ampa);
-    auryn_vector_float_scale(scale_gaba,g_gaba);
+    // auryn_vector_float_scale(scale_ampa,g_ampa);
+	g_ampa->scale(scale_ampa);
+    // auryn_vector_float_scale(scale_gaba,g_gaba);
+	g_gaba->scale(scale_gaba);
 }
 
 void TIFGroup::set_bg_current(NeuronID i, AurynFloat current) {

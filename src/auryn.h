@@ -43,6 +43,7 @@
 #include "SyncBuffer.h"
 #include "Logger.h"
 #include "SpikeDelay.h"
+#include "AurynVector.h"
 
 // Trace definitions
 #include "LinearTrace.h"
