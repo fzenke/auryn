@@ -63,8 +63,37 @@ namespace auryn {
 			NeuronID size;
 			T * data;
 
+			/*! \brief Default constructor */
+			AurynVector(NeuronID n) 
+			{
+				T * data = new T [n];
+				size = n;
+				data = data;
+			}
+
+			/*! \brief Default destructor */
+			~AurynVector() 
+			{
+				delete data;
+			}
+
+			/*! \brief Set all elements to value v. */
+			void set_all(T v) 
+			{
+				for ( NeuronID i = 0 ; i < size ; ++i ) {
+					data[i] = v;
+				}
+			}
+
+			/*! \brief Set all elements to zero. */
+			void set_zero(T v) 
+			{
+				set_all(0.0);
+			}
+
 			/*! \brief Scales all vector elements by a. */
-			void scale(AurynFloat a) {
+			void scale(AurynFloat a) 
+			{
 				for ( NeuronID i = 0 ; i < size ; ++i ) {
 					data[i] *= a;
 				}
@@ -76,14 +105,17 @@ namespace auryn {
 
 	typedef AurynVector<unsigned short> auryn_vector_ushort; //!< Reimplements a simplified version of the GSL vector for ushort.
 
-	// Float vector functions
+	// Float vector legacy functions
 
 	/*! Allocates an auryn_vector_float */
 	auryn_vector_float * auryn_vector_float_alloc(const NeuronID n);
+
 	/*! Frees an auryn_vector_float */
 	void auryn_vector_float_free (auryn_vector_float * v);
+
 	/*! Initializes an auryn_vector_float with zeros */
 	void auryn_vector_float_set_zero (auryn_vector_float * v);
+
 	/*! Sets all elements in an auryn_vector_float to value x */
 	void auryn_vector_float_set_all (auryn_vector_float * v, AurynFloat x);
 
@@ -144,8 +176,10 @@ namespace auryn {
 	void auryn_vector_ushort_free (auryn_vector_ushort * v);
 	/*! Initializes an auryn_vector_ushort with zeros */
 	void auryn_vector_ushort_set_zero (auryn_vector_ushort * v);
+
 	/*! Sets all elements in an auryn_vector_ushort to value x */
 	void auryn_vector_ushort_set_all (auryn_vector_ushort * v, unsigned short x);
+
 	/*! Copies vector src to dst assuming they have the same size. 
 	 * Otherwise this will lead to undefined results. No checking of size is
 	 * performed for performance reasons. */
