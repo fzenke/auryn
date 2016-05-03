@@ -38,6 +38,7 @@
 
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 
 
 namespace auryn {
@@ -86,7 +87,7 @@ namespace auryn {
 			}
 
 			/*! \brief Set all elements to zero. */
-			void set_zero(T v) 
+			void set_zero() 
 			{
 				set_all(0.0);
 			}
