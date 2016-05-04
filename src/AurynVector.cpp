@@ -65,7 +65,7 @@ void AurynVectorFloat::scale(float a)
 	}
 	#endif /* CODE_ACTIVATE_CILK_INSTRUCTIONS */
 #else
-	for ( NeuronID i = 0 ; i < b->size ; ++i ) {
+	for ( NeuronID i = 0 ; i < size ; ++i ) {
 		data[i] *= a;
 	}
 #endif /* CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY */
@@ -74,6 +74,7 @@ void AurynVectorFloat::scale(float a)
 
 void AurynVectorFloat::saxpy(float a, AurynVectorFloat * x)
 {
+	check_size(x);
 #ifdef CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY
 	#ifdef CODE_ACTIVATE_CILK_INSTRUCTIONS
 	data[0:size:1] = a * x->data[0:x->size:1] + data[0:size:1];
@@ -133,6 +134,7 @@ void AurynVectorFloat::clip(float min, float max)
 
 void AurynVectorFloat::mul(AurynVectorFloat * v) 
 {
+	check_size(v);
 #ifdef CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY
 	#ifdef CODE_ACTIVATE_CILK_INSTRUCTIONS
 	data[0:size:1] = data[0:size:1] * v->data[0:v->size:1];
@@ -149,6 +151,52 @@ void AurynVectorFloat::mul(AurynVectorFloat * v)
 #else
 	for ( NeuronID i = 0 ; i < size ; ++i ) {
 		data[i] *= v->data[i];
+	}
+#endif
+}
+
+
+void AurynVectorFloat::add(float a) 
+{
+#ifdef CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY
+	#ifdef CODE_ACTIVATE_CILK_INSTRUCTIONS
+	data[0:size:1] = a + data[0:size:1];
+	#else
+	const __m128 scalar = _mm_set1_ps(a);
+	for ( float * i = data ; i != data+size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )
+	{
+		// _mm_prefetch((i + SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS),  _MM_HINT_NTA);  
+		__m128 chunk = sse_load( i );
+		__m128 result = _mm_add_ps(chunk, scalar);
+		sse_store( i, result );
+	}
+	#endif /* CODE_ACTIVATE_CILK_INSTRUCTIONS */
+#else
+	for ( NeuronID i = 0 ; i < size ; ++i ) {
+		data[i] += a;
+	}
+#endif
+}
+
+void AurynVectorFloat::add(AurynVectorFloat * v) 
+{
+	check_size(v);
+#ifdef CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY
+	#ifdef CODE_ACTIVATE_CILK_INSTRUCTIONS
+	data[0:size:1] = data[0:size:1] + v->data[0:v->size:1];
+	#else
+	float * bd = v->data;
+	for ( float * i = data ; i != data+size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )
+	{
+		__m128 chunk_a = sse_load( i );
+		__m128 chunk_b = sse_load( bd ); bd+=SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS;
+		__m128 result = _mm_add_ps(chunk_a, chunk_b);
+		sse_store( i, result );
+	}
+	#endif /* CODE_ACTIVATE_CILK_INSTRUCTIONS */
+#else
+	for ( NeuronID i = 0 ; i < size ; ++i ) {
+		data[i] += v->data[i];
 	}
 #endif
 }

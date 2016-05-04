@@ -246,6 +246,8 @@ namespace auryn {
 			void scale(float a);
 			void saxpy(float a, AurynVectorFloat * x);
 			void clip(float min, float max);
+			void add(float c);
+			void add(AurynVectorFloat * v);
 
 
 			void mul(float a) { scale(a); };
