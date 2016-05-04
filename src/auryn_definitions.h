@@ -349,6 +349,7 @@ namespace auryn {
 			{
 				size = n;
 				data = new T [n];
+				set_zero(); // let's give it a defined initial value
 			}
 
 			/*! \brief Default destructor */
