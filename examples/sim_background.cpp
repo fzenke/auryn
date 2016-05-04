@@ -842,6 +842,17 @@ if ( patfile != "" ) {
 	killfile << sys->get_time()-primetime << endl;
 	killfile.close();
 
+
+	if ( world.rank() == 0 ) {
+		logger->msg("Saving elapsed time ..." ,PROGRESS,true);
+		char filenamebuf [255];
+		sprintf(filenamebuf, "%s/elapsed.dat", dir.c_str(), world.rank());
+		std::ofstream timefile;
+		timefile.open(filenamebuf);
+		timefile << sys->get_last_elapsed_time() << std::endl;
+		timefile.close();
+	}
+
 	logger->msg("Freeing ...",PROGRESS,true);
 	delete sys;
 
