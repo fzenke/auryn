@@ -47,6 +47,7 @@ namespace auryn {
 					ar & data[i];
 			}
 
+		protected:
 			/*! \brief Checks if argument is larger than size and throws and exception if so 
 			 *
 			 * Check only enabled if NDEBUG is not defined.*/
@@ -149,9 +150,7 @@ namespace auryn {
 			/*! \brief Multiply all vector elements by constant */
 			void mul(AurynFloat a) 
 			{
-				for ( NeuronID i = 0 ; i < size ; ++i ) {
-					data[i] *= a;
-				}
+				scale(a);
 			}
 
 			/*! \brief Element-wise vector multiply  
@@ -183,27 +182,11 @@ namespace auryn {
 			 * \param a The scaling factor for the additional vector
 			 * \param x The additional vector to add
 			 * */
-			void saxpy(T a, AurynVector * x) 
+			void saxpy(AurynFloat a, AurynVector * x) 
 			{
 				check_size(x);
 				for ( NeuronID i = 0 ; i < size ; ++i ) {
 					data[i] += a * x->data[i];
-				}
-			}
-
-			/*! \brief SAXPY operation which adds to result vector
-			 *
-			 * Computes a*x + y and stores the result to 'result' where y is the present instance. 
-			 * \param a The scaling factor for the additional vector
-			 * \param x The additional vector to add
-			 * \param result The target vector
-			 * */
-			void saxpy(T a, AurynVector * x, AurynVector * result) 
-			{
-				check_size(x);
-				check_size(result);
-				for ( NeuronID i = 0 ; i < size ; ++i ) {
-					result->data[i] += a * x->data[i] + data[i];
 				}
 			}
 
@@ -248,6 +231,27 @@ namespace auryn {
 			}
 	};
 
+	/*! \brief Derived AurynVectorFloat class for performance computatoin
+	 *
+	 * This class overwrites some of the functions defined in the template 
+	 * with SIMD intrinsics for higher performance.
+	 */
+	class AurynVectorFloat : public AurynVector<float> 
+	{
+
+		public:
+			/*! \brief Default constructor */
+			AurynVectorFloat(NeuronID n);
+
+			void scale(AurynFloat a);
+			void saxpy(AurynFloat a, AurynVector<float> * x);
+			void clip(float min, float max);
+
+
+			void mul(AurynFloat a) { scale(a); };
+			void mul(AurynVectorFloat * v);
+
+	};
 
 }
 
