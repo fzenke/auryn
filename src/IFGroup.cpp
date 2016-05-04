@@ -57,8 +57,6 @@ void IFGroup::init()
 
 	calculate_scale_constants();
 	
-	// thr = auryn_vector_float_alloc (size); 
-	
 	t_leak = get_state_vector("t_leak");
 	t_exc =  get_state_vector("t_exc");
 	t_inh = get_state_vector("t_inh");
@@ -130,14 +128,14 @@ void IFGroup::integrate_membrane()
 	thr->scale(scale_thr);
     
     // leak
-	auryn_vector_float_copy(mem,t_leak);
-    auryn_vector_float_add_constant(t_leak,-e_rest);
+	t_leak->copy(mem);
+    t_leak->add(-e_rest);
     
     // membrane dynamics
 	AurynFloat mul_tau_mem = dt/tau_mem;
-    auryn_vector_float_saxpy(mul_tau_mem,t_exc,mem);
-    auryn_vector_float_saxpy(-mul_tau_mem,t_inh,mem);
-    auryn_vector_float_saxpy(-mul_tau_mem,t_leak,mem);
+    mem->saxpy(mul_tau_mem,t_exc);
+    mem->saxpy(-mul_tau_mem,t_inh);
+    mem->saxpy(-mul_tau_mem,t_leak);
 }
 
 void IFGroup::check_thresholds()
