@@ -287,7 +287,8 @@ namespace auryn {
 	{
 		  virtual const char* what() const throw()
 				{
-						return "Dimensions do not match. Are the vectors zero padded to a multiples of four dimension?";
+						return "Dimensions do not match or trying to read beyond vector size." 
+							   "Are the vectors zero padded to a multiples of four dimension?";
 				}
 	};
 
@@ -315,6 +316,29 @@ namespace auryn {
 					ar & data[i];
 			}
 
+			/*! \brief Checks if argument is larger than size and throws and exception if so 
+			 *
+			 * Check only enabled if NDEBUG is not defined.*/
+			void check_size(NeuronID x)
+			{
+#ifndef NDEBUG
+				if ( x => size ) {
+					throw AurynVectorDimensionalityException();
+				}
+#endif 
+			}
+
+			/*! \brief Checks if vector size matches to this instance
+			 *
+			 * Check only enabled if NDEBUG is not defined.*/
+			void check_size(AurynVector * v)
+			{
+#ifndef NDEBUG
+				if ( v->size != size ) {
+					throw AurynVectorDimensionalityException();
+				}
+#endif 
+			}
 
 		public: 
 			NeuronID size;
@@ -355,6 +379,137 @@ namespace auryn {
 				}
 			}
 
+			/*! \brief Adds constant c to each vector element */
+			void add(AurynFloat c) 
+			{
+				for ( NeuronID i = 0 ; i < size ; ++i ) {
+					data[i] += c;
+				}
+			}
+
+			/*! \brief Adds a vector v to the vector
+			 *
+			 * No checking of the dimensions match! */
+			void add(AurynVector * v) 
+			{
+				check_size(v);
+				for ( NeuronID i = 0 ; i < size ; ++i ) {
+					data[i] += v->data[i];
+				}
+			}
+
+			/*! \brief Subtract constant c to each vector element */
+			void sub(AurynFloat c) 
+			{
+				add(-c);
+			}
+
+			/*! \brief Elementwise subtraction */
+			void sub(AurynVector * v) 
+			{
+				check_size(v);
+				for ( NeuronID i = 0 ; i < size ; ++i ) {
+					data[i] -= v->data[i];
+				}
+			}
+
+			/*! \brief Multiply all vector elements by constant */
+			void mul(AurynFloat a) 
+			{
+				for ( NeuronID i = 0 ; i < size ; ++i ) {
+					data[i] *= a;
+				}
+			}
+
+			/*! \brief Element-wise vector multiply  
+			 *
+			 * No size checking, be careful! */
+			void mul(AurynVector * v) 
+			{
+				check_size(v);
+				for ( NeuronID i = 0 ; i < size ; ++i ) {
+					data[i] *= v->data[i];
+				}
+			}
+
+			/*! \brief Copies vector v 
+			 *
+			 * No size checking, be careful! */
+			void copy(AurynVector * v) 
+			{
+				check_size(v);
+				for ( NeuronID i = 0 ; i < size ; ++i ) {
+					data[i] = v->data[i];
+				}
+			}
+
+
+			/*! \brief SAXPY operation as in GSL 
+			 *
+			 * Computes a*x + y and stores the result to y where y is the present instance. 
+			 * \param a The scaling factor for the additional vector
+			 * \param x The additional vector to add
+			 * */
+			void saxpy(T a, AurynVector * x) 
+			{
+				check_size(x);
+				for ( NeuronID i = 0 ; i < size ; ++i ) {
+					data[i] += a * x->data[i];
+				}
+			}
+
+			/*! \brief SAXPY operation which adds to result vector
+			 *
+			 * Computes a*x + y and stores the result to 'result' where y is the present instance. 
+			 * \param a The scaling factor for the additional vector
+			 * \param x The additional vector to add
+			 * \param result The target vector
+			 * */
+			void saxpy(T a, AurynVector * x, AurynVector * result) 
+			{
+				check_size(x);
+				check_size(result);
+				for ( NeuronID i = 0 ; i < size ; ++i ) {
+					result->data[i] += a * x->data[i] + data[i];
+				}
+			}
+
+			/*! \brief Gets element i from vector */
+			T get(NeuronID i)
+			{
+				check_size(i);
+				return data[i];
+			}
+
+			/*! \brief Gets pointer to element i from vector */
+			T ptr(NeuronID i)
+			{
+				check_size(i);
+				return data+i;
+			}
+
+			/*! \brief Sets element i in vector to value */
+			void set(NeuronID i, T value)
+			{
+				check_size(i);
+				data[i] = value;
+			}
+
+			/*! \brief Clips all vector elements to the range min max
+			 *
+			 * \param min Minimum value
+			 * \param max Maximum value
+			 */
+			void clip(T min, T max)
+			{
+				for ( NeuronID i = 0 ; i < size ; ++i ) {
+					if ( data[i] < min ) {
+						 data[i] = min;
+					} else 
+						if ( data[i] > max ) 
+							 data[i] = max;
+				}
+			}
 	};
 
 
