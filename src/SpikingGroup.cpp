@@ -459,7 +459,7 @@ std::string SpikingGroup::get_name()
 	return group_name;
 }
 
-std::string Connection::get_file_name()
+std::string SpikingGroup::get_file_name()
 {
 	std::string filename (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__);
 	return filename;
