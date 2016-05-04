@@ -38,6 +38,7 @@ void System::init() {
 	online_rate_monitor_id = 0; 
 	online_rate_monitor_state = 0.0;
 
+	last_elapsed_time = -1.0;
 
 	progressbar_update_interval = PROGRESSBAR_DEFAULT_UPDATE_INTERVAL;
 
@@ -446,6 +447,8 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 	double elapsed  = difftime(t_now,t_sim_start);
 #endif 
 
+	last_elapsed_time = elapsed;
+
 	oss.str("");
 	oss << "Simulation finished. Ran for " 
 		<< elapsed 
@@ -794,6 +797,11 @@ void System::set_online_rate_monitor_id( unsigned int id )
 		online_rate_monitor_id = -1;
 }
 
+AurynDouble System::get_last_elapsed_time()
+{
+	return last_elapsed_time;
+}
+
 #ifdef CODE_COLLECT_SYNC_TIMING_STATS
 AurynDouble System::get_relative_sync_time()
 {
@@ -811,6 +819,7 @@ AurynDouble System::get_elapsed_wall_time()
 	AurynDouble temp = MPI_Wtime();
 	return temp-measurement_start;
 }
+
 
 void System::reset_sync_time()
 {

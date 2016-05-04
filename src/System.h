@@ -75,6 +75,9 @@ namespace auryn {
 
 		double simulation_time_realtime_ratio;
 
+		/*! Store elapsed time for last call of run */
+		double last_elapsed_time;
+
 		int online_rate_monitor_id;
 		double online_rate_monitor_tau;
 		double online_rate_monitor_mul;
@@ -103,6 +106,9 @@ namespace auryn {
 
 		/*! Propagates the spikes and evolves connection objects. */
 		void propagate();
+
+		/*! Returns last elapsed time. */
+		double get_last_elapsed_time();
 
 		/*! Performs integration of Connection objects. 
 		 * Since this is independent of the SpikingGroup evolve we 
