@@ -90,8 +90,10 @@ IFGroup::~IFGroup()
 void IFGroup::integrate_linear_nmda_synapses()
 {
 	// decay of ampa and gaba channel, i.e. multiply by exp(-dt/tau)
-    auryn_vector_float_scale(scale_ampa,g_ampa);
-    auryn_vector_float_scale(scale_gaba,g_gaba);
+    // auryn_vector_float_scale(scale_ampa,g_ampa);
+	g_ampa->scale(scale_ampa);
+    // auryn_vector_float_scale(scale_gaba,g_gaba);
+	g_gaba->scale(scale_gaba);
 
     // compute dg_nmda = (g_ampa-g_nmda)*dt/tau_nmda and add to g_nmda
 	AurynFloat mul_nmda = dt/tau_nmda;
@@ -100,7 +102,8 @@ void IFGroup::integrate_linear_nmda_synapses()
 
     // excitatory
     auryn_vector_float_copy(g_ampa,t_exc);
-    auryn_vector_float_scale(-A_ampa,t_exc);
+    // auryn_vector_float_scale(-A_ampa,t_exc);
+	t_exc->scale(-A_ampa);
     auryn_vector_float_saxpy(-A_nmda,g_nmda,t_exc);
     auryn_vector_float_mul(t_exc,mem);
     
@@ -117,7 +120,8 @@ void IFGroup::integrate_linear_nmda_synapses()
 void IFGroup::integrate_membrane()
 {
 	// moving threshold
-    auryn_vector_float_scale(scale_thr,thr);
+    // auryn_vector_float_scale(scale_thr,thr);
+	thr->scale(scale_thr);
     
     // leak
 	auryn_vector_float_copy(mem,t_leak);
