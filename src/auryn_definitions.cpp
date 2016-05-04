@@ -53,7 +53,7 @@ NeuronID calculate_vector_size(NeuronID i)
 }
 
 
-__m128 sse_load( float * i ) 
+inline __m128 sse_load( float * i ) 
 {
 #ifdef CODE_ALIGNED_SIMD_INSTRUCTIONS
 	return _mm_load_ps( i );
@@ -62,7 +62,7 @@ __m128 sse_load( float * i )
 #endif
 }
 
-void sse_store( float * i, __m128 d ) 
+inline void sse_store( float * i, __m128 d ) 
 {
 #ifdef CODE_ALIGNED_SIMD_INSTRUCTIONS
 	_mm_store_ps( i, d );

@@ -316,8 +316,6 @@ namespace auryn {
 
 	// Legacy float vector functions
 	// These functions should not be used any more in the future. Instead use the member functions of AurynVectorFloat
-	__m128 sse_load( float * i ) ;
-	void sse_store( float * i, __m128 d ) ;
 
 	/*! Allocates an auryn_vector_float */
 	auryn_vector_float * auryn_vector_float_alloc(const NeuronID n);

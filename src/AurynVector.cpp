@@ -27,6 +27,24 @@
 
 using namespace auryn;
 
+inline __m128 sse_load( float * i ) 
+{
+#ifdef CODE_ALIGNED_SIMD_INSTRUCTIONS
+	return _mm_load_ps( i );
+#else
+	return _mm_loadu_ps( i );
+#endif
+}
+
+inline void sse_store( float * i, __m128 d ) 
+{
+#ifdef CODE_ALIGNED_SIMD_INSTRUCTIONS
+	_mm_store_ps( i, d );
+#else
+	_mm_storeu_ps( i, d );
+#endif
+}
+
 AurynVectorFloat::AurynVectorFloat(NeuronID n) : AurynVector<float>(n)
 {
 
