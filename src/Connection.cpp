@@ -182,12 +182,12 @@ void Connection::add_number_of_spike_attributes(int x)
 
 SpikeContainer * Connection::get_pre_spikes()
 {
-	src->get_spikes();
+	return src->get_spikes();
 }
 
 SpikeContainer * Connection::get_post_spikes()
 {
-	dst->get_spikes_immediate();
+	return dst->get_spikes_immediate();
 }
 
 
