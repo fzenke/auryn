@@ -207,7 +207,6 @@ void auryn_vector_float_sub( auryn_vector_float * a, auryn_vector_float * b)
 void auryn_vector_float_sub( auryn_vector_float * a, auryn_vector_float * b, auryn_vector_float * r)
 {
 #ifdef CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY
-	float * bd = b->data;
 	for ( NeuronID i = 0 ; i < a->size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )
 	{
 		__m128 chunk_a = sse_load( a->data+i );
