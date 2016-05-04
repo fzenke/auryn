@@ -7,6 +7,7 @@ make clean
 # Benchmark parameters
 SIMTIME=100
 STATRUNS="1 2 3 4 5"
+HOSTNAME=`hostname`
 REVISION=`git log --pretty=oneline -1 | cut -d " " -f 1`
 TMPDIR=`mktemp -d`
 
@@ -45,7 +46,7 @@ RESULT_BENCHMARK3=$FUNCTION_RESULT
 
 
 # Writ result to file
-echo "$REVISION $RESULT_BENCHMARK1 $RESULT_BENCHMARK2 $RESULT_BENCHMARK3" >> benchmark_results.dat
+echo "$HOSTNAME $REVISION $RESULT_BENCHMARK1 $RESULT_BENCHMARK2 $RESULT_BENCHMARK3" >> benchmark_results.dat
 
 # Clean up
 rm -r $TMPDIR
