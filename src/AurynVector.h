@@ -33,7 +33,7 @@ namespace auryn {
 
 	/*! \brief Auryn vector template 
 	 *
-	 * Copies the core of GSL vector functionality 
+	 * Copies the core of GSL vector functionality and makes it a class for easier handling.
 	 * */
 	template <typename T> 
 	class AurynVector { 
