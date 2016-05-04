@@ -38,7 +38,7 @@
 
 
 #ifndef CODE_ACTIVATE_CILK_INSTRUCTIONS
-#include <x86intrin.h> // SIMD intrinsics
+#include <x86intrin.h> // SIMD intrinsics (pulls everything you need)
 #else // XMM registers are not supported on the phi platform
 #include <immintrin.h> // AVX only
 #endif /* CODE_ACTIVATE_CILK_INSTRUCTIONS */
