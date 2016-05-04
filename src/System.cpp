@@ -62,6 +62,15 @@ void System::init() {
 		<< std::numeric_limits<NeuronID>::max()/MINDELAY << " cells.";
 	auryn::logger->msg(oss.str(),VERBOSE);
 
+
+	oss.str("");
+	if(__builtin_cpu_supports("avx2")) {
+		oss << "System supports AVX2";
+	} else {
+		oss << "System does not support AVX2";
+	}
+	auryn::logger->msg(oss.str(),VERBOSE);
+
 }
 
 string System::get_version_string()
