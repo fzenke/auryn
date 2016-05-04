@@ -27,6 +27,7 @@
 
 using namespace auryn;
 
+// TODO on the long run we should get rid of the unaligned instructions
 inline __m128 sse_load( float * i ) 
 {
 #ifdef CODE_ALIGNED_SIMD_INSTRUCTIONS
