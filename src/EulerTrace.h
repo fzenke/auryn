@@ -56,11 +56,11 @@ private:
 	/*! The size of the group. */
 	NeuronID size;
 	/*! The internal state vector. */
-	auryn_vector_float * state;
+	AurynVectorFloat * state;
 	/*! The target vector for follow operation. */
-	auryn_vector_float * target_ptr;
+	AurynVectorFloat * target_ptr;
 	/*! Temp update vector for follow operation. */
-	auryn_vector_float * temp;
+	AurynVectorFloat * temp;
 	/*! Multiplicative factor to downscale the values in every timestep. */
 	AurynFloat scale_const;
 	/*! Decay time constant in [s]. */
@@ -80,10 +80,10 @@ public:
 	void set(NeuronID i , AurynFloat value);
 	/*! Set all traces to same value */
 	void set_all( AurynFloat value);
-	/*! Add auryn_vector_float to state vector
-	 * \param values auryn_vector_float to add
+	/*! Add AurynVectorFloat to state vector
+	 * \param values AurynVectorFloat to add
 	 */
-	void add(auryn_vector_float * values);
+	void add(AurynVectorFloat * values);
 	/*! Add designated value to single trace in the group.
 	 * \param i index of trace to change
 	 * \param value value to add to the trace
@@ -103,7 +103,7 @@ public:
 	void set_timeconstant( AurynFloat timeconstant );
 
 	/*! set the target vector for follow operation */
-	void set_target( auryn_vector_float * target );
+	void set_target( AurynVectorFloat * target );
 
 	/*! set the target vector for follow operation */
 	void set_target( EulerTrace * target );
@@ -122,8 +122,8 @@ public:
 	 * \param i index of trace to get
 	 */ 
 	AurynFloat normalized_get(NeuronID i);
-	/*! Get pointer to state auryn_vector_float for fast processing within the GSL vector framekwork. */
-	auryn_vector_float * get_state_ptr();
+	/*! Get pointer to state AurynVectorFloat for fast processing within the GSL vector framekwork. */
+	AurynVectorFloat * get_state_ptr();
 };
 
 inline AurynFloat EulerTrace::get(NeuronID i)
