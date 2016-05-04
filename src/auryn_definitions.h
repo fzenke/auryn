@@ -322,7 +322,7 @@ namespace auryn {
 			void check_size(NeuronID x)
 			{
 #ifndef NDEBUG
-				if ( x => size ) {
+				if ( x >= size ) {
 					throw AurynVectorDimensionalityException();
 				}
 #endif 
@@ -340,7 +340,8 @@ namespace auryn {
 #endif 
 			}
 
-		public: 
+		public:
+			// We keep these params public for legacy compatibility reasons
 			NeuronID size;
 			T * data;
 
