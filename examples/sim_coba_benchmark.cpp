@@ -191,7 +191,7 @@ int main(int ac,char *av[]) {
 	if ( world.rank() == 0 ) {
 		logger->msg("Saving elapsed time ..." ,PROGRESS,true);
 		char filenamebuf [255];
-		sprintf(filenamebuf, "%s/elapsed.dat", dir.c_str(), world.rank());
+		sprintf(filenamebuf, "%s/elapsed.dat", dir.c_str());
 		std::ofstream timefile;
 		timefile.open(filenamebuf);
 		timefile << sys->get_last_elapsed_time() << std::endl;
