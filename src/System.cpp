@@ -63,6 +63,7 @@ void System::init() {
 		<< std::numeric_limits<NeuronID>::max()/MINDELAY << " cells.";
 	logger->msg(oss.str(),VERBOSE);
 
+	last_elapsed_time = -1.0;
 }
 
 System::System()
@@ -757,6 +758,11 @@ void System::set_online_rate_monitor_id( int id )
 		online_rate_monitor_id = id;
 	else
 		online_rate_monitor_id = -1;
+}
+
+AurynDouble System::get_last_elapsed_time()
+{
+	return last_elapsed_time;
 }
 
 #ifdef CODE_COLLECT_SYNC_TIMING_STATS
