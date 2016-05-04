@@ -483,8 +483,11 @@ namespace auryn {
 				return data[i];
 			}
 
-			/*! \brief Gets pointer to element i from vector */
-			T ptr(NeuronID i)
+			/*! \brief Gets pointer to element i from vector 
+			 *
+			 * When no argument is given the function returns the first element of 
+			 * data array of the vector. */
+			T ptr(NeuronID i = 0)
 			{
 				check_size(i);
 				return data+i;
