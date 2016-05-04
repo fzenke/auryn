@@ -32,7 +32,7 @@ AurynVectorFloat::AurynVectorFloat(NeuronID n) : AurynVector<float>(n)
 
 }
 
-void AurynVectorFloat::scale(AurynFloat a) 
+void AurynVectorFloat::scale(float a) 
 {
 #ifdef CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY
 	#ifdef CODE_ACTIVATE_CILK_INSTRUCTIONS
@@ -54,7 +54,7 @@ void AurynVectorFloat::scale(AurynFloat a)
 }
 
 
-void AurynVectorFloat::saxpy(AurynFloat a, AurynVector<float> * x)
+void AurynVectorFloat::saxpy(float a, AurynVectorFloat * x)
 {
 #ifdef CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY
 	#ifdef CODE_ACTIVATE_CILK_INSTRUCTIONS
@@ -113,7 +113,7 @@ void AurynVectorFloat::clip(float min, float max)
 #endif
 }
 
-void AurynVectorFloat::mul(AurynVector<float> * v) 
+void AurynVectorFloat::mul(AurynVectorFloat * v) 
 {
 #ifdef CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY
 	#ifdef CODE_ACTIVATE_CILK_INSTRUCTIONS
