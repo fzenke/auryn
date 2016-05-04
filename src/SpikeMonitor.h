@@ -27,6 +27,7 @@
 #define SPIKEMONITOR_H_
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "SpikingGroup.h"
 #include "Monitor.h"
 #include "System.h"

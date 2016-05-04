@@ -26,9 +26,11 @@
 #ifndef CONNECTION_H_
 #define CONNECTION_H_
 
+
 #include <string>
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "SpikingGroup.h"
 #include "NeuronGroup.h"
 
@@ -109,6 +111,12 @@ public:
 
 	/*! \brief Returns name of connection */
 	std::string get_name();
+
+	/*! \brief Extracts the class name of the connection from the file name */
+	std::string get_file_name();
+
+	/*! \brief Returns a string which is the combination of file and connection name for logging. */
+	std::string get_log_name();
 
 	/*! \brief Get number of rows (presynaptic) in connection.
 	 *

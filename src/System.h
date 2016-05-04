@@ -27,6 +27,7 @@
 #define SYSTEM_H_
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "SpikingGroup.h"
 #include "Connection.h"
 #include "Monitor.h"

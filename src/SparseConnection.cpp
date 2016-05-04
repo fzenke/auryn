@@ -70,7 +70,7 @@ SparseConnection::SparseConnection(
 	std::stringstream oss;
 
 	AurynLong anticipatedsize = (AurynLong) (estimate_required_nonzero_entires ( sparseness*src->get_pre_size()*dst->get_post_size() ) );
-	oss << "SparseConnection: ("<< get_name() <<"): Assuming memory demand for pre #" << src->get_pre_size() << " and post #" << dst->get_post_size() 
+	oss << get_log_name() << "Assuming memory demand for pre #" << src->get_pre_size() << " and post #" << dst->get_post_size() 
 													<< std::scientific << std::setprecision(4) << " ( total " << anticipatedsize << ")";
 	auryn::logger->msg(oss.str(),VERBOSE);
 	allocate(anticipatedsize);
@@ -125,7 +125,7 @@ void SparseConnection::init()
 	if ( src == dst ) {
 		skip_diagonal = true; 
 		std::stringstream oss;
-		oss << "SparseConnection: ("<< get_name() <<"): Detected recurrent connection. skip_diagonal was activated!";
+		oss << get_log_name() << "Detected recurrent connection. skip_diagonal was activated!";
 		auryn::logger->msg(oss.str(),VERBOSE);
 	}
 	else skip_diagonal = false;
@@ -148,7 +148,7 @@ void SparseConnection::init()
 void SparseConnection::seed(NeuronID randomseed) 
 {
 	std::stringstream oss;
-	oss << "SparseConnection: ("<< get_name() <<"): Seeding with " << randomseed;
+	oss << get_log_name() << "Seeding with " << randomseed;
 	auryn::logger->msg(oss.str(),VERBOSE);
 	SparseConnection::sparse_connection_gen.seed(randomseed); 
 	has_been_seeded = true;
@@ -171,7 +171,8 @@ void SparseConnection::allocate(AurynLong bufsize)
 	NeuronID n = get_n_cols();
 
 	std::stringstream oss;
-	oss << "SparseConnection: (" << get_name() << "): Allocating sparse matrix (" << m << ", " << n << ") with space for "  << std::scientific << std::setprecision(4) << (double) bufsize <<  " nonzero elements ";
+	oss << get_log_name() << "Allocating sparse matrix (" << m << ", " << n << ") with space for "  << std::scientific << std::setprecision(4) << (double) bufsize <<  " nonzero elements ";
+
 	auryn::logger->msg(oss.str(),VERBOSE);
 
 	AurynLong maxsize = m*n;
@@ -210,7 +211,7 @@ AurynWeight SparseConnection::get_max_weight()
 void SparseConnection::random_data(AurynWeight mean, AurynWeight sigma) 
 {
 	std::stringstream oss;
-	oss << "SparseConnection: (" << get_name() << "): randomizing non-zero connections (gaussian) with mean=" << mean << " sigma=" << sigma ;
+	oss << get_log_name() << "randomizing non-zero connections (gaussian) with mean=" << mean << " sigma=" << sigma ;
 	auryn::logger->msg(oss.str(),NOTIFICATION);
 
 	boost::normal_distribution<> dist((double)mean, (double)sigma);
@@ -228,7 +229,7 @@ void SparseConnection::random_data(AurynWeight mean, AurynWeight sigma)
 void SparseConnection::init_random_binary(AurynFloat prob, AurynWeight wlo, AurynWeight whi) 
 {
 	std::stringstream oss;
-	oss << "SparseConnection: (" << get_name() << "): randomizing non-zero connections (gaussian) with binary weights between " 
+	oss << get_log_name() << "randomizing non-zero connections (gaussian) with binary weights between " 
 		<< wlo << " and " << whi ;
 	auryn::logger->msg(oss.str(),NOTIFICATION);
 
@@ -249,7 +250,7 @@ void SparseConnection::init_random_binary(AurynFloat prob, AurynWeight wlo, Aury
 void SparseConnection::sparse_set_data(AurynDouble sparseness, AurynWeight value) 
 {
 	std::stringstream oss;
-	oss << "SparseConnection: (" << get_name() << "): setting data sparsely with sparseness=" << sparseness << " value=" << value ;
+	oss << get_log_name() << ": setting data sparsely with sparseness=" << sparseness << " value=" << value ;
 	auryn::logger->msg(oss.str(),VERBOSE);
 
 	boost::exponential_distribution<> dist(sparseness);
@@ -267,7 +268,7 @@ void SparseConnection::sparse_set_data(AurynDouble sparseness, AurynWeight value
 void SparseConnection::random_col_data(AurynWeight mean, AurynWeight sigma) 
 {
 	std::stringstream oss;
-	oss << "SparseConnection: (" << get_name() << "): Randomly scaling cols (gaussian) with mean=" << mean << " sigma=" << sigma ;
+	oss << get_log_name() << "Randomly scaling cols (gaussian) with mean=" << mean << " sigma=" << sigma ;
 	auryn::logger->msg(oss.str(),VERBOSE);
 
 	boost::normal_distribution<> dist((double)mean, (double)sigma);
@@ -384,9 +385,8 @@ void SparseConnection::connect_block_random(AurynWeight weight,
 			catch ( AurynMatrixDimensionalityException )
 			{
 				std::stringstream oss;
-				oss << "SparseConnection: ("
-					<< get_name() 
-					<<"): Trying to add elements outside of matrix (i=" 
+				oss << get_log_name() 
+					<<"Trying to add elements outside of matrix (i=" 
 					<< i 
 					<< "j="
 					<< j 
@@ -399,8 +399,8 @@ void SparseConnection::connect_block_random(AurynWeight weight,
 			catch ( AurynMatrixPushBackException )
 			{
 				std::stringstream oss;
-				oss << "SparseConnection: ("<< get_name() 
-					<< "): Failed pushing back element. Maybe due to out of order pushing? "
+				oss << get_log_name() 
+					<< "Failed pushing back element. Maybe due to out of order pushing? "
 					<< " (" << i << "," << j << ") "
 					<< " with count=" << count 
 					<< " in connect_block_random ( fill_level= " << w->get_fill_level() << " )";
@@ -410,9 +410,8 @@ void SparseConnection::connect_block_random(AurynWeight weight,
 			catch ( AurynMatrixBufferException )
 			{
 				std::stringstream oss;
-				oss << "SparseConnection: ("
-					<< get_name() 
-					<<"): Buffer full after pushing " 
+				oss << get_log_name() 
+					<<"Buffer full after pushing " 
 					<< count 
 					<< " elements."
 					<< " There are pruned connections!";
@@ -441,7 +440,7 @@ void SparseConnection::connect_block_random(AurynWeight weight,
 	}
 
 	std::stringstream oss;
-	oss << "SparseConnection: ("<< get_name() <<"): Finished connect_block_random ["
+	oss << get_log_name() << "Finished connect_block_random ["
 		<< lo_row << ", " << hi_row << ", " << lo_col << ", " << hi_col <<  "] " << " (stop count " 
 		<< std::scientific << std::setprecision(4) << (double) stop 
 		<< ") and successfully pushed " << (double) count <<  " entries. " 
@@ -453,7 +452,7 @@ void SparseConnection::connect_random(AurynWeight weight, AurynDouble sparseness
 {
 	if ( dst->evolve_locally() ) { // if there are no local units there is no need for synapses
 		std::stringstream oss;
-		oss << "SparseConnection: ("<< get_name() <<"): Randomfill with weight "<< weight <<  " and sparseness " << sparseness;
+		oss << get_log_name() <<"Randomfill with weight "<< weight <<  " and sparseness " << sparseness;
 		auryn::logger->msg(oss.str(),VERBOSE);
 		w->clear();
 		connect_block_random(weight,sparseness,0,get_m_rows(),0,get_n_cols(),skip_diag);
@@ -466,12 +465,12 @@ void SparseConnection::finalize()
 	w->fill_zeros();
 	if ( dst->evolve_locally() ) {
 		std::stringstream oss;
-		oss << "SparseConnection: ("<< get_name() <<"): Finalized with fill level " << w->get_fill_level();
+		oss << get_log_name() << "Finalized with fill level " << w->get_fill_level();
 		auryn::logger->msg(oss.str(),VERBOSE);
 		if (w->get_fill_level()<WARN_FILL_LEVEL)
 		{
 			std::stringstream oss2;
-			oss2 << "SparseConnection: ("<< get_name() <<"): Wasteful fill level (" << w->get_fill_level() << ")! Make sure everything is in order!";
+			oss2 << get_log_name() <<"Wasteful fill level (" << w->get_fill_level() << ")! Make sure everything is in order!";
 			auryn::logger->msg(oss2.str(),WARNING);
 		}
 	}
@@ -704,7 +703,7 @@ AurynLong SparseConnection::dryrun_from_file(std::string filename)
 	std::ifstream infile (filename.c_str());
 	if (!infile) {
 		std::stringstream oss;
-		oss << "Can't open input file " << filename;
+		oss << get_log_name() << "Can't open input file " << filename;
 		auryn::logger->msg(oss.str(),ERROR);
 		throw AurynOpenFileException();
 	}
@@ -721,7 +720,7 @@ AurynLong SparseConnection::dryrun_from_file(std::string filename)
 	if (header.compare(buffer)!=0)
 	{
 		std::stringstream oss;
-		oss << "Input format not recognized.";
+		oss << get_log_name() << "Input format not recognized.";
 		auryn::logger->msg(oss.str(),ERROR);
 		return false;
 	}
@@ -753,7 +752,7 @@ bool SparseConnection::load_from_file(ForwardMatrix * m, std::string filename, A
 	std::ifstream infile (filename.c_str());
 	if (!infile) {
 		std::stringstream oss;
-		oss << "Can't open input file " << filename;
+		oss << get_log_name() << "Can't open input file " << filename;
 		auryn::logger->msg(oss.str(),ERROR);
 		throw AurynOpenFileException();
 	}
@@ -772,7 +771,7 @@ bool SparseConnection::load_from_file(ForwardMatrix * m, std::string filename, A
 	if (header.compare(buffer)!=0)
 	{
 		std::stringstream oss;
-		oss << "Input format not recognized.";
+		oss << get_log_name() << "Input format not recognized.";
 		auryn::logger->msg(oss.str(),ERROR);
 		return false;
 	}
@@ -792,7 +791,7 @@ bool SparseConnection::load_from_file(ForwardMatrix * m, std::string filename, A
 		m->clear();
 	} else {
 		std::stringstream oss;
-		oss << "Buffer too small ("
+		oss << get_log_name() << "Buffer too small ("
 			<< m->get_datasize()
 			<< " -> "
 			<< k
@@ -822,7 +821,7 @@ bool SparseConnection::load_from_file(ForwardMatrix * m, std::string filename, A
 		catch ( AurynMatrixPushBackException )
 		{
 			std::stringstream oss;
-			oss << "Push back failed. Error in line=" << count << ", "
+			oss << get_log_name() << "Push back failed. Error in line=" << count << ", "
 				<< " i=" << i 
 				<< " j=" << j 
 				<< " v=" << val << ". "
@@ -845,9 +844,8 @@ bool SparseConnection::load_from_file(ForwardMatrix * m, std::string filename, A
 		catch ( AurynMatrixDimensionalityException )
 		{
 			std::stringstream oss;
-			oss << "SparseConnection: ("
-				<< get_name() 
-				<<"): Trying to add elements outside of matrix (i=" 
+			oss << get_log_name() 
+				<<"Trying to add elements outside of matrix (i=" 
 				<< i 
 				<< ", j="
 				<< j 
@@ -864,7 +862,7 @@ bool SparseConnection::load_from_file(ForwardMatrix * m, std::string filename, A
 
 	if ( pushback_count != m->get_nonzero() ) { // this should never happen without an exception above, but better be save than sorry
 		oss.str("");
-		oss << get_name() << ": " 
+		oss << get_log_name() 
 			<< pushback_count 
 			<< " elements pushed, but only "
 			<< m->get_nonzero()
@@ -872,7 +870,7 @@ bool SparseConnection::load_from_file(ForwardMatrix * m, std::string filename, A
 		auryn::logger->msg(oss.str(),ERROR);
 	} else {
 		oss.str("");
-		oss << get_name() << ": OK, " 
+		oss << get_log_name() << "OK, " 
 			<< pushback_count 
 			<< " elements pushed.";
 		auryn::logger->msg(oss.str(),VERBOSE);
@@ -920,7 +918,7 @@ AurynLong SparseConnection::get_nonzero()
 void SparseConnection::put_pattern( type_pattern * pattern, AurynWeight strength, bool overwrite )
 {
 	std::stringstream oss;
-	oss << "SparseConnection: ("<< get_name() <<"): Putting assembly ( size " << pattern->size() << " )";
+	oss << get_log_name() << "Putting assembly ( size " << pattern->size() << " )";
 	auryn::logger->msg(oss.str(),VERBOSE);
 
 	put_pattern( pattern, pattern, strength, overwrite );
@@ -964,12 +962,12 @@ void SparseConnection::load_patterns( std::string filename, AurynWeight strength
 		std::ifstream fin (filename.c_str());
 		if (!fin) {
 			std::stringstream oss2;
-			oss2 << "SparseConnection: There was a problem opening file " << filename << " for reading.";
+			oss2 << get_log_name() << "There was a problem opening file " << filename << " for reading.";
 			auryn::logger->msg(oss2.str(),WARNING);
 			return;
 		} else {
 			std::stringstream oss;
-			oss << "SparseConnection: ("<< get_name() <<"): Loading patterns from " << filename << " ...";
+			oss << get_log_name() << "Loading patterns from " << filename << " ...";
 			auryn::logger->msg(oss.str(),NOTIFICATION);
 		}
 
@@ -1007,7 +1005,7 @@ void SparseConnection::load_patterns( std::string filename, AurynWeight strength
 			iss >>  pm.i ;
 			if ( !wrap_patterns && !istoolarge && pm.i > mindimension ) { 
 				std::stringstream oss;
-				oss << "SparseConnection: ("<< get_name() <<"): Some elements of pattern " << patcount << " are larger than the underlying NeuronGroups!";
+				oss << get_log_name() << "Some elements of pattern " << patcount << " are larger than the underlying NeuronGroups!";
 				auryn::logger->msg(oss.str(),WARNING);
 				istoolarge = true;
 			}
@@ -1031,7 +1029,7 @@ void SparseConnection::load_patterns( std::string filename, AurynWeight strength
 
 		fin.close();
 		std::stringstream oss;
-		oss << "SparseConnection: ("<< get_name() <<"): Added " << patcount << " patterns";
+		oss << get_log_name() << "Added " << patcount << " patterns";
 		auryn::logger->msg(oss.str(),NOTIFICATION);
 }
 

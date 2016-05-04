@@ -27,6 +27,7 @@
 #define CURRENTINJECTOR_H_
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "System.h"
 #include "Logger.h"
 #include "Monitor.h"

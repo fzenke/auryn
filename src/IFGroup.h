@@ -27,6 +27,7 @@
 #define IFGROUP_H_
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "NeuronGroup.h"
 #include "System.h"
 
@@ -46,9 +47,9 @@ namespace auryn {
 	class IFGroup : public NeuronGroup
 	{
 	private:
-		auryn_vector_float * t_leak;
-		auryn_vector_float * t_exc;
-		auryn_vector_float * t_inh;
+		AurynVectorFloat * t_leak;
+		AurynVectorFloat * t_exc;
+		AurynVectorFloat * t_inh;
 		AurynFloat scale_ampa,scale_gaba, scale_thr;
 		AurynFloat tau_ampa,tau_gaba,tau_nmda;
 		AurynFloat A_ampa,A_nmda;

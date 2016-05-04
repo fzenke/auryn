@@ -24,6 +24,7 @@
 */
 
 #include "auryn_definitions.h"
+#include "AurynVector.h" // required for forward declaration of template
 
 namespace auryn {
 
@@ -50,6 +51,7 @@ NeuronID calculate_vector_size(NeuronID i)
 		return i;
 	return i+(SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS-i%SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS);
 }
+
 
 inline __m128 sse_load( float * i ) 
 {
@@ -206,7 +208,6 @@ void auryn_vector_float_sub( auryn_vector_float * a, auryn_vector_float * b)
 void auryn_vector_float_sub( auryn_vector_float * a, auryn_vector_float * b, auryn_vector_float * r)
 {
 #ifdef CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY
-	float * bd = b->data;
 	for ( NeuronID i = 0 ; i < a->size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )
 	{
 		__m128 chunk_a = sse_load( a->data+i );
@@ -274,25 +275,19 @@ void auryn_vector_float_clip( auryn_vector_float * v, const float a ) {
 }
 
 auryn_vector_float * auryn_vector_float_alloc( const NeuronID n ) {
-	AurynFloat * data = new AurynFloat [n];
-	auryn_vector_float * vec = new auryn_vector_float();
-	vec->size = n;
-	vec->data = data;
-	return vec;
+	return new auryn_vector_float(n);
 }
 
 void auryn_vector_float_free ( auryn_vector_float * v ) {
-	delete [] v->data;
 	delete v;
 }
 
 void auryn_vector_float_set_all ( auryn_vector_float * v, AurynFloat x ) {
-	for ( NeuronID i = 0 ; i < v->size ; ++ i ) 
-		v->data[i] = x;
+	v->set_all(x);
 }
 
 void auryn_vector_float_set_zero ( auryn_vector_float * v ) {
-	auryn_vector_float_set_all(v, 0.0);
+	v->set_zero();
 }
 
 AurynFloat auryn_vector_float_get ( const auryn_vector_float * v, const NeuronID i ) {
@@ -315,25 +310,19 @@ void auryn_vector_float_copy ( auryn_vector_float * src, auryn_vector_float * ds
 
 
 auryn_vector_ushort * auryn_vector_ushort_alloc( const NeuronID n ) {
-	unsigned short * data = new unsigned short [n];
-	auryn_vector_ushort * vec = new auryn_vector_ushort();
-	vec->size = n;
-	vec->data = data;
-	return vec;
+	return new auryn_vector_ushort(n);
 }
 
 void auryn_vector_ushort_free ( auryn_vector_ushort * v ) {
-	delete [] v->data;
 	delete v;
 }
 
 void auryn_vector_ushort_set_all ( auryn_vector_ushort * v, unsigned short x ) {
-	for ( NeuronID i = 0 ; i < v->size ; ++ i ) 
-		v->data[i] = x;
+	v->set_all(x);
 }
 
 void auryn_vector_ushort_set_zero ( auryn_vector_ushort * v ) {
-	auryn_vector_ushort_set_all(v, 0);
+	v->set_zero();
 }
 
 unsigned short auryn_vector_ushort_get ( const auryn_vector_ushort * v, const NeuronID i ) {

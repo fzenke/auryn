@@ -27,6 +27,7 @@
 #define LINEARTRACE_H_
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 
 namespace auryn {
 

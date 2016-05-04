@@ -82,6 +82,20 @@ std::string Connection::get_name()
 	return connection_name;
 }
 
+std::string Connection::get_file_name()
+{
+	std::string filename (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__);
+	return filename;
+}
+
+std::string Connection::get_log_name()
+{
+	std::stringstream oss;
+	oss << get_name() << " ("
+		<< get_file_name() << "): ";
+	return oss.str();
+}
+
 TransmitterType Connection::get_transmitter()
 {
 	return trans;

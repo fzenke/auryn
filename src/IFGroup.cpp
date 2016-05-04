@@ -70,13 +70,11 @@ void IFGroup::init()
 void IFGroup::clear()
 {
 	clear_spikes();
-	for (NeuronID i = 0; i < get_rank_size(); i++) {
-	   auryn_vector_float_set (mem, i, e_rest);
-	   auryn_vector_float_set (thr, i, 0.);
-	   auryn_vector_float_set (g_ampa, i, 0.);
-	   auryn_vector_float_set (g_gaba, i, 0.);
-	   auryn_vector_float_set (g_nmda, i, 0.);
-	}
+	mem->set_all(e_rest);
+	thr->set_zero();
+	g_ampa->set_zero();
+	g_gaba->set_zero();
+	g_nmda->set_zero();
 }
 
 void IFGroup::free() {
@@ -90,24 +88,35 @@ IFGroup::~IFGroup()
 void IFGroup::integrate_linear_nmda_synapses()
 {
 	// decay of ampa and gaba channel, i.e. multiply by exp(-dt/tau)
-    auryn_vector_float_scale(scale_ampa,g_ampa);
-    auryn_vector_float_scale(scale_gaba,g_gaba);
+    // auryn_vector_float_scale(scale_ampa,g_ampa);
+	g_ampa->scale(scale_ampa);
+    // auryn_vector_float_scale(scale_gaba,g_gaba);
+	g_gaba->scale(scale_gaba);
 
     // compute dg_nmda = (g_ampa-g_nmda)*dt/tau_nmda and add to g_nmda
 	AurynFloat mul_nmda = dt/tau_nmda;
-    auryn_vector_float_saxpy(mul_nmda,g_ampa,g_nmda);
-	auryn_vector_float_saxpy(-mul_nmda,g_nmda,g_nmda);
+    // auryn_vector_float_saxpy(mul_nmda,g_ampa,g_nmda);
+	// auryn_vector_float_saxpy(-mul_nmda,g_nmda,g_nmda);
+	g_nmda->saxpy(mul_nmda, g_ampa);
+	g_nmda->saxpy(-mul_nmda, g_nmda);
 
     // excitatory
-    auryn_vector_float_copy(g_ampa,t_exc);
-    auryn_vector_float_scale(-A_ampa,t_exc);
-    auryn_vector_float_saxpy(-A_nmda,g_nmda,t_exc);
-    auryn_vector_float_mul(t_exc,mem);
+    // auryn_vector_float_copy(g_ampa,t_exc);
+    // auryn_vector_float_scale(-A_ampa,t_exc);
+	t_exc->copy(g_ampa);
+	t_exc->scale(-A_ampa);
+    // auryn_vector_float_saxpy(-A_nmda,g_nmda,t_exc);
+	t_exc->saxpy(-A_nmda,g_nmda);
+    // auryn_vector_float_mul(t_exc,mem);
+	t_exc->mul(mem);
     
     // inhibitory
-    auryn_vector_float_copy(mem,t_inh);
-    auryn_vector_float_add_constant(t_inh,-e_rev);
-    auryn_vector_float_mul(t_inh,g_gaba);
+    // auryn_vector_float_copy(mem,t_inh);
+	t_inh->copy(mem);
+    // auryn_vector_float_add_constant(t_inh,-e_rev);
+	t_inh->add(-e_rev);
+    // auryn_vector_float_mul(t_inh,g_gaba);
+	t_inh->mul(g_gaba);
 }
 
 /// Integrate the internal state
@@ -117,7 +126,8 @@ void IFGroup::integrate_linear_nmda_synapses()
 void IFGroup::integrate_membrane()
 {
 	// moving threshold
-    auryn_vector_float_scale(scale_thr,thr);
+    // auryn_vector_float_scale(scale_thr,thr);
+	thr->scale(scale_thr);
     
     // leak
 	auryn_vector_float_copy(mem,t_leak);
@@ -132,7 +142,8 @@ void IFGroup::integrate_membrane()
 
 void IFGroup::check_thresholds()
 {
-	auryn_vector_float_clip( mem, e_rev );
+	// auryn_vector_float_clip( mem, e_rev );
+	mem->clip( e_rev, 0.0 );
 
 	AurynState * thr_ptr = thr->data;
 	for ( AurynState * i = mem->data ; i != mem->data+get_rank_size() ; ++i ) { // it's important to use rank_size here otherwise there might be spikes from units that do not exist

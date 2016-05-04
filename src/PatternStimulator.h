@@ -27,6 +27,7 @@
 #define PATTERNSTIMULATOR_H_
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "System.h"
 #include "Monitor.h"
 #include "NeuronGroup.h"

@@ -27,6 +27,7 @@
 #define SPIKEDELAY_H_
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include <vector>
 
 #include <boost/serialization/utility.hpp>

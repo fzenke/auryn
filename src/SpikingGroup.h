@@ -27,6 +27,7 @@
 #define SPIKINGGROUP_H_
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 // #include "SpikeContainer.h"
 #include "SpikeDelay.h"
 #include "EulerTrace.h"
@@ -126,15 +127,15 @@ public:
 	SpikeDelay * delay;
 
 	/*! Can hold single neuron vectors such as target rates or STP states etc  */
-	std::map<std::string,auryn_vector_float *> state_vectors;
+	std::map<std::string,AurynVectorFloat *> state_vectors;
 
 	/*! \brief Returns existing state vector by name. 
 	 *
 	 * If the state_vector does not exist the function returns NULL. */
-	auryn_vector_float * find_state_vector(std::string key);
+	AurynVectorFloat * find_state_vector(std::string key);
 
 	/*! \brief Adds a state vector passed as an argument to the dictinary. */
-	void add_state_vector( std::string key, auryn_vector_float * state_vector );
+	void add_state_vector( std::string key, AurynVectorFloat * state_vector );
 
 	/*! \brief Removes a state vector passed as an argument to the dictinary.
 	 *
@@ -142,24 +143,31 @@ public:
 	void remove_state_vector( std::string key );
 
 	/*! \brief Creates a new or returns an existing state vector by name. */
-	auryn_vector_float * get_state_vector(std::string key);
+	AurynVectorFloat * get_state_vector(std::string key);
 
 	/*! Randomizes the content of a state vector with Gaussian random numbers. Seeding is MPI save. */
 	void randomize_state_vector_gauss(std::string state_vector_name, AurynState mean, AurynState sigma, int seed=12239);
 
-	/*! Default constructor */
+	/*! \brief Default constructor */
 	SpikingGroup(NeuronID size, double loadmultiplier = 1., NeuronID total = 0 );
-	/*! Default destructor */
+
+	/*! \brief Default destructor */
 	virtual ~SpikingGroup();
 
-	/*! Evolves traces */
+	/*! \brief Evolves traces */
 	virtual void evolve_traces();
 
-	/*! Give a name */
+	/*! \brief Set connection name */
 	void set_name(std::string s);
 
-	/*! Retrieves the groups name */
+	/*! \brief Retrieves the groups name */
 	std::string get_name();
+
+	/*! \brief Extracts the class name of the connection from the file name */
+	std::string get_file_name();
+
+	/*! \brief Returns a string which is the combination of file and connection name for logging. */
+	std::string get_log_name();
 
 	/*! \brief Instructs SpikingGroup to increase the number of spike attributes by x.
 	 *

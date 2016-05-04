@@ -27,6 +27,7 @@
 #define POPULATIONRATEMONITOR_H_
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "Monitor.h"
 #include "System.h"
 #include "SpikingGroup.h"
