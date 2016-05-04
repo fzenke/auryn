@@ -74,7 +74,7 @@ namespace auryn {
 		public:
 			// We keep these params public for legacy compatibility reasons
 			NeuronID size;
-			T * data;
+			T * data __attribute__((aligned(16)));
 
 			/*! \brief Default constructor */
 			AurynVector(NeuronID n) 
@@ -156,7 +156,7 @@ namespace auryn {
 
 			/*! \brief Element-wise vector multiply  
 			 *
-			 * No size checking, be careful! */
+			 * */
 			void mul(AurynVector * v) 
 			{
 				check_size(v);
@@ -167,7 +167,7 @@ namespace auryn {
 
 			/*! \brief Copies vector v 
 			 *
-			 * No size checking, be careful! */
+			 * */
 			void copy(AurynVector * v) 
 			{
 				check_size(v);
