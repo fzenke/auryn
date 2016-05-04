@@ -26,6 +26,7 @@ function fun_benchmark()
 		   printf "%f  %f\t",mean,std } printf "\n" }' $TMPDIR/times.dat > $TMPDIR/result.dat
 
 	FUNCTION_RESULT=`cat $TMPDIR/result.dat`
+	cp $TMPDIR/result.dat last_benchmark_result.dat
 }
 
 
