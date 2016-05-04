@@ -24,6 +24,7 @@
 */
 
 #include "auryn_definitions.h"
+#include "AurynVector.h" // required for forward declaration of template
 
 namespace auryn {
 
