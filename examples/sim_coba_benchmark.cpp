@@ -124,7 +124,7 @@ int main(int ac,char *av[]) {
 	char tmp [255];
 	std::stringstream logfile;
 	logfile << outputfile << "log";
-	logger = new Logger(logfile.str(),world.rank(),PROGRESS,EVERYTHING);
+	logger = new Logger(logfile.str(),world.rank());
 
 	sys = new System(&world);
 	// END Global stuff
@@ -189,10 +189,14 @@ int main(int ac,char *av[]) {
 			errcode = 1;
 
 	logger->msg("Freeing ..." ,PROGRESS,true);
+	logger->parameter("elapsed", sys->get_last_elapsed_time() );
+
 	delete sys;
 
 	if (errcode)
 		env.abort(errcode);
+
+
 
 	return errcode;
 }
