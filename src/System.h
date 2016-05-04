@@ -137,7 +137,7 @@ namespace auryn {
 		 * progressbar (this typically is reflected by the order in
 		 * which you define the SpikingGroup and NeuronGroup classes. It starts
 		 * numbering from 0.). */
-		void set_online_rate_monitor_id( int id=0 );
+		void set_online_rate_monitor_id( unsigned int id=0 );
 
 		/*! Sets the timeconstant to compute the online rate average for the status bar. */
 		void set_online_rate_monitor_tau( AurynDouble tau=100e-3 );

@@ -785,7 +785,7 @@ void System::evolve_online_rate_monitor()
 	}
 }
 
-void System::set_online_rate_monitor_id( int id )
+void System::set_online_rate_monitor_id( unsigned int id )
 {
 	online_rate_monitor_state = 0.0;
 	if ( id < spiking_groups.size() ) 
