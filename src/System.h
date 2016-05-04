@@ -107,8 +107,6 @@ namespace auryn {
 		/*! Propagates the spikes and evolves connection objects. */
 		void propagate();
 
-		/*! Returns last elapsed time. */
-		double get_last_elapsed_time();
 
 		/*! Performs integration of Connection objects. 
 		 * Since this is independent of the SpikingGroup evolve we 
@@ -148,6 +146,9 @@ namespace auryn {
 
 		/*! Sets the timeconstant to compute the online rate average for the status bar. */
 		void set_online_rate_monitor_tau( AurynDouble tau=100e-3 );
+
+		/*! Returns last elapsed time. */
+		double get_last_elapsed_time();
 
 		/*! \brief Saves network state to a netstate file
 		 *
