@@ -430,6 +430,8 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 	double elapsed  = difftime(t_now,t_sim_start);
 #endif 
 
+	last_elapsed_time = elapsed;
+
 	oss.str("");
 	oss << "Simulation finished. Ran for " 
 		<< elapsed 
