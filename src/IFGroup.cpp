@@ -142,7 +142,8 @@ void IFGroup::integrate_membrane()
 
 void IFGroup::check_thresholds()
 {
-	auryn_vector_float_clip( mem, e_rev );
+	// auryn_vector_float_clip( mem, e_rev );
+	mem->clip( e_rev, 0.0 );
 
 	AurynState * thr_ptr = thr->data;
 	for ( AurynState * i = mem->data ; i != mem->data+get_rank_size() ; ++i ) { // it's important to use rank_size here otherwise there might be spikes from units that do not exist
