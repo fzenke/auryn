@@ -60,7 +60,7 @@ void SpikingGroup::init(NeuronID n, double loadmultiplier, NeuronID total )
 	if ( total > 0 ) {
 		anticipated_total = total;
 		std::stringstream oss;
-		oss << get_name() << ":: Anticipating " << anticipated_total << " units in total." ;
+		oss << get_log_name() << ":: Anticipating " << anticipated_total << " units in total." ;
 		auryn::logger->msg(oss.str(),NOTIFICATION);
 	}
 
@@ -82,12 +82,12 @@ void SpikingGroup::init(NeuronID n, double loadmultiplier, NeuronID total )
 		locked_range = auryn::communicator->size();
 
 		std::stringstream oss;
-		oss << get_name() << ":: Size " << get_rank_size() << " (ROUNDROBIN)";
+		oss << get_log_name() << ":: Size " << get_rank_size() << " (ROUNDROBIN)";
 		auryn::logger->msg(oss.str(),NOTIFICATION);
 	}
 
 	std::stringstream oss;
-	oss << get_name() 
+	oss << get_log_name() 
 		<< ":: Registering SpikeDelay (MINDELAY=" 
 		<< MINDELAY << ")";
 	auryn::logger->msg(oss.str(),VERBOSE);
@@ -106,7 +106,7 @@ void SpikingGroup::lock_range( double rank_fraction )
 
 	if ( rank_fraction == 0 ) { // this is the classical rank lock to one single rank
 		std::stringstream oss;
-		oss << get_name() << ":: Groups demands to run on single rank only (RANKLOCK).";
+		oss << get_log_name() << ":: Groups demands to run on single rank only (RANKLOCK).";
 		auryn::logger->msg(oss.str(),NOTIFICATION);
 		locked_range = 1;
 	} else { // this is for multiple rank ranges
@@ -120,7 +120,7 @@ void SpikingGroup::lock_range( double rank_fraction )
 		if ( locked_range > free_ranks ) {
 			std::stringstream oss;
 			// oss << "SpikingGroup:: Not enough free ranks to put SpikingGroup defaulting to ROUNDROBIN distribution.";
-			oss << get_name() << ":: Not enough free ranks for RANGELOCK. Starting to fill at zero again.";
+			oss << get_log_name() << ":: Not enough free ranks for RANGELOCK. Starting to fill at zero again.";
 			auryn::logger->msg(oss.str(),NOTIFICATION);
 			locked_rank = 0;
 			free_ranks = auryn::communicator->size();
@@ -137,12 +137,12 @@ void SpikingGroup::lock_range( double rank_fraction )
 	// logging
 	if ( evolve_locally_bool ) {
 		std::stringstream oss;
-		oss << get_name() << ":: Size "<< get_rank_size() <<" (BLOCKLOCK: ["<< locked_rank 
+		oss << get_log_name() << ":: Size "<< get_rank_size() <<" (BLOCKLOCK: ["<< locked_rank 
 			<< ":" << locked_rank+locked_range-1 << "] )";
 		auryn::logger->msg(oss.str(),NOTIFICATION);
 	} else {
 		std::stringstream oss;
-		oss << get_name() << ":: Passive on this rank (BLOCKLOCK: ["<< locked_rank 
+		oss << get_log_name() << ":: Passive on this rank (BLOCKLOCK: ["<< locked_rank 
 			<< ":" << locked_rank+locked_range-1 << "] )";
 		auryn::logger->msg(oss.str(),VERBOSE);
 	}
@@ -154,7 +154,7 @@ void SpikingGroup::free()
 {
 	std::stringstream oss;
 	oss << "SpikingGroup:: " << 
-		get_name()
+		get_log_name()
 		<< " freeing ...";
 	auryn::logger->msg(oss.str(),VERBOSE);
 
@@ -172,7 +172,7 @@ void SpikingGroup::free()
 	auryn::logger->msg("SpikingGroup:: Freeing state traces",VERBOSE);
 	for ( NeuronID i = 0 ; i < post_state_traces.size() ; ++i ) {
 		std::stringstream oss;
-		oss << get_name() 
+		oss << get_log_name() 
 			<< ":: Freeing state trace "
 			<< post_state_traces_state_names[i]
 			<< " at "
@@ -340,7 +340,7 @@ PRE_TRACE_MODEL * SpikingGroup::get_pre_trace( AurynFloat x )
 	for ( int i = 0 ; i < pretraces.size() ; i++ ) {
 		if ( pretraces[i]->get_tau() == x ) {
 			std::stringstream oss;
-			oss << get_name() << ":: Sharing pre trace with " << x << "s timeconstant." ;
+			oss << get_log_name() << ":: Sharing pre trace with " << x << "s timeconstant." ;
 			auryn::logger->msg(oss.str(),VERBOSE);
 			return pretraces[i];
 		}
@@ -360,7 +360,7 @@ DEFAULT_TRACE_MODEL * SpikingGroup::get_post_trace( AurynFloat x )
 	for ( NeuronID i = 0 ; i < posttraces.size() ; i++ ) {
 		if ( posttraces[i]->get_tau() == x ) {
 			std::stringstream oss;
-			oss << get_name() << ":: Sharing post trace with " << x << "s timeconstant." ;
+			oss << get_log_name() << ":: Sharing post trace with " << x << "s timeconstant." ;
 			auryn::logger->msg(oss.str(),VERBOSE);
 			return posttraces[i];
 		}
@@ -385,7 +385,7 @@ EulerTrace * SpikingGroup::get_post_state_trace( std::string state_name, AurynFl
 				&& post_state_traces_spike_biases[i] == b
 				&& post_state_traces_state_names[i] == state_name ) {
 			std::stringstream oss;
-			oss << get_name() 
+			oss << get_log_name() 
 				<< ":: Sharing post state trace for "
 				<< state_name 
 				<< " with " 
@@ -457,6 +457,20 @@ void SpikingGroup::set_name( std::string s )
 std::string SpikingGroup::get_name()
 {
 	return group_name;
+}
+
+std::string Connection::get_file_name()
+{
+	std::string filename (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__);
+	return filename;
+}
+
+std::string SpikingGroup::get_log_name()
+{
+	std::stringstream oss;
+	oss << get_name() << " ("
+		<< get_file_name() << "): ";
+	return oss.str();
 }
 
 bool SpikingGroup::localrank(NeuronID i) {
@@ -775,7 +789,7 @@ NeuronID SpikingGroup::get_vector_size()
 void SpikingGroup::inc_num_spike_attributes(int x)
 {
 	std::stringstream oss;
-	oss << get_name() << ":: Registering " << x << " spike attributes." ;
+	oss << get_log_name() << ":: Registering " << x << " spike attributes." ;
 	auryn::logger->msg(oss.str(),VERBOSE);
 
 	delay->inc_num_attributes(x);
