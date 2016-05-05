@@ -94,7 +94,7 @@ void AIFGroup::random_adapt(AurynState mean, AurynState sigma)
 	for ( AurynLong i = 0 ; i<get_rank_size() ; ++i ) {
 		rv = die();
 		if ( rv>0 ) 
-			set_val (g_adapt1, i, rv ); 
+			g_adapt1->set( i, rv ); 
 	}
 
 	init_state();
@@ -164,9 +164,9 @@ void AIFGroup::check_thresholds()
     	if ( *i > ( thr_rest + *thr_ptr ) ) {
 			NeuronID unit = i-mem->data;
 			push_spike(unit);
-		    set_val (mem, unit, e_rest); // reset
-	        set_val (thr, unit, dthr); //refractory
-			add_val (g_adapt1, unit, dg_adapt1);
+		    mem->set( unit, e_rest); // reset
+	        thr->set( unit, dthr); //refractory
+			g_adapt1->add_specific( unit, dg_adapt1);
 		} 
 		thr_ptr++;
 	}

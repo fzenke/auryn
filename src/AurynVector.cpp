@@ -179,11 +179,6 @@ void AurynVectorFloat::add(float a)
 #endif
 }
 
-void AurynVectorFloat::add(NeuronID i, float c ) 
-{
-	check_size(i);
-	data[i] += c;
-}
 
 void AurynVectorFloat::add(AurynVectorFloat * v) 
 {

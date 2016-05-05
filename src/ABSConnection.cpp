@@ -37,7 +37,7 @@ void ABSConnection::init(AurynWeight maxw)
 	if ( dst->get_post_size() == 0 ) return;
 
 	tr_post = new EulerTrace(dst->get_post_size(),tau_post);
-	tr_post->set_target(dst->get_mem_ptr());
+	tr_post->set_target(dst->get_state_vector("mem"));
 
 	voltage_curve_post 
 		= new AurynFloat[ABS_VOLTAGE_CURVE_SIZE];

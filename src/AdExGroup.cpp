@@ -80,8 +80,8 @@ void AdExGroup::clear()
 {
     clear_spikes();
     for (NeuronID i = 0; i < get_rank_size(); i++) {
-       auryn_vector_float_set (mem, i, e_rest);
-       auryn_vector_float_set (g_ampa, i, 0.);
+       mem->set( i, e_rest);
+       g_ampa->set( i, 0.);
        auryn_vector_ushort_set (ref, i, 0);
        auryn_vector_float_set (g_gaba, i, 0.);
        auryn_vector_float_set (bg_current, i, 0.);
@@ -190,7 +190,7 @@ void AdExGroup::set_c_mem(AurynFloat cm)
 
 AurynFloat AdExGroup::get_bg_current(NeuronID i) {
     if ( localrank(i) )
-        return auryn_vector_float_get ( bg_current , global2rank(i) ) ;
+        return bg_current->get( global2rank(i) ) ;
     else
         return 0;
 }
@@ -198,9 +198,11 @@ AurynFloat AdExGroup::get_bg_current(NeuronID i) {
 std::string AdExGroup::get_output_line(NeuronID i)
 {
     std::stringstream oss;
-    oss << get_mem(i) << " " << get_ampa(i) << " " << get_gaba(i) << " "
-        << auryn_vector_ushort_get (ref, i) << " "
-        << auryn_vector_float_get (bg_current, i) <<"\n";
+    oss << mem->get(i) << " " 
+		<< g_ampa->get(i) << " " 
+		<< g_gaba->get(i) << " "
+        << ref->get(i) << " "
+        << bg_current->get( i) <<"\n";
     return oss.str();
 }
 
@@ -211,11 +213,11 @@ void AdExGroup::load_input_line(NeuronID i, const char * buf)
         sscanf (buf,"%f %f %f %u %f",&vmem,&vampa,&vgaba,&vref,&vbgcur);
         if ( localrank(i) ) {
             NeuronID trans = global2rank(i);
-            set_mem(trans,vmem);
-            set_ampa(trans,vampa);
-            set_gaba(trans,vgaba);
-            auryn_vector_ushort_set (ref, trans, vref);
-            auryn_vector_float_set (bg_current, trans, vbgcur);
+            mem->set(trans,vmem);
+            g_ampa->set(trans,vampa);
+            g_gaba->set(trans,vgaba);
+            ref->set( trans, vref);
+            bg_current->set( trans, vbgcur);
         }
 }
 

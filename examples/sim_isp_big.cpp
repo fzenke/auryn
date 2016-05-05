@@ -271,11 +271,11 @@ int main(int ac, char* av[])
 
 		strbuf = outputfile;
 		strbuf += ".ampa";
-			AmpaMonitor * amon = new AmpaMonitor( neurons_e, record_neuron, strbuf.c_str() );
+			StateMonitor * amon = new StateMonitor( neurons_e, record_neuron, "g_ampa", strbuf.c_str() );
 
 		strbuf = outputfile;
 		strbuf += ".gaba";
-			GabaMonitor * gmon = new GabaMonitor( neurons_e, record_neuron, strbuf.c_str() );
+			StateMonitor * gmon = new StateMonitor( neurons_e, record_neuron, "g_gaba", strbuf.c_str() );
 	}
 
 	RateChecker * chk = new RateChecker( neurons_e , 0.001 , 1000. , 100e-3);

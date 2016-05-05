@@ -71,11 +71,11 @@ int main(int ac, char* av[])
 
 	tmpstr = outputfile;
 	tmpstr += ".ampa";
-	AmpaMonitor * amon = new AmpaMonitor( neuron, 0, tmpstr.c_str() );
+	StateMonitor * amon = new StateMonitor( neuron, 0, "g_ampa", tmpstr.c_str() );
 
 	tmpstr = outputfile;
 	tmpstr += ".nmda";
-	NmdaMonitor * nmon = new NmdaMonitor( neuron, 0, tmpstr.c_str() );
+	StateMonitor * nmon = new StateMonitor( neuron, 0, "g_nmda", tmpstr.c_str() );
 
 	logger->msg("Running ...",PROGRESS);
 	sys->run(10);

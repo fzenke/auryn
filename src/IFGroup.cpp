@@ -148,8 +148,8 @@ void IFGroup::check_thresholds()
     	if ( *i > ( thr_rest + *thr_ptr ) ) {
 			NeuronID unit = i-mem->data;
 			push_spike(unit);
-		    set_val (mem, unit, e_reset); // reset
-	        set_val (thr, unit, dthr); //refractory
+		    mem->set( unit, e_reset); // reset
+	        thr->set( unit, dthr); //refractory
 		} 
 		thr_ptr++;
 	}

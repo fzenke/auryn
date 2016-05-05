@@ -43,7 +43,6 @@ void NeuronGroup::init()
 		thr = get_state_vector("thr");
 		g_ampa = get_state_vector("g_ampa");
 		g_gaba = get_state_vector("g_gaba");
-		g_cursyn = get_state_vector("g_cursyn");
 		g_nmda = get_state_vector("g_nmda");
 
 #ifndef CODE_ALIGNED_SSE_INSTRUCTIONS
@@ -53,7 +52,7 @@ void NeuronGroup::init()
 				|| auryn_AlignOffset( g_ampa->size, g_ampa->data, sizeof(float), 16) 
 				|| auryn_AlignOffset( g_nmda->size, g_nmda->data, sizeof(float), 16) 
 				|| auryn_AlignOffset( g_gaba->size, g_gaba->data, sizeof(float), 16)  
-				|| auryn_AlignOffset( g_cursyn->size, g_cursyn->data, sizeof(float), 16) ) 
+		   ) 
 			throw AurynMemoryAlignmentException();
 #endif
 }
@@ -70,100 +69,6 @@ NeuronGroup::~NeuronGroup()
 }
 
 
-
-AurynState NeuronGroup::get_mem(NeuronID i)
-{
-	return get_val(mem,i);
-}
-
-AurynStateVector * NeuronGroup::get_mem_ptr()
-{
-	return mem;
-}
-
-void NeuronGroup::set_mem(NeuronID i, AurynState val)
-{
-	set_val(mem,i,val);
-}
-
-void NeuronGroup::set_state(std::string name, NeuronID i, AurynState val)
-{
-	AurynStateVector * tmp = get_state_vector(name);
-	if ( tmp )
-		set_val(tmp,i,val);
-}
-
-void NeuronGroup::set_state(std::string name, AurynState val)
-{
-	AurynStateVector * tmp = get_state_vector(name);
-	if ( tmp ) 
-		for ( NeuronID i = 0 ; i < get_rank_size() ; ++i )
-			set_val(tmp,i,val);
-}
-
-
-
-
-AurynState NeuronGroup::get_ampa(NeuronID i)
-{
-	return get_val(g_ampa,i);
-}
-
-AurynState NeuronGroup::get_cursyn(NeuronID i)
-{
-	return get_val(g_cursyn,i);
-}
-
-AurynStateVector * NeuronGroup::get_ampa_ptr()
-{
-	return g_ampa;
-}
-
-AurynStateVector * NeuronGroup::get_cursyn_ptr()
-{
-	return g_cursyn;
-}
-
-AurynState NeuronGroup::get_gaba(NeuronID i)
-{
-	return get_val(g_gaba,i);
-}
-
-AurynStateVector * NeuronGroup::get_gaba_ptr()
-{
-	return g_gaba;
-}
-
-AurynState NeuronGroup::get_nmda(NeuronID i)
-{
-	return get_val(g_nmda,i);
-}
-
-AurynStateVector * NeuronGroup::get_nmda_ptr()
-{
-	return g_nmda;
-}
-
-void NeuronGroup::set_ampa(NeuronID i, AurynState val)
-{
-	set_val(g_ampa,i,val);
-}
-
-void NeuronGroup::set_cursyn(NeuronID i, AurynState val)
-{
-	set_val(g_cursyn,i,val);
-}
-
-void NeuronGroup::set_gaba(NeuronID i, AurynState val)
-{
-	set_val(g_gaba,i,val);
-}
-
-void NeuronGroup::set_nmda(NeuronID i, AurynState val)
-{
-	set_val(g_nmda,i,val);
-}
-
 void NeuronGroup::random_mem(AurynState mean, AurynState sigma)
 {
 	randomize_state_vector_gauss("mem",mean,sigma,42);
@@ -178,7 +83,7 @@ void NeuronGroup::random_uniform_mem(AurynState lo, AurynState hi)
 
 	for ( AurynLong i = 0 ; i<get_rank_size() ; ++i ) {
 		rv = lo+die()*(hi-lo);
-		set_mem(i,rv);
+		mem->set(i,rv);
 	}
 
 	init_state();
@@ -193,7 +98,7 @@ void NeuronGroup::random_nmda(AurynState mean, AurynState sigma)
 
 	for ( AurynLong i = 0 ; i<get_rank_size() ; ++i ) {
 		rv = die();
-		set_nmda(i,rv);
+		g_nmda->set(i,rv);
 	}
 
 	init_state();
@@ -211,48 +116,23 @@ void NeuronGroup::init_state()
 
 }
 
-
-void NeuronGroup::set_val(AurynStateVector * vec, NeuronID i, AurynState val)
-{
-    vec->set( i, val);
-}
-
-void NeuronGroup::add_val(AurynStateVector * vec, NeuronID i, AurynState val)
-{
-	vec->data[i] += val;
-}
-
-void NeuronGroup::clip_val(AurynStateVector * vec, NeuronID i, AurynState max)
-{
-	if ( vec->get(i) > max)
-		vec->set(i,max);
-}
-
-AurynState NeuronGroup::get_val(AurynStateVector * vec, NeuronID i)
-{
-	return vec->get( i);
-}
-
 void NeuronGroup::tadd(NeuronID id, AurynWeight amount, TransmitterType t)
 {
 	NeuronID localid = global2rank(id);
 	switch ( t ) {
 		case GABA:
-			add_val(g_gaba,localid,amount);
+			g_gaba->add_specific(localid,amount);
 			break;
 		case MEM:
-			add_val(mem,localid,amount);
-			break;
-		case CURSYN:
-			add_val(g_cursyn,localid,amount);
+			mem->add_specific(localid,amount);
 			break;
 		case NMDA:
-			add_val(g_nmda,localid,amount);
+			g_nmda->add_specific(localid,amount);
 			break;
 		case GLUT:
 		case AMPA:
 		default:
-			add_val(g_ampa,localid,amount);
+			g_ampa->add_specific(localid,amount);
 	}
 }
 
@@ -260,5 +140,19 @@ void NeuronGroup::tadd(NeuronID id, AurynWeight amount, TransmitterType t)
 void NeuronGroup::tadd(AurynStateVector * state, NeuronID id, AurynWeight amount)
 {
 	NeuronID localid = global2rank(id);
-	add_val(state, localid, amount);
+	state->add_specific( localid, amount);
+}
+
+void NeuronGroup::set_state(std::string name, NeuronID i, AurynState val)
+{
+	AurynStateVector * tmp = find_state_vector(name);
+	if (tmp) { tmp->set(i,val); }
+	else { logger->warning("State not found."); }
+}
+
+void NeuronGroup::set_state(std::string name, AurynState val)
+{
+	AurynStateVector * tmp = find_state_vector(name);
+	if (tmp) tmp->set_all(val);
+	else { logger->warning("State not found."); }
 }

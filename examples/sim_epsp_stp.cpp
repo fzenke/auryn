@@ -85,12 +85,12 @@ int main(int ac, char* av[])
 	// Records the postsynaptic AMPA conductance
 	tmpstr = outputfile;
 	tmpstr += ".ampa";
-	AmpaMonitor * amon = new AmpaMonitor( neuron, 0, tmpstr.c_str() );
+	StateMonitor * amon = new StateMonitor( neuron, 0, "g_ampa", tmpstr.c_str() );
 
 	// Records the postsynaptic NMDA conductance
 	tmpstr = outputfile;
 	tmpstr += ".nmda";
-	NmdaMonitor * nmon = new NmdaMonitor( neuron, 0, tmpstr.c_str() );
+	StateMonitor * nmon = new StateMonitor( neuron, 0, "g_nmda", tmpstr.c_str() );
 
 	// simulate for 5s
 	logger->msg("Running ...",PROGRESS);

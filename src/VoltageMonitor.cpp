@@ -62,7 +62,7 @@ void VoltageMonitor::propagate()
 		// we output spikes irrespectively of the sampling interval, because 
 		// the membrane potential isn't a smooth function for most IF models when
 		// they spike, so it's easy to "miss" a spike otherwise
-		double voltage = src->get_mem(nid);
+		double voltage = src->mem->get(nid);
 		if ( paste_spikes ) {
 			SpikeContainer * spikes = src->get_spikes_immediate();
 			for ( int i = 0 ; i < spikes->size() ; ++i ) {

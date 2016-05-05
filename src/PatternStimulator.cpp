@@ -59,7 +59,7 @@ void PatternStimulator::init(NeuronGroup * target, std::string filename, AurynFl
 
 	patterns = new std::vector<type_pattern>;
 
-	mem = dst->get_mem_ptr();
+	mem = dst->mem;
 
 	filetime = 0;
 	timeseriesfile.open(filename.c_str(),std::ios::in);
