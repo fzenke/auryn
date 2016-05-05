@@ -127,15 +127,15 @@ public:
 	SpikeDelay * delay;
 
 	/*! Can hold single neuron vectors such as target rates or STP states etc  */
-	std::map<std::string,AurynVectorFloat *> state_vectors;
+	std::map<std::string,AurynStateVector *> state_vectors;
 
 	/*! \brief Returns existing state vector by name. 
 	 *
 	 * If the state_vector does not exist the function returns NULL. */
-	AurynVectorFloat * find_state_vector(std::string key);
+	AurynStateVector * find_state_vector(std::string key);
 
 	/*! \brief Adds a state vector passed as an argument to the dictinary. */
-	void add_state_vector( std::string key, AurynVectorFloat * state_vector );
+	void add_state_vector( std::string key, AurynStateVector * state_vector );
 
 	/*! \brief Removes a state vector passed as an argument to the dictinary.
 	 *
@@ -143,7 +143,7 @@ public:
 	void remove_state_vector( std::string key );
 
 	/*! \brief Creates a new or returns an existing state vector by name. */
-	AurynVectorFloat * get_state_vector(std::string key);
+	AurynStateVector * get_state_vector(std::string key);
 
 	/*! Randomizes the content of a state vector with Gaussian random numbers. Seeding is MPI save. */
 	void randomize_state_vector_gauss(std::string state_vector_name, AurynState mean, AurynState sigma, int seed=12239);

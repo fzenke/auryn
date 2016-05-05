@@ -306,11 +306,15 @@ namespace auryn {
 	template <typename T>
 	class AurynVector;
 
-	class AurynVectorFloat;
+	class AurynVectorFloat; // Forward declaration
 
+	/*! \brief Defines AurynStateVector type 
+	 *
+	 * This typically needs to change when AurynState or AurynFloat types are changed. */
+	typedef AurynVectorFloat AurynStateVector; 
 
 	// Legacy state vector types 
-	typedef AurynVectorFloat auryn_vector_float; //!< Default legacy Auryn state vector type
+	typedef AurynStateVector auryn_vector_float; //!< Default legacy Auryn state vector type
 	typedef AurynVector<unsigned short> auryn_vector_ushort; //!< Default legacy Auryn ushort vector type
 
 

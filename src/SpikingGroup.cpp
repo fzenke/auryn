@@ -182,7 +182,7 @@ void SpikingGroup::free()
 	}
 
 	auryn::logger->msg("SpikingGroup:: Freeing state vectors",VERBOSE);
-	for ( std::map<std::string,AurynVectorFloat *>::const_iterator iter = state_vectors.begin() ; 
+	for ( std::map<std::string,AurynStateVector *>::const_iterator iter = state_vectors.begin() ; 
 			iter != state_vectors.end() ;
 			++iter ) {
 		if ( iter->first[0] == '_' ) continue; // do not process volatile state_vector
@@ -504,7 +504,7 @@ bool SpikingGroup::write_to_file(const char * filename)
 
 	outfile << "# Auryn SpikingGroup state file for n="<< get_rank_size() <<" neurons (ver. " << AURYNVERSION << ")" << std::endl;
 	outfile << "# Default field order (might be overwritten): ";
-	for ( std::map<std::string,AurynVectorFloat *>::const_iterator iter = state_vectors.begin() ; 
+	for ( std::map<std::string,AurynStateVector *>::const_iterator iter = state_vectors.begin() ; 
 			iter != state_vectors.end() ;
 			++iter ) {
 		if ( iter->first[0] == '_' ) continue; // do not process volatile state_vector
@@ -580,7 +580,7 @@ void SpikingGroup::virtual_serialize(boost::archive::binary_oarchive & ar, const
 	ar & *delay;
 
 	auryn::logger->msg("SpikingGroup:: serializing state vectors",VERBOSE);
-	for ( std::map<std::string,AurynVectorFloat *>::const_iterator iter = state_vectors.begin() ; 
+	for ( std::map<std::string,AurynStateVector *>::const_iterator iter = state_vectors.begin() ; 
 			iter != state_vectors.end() ;
 			++iter ) {
 		if ( iter->first[0] == '_' ) continue; // do not process volatile state_vector
@@ -607,13 +607,13 @@ void SpikingGroup::virtual_serialize(boost::archive::binary_iarchive & ar, const
 	ar & *delay;
 
 	auryn::logger->msg("SpikingGroup:: reading state vectors",VERBOSE);
-	for ( std::map<std::string,AurynVectorFloat *>::const_iterator iter = state_vectors.begin() ; 
+	for ( std::map<std::string,AurynStateVector *>::const_iterator iter = state_vectors.begin() ; 
 			iter != state_vectors.end() ;
 			++iter ) {
 		if ( iter->first[0] == '_' ) continue; // do not process volatile state_vector
 		std::string key;
 		ar & key;
-		AurynVectorFloat * vect = get_state_vector(key);
+		AurynStateVector * vect = get_state_vector(key);
 		ar & *vect;
 	}
 
@@ -631,7 +631,7 @@ void SpikingGroup::virtual_serialize(boost::archive::binary_iarchive & ar, const
 }
 
 
-void SpikingGroup::add_state_vector(std::string key, AurynVectorFloat * state_vector)
+void SpikingGroup::add_state_vector(std::string key, AurynStateVector * state_vector)
 {
 
 	if ( key[0] == '_' ) {
@@ -650,19 +650,24 @@ void SpikingGroup::remove_state_vector( std::string key )
 	state_vectors.erase(key);
 }
 
-AurynVectorFloat * SpikingGroup::get_state_vector(std::string key)
+AurynStateVector * SpikingGroup::get_state_vector(std::string key)
 {
 	if ( state_vectors.find(key) == state_vectors.end() ) {
 		if ( get_vector_size() == 0 ) return NULL;
-		AurynVectorFloat * vec = new AurynVectorFloat(get_vector_size()); 
+		AurynStateVector * vec = new AurynStateVector(get_vector_size()); 
 		add_state_vector(key, vec);
+
+		if ( auryn_AlignOffset( vec->size, vec->data, sizeof(float), 16) ) {
+			throw AurynMemoryAlignmentException();
+		}
+
 		return vec;
 	} else {
 		return state_vectors.find(key)->second;
 	}
 }
 
-AurynVectorFloat * SpikingGroup::find_state_vector(std::string key)
+AurynStateVector * SpikingGroup::find_state_vector(std::string key)
 {
 	if ( state_vectors.find(key) == state_vectors.end() ) {
 		return NULL;
@@ -678,7 +683,7 @@ void SpikingGroup::randomize_state_vector_gauss(std::string state_vector_name, A
 	boost::variate_generator<boost::mt19937&, boost::normal_distribution<> > die(ng_gen, dist);
 	AurynState rv;
 
-	AurynVectorFloat * vec = get_state_vector(state_vector_name); 
+	AurynStateVector * vec = get_state_vector(state_vector_name); 
 
 
 	for ( AurynLong i = 0 ; i<get_rank_size() ; ++i ) {
@@ -692,7 +697,7 @@ std::string SpikingGroup::get_output_line(NeuronID i)
 {
 	std::stringstream oss;
 
-	for ( std::map<std::string,AurynVectorFloat *>::const_iterator iter = state_vectors.begin() ; 
+	for ( std::map<std::string,AurynStateVector *>::const_iterator iter = state_vectors.begin() ; 
 			iter != state_vectors.end() ;
 			++iter ) {
 		if ( iter->first[0] == '_' ) continue; // do not process volatile state_vector
@@ -726,7 +731,7 @@ void SpikingGroup::load_input_line(NeuronID i, const char * buf)
 		float temp;
 
 		// read the state_vectors
-		for ( std::map<std::string,AurynVectorFloat *>::const_iterator iter = state_vectors.begin() ; 
+		for ( std::map<std::string,AurynStateVector *>::const_iterator iter = state_vectors.begin() ; 
 			iter != state_vectors.end() ;
 			++iter ) {
 			if ( iter->first[0] == '_' ) continue; // do not process volatile state_vector

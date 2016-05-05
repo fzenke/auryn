@@ -47,9 +47,9 @@ namespace auryn {
 	class IFGroup : public NeuronGroup
 	{
 	private:
-		AurynVectorFloat * t_leak;
-		AurynVectorFloat * t_exc;
-		AurynVectorFloat * t_inh;
+		AurynStateVector * t_leak;
+		AurynStateVector * t_exc;
+		AurynStateVector * t_inh;
 		AurynFloat scale_ampa,scale_gaba, scale_thr;
 		AurynFloat tau_ampa,tau_gaba,tau_nmda;
 		AurynFloat A_ampa,A_nmda;

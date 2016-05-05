@@ -62,17 +62,23 @@ protected:
 
 public:
 	/*! Stores the membrane potentials. */
-	auryn_vector_float * mem __attribute__((aligned(16)));
+	AurynStateVector * mem __attribute__((aligned(16)));
 	/*! Stores the AMPA conductances of each point neuron. */
-	auryn_vector_float * g_ampa __attribute__((aligned(16)));
+	AurynStateVector * g_ampa __attribute__((aligned(16)));
 	/*! Stores the GABA conductances of each point neuron. */
-	auryn_vector_float * g_gaba __attribute__((aligned(16)));
+	AurynStateVector * g_gaba __attribute__((aligned(16)));
 	/*! Stores the NMDA conductances of each point neuron. */
-	auryn_vector_float * g_nmda __attribute__((aligned(16)));
-	/*! Stores the CURSYN states of each point neuron. */
-	auryn_vector_float * g_cursyn __attribute__((aligned(16)));
-	/*! Stores  threshold terms for moving thresholds. */
-	auryn_vector_float * thr __attribute__((aligned(16)));
+	AurynStateVector * g_nmda __attribute__((aligned(16)));
+
+	/*! Stores the CURSYN states of each point neuron. 
+	 *
+	 * TODO This should be removed from NeuronGroup and only
+	 * added where its actually needed.*/
+	AurynStateVector * g_cursyn __attribute__((aligned(16)));
+	/*! Stores  threshold terms for moving thresholds. 
+	 *
+	 * TODO Remove and move to downstream. */
+	AurynStateVector * thr __attribute__((aligned(16)));
 
 	/*! Default constructor */
 	NeuronGroup(NeuronID n, double loadmultiplier = 1. , NeuronID total = 0 );
@@ -82,14 +88,14 @@ public:
 	virtual void clear() = 0;
 
 
-	AurynState get_val(auryn_vector_float* vec, NeuronID i);
-	void set_val(auryn_vector_float* vec, NeuronID i, AurynState val);
-	void add_val(auryn_vector_float* vec, NeuronID i, AurynState val);
-	void clip_val(auryn_vector_float* vec, NeuronID i, AurynState max);
-	void print_val(auryn_vector_float* vec, NeuronID i, const char * name);
-	void print_vec(auryn_vector_float* vec, const char * name);
+	AurynState get_val(AurynStateVector* vec, NeuronID i);
+	void set_val(AurynStateVector* vec, NeuronID i, AurynState val);
+	void add_val(AurynStateVector* vec, NeuronID i, AurynState val);
+	void clip_val(AurynStateVector* vec, NeuronID i, AurynState max);
+	void print_val(AurynStateVector* vec, NeuronID i, const char * name);
+	void print_vec(AurynStateVector* vec, const char * name);
 	AurynState get_mem(NeuronID i);
-	auryn_vector_float * get_mem_ptr();
+	AurynStateVector * get_mem_ptr();
 
 	void set_mem(NeuronID i, AurynState val);
 
@@ -98,19 +104,19 @@ public:
 
 	AurynState get_ampa(NeuronID i);
 	void set_ampa(NeuronID i,AurynState val);
-	auryn_vector_float * get_ampa_ptr();
+	AurynStateVector * get_ampa_ptr();
 
 	AurynState get_cursyn(NeuronID i);
 	void set_cursyn(NeuronID i,AurynState val);
-	auryn_vector_float * get_cursyn_ptr();
+	AurynStateVector * get_cursyn_ptr();
 
 	AurynState get_gaba(NeuronID i);
 	void set_gaba(NeuronID i,AurynState val);
-	auryn_vector_float * get_gaba_ptr();
+	AurynStateVector * get_gaba_ptr();
 
 	AurynState get_nmda(NeuronID i);
 	void set_nmda(NeuronID i,AurynState val);
-	auryn_vector_float * get_nmda_ptr();
+	AurynStateVector * get_nmda_ptr();
 
 	void random_mem(AurynState mean=-60e-3, AurynState sigma=5e-3);
 	void random_uniform_mem(AurynState lo, AurynState hi);
@@ -119,18 +125,15 @@ public:
 
 	virtual void init_state();
 
-	void print_mem();
-	void print_ampa();
-	void print_gaba();
-	void print_nmda();
-	void print_cursyn();
-	void print_state(NeuronID id);
+	/*! \brief Prints a state vector for debugging */
+	void print_state_vector(string state_name);
+
 	void safe_tadd(NeuronID id, AurynWeight amount, TransmitterType t=GLUT);
 	/*! Adds given transmitter to neuron as from a synaptic event. DEPRECATED. Moving slowly to SparseConnection transmit. */
 	void tadd(NeuronID id, AurynWeight amount, TransmitterType t=GLUT);
 
 	/*! Adds given amount of transmitter to neuron state/id. */
-	void tadd(auryn_vector_float * state, NeuronID id, AurynWeight amount);
+	void tadd(AurynStateVector * state, NeuronID id, AurynWeight amount);
 
 };
 
