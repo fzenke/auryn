@@ -121,6 +121,12 @@ namespace auryn {
 				}
 			}
 
+			/*! \brief Adds value a to specific vector element i */
+			void add(NeuronID i, AurynFloat c) 
+			{
+				data[i] += c;
+			}
+
 			/*! \brief Adds a vector v to the vector
 			 *
 			 * No checking of the dimensions match! */
@@ -201,7 +207,7 @@ namespace auryn {
 			 *
 			 * When no argument is given the function returns the first element of 
 			 * data array of the vector. */
-			T ptr(NeuronID i = 0)
+			T * ptr(NeuronID i = 0)
 			{
 				check_size(i);
 				return data+i;
