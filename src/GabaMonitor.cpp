@@ -44,6 +44,8 @@ void GabaMonitor::init(NeuronGroup * source, NeuronID id, std::string filename, 
 	ssize = stepsize;
 	if ( ssize < 1 ) ssize = 1;
 
+	g_gaba = src->get_state_vector("g_gaba");
+
 	nid = id;
 	outfile << std::setiosflags(std::ios::fixed) << std::setprecision(6);
 }
@@ -51,7 +53,7 @@ void GabaMonitor::init(NeuronGroup * source, NeuronID id, std::string filename, 
 void GabaMonitor::propagate()
 {
 	if (auryn::sys->get_clock()%ssize==0) {
-		outfile << dt*(auryn::sys->get_clock()) << " " << src->get_gaba(nid) << "\n";
+		outfile << dt*(auryn::sys->get_clock()) << " " << g_gaba->get(nid) << "\n";
 	}
 
 }

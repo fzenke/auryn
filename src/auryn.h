@@ -94,7 +94,6 @@
 // Monitor and stimulator definitions
 #include "Monitor.h"
 #include "GabaMonitor.h"
-#include "NmdaMonitor.h"
 #include "AmpaMonitor.h"
 #include "VoltageMonitor.h"
 #include "SpikeMonitor.h"

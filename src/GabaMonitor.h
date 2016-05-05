@@ -41,6 +41,7 @@ namespace auryn {
 	{
 	protected:
 		NeuronGroup * src;
+		AurynStateVector * g_gaba;
 		NeuronID nid;
 		AurynTime ssize;
 		void init(NeuronGroup * source, NeuronID id, std::string filename, AurynTime stepsize);
