@@ -69,23 +69,7 @@ NeuronGroup::~NeuronGroup()
 	if ( evolve_locally() ) free();
 }
 
-void NeuronGroup::print_val(AurynStateVector * vec, NeuronID i, const char * name)
-{
-           printf ("%s%d= %g\n",name, i, AurynStateVector_get (vec, i));
-}
 
-void NeuronGroup::print_vec(AurynStateVector * vec, const char * name)
-{
-	for (NeuronID i = 0; i < get_rank_size(); i++)
-         {
-			 print_val(vec,i,name);
-         }
-}
-
-void NeuronGroup::print_state(NeuronID id)
-{
-           printf ("%g %g %g %g %g\n",AurynStateVector_get (mem, id), AurynStateVector_get (g_ampa, id), AurynStateVector_get (g_gaba, id) ,AurynStateVector_get (g_nmda, id), AurynStateVector_get (g_cursyn, id));
-}
 
 AurynState NeuronGroup::get_mem(NeuronID i)
 {
@@ -215,10 +199,6 @@ void NeuronGroup::random_nmda(AurynState mean, AurynState sigma)
 	init_state();
 }
 
-void NeuronGroup::print_state_vector(string state_name)
-{
-	print_vec(mem,state_name);
-}
 
 void NeuronGroup::safe_tadd(NeuronID id, AurynWeight amount, TransmitterType t)
 {
@@ -234,24 +214,23 @@ void NeuronGroup::init_state()
 
 void NeuronGroup::set_val(AurynStateVector * vec, NeuronID i, AurynState val)
 {
-    AurynStateVector_set (vec, i, val);
+    vec->set( i, val);
 }
 
 void NeuronGroup::add_val(AurynStateVector * vec, NeuronID i, AurynState val)
 {
-	// AurynStateVector_set(vec,i,AurynStateVector_get(vec,i)+val);
 	vec->data[i] += val;
 }
 
 void NeuronGroup::clip_val(AurynStateVector * vec, NeuronID i, AurynState max)
 {
-	if ( AurynStateVector_get(vec,i) > max)
-		AurynStateVector_set(vec,i,max);
+	if ( vec->get(i) > max)
+		vec->set(i,max);
 }
 
 AurynState NeuronGroup::get_val(AurynStateVector * vec, NeuronID i)
 {
-	return AurynStateVector_get (vec, i);
+	return vec->get( i);
 }
 
 void NeuronGroup::tadd(NeuronID id, AurynWeight amount, TransmitterType t)

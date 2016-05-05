@@ -92,8 +92,6 @@ public:
 	void set_val(AurynStateVector* vec, NeuronID i, AurynState val);
 	void add_val(AurynStateVector* vec, NeuronID i, AurynState val);
 	void clip_val(AurynStateVector* vec, NeuronID i, AurynState max);
-	void print_val(AurynStateVector* vec, NeuronID i, const char * name);
-	void print_vec(AurynStateVector* vec, const char * name);
 	AurynState get_mem(NeuronID i);
 	AurynStateVector * get_mem_ptr();
 
@@ -125,8 +123,6 @@ public:
 
 	virtual void init_state();
 
-	/*! \brief Prints a state vector for debugging */
-	void print_state_vector(string state_name);
 
 	void safe_tadd(NeuronID id, AurynWeight amount, TransmitterType t=GLUT);
 	/*! Adds given transmitter to neuron as from a synaptic event. DEPRECATED. Moving slowly to SparseConnection transmit. */
