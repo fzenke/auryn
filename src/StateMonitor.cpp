@@ -43,6 +43,7 @@ StateMonitor::StateMonitor(SpikingGroup * source, NeuronID id, std::string state
 		throw AurynStateVectorException();
 	}
 
+	// TODO test if state exists -- use find_state_vector instead .. 
 	if ( source->evolve_locally() ) {
 		target_variable = src->get_state_vector(statename)->data+nid;
 	} else {
