@@ -107,21 +107,21 @@ void Connection::set_transmitter(TransmitterType transmitter)
 	if ( dst->evolve_locally() ) {
 		switch ( transmitter ) {
 			case GABA:
-				set_transmitter(dst->get_gaba_ptr()->data);
+				set_transmitter(dst->get_state_vector("g_gaba")->data);
 				break;
 			case MEM:
-				set_transmitter(dst->get_mem_ptr()->data);
+				set_transmitter(dst->get_state_vector("mem")->data);
 				break;
 			case CURSYN:
-				set_transmitter(dst->get_cursyn_ptr()->data);
+				set_transmitter(dst->get_state_vector("g_cursyn")->data);
 				break;
 			case NMDA:
-				set_transmitter(dst->get_nmda_ptr()->data);
+				set_transmitter(dst->get_state_vector("g_nmda")->data);
 				break;
 			case GLUT:
 			case AMPA:
 			default:
-				set_transmitter(dst->get_ampa_ptr()->data);
+				set_transmitter(dst->get_state_vector("g_ampa")->data);
 		}
 	} else set_transmitter((AurynWeight *)NULL);
 }

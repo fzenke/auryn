@@ -70,11 +70,6 @@ public:
 	/*! Stores the NMDA conductances of each point neuron. */
 	AurynStateVector * g_nmda __attribute__((aligned(16)));
 
-	/*! Stores the CURSYN states of each point neuron. 
-	 *
-	 * TODO This should be removed from NeuronGroup and only
-	 * added where its actually needed.*/
-	AurynStateVector * g_cursyn __attribute__((aligned(16)));
 	/*! Stores  threshold terms for moving thresholds. 
 	 *
 	 * TODO Remove and move to downstream. */
@@ -82,39 +77,18 @@ public:
 
 	/*! Default constructor */
 	NeuronGroup(NeuronID n, double loadmultiplier = 1. , NeuronID total = 0 );
+
 	/*! Default destructor */
 	virtual ~NeuronGroup();
 
 	virtual void clear() = 0;
 
-
-	AurynState get_val(AurynStateVector* vec, NeuronID i);
-	void set_val(AurynStateVector* vec, NeuronID i, AurynState val);
-	void add_val(AurynStateVector* vec, NeuronID i, AurynState val);
-	void clip_val(AurynStateVector* vec, NeuronID i, AurynState max);
-	AurynState get_mem(NeuronID i);
-	AurynStateVector * get_mem_ptr();
-
-	void set_mem(NeuronID i, AurynState val);
-
-	void set_state(std::string name, NeuronID i, AurynState val);
+	/*! \brief Conveniently sets all values in a state vector identified by name in this group */
 	void set_state(std::string name, AurynState val);
 
-	AurynState get_ampa(NeuronID i);
-	void set_ampa(NeuronID i,AurynState val);
-	AurynStateVector * get_ampa_ptr();
+	/*! \brief Conveniently sets a single value of element i in a state vector identified by name in this group */
+	void set_state(std::string name, NeuronID i, AurynState val);
 
-	AurynState get_cursyn(NeuronID i);
-	void set_cursyn(NeuronID i,AurynState val);
-	AurynStateVector * get_cursyn_ptr();
-
-	AurynState get_gaba(NeuronID i);
-	void set_gaba(NeuronID i,AurynState val);
-	AurynStateVector * get_gaba_ptr();
-
-	AurynState get_nmda(NeuronID i);
-	void set_nmda(NeuronID i,AurynState val);
-	AurynStateVector * get_nmda_ptr();
 
 	void random_mem(AurynState mean=-60e-3, AurynState sigma=5e-3);
 	void random_uniform_mem(AurynState lo, AurynState hi);
@@ -122,7 +96,6 @@ public:
 	void random_nmda(AurynState mean, AurynState sigma);
 
 	virtual void init_state();
-
 
 	void safe_tadd(NeuronID id, AurynWeight amount, TransmitterType t=GLUT);
 	/*! Adds given transmitter to neuron as from a synaptic event. DEPRECATED. Moving slowly to SparseConnection transmit. */

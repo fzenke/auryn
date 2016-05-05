@@ -121,8 +121,8 @@ namespace auryn {
 				}
 			}
 
-			/*! \brief Adds value a to specific vector element i */
-			void add(NeuronID i, AurynFloat c) 
+			/*! \brief Adds the value c to specific vector element i */
+			void add_specific(NeuronID i, AurynFloat c) 
 			{
 				check_size(i);
 				data[i] += c;
@@ -254,7 +254,6 @@ namespace auryn {
 			void saxpy(float a, AurynVectorFloat * x);
 			void clip(float min, float max);
 			void add(float c);
-			void add(NeuronID i, float c);
 			void add(AurynVectorFloat * v);
 
 

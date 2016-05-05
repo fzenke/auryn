@@ -51,9 +51,9 @@ void CubaIFGroup::init()
 	ref = auryn_vector_ushort_alloc (get_vector_size()); 
 	bg_current = get_state_vector("bg_current");
 
-	t_bg_cur = auryn_vector_float_ptr ( bg_current , 0 ); 
-	t_mem = auryn_vector_float_ptr ( mem , 0 ); 
-	t_ref = auryn_vector_ushort_ptr ( ref , 0 ); 
+	t_bg_cur = bg_current->ptr(); 
+	t_mem = mem->ptr(); 
+	t_ref = ref->ptr(); 
 
 	clear();
 
@@ -63,9 +63,9 @@ void CubaIFGroup::clear()
 {
 	clear_spikes();
 	for (NeuronID i = 0; i < get_rank_size(); i++) {
-	   auryn_vector_float_set (mem, i, e_rest);
-	   auryn_vector_ushort_set (ref, i, 0);
-	   auryn_vector_float_set (bg_current, i, 0.);
+	   mem->set( i, e_rest);
+	   ref->set( i, 0);
+	   bg_current->set( i, 0.);
 	}
 }
 
@@ -128,7 +128,7 @@ AurynFloat CubaIFGroup::get_bg_current(NeuronID i) {
 std::string CubaIFGroup::get_output_line(NeuronID i)
 {
 	std::stringstream oss;
-	oss << get_mem(i) << " " << auryn_vector_ushort_get (ref, i) << "\n";
+	oss << mem->get(i) << " " << ref->get( i) << "\n";
 	return oss.str();
 }
 
@@ -139,8 +139,8 @@ void CubaIFGroup::load_input_line(NeuronID i, const char * buf)
 		sscanf (buf,"%f %u",&vmem,&vref);
 		if ( localrank(i) ) {
 			NeuronID trans = global2rank(i);
-			set_mem(trans,vmem);
-			auryn_vector_ushort_set (ref, trans, vref);
+			mem->set(trans,vmem);
+			ref->set(trans, vref);
 		}
 }
 

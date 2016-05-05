@@ -50,6 +50,7 @@ void SIFGroup::init()
 	calculate_scale_constants();
 	
 	ref = auryn_vector_ushort_alloc (get_vector_size()); 
+	g_cursyn = get_state_vector("g_cursyn");
 	bg_current = get_state_vector("bg_current");
 	inj_current = get_state_vector("inj_current");
 
@@ -141,7 +142,7 @@ AurynFloat SIFGroup::get_bg_current(NeuronID i) {
 std::string SIFGroup::get_output_line(NeuronID i)
 {
 	std::stringstream oss;
-	oss << get_mem(i) << " " << get_ampa(i) << " " << get_gaba(i) << " " << auryn_vector_ushort_get (ref, i) << "\n";
+	oss << mem->get(i) << " " << g_ampa->get(i) << " " << g_gaba->get(i) << " " << ref->get(i) << "\n";
 	return oss.str();
 }
 
@@ -152,10 +153,10 @@ void SIFGroup::load_input_line(NeuronID i, const char * buf)
 		sscanf (buf,"%f %f %f %u",&vmem,&vampa,&vgaba,&vref);
 		if ( localrank(i) ) {
 			NeuronID trans = global2rank(i);
-			set_mem(trans,vmem);
-			set_ampa(trans,vampa);
-			set_gaba(trans,vgaba);
-			auryn_vector_ushort_set (ref, trans, vref);
+			mem->set(trans,vmem);
+			g_ampa->set(trans,vampa);
+			g_gaba->set(trans,vgaba);
+			ref->set( trans, vref);
 		}
 }
 

@@ -51,7 +51,6 @@ private:
 	/*! Global neuron id to record from */
 	NeuronID gid;
 
-
 protected:
 	/*! The source neuron group to record from */
 	NeuronGroup * src;

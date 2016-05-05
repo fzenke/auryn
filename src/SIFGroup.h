@@ -59,6 +59,9 @@ private:
 	void virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version );
 	void virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version );
 public:
+	/*! Stores the CURSYN states of each point neuron.*/
+	AurynStateVector * g_cursyn __attribute__((aligned(16)));
+
 	/*! The default constructor of this NeuronGroup */
 	SIFGroup(NeuronID size);
 	virtual ~SIFGroup();

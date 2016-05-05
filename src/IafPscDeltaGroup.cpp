@@ -112,7 +112,7 @@ void IafPscDeltaGroup::set_tau_mem(AurynFloat taum)
 std::string IafPscDeltaGroup::get_output_line(NeuronID i)
 {
 	std::stringstream oss;
-	oss << get_mem(i) << " " << auryn_vector_ushort_get (ref, i) << "\n";
+	oss << mem->get(i) << " " << ref->get( i) << "\n";
 	return oss.str();
 }
 
@@ -123,7 +123,7 @@ void IafPscDeltaGroup::load_input_line(NeuronID i, const char * buf)
 	sscanf (buf,"%f %f %f %u",&vmem,&vampa,&vgaba,&vref);
 	if ( localrank(i) ) {
 		NeuronID trans = global2rank(i);
-		set_mem(trans,vmem);
+		mem->set(trans,vmem);
 		auryn_vector_ushort_set (ref, trans, vref);
 	}
 }
