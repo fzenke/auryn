@@ -102,6 +102,28 @@ void Logger::msg( std::string text, LogMessageType type, bool global, int line, 
 	last_message = text;
 }
 
+
+void Logger::info( std::string text )
+{
+	msg(text, NOTIFICATION);
+}
+
+void Logger::warning( std::string text )
+{
+	msg(text, WARNING);
+}
+
+void Logger::error( std::string text )
+{
+	msg(text, ERROR);
+}
+
+void Logger::verbose( std::string text, bool global, int line, std::string srcfile )
+{
+	msg(text, VERBOSE, global, line, srcfile );
+}
+
+
 void Logger::parameter(std::string name, double value) 
 {
 	std::stringstream oss;
