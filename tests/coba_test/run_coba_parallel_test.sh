@@ -4,7 +4,7 @@ BUILDDIR="../../build/release"
 TOOLDIR="$BUILDDIR/tools"
 
 # Compile code
-make -C $BUILDDIR
+make -C $BUILDDIR sim_coba_binmon
 
 # Benchmark parameters
 SIMTIME=10
