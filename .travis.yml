@@ -8,7 +8,7 @@ install:
     - sudo apt-get install -y -qq libboost-all-dev openmpi-bin libopenmpi-dev 
     - sudo apt-get install -y -qq cmake 
 script: 
-    - cd build/release && cmake ../../ -DCMAKE_BUILD_TYPE=Release && make 
+    - cd build/release && cmake ../../ -DCMAKE_BUILD_TYPE=Release && make && cd ../../tests && ./run_tests.sh
 
 notifications:
     email:
