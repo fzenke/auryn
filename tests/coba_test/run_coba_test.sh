@@ -4,7 +4,10 @@ BUILDDIR="../../build/debug"
 TOOLDIR="$BUILDDIR/tools"
 
 # Compile code
-make -C $BUILDDIR sim_coba_binmon
+CURDIR=`pwd`
+cd $BUILDDIR  && ./bootstrap.sh 
+cd $CURDIR
+make -C $BUILDDIR 
 
 # Benchmark parameters
 SIMTIME=10
