@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BUILDDIR="../../build/release"
+BUILDDIR="../../build/debug" # We use debug to avoid problems from fast-math 
 TOOLDIR="$BUILDDIR/tools"
 
 # Compile code
