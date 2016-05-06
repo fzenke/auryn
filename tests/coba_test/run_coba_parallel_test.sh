@@ -19,7 +19,7 @@ WMATLOADSTRING="--fee pynn.ee.wmat --fei pynn.ei.wmat --fie pynn.ie.wmat --fii p
 FILTERSPIKES="awk '{ if ($2%2==0) print }'" 
 mpirun -n 2 $BUILDDIR/examples/sim_coba_binmon $WMATLOADSTRING --simtime $SIMTIME --dir $TMPDIR 
 $CMD_BENCHMARK1
-$TOOLDIR/aube -i $TMPDIR/coba.*.e.spk | awk '{ if ($2%2==0) print }' | tee multicpu.ras | md5sum | cut -d " " -f 1 > coba_checksums.txt
+$TOOLDIR/aube -i $TMPDIR/coba.*.e.spk | awk '{ if ($2%2==0) print }' | md5sum | cut -d " " -f 1 > coba_checksums.txt
 rm -r $TMPDIR
 
 

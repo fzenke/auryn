@@ -17,12 +17,15 @@ WMATLOADSTRING="--fee pynn.ee.wmat --fei pynn.ei.wmat --fie pynn.ie.wmat --fii p
 # because the order of spikes on file in multicore is not the same as in single core we only 
 # spikes from one rank into our comparison
 $BUILDDIR/examples/sim_coba_binmon $WMATLOADSTRING --simtime $SIMTIME --dir $TMPDIR 
-$CMD_BENCHMARK1
-$TOOLDIR/aube -i $TMPDIR/coba.*.e.spk | awk '{ if ($2%2==0) print }' | tee singlecpu.ras | md5sum | cut -d " " -f 1 > coba_checksums.txt
+echo "Decoding spikes ..."
+$TOOLDIR/aube -i $TMPDIR/coba.*.e.spk | awk '{ if ($2%2==0) print }' > spikes.ras 
+echo "Computing checksum ..."
+cat spikes.ras | md5sum | cut -d " " -f 1 > coba_checksums.txt
 rm -r $TMPDIR
 
 
 # Writ result to file
+echo "Comparing checksum to reference ..."
 diff coba_checksums.txt coba_checksums.ref
 RETURNVALUE=$?
 
