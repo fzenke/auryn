@@ -31,9 +31,16 @@
 
 namespace auryn {
 
-	/*! \brief Auryn vector template 
+	/*! \brief Default Auryn vector template 
 	 *
-	 * Copies the core of GSL vector functionality and makes it a class for easier handling.
+	 * This essentially copies the core of GSL vector functionality and makes it a class for easier handling.
+	 * For performance reasons, time critical functions of this template have to be reimplemented in derived 
+	 * classes with a specific template parameter T. For instance I will always provide a derived type AurynVectorFloat 
+	 * which will per default be synonymous to AurynStateVector which implements SSE instructions for labour 
+	 * intensive operations on the vectors. 
+	 * Note, that all Auryn vectors should initialized with multiple of 4 elements (later that number might change) when
+	 * we add AVX support to the code. If you use get_vector_size functions from SpikingGroup this will automatically
+	 * be taken care of...
 	 * */
 	template <typename T> 
 	class AurynVector { 
@@ -238,10 +245,11 @@ namespace auryn {
 			}
 	};
 
-	/*! \brief Derived AurynVectorFloat class for performance computatoin
+	/*! \brief Derived AurynVectorFloat class for performance computation
 	 *
-	 * This class overwrites some of the functions defined in the template 
-	 * with SIMD intrinsics for higher performance.
+	 * This class inherits the template AurynVector<float> and overwrites 
+	 * some of the functions defined in the template with SIMD intrinsics 
+	 * for higher performance.
 	 */
 	class AurynVectorFloat : public AurynVector<float> 
 	{
