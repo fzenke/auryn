@@ -20,7 +20,7 @@ $BUILDDIR/examples/sim_coba_binmon $WMATLOADSTRING --simtime $SIMTIME --dir $TMP
 echo "Decoding spikes ..."
 $TOOLDIR/aube -i $TMPDIR/coba.*.e.spk | awk '{ if ($2%2==0) print }' > spikes.ras 
 echo "Computing checksum ..."
-cat spikes.ras | md5sum | cut -d " " -f 1 > coba_checksums.txt
+cat spikes.ras | md5sum > coba_checksums.txt
 rm -r $TMPDIR
 
 
