@@ -58,7 +58,7 @@ namespace auryn {
 			/*! \brief Checks if argument is larger than size and throws and exception if so 
 			 *
 			 * Check only enabled if NDEBUG is not defined.*/
-			void check_size(NeuronID x)
+			virtual void check_size(NeuronID x)
 			{
 #ifndef NDEBUG
 				if ( x >= size ) {
@@ -70,7 +70,7 @@ namespace auryn {
 			/*! \brief Checks if vector size matches to this instance
 			 *
 			 * Check only enabled if NDEBUG is not defined.*/
-			void check_size(AurynVector * v)
+			virtual void check_size(AurynVector * v)
 			{
 #ifndef NDEBUG
 				if ( v->size != size ) {
@@ -99,7 +99,7 @@ namespace auryn {
 			}
 
 			/*! \brief Set all elements to value v. */
-			void set_all(T v) 
+			virtual void set_all(T v) 
 			{
 				for ( NeuronID i = 0 ; i < size ; ++i ) {
 					data[i] = v;
@@ -107,13 +107,13 @@ namespace auryn {
 			}
 
 			/*! \brief Set all elements to zero. */
-			void set_zero() 
+			virtual void set_zero() 
 			{
 				set_all(0.0);
 			}
 
 			/*! \brief Scales all vector elements by a. */
-			void scale(AurynFloat a) 
+			virtual void scale(AurynFloat a) 
 			{
 				for ( NeuronID i = 0 ; i < size ; ++i ) {
 					data[i] *= a;
@@ -121,7 +121,7 @@ namespace auryn {
 			}
 
 			/*! \brief Adds constant c to each vector element */
-			void add(AurynFloat c) 
+			virtual void add(AurynFloat c) 
 			{
 				for ( NeuronID i = 0 ; i < size ; ++i ) {
 					data[i] += c;
@@ -129,7 +129,7 @@ namespace auryn {
 			}
 
 			/*! \brief Adds the value c to specific vector element i */
-			void add_specific(NeuronID i, AurynFloat c) 
+			virtual void add_specific(NeuronID i, AurynFloat c) 
 			{
 				check_size(i);
 				data[i] += c;
@@ -138,7 +138,7 @@ namespace auryn {
 			/*! \brief Adds a vector v to the vector
 			 *
 			 * No checking of the dimensions match! */
-			void add(AurynVector * v) 
+			virtual void add(AurynVector * v) 
 			{
 				check_size(v);
 				for ( NeuronID i = 0 ; i < size ; ++i ) {
@@ -147,13 +147,13 @@ namespace auryn {
 			}
 
 			/*! \brief Subtract constant c to each vector element */
-			void sub(AurynFloat c) 
+			virtual void sub(AurynFloat c) 
 			{
 				add(-c);
 			}
 
 			/*! \brief Elementwise subtraction */
-			void sub(AurynVector * v) 
+			virtual void sub(AurynVector * v) 
 			{
 				check_size(v);
 				for ( NeuronID i = 0 ; i < size ; ++i ) {
@@ -162,7 +162,7 @@ namespace auryn {
 			}
 
 			/*! \brief Multiply all vector elements by constant */
-			void mul(AurynFloat a) 
+			virtual void mul(AurynFloat a) 
 			{
 				scale(a);
 			}
@@ -170,7 +170,7 @@ namespace auryn {
 			/*! \brief Element-wise vector multiply  
 			 *
 			 * */
-			void mul(AurynVector * v) 
+			virtual void mul(AurynVector * v) 
 			{
 				check_size(v);
 				for ( NeuronID i = 0 ; i < size ; ++i ) {
@@ -181,7 +181,7 @@ namespace auryn {
 			/*! \brief Copies vector v 
 			 *
 			 * */
-			void copy(AurynVector * v) 
+			virtual void copy(AurynVector * v) 
 			{
 				check_size(v);
 				for ( NeuronID i = 0 ; i < size ; ++i ) {
@@ -196,7 +196,7 @@ namespace auryn {
 			 * \param a The scaling factor for the additional vector
 			 * \param x The additional vector to add
 			 * */
-			void saxpy(AurynFloat a, AurynVector * x) 
+			virtual void saxpy(AurynFloat a, AurynVector * x) 
 			{
 				check_size(x);
 				for ( NeuronID i = 0 ; i < size ; ++i ) {
