@@ -238,10 +238,11 @@ namespace auryn {
 			}
 	};
 
-	/*! \brief Derived AurynVectorFloat class for performance computatoin
+	/*! \brief Derived AurynVectorFloat class for performance computation
 	 *
-	 * This class overwrites some of the functions defined in the template 
-	 * with SIMD intrinsics for higher performance.
+	 * This class inherits the template AurynVector<float> and overwrites 
+	 * some of the functions defined in the template with SIMD intrinsics 
+	 * for higher performance.
 	 */
 	class AurynVectorFloat : public AurynVector<float> 
 	{
