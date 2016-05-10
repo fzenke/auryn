@@ -12,7 +12,12 @@ set xtics rotate # by -45
 
 set boxwidth 0.8
 
-set xrange [-0.5:]
+
+
+set boxwidth 1.0
+set style histogram errorbars gap 1.0 lw 1
+set style data histograms
+# set style fill solid border -1
 
 
 revname(x) = sprintf("%s",x[1:6])
@@ -22,14 +27,14 @@ set multiplot layout 1,3
 set label 1 at screen 0.001, screen 0.1 'Commit:' left
 set title 'Vogels \& Abbott benchmark'
 set ylabel 'Time (s)'
-plot 'benchmark_results.dat' using  0:3:4:xticlabels(revname(strcol(2))) w boxerror lc -1
+plot 'benchmark_results.dat' using  3:4:xticlabels(revname(strcol(2))) lc -1
 
 unset ylabel 
 unset label 1
 
 
 set title 'Zenke et al. benchmark, single'
-plot 'benchmark_results.dat' using  0:5:6:xticlabels(revname(strcol(2))) w boxerror lc -1
+plot 'benchmark_results.dat' using  5:6:xticlabels(revname(strcol(2))) lc -1
 set title 'Zenke et al. benchmark, parallel'
-plot 'benchmark_results.dat' using  0:7:8:xticlabels(revname(strcol(2))) w boxerror lc -1
+plot 'benchmark_results.dat' using  7:8:xticlabels(revname(strcol(2))) lc -1
 unset multiplot
