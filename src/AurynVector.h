@@ -93,7 +93,7 @@ namespace auryn {
 			}
 
 			/*! \brief Default destructor */
-			~AurynVector() 
+			virtual ~AurynVector() 
 			{
 				delete data;
 			}
@@ -242,6 +242,14 @@ namespace auryn {
 						if ( data[i] > max ) 
 							 data[i] = max;
 				}
+			}
+
+			/*! \brief Print vector elements to std out for debugging */
+			void print() {
+				for ( NeuronID i = 0 ; i < size ; ++i ) {
+					std::cout << get(i) << " ";
+				}
+				std::cout << std::endl;
 			}
 	};
 
