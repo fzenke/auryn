@@ -102,7 +102,7 @@ void EulerTrace::evolve()
 
 void EulerTrace::follow()
 { 
-	state->copy( temp );
+	temp->copy( state );
 	auryn_vector_float_saxpy( -1., target_ptr, temp );
 	auryn_vector_float_saxpy( -dt/tau, temp, state );
 }
