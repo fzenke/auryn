@@ -258,6 +258,11 @@ namespace auryn {
 			/*! \brief Default constructor */
 			AurynVectorFloat(NeuronID n);
 
+			/*! \brief Default destructor */
+			~AurynVectorFloat() 
+			{
+			};
+
 			void scale(float a);
 			void saxpy(float a, AurynVectorFloat * x);
 			void clip(float min, float max);
