@@ -73,6 +73,9 @@ namespace auryn {
 		/*! \brief Standard active switch */
 		bool active;
 
+		/*! \brief Flush to file */
+		void flush();
+
 		/*! \brief Standard constructor */
 		Monitor();
 		/*! \brief Standard constructor with file name*/

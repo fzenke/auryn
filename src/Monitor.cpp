@@ -68,6 +68,11 @@ void Monitor::free()
 	outfile.close();
 }
 
+void Monitor::flush()
+{
+	outfile.flush();
+}
+
 
 void Monitor::virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version ) 
 {
