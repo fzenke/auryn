@@ -737,7 +737,9 @@ void System::load_network_state(std::string basename)
 
 		std::stringstream oss;
 		oss << "Loading connection "
-			<<  i ;
+			<<  i 
+			<< ": " 
+			<< connections[i]->get_name();
 		auryn::logger->msg(oss.str(),VERBOSE);
 
 		ia >> *(connections[i]);
@@ -749,7 +751,9 @@ void System::load_network_state(std::string basename)
 
 		std::stringstream oss;
 		oss << "Loading group "
-			<<  i ;
+			<<  i 
+			<< ": "
+			<< spiking_groups[i]->get_name();
 		auryn::logger->msg(oss.str(),VERBOSE);
 
 		ia >> *(spiking_groups[i]);
