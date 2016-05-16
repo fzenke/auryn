@@ -55,12 +55,12 @@ AurynLong find_frame( std::ifstream * file, AurynTime target )
 }
 
 
-void read_header( std::ifstream * input, double& dt, double& last_time, std::string filename )
+void read_header( std::ifstream * input, double& dt, AurynLong num_events, double& last_time, std::string filename )
 {
 	// get length of the file
 	SpikeEvent_type spike_data;
 	input->seekg (0, input->end);
-	AurynLong num_events = input->tellg()/sizeof(SpikeEvent_type)-1;
+	num_events = input->tellg()/sizeof(SpikeEvent_type)-1;
 
 	// read first entry to infer dt 
 	input->seekg (0, input->beg);
@@ -103,12 +103,14 @@ int main(int ac, char* av[])
 	NeuronID maxid = std::numeric_limits<NeuronID>::max();
 	// one more decimal than neede to show values are not rounded
 	int decimal_places = -std::log(dt)/std::log(10)+2; 
+	bool debug_output = false;
 
 	try {
 		po::options_description desc("Allowed options");
 		desc.add_options()
 			("help,h", "produce help message")
 			("version,v", "show version information")
+			("debug,d", "show verbose debug output")
 			("inputs,i", po::value< std::vector<std::string> >()->multitoken(), "input files")
 			("output,o", po::value<std::string>(), "output file (output to stout if not given)")
 			("from,f", po::value<double>(), "'from time' in seconds")
@@ -132,6 +134,10 @@ int main(int ac, char* av[])
 				 << AURYNSUBVERSION << "."
 				 << AURYNREVISION << "\n";
 			return EXIT_SUCCESS;
+		}
+
+		if (vm.count("debug")) {
+			debug_output = true;
 		}
 
 		if (vm.count("inputs")) {
@@ -166,12 +172,8 @@ int main(int ac, char* av[])
         std::cerr << "Exception of unknown type!\n";
     }
 
-
-
-
-#ifdef DEBUG
-	std::cout << "# Number of input files " << input_filenames.size() << std::endl;
-#endif // DEBUG
+	if ( debug_output ) 
+		std::cout << "# Number of input files " << input_filenames.size() << std::endl;
 
 	double last_time = 0.0;
 	double dt = 0.0;
@@ -191,9 +193,14 @@ int main(int ac, char* av[])
 			exit(EXIT_FAILURE);
 		}
 
-		double tmp_last_time;
-		double tmp_dt;
-		read_header( tmp, tmp_dt, tmp_last_time, input_filenames[i] );
+		double tmp_last_time = 0;
+		double tmp_dt = 0;
+		AurynLong tmp_num_events = 0;
+		read_header( tmp, tmp_dt, tmp_num_events, tmp_last_time, input_filenames[i] );
+
+		if ( debug_output ) {
+			std::cerr << "# Last frame in file " << i << ": " << tmp_num_events << std::endl;
+		}
 
 		if ( dt == 0 ) {
 			dt = tmp_dt;
@@ -229,14 +236,14 @@ int main(int ac, char* av[])
 	AurynTime to_auryn_time = to_time/dt;
 
 
-#ifdef DEBUG
-	std::cerr << "# Timestep: " << dt << std::endl;
-	std::cerr << "# Maxid: " << maxid << std::endl;
-	std::cerr << "# Sizeof SpikeEvent struct: " << sizeof(SpikeEvent_type) << std::endl;
-	std::cerr << "# Time of last event in files: " << last_time << std::endl;
-	std::cerr << "# From time: " << from_time << std::endl;
-	std::cerr << "# To time: " << to_time << std::endl;
-#endif // DEBUG
+	if ( debug_output ) {
+		std::cerr << "# Timestep: " << dt << std::endl;
+		std::cerr << "# Maxid: " << maxid << std::endl;
+		std::cerr << "# Sizeof SpikeEvent struct: " << sizeof(SpikeEvent_type) << std::endl;
+		std::cerr << "# Time of last event in files: " << last_time << std::endl;
+		std::cerr << "# From time: " << from_time << std::endl;
+		std::cerr << "# To time: " << to_time << std::endl;
+	}
 
 
 	// set all streams to respetive start frame
@@ -247,11 +254,11 @@ int main(int ac, char* av[])
 		// prepare input stream
 		inputs[i]->seekg (start_frame*sizeof(SpikeEvent_type), inputs[i]->beg);
 		inputs[i]->clear();
-#ifdef DEBUG
-		std::cerr << "# Start frame stream " 
-			<< i << ": " 
-			<< start_frame << std::endl;
-#endif // DEBUG
+		if ( debug_output ) {
+			std::cerr << "# Start frame stream " 
+				<< i << ": " 
+				<< start_frame << std::endl;
+		}
 	}
 
 
@@ -291,10 +298,10 @@ int main(int ac, char* av[])
 		time_reference = mintime;
 		if ( time_reference >= to_auryn_time || eofs ) break;
 
-#ifdef DEBUG
-	std::cout << "# current_stream " << current_stream << std::endl;
-	std::cout << "# time_reference " << time_reference << std::endl;
-#endif // DEBUG
+		if ( debug_output && false ) {
+			std::cout << "# current_stream " << current_stream << std::endl;
+			std::cout << "# time_reference " << time_reference << std::endl;
+		}
 
 		// output from next_stream
 		while ( frames[current_stream].time <= time_reference && !inputs[current_stream]->eof() ) {
