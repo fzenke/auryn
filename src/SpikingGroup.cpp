@@ -613,7 +613,7 @@ void SpikingGroup::virtual_serialize(boost::archive::binary_iarchive & ar, const
 		if ( iter->first[0] == '_' ) continue; // do not process volatile state_vector
 		std::string key;
 		ar & key;
-		AurynStateVector * vect = get_state_vector(key);
+		AurynStateVector * vect = find_state_vector(key);
 		ar & *vect;
 	}
 
