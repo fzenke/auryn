@@ -65,7 +65,6 @@ private:
 protected:
 	AurynTime * ttl;
 
-	std::vector<type_pattern> stimuli;
 	AurynFloat * activity;
 
 	/*! Stimulus order */
@@ -122,63 +121,66 @@ protected:
 	AurynFloat curscale;
 	
 public:
-	/*! This is by how much the pattern gamma value is multiplied. The resulting value gives the x-times baseline activation */
+	/*! \brief Vector containing all the stimuli. */
+	std::vector<type_pattern> stimuli;
+
+	/*! \brief This is by how much the pattern gamma value is multiplied. The resulting value gives the x-times baseline activation */
 	AurynFloat scale;
 
-	/*! Switches to more efficient algorithm which ignores the gamma value */
+	/*! \brief Switches to more efficient algorithm which ignores the gamma value */
 	bool binary_patterns;
 
-	/*! Enables a finite refractory time specified in AurynTime (only works for non-binary-pattern mode. */
+	/*! \brief Enables a finite refractory time specified in AurynTime (only works for non-binary-pattern mode. */
 	AurynTime refractory_period;
 
-	/*! Determines if the Group is active or bypassed upon evolution. */
+	/*! \brief Determines if the Group is active or bypassed upon evolution. */
 	bool active;
 
-	/*! Determines if the Group is using random activation intervals */
+	/*! \brief Determines if the Group is using random activation intervals */
 	bool randomintervals;
 
-	/*! Determines if the Group is using random activation intensities */
+	/*! \brief Determines if the Group is using random activation intensities */
 	bool randomintensities;
 
-	/*! Play random Poisson noise with this rate on all channels 
+	/*! \brief Play random Poisson noise with this rate on all channels 
 	 * when no stim is active. */
 	AurynDouble background_rate;
 
-	/*! Switch for background firing during stimulus. */
+	/*! \brief Switch for background firing during stimulus. */
 	bool background_during_stimulus;
 
-	/*! Default constructor */
+	/*! \brief Default constructor */
 	StimulusGroup(NeuronID n, string filename, string stimfile, StimulusGroupModeType stimulusmode=RANDOM, AurynFloat baserate=0.0 );
 
-	/*! Constructor without stimfile. Patterns can be loaded afterwards using the load_patterns method. */
+	/*! \brief Constructor without stimfile. Patterns can be loaded afterwards using the load_patterns method. */
 	StimulusGroup(NeuronID n, string stimfile, StimulusGroupModeType stimulusmode=RANDOM, AurynFloat baserate=0.0 );
 
 	virtual ~StimulusGroup();
-	/*! Standard virtual evolve function */
+	/*! \brief Standard virtual evolve function */
 	virtual void evolve();
-	/*! Sets the baserate that is the rate at 1 activity */
+	/*! \brief Sets the baserate that is the rate at 1 activity */
 	void set_baserate(AurynFloat baserate);
 	void set_maxrate(AurynFloat baserate); // TODO remove deprecated
 
-	/*! Sets the stimulation mode. Can be any of StimulusGroupModeType (MANUAL,RANDOM,SEQUENTIAL,SEQUENTIAL_REV). */
+	/*! \brief Sets the stimulation mode. Can be any of StimulusGroupModeType (MANUAL,RANDOM,SEQUENTIAL,SEQUENTIAL_REV). */
 	void set_stimulation_mode(StimulusGroupModeType mode);
 
-	/*! Sets sets the activity of all units */
+	/*! \brief Sets sets the activity of all units */
 	void set_all( AurynFloat val=0.0 );
 
-	/*! Seeds the random number generator for all stimulus groups of the simulation. */
+	/*! \brief Seeds the random number generator for all stimulus groups of the simulation. */
 	void seed( int rndseed );
 
-	/*! Gets the activity of unit i */
+	/*! \brief Gets the activity of unit i */
 	AurynFloat get_activity(NeuronID i);
 
-	/*! Loads stimulus patterns from a designated file given */
+	/*! \brief Loads stimulus patterns from a designated file given */
 	void load_patterns( string filename );
 
-	/*! Set mean quiet interval between consecutive stimuli */
+	/*! \brief Set mean quiet interval between consecutive stimuli */
 	void set_mean_off_period(AurynFloat period);
 
-	/*! Set mean on period */
+	/*! \brief Set mean on period */
 	void set_mean_on_period(AurynFloat period);
 
 	void set_pattern_activity( unsigned int i );
@@ -187,11 +189,11 @@ public:
 
 	void set_next_action_time(double time);
 
-	/*! Setter for pattern probability distribution */
+	/*! \brief Setter for pattern probability distribution */
 	void set_distribution ( std::vector<double> probs );
-	/*! Getter for pattern probability distribution */
+	/*! \brief Getter for pattern probability distribution */
 	std::vector<double> get_distribution ( );
-	/*! Getter for pattern i of the probability distribution */
+	/*! \brief Getter for pattern i of the probability distribution */
 	double get_distribution ( int i );
 
 	/*! \brief returns the last action (stim on/off) time in units of AurynTime */

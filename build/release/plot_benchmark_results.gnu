@@ -19,6 +19,7 @@ set style histogram errorbars gap 1.0 lw 1
 set style data histograms
 # set style fill solid border -1
 
+# set yrange [0:]
 
 revname(x) = sprintf("%s",x[1:6])
 
