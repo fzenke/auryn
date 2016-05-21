@@ -58,7 +58,7 @@ namespace auryn {
 			/*! \brief Checks if argument is larger than size and throws and exception if so 
 			 *
 			 * Check only enabled if NDEBUG is not defined.*/
-			virtual void check_size(NeuronID x)
+			void check_size(NeuronID x)
 			{
 #ifndef NDEBUG
 				if ( x >= size ) {
@@ -70,7 +70,7 @@ namespace auryn {
 			/*! \brief Checks if vector size matches to this instance
 			 *
 			 * Check only enabled if NDEBUG is not defined.*/
-			virtual void check_size(AurynVector * v)
+			void check_size(AurynVector * v)
 			{
 #ifndef NDEBUG
 				if ( v->size != size ) {
