@@ -72,7 +72,6 @@
 #include "AdExGroup.h"
 #include "CubaIFGroup.h"
 #include "TIFGroup.h"
-#include "SIFGroup.h"
 #include "SpikingGroup.h"
 #include "NeuronGroup.h"
 #include "PoissonGroup.h"

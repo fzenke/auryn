@@ -31,28 +31,29 @@
 #include "NeuronGroup.h"
 #include "System.h"
 
-
-
 namespace auryn {
 
-/*! \brief Current based neuron model with absolute refractoriness 
- * as used in Vogels and Abbott 2005.
+/*! \brief Simple LIF neuron model with absolute refractoriness and current based synapses 
  *
- * Although state vectors for AMPA, GABA and NMDA are defined in 
- * NeuronGroup, this model does not actively integrate these states 
- * and thus should be used in cases in which simple Integrate and Fire
- * dynamics with current-based synapses are needed.
+ * This model is simular to the one used in Vogels and Abbott 2005, with exponential currents and 
+ * does not make a distinction between the timecourse of exc and inh synases.
+ *
+ * To give input to these neurons use set_transmitter("syn_current") as a transmitter target.
+ *
  */
 class CubaIFGroup : public NeuronGroup
 {
 private:
-	auryn_vector_float * bg_current;
-	auryn_vector_ushort * ref;
+
 	unsigned short refractory_time;
-	AurynFloat e_rest,e_rev,thr,tau_mem;
+
+	AurynFloat e_rest,thr,tau_mem, r_mem, c_mem;
+	AurynFloat tau_syn;
+	AurynFloat scale_syn;
 	AurynFloat scale_mem;
 
 	AurynFloat * t_bg_cur; 
+	AurynFloat * t_syn_cur; 
 	AurynFloat * t_mem; 
 	unsigned short * t_ref; 
 
@@ -60,29 +61,48 @@ private:
 	void calculate_scale_constants();
 	inline void integrate_state();
 	inline void check_thresholds();
-	virtual std::string get_output_line(NeuronID i);
+	virtual string get_output_line(NeuronID i);
 	virtual void load_input_line(NeuronID i, const char * buf);
+
+	void virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version );
+	void virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version );
 public:
-	/*! The default constructor of this NeuronGroup */
+	/*! \brief Vector holding neuronspecific background currents */
+	AurynStateVector * bg_current;
+
+	/*! \brief Vector holding neuronspecific synaptic currents */
+	AurynStateVector * syn_current;
+
+	/*! \brief Vector holding neuronspecific state of refractory period */
+	AurynVector<unsigned short> * ref;
+
+	/*! \brief The default constructor of this NeuronGroup */
 	CubaIFGroup(NeuronID size);
+
+	/*! \brief The default destructor */
 	virtual ~CubaIFGroup();
 
-	/*! Controls the constant current input (per default set so zero) to neuron i */
-	void set_bg_current(NeuronID i, AurynFloat current);
-
-	/*! Sets the constant current for all units to the same value. */
-	void set_all_bg_currents( AurynFloat current );
-
-	/*! Setter for refractory time [s] */
+	/*! \brief Setter for refractory time [s] */
 	void set_refractory_period(AurynDouble t);
 
-	/*! Gets the current background current value for neuron i */
-	AurynFloat get_bg_current(NeuronID i);
-	/*! Sets the membrane time constant (default 20ms) */
+	/*! \brief Sets the membrane time constant (default 20ms) */
 	void set_tau_mem(AurynFloat taum);
-	/*! Resets all neurons to defined and identical initial state. */
+
+	/*! \brief Sets the membrane resistance (default 100 M-ohm) */
+	void set_r_mem(AurynFloat rm);
+
+	/*! \brief Sets the membrane capacitance (default 200pF) */
+	void set_c_mem(AurynFloat cm);
+
+	/*! \brief Sets the exponential time constant for current based synapses */
+	void set_tau_syn(AurynFloat tau);
+
+	/*! \brief Resets all neurons to defined and identical initial state. */
 	void clear();
-	/*! The evolve method internally used by System. */
+
+	/*! \brief Integrates the NeuronGroup state
+	 *
+	 * The evolve method internally used by System. */
 	void evolve();
 };
 
