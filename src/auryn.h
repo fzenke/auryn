@@ -66,12 +66,13 @@
 
 // Spiking and Neuron group definitions
 #include "AIF2Group.h"
-#include "IafPscDeltaGroup.h"
 #include "IFGroup.h"
 #include "AIFGroup.h"
 #include "AdExGroup.h"
 #include "CubaIFGroup.h"
 #include "TIFGroup.h"
+#include "IafPscDeltaGroup.h"
+#include "IafPscExpGroup.h"
 #include "SpikingGroup.h"
 #include "NeuronGroup.h"
 #include "PoissonGroup.h"

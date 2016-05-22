@@ -36,30 +36,24 @@ CubaIFGroup::CubaIFGroup(NeuronID size) : NeuronGroup(size)
 void CubaIFGroup::calculate_scale_constants()
 {
 	scale_mem  = dt/tau_mem;
-	scale_syn  = exp(-dt/tau_syn);
 }
 
 void CubaIFGroup::init()
 {
 	e_rest = -60e-3;
+	e_rev = -80e-3;
 	thr = -50e-3;
-	tau_syn = 5e-3;
-    r_mem = 1e8;
-    c_mem = 200e-12;
-	tau_mem = r_mem*c_mem;
+	tau_mem = 20e-3;
 	set_refractory_period(5e-3);
 
 	calculate_scale_constants();
 	
+	ref = auryn_vector_ushort_alloc (get_vector_size()); 
 	bg_current = get_state_vector("bg_current");
-	syn_current = get_state_vector("syn_current");
-	ref = new AurynVector< unsigned short > (get_vector_size()); 
 
-	t_bg_cur = bg_current->ptr( ); 
-	t_syn_cur = syn_current->ptr( ); 
-
-	t_mem = mem->ptr( ); 
-	t_ref = ref->ptr( ); 
+	t_bg_cur = bg_current->ptr(); 
+	t_mem = mem->ptr(); 
+	t_ref = ref->ptr(); 
 
 	clear();
 
@@ -69,11 +63,9 @@ void CubaIFGroup::clear()
 {
 	clear_spikes();
 	for (NeuronID i = 0; i < get_rank_size(); i++) {
-	   auryn_vector_float_set (mem, i, e_rest);
-	   auryn_vector_ushort_set (ref, i, 0);
-	   auryn_vector_float_set (g_ampa, i, 0.);
-	   auryn_vector_float_set (g_gaba, i, 0.);
-	   auryn_vector_float_set (bg_current, i, 0.);
+	   mem->set( i, e_rest);
+	   ref->set( i, 0);
+	   bg_current->set( i, 0.);
 	}
 }
 
@@ -89,9 +81,11 @@ CubaIFGroup::~CubaIFGroup()
 void CubaIFGroup::evolve()
 {
 
+
 	for (NeuronID i = 0 ; i < get_rank_size() ; ++i ) {
     	if (t_ref[i]==0) {
-			const AurynFloat dg_mem = ( (e_rest-t_mem[i]) + t_bg_cur[i] + t_syn_cur[i] );
+			const AurynFloat dg_mem = ( (e_rest-t_mem[i]) 
+					+ t_bg_cur[i] );
 			t_mem[i] += dg_mem*scale_mem;
 
 			if (t_mem[i]>thr) {
@@ -106,7 +100,16 @@ void CubaIFGroup::evolve()
 
 	}
 
-	syn_current->scale(scale_syn);
+}
+
+void CubaIFGroup::set_bg_current(NeuronID i, AurynFloat current) {
+	if ( localrank(i) )
+		auryn_vector_float_set ( bg_current , global2rank(i) , current ) ;
+}
+
+void CubaIFGroup::set_all_bg_currents( AurynFloat current ) {
+	for ( NeuronID i = 0 ; i < get_rank_size() ; ++i ) 
+		auryn_vector_float_set ( bg_current, i, current ) ;
 }
 
 void CubaIFGroup::set_tau_mem(AurynFloat taum)
@@ -115,63 +118,34 @@ void CubaIFGroup::set_tau_mem(AurynFloat taum)
 	calculate_scale_constants();
 }
 
-void CubaIFGroup::set_r_mem(AurynFloat rm)
-{
-	r_mem = rm;
-	tau_mem = r_mem*c_mem;
-	calculate_scale_constants();
-}
-
-void CubaIFGroup::set_c_mem(AurynFloat cm)
-{
-	c_mem = cm;
-	tau_mem = r_mem*c_mem;
-	calculate_scale_constants();
+AurynFloat CubaIFGroup::get_bg_current(NeuronID i) {
+	if ( localrank(i) )
+		return auryn_vector_float_get ( bg_current , global2rank(i) ) ;
+	else 
+		return 0;
 }
 
 std::string CubaIFGroup::get_output_line(NeuronID i)
 {
 	std::stringstream oss;
-	oss << mem->get(i) << " " << g_ampa->get(i) << " " << g_gaba->get(i) << " " 
-		<< ref->get(i) << " " 
-		<< bg_current->get(i) <<"\n";
+	oss << mem->get(i) << " " << ref->get( i) << "\n";
 	return oss.str();
 }
 
 void CubaIFGroup::load_input_line(NeuronID i, const char * buf)
 {
-		float vmem,vampa,vgaba,vbgcur;
+		float vmem;
 		NeuronID vref;
-		sscanf (buf,"%f %f %f %u %f",&vmem,&vampa,&vgaba,&vref,&vbgcur);
+		sscanf (buf,"%f %u",&vmem,&vref);
 		if ( localrank(i) ) {
 			NeuronID trans = global2rank(i);
 			mem->set(trans,vmem);
-			g_ampa->set(trans,vampa);
-			g_gaba->set(trans,vgaba);
 			ref->set(trans, vref);
-			bg_current->set(trans, vbgcur);
 		}
 }
 
-void CubaIFGroup::set_tau_syn(AurynFloat tau)
-{
-	tau_syn = tau;
-	calculate_scale_constants();
-}
 
 void CubaIFGroup::set_refractory_period(AurynDouble t)
 {
 	refractory_time = (unsigned short) (t/dt);
-}
-
-void CubaIFGroup::virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version ) 
-{
-	SpikingGroup::virtual_serialize(ar,version);
-	ar & *ref;
-}
-
-void CubaIFGroup::virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version ) 
-{
-	SpikingGroup::virtual_serialize(ar,version);
-	ar & *ref;
 }
