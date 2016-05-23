@@ -80,8 +80,6 @@ protected:
 		ar & m_rows & n_cols & connection_name;
 	}
 
-	SpikingGroup * src;
-	NeuronGroup * dst;
 	TransmitterType trans;
 	AurynFloat * target;
 
@@ -97,6 +95,12 @@ protected:
 	void init(TransmitterType transmitter=GLUT);
 
 public:
+	/*! \brief Pointer to the source group of this connection */
+	SpikingGroup * src;
+
+	/*! \brief Pointer to the destination group of this connection */
+	NeuronGroup * dst;
+
 	Connection();
 	Connection(NeuronID rows, NeuronID cols);
 	Connection(SpikingGroup * source, NeuronGroup * destination, TransmitterType transmitter=GLUT, std::string name="Connection");
