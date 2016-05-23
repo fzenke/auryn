@@ -120,6 +120,11 @@ void Logger::error( std::string text )
 
 void Logger::verbose( std::string text, bool global, int line, std::string srcfile )
 {
+	debug(text, global, line, srcfile );
+}
+
+void Logger::debug( std::string text, bool global, int line, std::string srcfile )
+{
 	msg(text, VERBOSE, global, line, srcfile );
 }
 
