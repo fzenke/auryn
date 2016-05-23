@@ -105,6 +105,11 @@ void Logger::msg( std::string text, LogMessageType type, bool global, int line, 
 
 void Logger::info( std::string text )
 {
+	msg(text, INFO);
+}
+
+void Logger::notification( std::string text )
+{
 	msg(text, NOTIFICATION);
 }
 
