@@ -107,21 +107,21 @@ void Connection::set_transmitter(TransmitterType transmitter)
 	if ( dst->evolve_locally() ) {
 		switch ( transmitter ) {
 			case GABA:
-				set_transmitter(dst->get_state_vector("g_gaba")->data);
+				set_transmitter(dst->get_state_vector("g_gaba"));
 				break;
 			case MEM:
-				set_transmitter(dst->get_state_vector("mem")->data);
+				set_transmitter(dst->get_state_vector("mem"));
 				break;
 			case CURSYN:
-				set_transmitter(dst->get_state_vector("g_cursyn")->data);
+				set_transmitter(dst->get_state_vector("g_cursyn"));
 				break;
 			case NMDA:
-				set_transmitter(dst->get_state_vector("g_nmda")->data);
+				set_transmitter(dst->get_state_vector("g_nmda"));
 				break;
 			case GLUT:
 			case AMPA:
 			default:
-				set_transmitter(dst->get_state_vector("g_ampa")->data);
+				set_transmitter(dst->get_state_vector("g_ampa"));
 		}
 	} else set_transmitter((AurynWeight *)NULL);
 }
@@ -136,9 +136,15 @@ void Connection::set_transmitter(AurynWeight * ptr)
 	target = ptr;
 }
 
-void Connection::set_transmitter(auryn_vector_float * ptr)
+void Connection::set_transmitter(AurynStateVector * ptr)
 {
-	target = ptr->data;
+	target_state_vector = ptr;
+	set_transmitter(ptr->data);
+}
+
+AurynStateVector * Connection::get_target_vector()
+{
+	return target_state_vector;
 }
 
 NeuronID Connection::get_m_rows()

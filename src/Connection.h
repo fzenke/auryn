@@ -81,6 +81,10 @@ protected:
 	}
 
 	TransmitterType trans;
+
+	AurynStateVector * target_state_vector;
+
+	/*! \brief a more direct reference on the first element of the target_state_vector */
 	AurynFloat * target;
 
 	/*! \brief Number of spike attributes to expect with each spike transmitted through this connection.
@@ -122,6 +126,9 @@ public:
 	/*! \brief Returns a string which is the combination of file and connection name for logging. */
 	std::string get_log_name();
 
+	/*! \brief Returns target state vector if one is defined  */
+	AurynStateVector * get_target_vector();
+
 	/*! \brief Get number of rows (presynaptic) in connection.
 	 *
 	 * Note that Matrices in Auryn have to be thought of as multiplied from the left. The number of rows thus
@@ -144,7 +151,7 @@ public:
 	void set_transmitter(AurynWeight * ptr);
 
 	/*! \brief Sets target state of this connection directly via a StateVector */
-	void set_transmitter(auryn_vector_float * ptr);
+	void set_transmitter(AurynStateVector * ptr);
 
 	/*! \brief Sets target state of this connection as one of Auryn's default transmitter types */
 	void set_transmitter(TransmitterType transmitter);
