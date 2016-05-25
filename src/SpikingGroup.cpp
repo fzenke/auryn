@@ -174,7 +174,7 @@ void SpikingGroup::free()
 		std::stringstream oss;
 		oss << get_log_name() 
 			<< ":: Freeing state trace "
-			<< post_state_traces_state_names[i]
+			<< post_state_traces_states[i]
 			<< " at "
 			<< i;
 		auryn::logger->msg(oss.str() ,VERBOSE);
@@ -372,22 +372,22 @@ DEFAULT_TRACE_MODEL * SpikingGroup::get_post_trace( AurynFloat x )
 	return tmp;
 }
 
-EulerTrace * SpikingGroup::get_post_state_trace( std::string state_name, AurynFloat tau, AurynFloat b ) 
+EulerTrace * SpikingGroup::get_post_state_trace( AurynStateVector * state, AurynFloat tau, AurynFloat b ) 
 {
 	// first let's check if a state with that name exists
-	if ( find_state_vector( state_name ) == NULL ) {
-		auryn::logger->msg("A state vector with this name "+state_name+" does not exist", ERROR);
+	if ( state == NULL ) {
+		auryn::logger->msg("A state vector was not found at this pointer reference.", ERROR);
 		throw AurynStateVectorException();
 	} // good to go
 
 	for ( NeuronID i = 0 ; i < post_state_traces.size() ; i++ ) {
 		if ( post_state_traces[i]->get_tau() == tau 
 				&& post_state_traces_spike_biases[i] == b
-				&& post_state_traces_state_names[i] == state_name ) {
+				&& post_state_traces_states[i] == state ) {
 			std::stringstream oss;
 			oss << get_log_name() 
-				<< ":: Sharing post state trace for "
-				<< state_name 
+				<< ":: Sharing post state trace for ptr reference "
+				<< state  // TODO replace by name reverse lookup
 				<< " with " 
 				<< tau 
 				<< "s timeconstant." ;
@@ -400,11 +400,17 @@ EulerTrace * SpikingGroup::get_post_state_trace( std::string state_name, AurynFl
 	// it and do the book keeping
 	auryn::logger->msg("Creating new post state trace",VERBOSE);
 	EulerTrace * tmp = new EulerTrace(get_post_size(),tau);
-	tmp->set_target(get_state_vector(state_name));
+	tmp->set_target(state);
 	post_state_traces.push_back(tmp);
 	post_state_traces_spike_biases.push_back(b);
-	post_state_traces_state_names.push_back(state_name);
+	post_state_traces_states.push_back(state);
 	return tmp;
+}
+
+EulerTrace * SpikingGroup::get_post_state_trace( std::string state_name, AurynFloat tau, AurynFloat b ) 
+{
+	AurynStateVector * state = find_state_vector( state_name );
+	return get_post_state_trace(state, tau, b);
 }
 
 void SpikingGroup::evolve_traces()

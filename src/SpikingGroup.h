@@ -99,7 +99,7 @@ protected:
 	/*! Post state traces */
 	std::vector<EulerTrace *> post_state_traces;
 	std::vector<AurynFloat> post_state_traces_spike_biases;
-	std::vector<std::string> post_state_traces_state_names;
+	std::vector<AurynStateVector *> post_state_traces_states;
 
 	/*! Identifying name for object */
 	std::string group_name;
@@ -233,12 +233,25 @@ public:
 	 *
 	 * This trace is an cotinuously integrated EulerTrace which uses the follow 
 	 * function on the mem state vector. 
+	 * @param state_name A string stating the neurons state name
 	 * @param tau The time constant of the trace.
 	 * @param b The optional parameter b allows to specify a spike triggered contribution
 	 * which will be added instantaneously to the trace upon each 
 	 * postsynaptic spike.
 	 * */
 	EulerTrace * get_post_state_trace( std::string state_name="mem", AurynFloat tau=10e-3, AurynFloat b=0.0 );
+
+	/*! \brief Returns a post trace of a neuronal state variable specifcied by pointer
+	 *
+	 * This trace is an cotinuously integrated EulerTrace which uses the follow 
+	 * function on the mem state vector. 
+	 * @param state A pointer to the relevant state vector
+	 * @param tau The time constant of the trace.
+	 * @param b The optional parameter b allows to specify a spike triggered contribution
+	 * which will be added instantaneously to the trace upon each 
+	 * postsynaptic spike.
+	 * */
+	EulerTrace * get_post_state_trace( AurynStateVector * state, AurynFloat tau=10e-3, AurynFloat b=0.0 );
 
 	/*! Sets axonal delay for this SpikingGroup */
 	void set_delay( int d );
