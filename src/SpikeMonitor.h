@@ -49,7 +49,7 @@ namespace auryn {
  * maninly for debugging).
  * 
  */
-class SpikeMonitor : Monitor
+class SpikeMonitor : public Monitor
 {
 private:
     NeuronID n_from;
