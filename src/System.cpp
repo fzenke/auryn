@@ -62,6 +62,11 @@ void System::init() {
 		<< std::numeric_limits<NeuronID>::max()/MINDELAY << " cells.";
 	auryn::logger->msg(oss.str(),VERBOSE);
 
+#ifndef NDEBUG
+	oss.str("");
+	oss << "Warning debugging support is compiled and will impair performance.";
+	auryn::logger->warning(oss.str());
+#endif 
 
 	oss.str("");
 	if(__builtin_cpu_supports("avx2")) {
