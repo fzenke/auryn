@@ -84,7 +84,11 @@ protected:
 
 	AurynStateVector * target_state_vector;
 
-	/*! \brief a more direct reference on the first element of the target_state_vector */
+	/*! \brief A more direct reference on the first element of the target_state_vector 
+	 *
+	 * The logic of connection is that when the simulation starts *target points to the first element of an array
+	 * with AurynWeight type which has the post_size of the target group. Each presynaptic spike will then trigger 
+	 * addition the values stored as weights in some weight matrix to that group. */
 	AurynFloat * target;
 
 	/*! \brief Number of spike attributes to expect with each spike transmitted through this connection.
