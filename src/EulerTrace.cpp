@@ -61,13 +61,12 @@ void EulerTrace::set_timeconstant(AurynFloat timeconstant)
 
 void EulerTrace::set(NeuronID i , AurynFloat value)
 {
-   state->set( i, value);
+	state->set( i, value);
 }
 
 void EulerTrace::set_all(AurynFloat value)
 {
-	for (NeuronID i = 0 ; i < size ; ++i )
-		set(i,value);
+	state->set_all(value);
 }
 
 void EulerTrace::add(AurynVectorFloat * values)
