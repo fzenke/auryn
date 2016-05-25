@@ -128,4 +128,5 @@ void StateMonitor::record_for(AurynDouble time)
 		auryn::logger->msg("Warning: Negative stop times not supported -- ingoring.",WARNING);
 	} 
 	else t_stop = auryn::sys->get_clock() + time/dt;
+	auryn::logger->debug("Set record for times for monitor.");
 }
