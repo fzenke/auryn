@@ -820,6 +820,12 @@ AurynDouble System::get_last_elapsed_time()
 	return last_elapsed_time;
 }
 
+void System::flush_monitors()
+{
+	for ( unsigned int i = 0 ; i < monitors.size() ; ++i )
+		monitors[i]->flush();
+}
+
 #ifdef CODE_COLLECT_SYNC_TIMING_STATS
 AurynDouble System::get_relative_sync_time()
 {

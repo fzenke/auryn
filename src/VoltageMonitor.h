@@ -45,7 +45,7 @@ namespace auryn {
  * VOLTAGEMONITOR_PASTED_SPIKE_HEIGHT by reading out the the current spikes. For 
  * performance it is adviced to use the StateMonitor which does not do any
  * spike pasting. */
-class VoltageMonitor : protected Monitor
+class VoltageMonitor : public Monitor
 {
 private:
 	/*! Global neuron id to record from */

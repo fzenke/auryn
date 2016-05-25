@@ -37,7 +37,7 @@
 namespace auryn {
 
 /*! \brief Records from an arbitray state vector of one unit from the source SpikingGroup to a file.*/
-class StateMonitor : protected Monitor
+class StateMonitor : public Monitor
 {
 protected:
 	/*! \brief The source SpikingGroup to record from */

@@ -185,6 +185,12 @@ namespace auryn {
 		void save_network_state_text(std::string basename);
 
 
+		/*! \brief Flush monitors 
+		 *
+		 * Write monitor data buffers to file. */
+		void flush_monitors();
+
+
 		/*! Registers an instance of SpikingGroup to the spiking_groups vector. */
 		void register_spiking_group(SpikingGroup * spiking_group);
 
