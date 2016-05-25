@@ -158,7 +158,10 @@ public:
 	 * \param value to insert
 	 * \throw AurynMatrixBufferException */
 	void push_back(NeuronID i, NeuronID j, T value);
+
+	/*! \brief Copies complex matrix mat */
 	void copy(ComplexMatrix * mat);
+
 	void set_data(AurynLong i, T value);
 	void scale_data(AurynLong i, T value);
 	/*! Gets the matching data entry for a given index i and state z*/
