@@ -183,9 +183,25 @@ public:
 	/*! \brief Set mean on period */
 	void set_mean_on_period(AurynFloat period);
 
+	/*! \brief Function that loops over the stimulus/pattern vector and sets the activity verctor to the gamma values given with the pattern. */
 	void set_pattern_activity( unsigned int i );
+
+	/*! \brief Function that loops over the stimulus/pattern vector and sets the activity verctor to the given value. */
 	void set_pattern_activity( unsigned int i, AurynFloat setval );
+
+	/*! \brief This function is called internally and sets the activity level to a given active stimulus
+	 *
+	 * @param i the index of the pattern to set the activity to
+	 */
 	void set_active_pattern( unsigned int i );
+
+	/*! \brief This function is called internally and sets the activity level to a given active stimulus
+	 *
+	 * @param i The index of the pattern to set the activity to
+	 * @param default_value The value to assign to the activity values which are not specified in the pattern file. 
+	 * Typically this corresponds to some background value.
+	 */
+	void set_active_pattern( unsigned int i, AurynFloat default_value);
 
 	void set_next_action_time(double time);
 

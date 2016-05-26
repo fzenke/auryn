@@ -455,7 +455,7 @@ void StimulusGroup::set_pattern_activity(unsigned int i)
 	}
 }
 
-void StimulusGroup::set_pattern_activity(unsigned int i,AurynFloat setrate)
+void StimulusGroup::set_pattern_activity(unsigned int i, AurynFloat setrate)
 {
 	type_pattern current = stimuli[i];
 	type_pattern::iterator iter;
@@ -469,11 +469,16 @@ void StimulusGroup::set_pattern_activity(unsigned int i,AurynFloat setrate)
 
 void StimulusGroup::set_active_pattern(unsigned int i)
 {
+	set_active_pattern(i, background_rate);
+}
+
+void StimulusGroup::set_active_pattern(unsigned int i, AurynFloat default_value)
+{
 	std::stringstream oss;
 	oss << "StimulusGroup:: Setting active pattern " << i ;
 	auryn::logger->msg(oss.str(),VERBOSE);
 
-	set_all( background_rate );
+	set_all( default_value );
 	if ( i < stimuli.size() ) {
 		set_pattern_activity(i);
 	}
