@@ -263,7 +263,7 @@ BOOST_SERIALIZATION_ASSUME_ABSTRACT(Connection)
 inline void Connection::transmit(NeuronID id, AurynWeight amount) 
 {
 	NeuronID localid = dst->global2rank(id);
-	target[localid]+=amount;
+	target_state_vector->data[localid]+=amount;
 }
 }
 
