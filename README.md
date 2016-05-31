@@ -18,7 +18,7 @@ To download and compile the examples try:
 ```
 sudo apt-get install cmake git build-essential libboost-all-dev
 git clone https://github.com/fzenke/auryn.git && cd auryn/build/release
-./bootstrap
+./bootstrap.sh
 ```
 
 Documentation & Installation/Use
