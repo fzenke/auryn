@@ -38,8 +38,13 @@ namespace auryn {
 /*! \brief SpikeMonitor that reads the delayed spikes as they are
  *         received by a postsynaptic neuron.
  *
- * This monitor has mainly testing pruposes since it records all
- * the spikes on each node (which effectively multiplies spikes.
+ * Usually SpikeMonitor writes spikes to file for the rank that it runs on. i.e. each rank 
+ * writes is own spk file which then need to be merged. This monitor writes all spikes from 
+ * all ranks to files on all ranks. The spikes writen by this monitor are delayed by the 
+ * axonal delay (because they need to be communicated from all ranks to all ranks first).
+ * The main role of this monitor is to test SyncBuffer and Auryn's spike synchornization.
+ * It records all
+ * the spikes on each node (which effectively multiplies spikes).
  */
 class DelayedSpikeMonitor : Monitor
 {
