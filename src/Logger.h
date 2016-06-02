@@ -36,7 +36,7 @@
 #define CERRLEVEL WARNING
 
 namespace auryn {
-/*! Enum type for significance level of a given message send to the logger */
+/*! \brief Enum type for significance level of a given message send to the Logger */
 enum LogMessageType { EVERYTHING, VERBOSE, INFO, NOTIFICATION, SETTINGS, PROGRESS, WARNING, ERROR, NONE };
 
 /*! \brief A generic logger class that logs to screen and a log-file.

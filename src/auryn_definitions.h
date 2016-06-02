@@ -123,10 +123,11 @@ namespace mpi = boost::mpi;
 
 
 namespace auryn {
-	/*! System wide integration time step */
+
+	/*! \brief Simulator wide integration time step */
 	const double dt = 1.0e-4;
 
-	/*! Specifies the different transmitter types 
+	/*! \brief Specifies the different transmitter types 
 	 * that Auryn knows. */
 	enum TransmitterType { 
 		GLUT, //!< Standard Glutamatergic (excitatory) transmission.
@@ -137,6 +138,7 @@ namespace auryn {
 		CURSYN   //!< Current based synapse with dynamics.
 	};
 
+	/*! \brief Specifies stimulus order used in StimulusGroup */
 	enum StimulusGroupModeType { MANUAL, RANDOM, SEQUENTIAL, SEQUENTIAL_REV, STIMFILE };
 
 
@@ -155,38 +157,43 @@ namespace auryn {
 
 
 
-
+	/*! \brief Struct that defines a pair of neurons in SparseConnection */
 	struct neuron_pair {
 		NeuronID i,j;
 	} ;
 
+	/*! \brief Struct used to define neuronal assembly patterns in SparseConnection */
 	struct pattern_member {
 		NeuronID i;
 		AurynDouble gamma;
 	} ;
+
 	typedef std::vector<pattern_member> type_pattern;
 
 
 
-	/*! Determines memory alignment (adapted from ATLAS library) 
+	/*! \brief Determines memory alignment (adapted from ATLAS library) 
+	 *
 	 @param N max return value
 	 @param *vp Pointer to be aligned 
 	 @param inc size of element, in bytes
 	 @param align required alignment, in bytes */
 	int auryn_AlignOffset (const int N, const void *vp, const int inc, const int align);  
 
-	/*! Rounds vector size to multiple of four to allow using the SSE optimizations. */
+	/*! \brief Rounds vector size to multiple of four to allow using the SSE optimizations. */
 	NeuronID calculate_vector_size(NeuronID i);
 
 
-	/*! Auryn spike event for binary monitors */
+	/*! \brief Auryn spike event for binary monitors */
 	struct SpikeEvent_type
 	{
 		AurynTime time; 
 		NeuronID neuronID;
 	};
 
-	/*! Tag for header in binary encoded spike monitor files. The first digits are 28796 for Auryn in 
+	/*! \brief Tag for header in binary encoded spike monitor files. 
+	 *
+	 * The first digits are 28796 for Auryn in 
 	 * phone dial notation. The remaining 4 digits encode type of binary file and the current Auryn 
 	 * version */
 	const NeuronID tag_binary_spike_monitor = 287960000+100*AURYNVERSION+10*AURYNSUBVERSION+1*AURYNREVISION;
@@ -308,13 +315,20 @@ namespace auryn {
 
 	class AurynVectorFloat; // Forward declaration
 
-	/*! \brief Defines AurynStateVector type 
+	/*! \brief Defines AurynStateVector type as synonymous to AurynVectorFloat
 	 *
+	 * Auryn state vectors are used to implement vectorized code for SpikingGroup and NeuronGroup.
+	 * An AurynStateVector in a SpikingGroup typically has the local rank size of that group and 
+	 * each neuronal state variable corresponds to a state vector that houses this state for all neurons on that rank.
+	 * AurynStateVectors are defined as AurynVectorFloat. 
 	 * This typically needs to change when AurynState or AurynFloat types are changed. */
 	typedef AurynVectorFloat AurynStateVector; 
 
 	// Legacy state vector types 
+	/*! \brief Legacy definition of AurynStateVector */
 	typedef AurynStateVector auryn_vector_float; //!< Default legacy Auryn state vector type
+
+	/*! \brief Legacy definition of AurynVector<unsigned short> */
 	typedef AurynVector<unsigned short> auryn_vector_ushort; //!< Default legacy Auryn ushort vector type
 
 
