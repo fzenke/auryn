@@ -93,7 +93,6 @@
 
 // Monitor and stimulator definitions
 #include "Monitor.h"
-#include "GabaMonitor.h"
 #include "VoltageMonitor.h"
 #include "SpikeMonitor.h"
 #include "BinarySpikeMonitor.h"
