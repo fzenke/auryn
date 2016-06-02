@@ -116,38 +116,48 @@ namespace auryn {
 		/*! Calls all monitors. */
 		bool monitor(bool checking);
 
-	public:
-		/*! Switch to turn output to quiet mode (no progress bar). */
-		bool quiet;
-
-		unsigned int progressbar_update_interval;
-
-		System();
-		System(mpi::communicator * communicator);
-		void init();
-		void set_simulation_name(std::string name);
-		virtual ~System();
-		void free();
-
 		/*! Implements integration and spike propagation of a single integration step. */
 		void step();
 
 		/*! Initialializes the recvs for all the MPI sync */
 		void sync_prepare();
 
-		/*! Return formatted version string. */
+		void init();
+		void free();
+
+	public:
+		/*! \brief Switch to turn output to quiet mode (no progress bar). */
+		bool quiet;
+
+		/*! \brief The progressbar update interval in timesteps of dt. */
+		unsigned int progressbar_update_interval;
+
+		/*! \brief Switch to turn output to quiet mode (no progress bar). */
+		System();
+		System(mpi::communicator * communicator);
+
+		/*! \brief Sets the simulation name. */
+		void set_simulation_name(std::string name);
+
+		virtual ~System();
+
+
+		/*! \brief Return formatted version string. */
 		string get_version_string();
 
-		/*! Sets the SpikingGroup ID used to display the rate estimate in the
-		 * progressbar (this typically is reflected by the order in
+		/*! \brief Sets the SpikingGroup ID used to display the rate estimate in the
+		 * progressbar 
+		 *
+		 * This typically is reflected by the order in
 		 * which you define the SpikingGroup and NeuronGroup classes. It starts
-		 * numbering from 0.). */
+		 * numbering from 0, but you can also get the ID from a SpikingGroup via the get_uid()
+		 * function. */
 		void set_online_rate_monitor_id( unsigned int id=0 );
 
-		/*! Sets the timeconstant to compute the online rate average for the status bar. */
+		/*! \brief Sets the timeconstant to compute the online rate average for the status bar. */
 		void set_online_rate_monitor_tau( AurynDouble tau=100e-3 );
 
-		/*! Returns last elapsed time. */
+		/*! \brief Returns last elapsed time. */
 		double get_last_elapsed_time();
 
 		/*! \brief Saves network state to a netstate file
@@ -162,13 +172,13 @@ namespace auryn {
 		 * that point with a changed parameter set (e.g. a new stimulus set or
 		 * similar).
 		 *
-		 * \param Prefix (including directory path) of the netstate file without extension
+		 * \param basename (including directory path) of the netstate file without extension
 		 */
 		void save_network_state(std::string basename);
 
 		/*! \brief Loads network state from a netstate file
 		 *
-		 * \param Basename (directory and prefix of file) of the netstate file without extension
+		 * \param basename (directory and prefix of file) of the netstate file without extension
 		 */
 		void load_network_state(std::string basename);
 
@@ -191,48 +201,60 @@ namespace auryn {
 		void flush_monitors();
 
 
-		/*! Registers an instance of SpikingGroup to the spiking_groups vector. */
+		/*! \brief Registers an instance of SpikingGroup to the spiking_groups vector. 
+		 *
+		 * Called internally by constructor of SpikingGroup. */
 		void register_spiking_group(SpikingGroup * spiking_group);
 
-		/*! Registers an instance of Connection to the connections vector. */
+		/*! \brief Registers an instance of Connection to the connections vector. 
+		 *
+		 * Called internally by constructor of Connection. */
 		void register_connection(Connection * connection);
 
-		/*! Registers an instance of Monitor to the monitors vector. */
+		/*! \brief Registers an instance of Monitor to the monitors vector. 
+		 *
+		 * Called internally by constructor of Monitor. */
 		void register_monitor(Monitor * monitor);
 
-		/*! Registers an instance of Checker to the checkers vector. 
+		/*! \brief Registers an instance of Checker to the checkers vector. 
 		 * 
-		 * Note: The first checker that is registered is by default used by System for the rate output in the progress bar.*/
+		 * Note: The first checker that is registered is by default used by System for the rate output in the progress bar. 
+		 * Called internally by constructor of Monitor. */
 		void register_checker(Checker * checker);
 
 
-		/*! Run simulation for a given time.
-		 * \param simulation_time time to run the simulation 
-		 * \param checking true if checkers can break the run (e.g. if a frequency get's to high and the network explodes) */
+		/*! \brief Runs a simulation for a given amount of time.
+		 *
+		 * \param simulation_time time to run the simulation in seconds.
+		 * \param checking true if checkers can break the run (e.g. if a frequency get's to high and the network explodes) 
+		 * */
 		bool run(AurynFloat simulation_time, bool checking=true);
 
-		/*! This and interface to run a single progress bar, but cut it in different chunks to turn on
+		/*! \brief Runs simulation for a given amount of time 
+		 *
+		 * Exposes the interface to the progressbar params. Can be used to run a single progress bar,
+		 * but cut it in different chunks to turn on
 		 * and off stuff in the simulation without perturbing the output. interval_start and end define 
 		 * the total duration of the simulation (this is used to build the progress bar, while chung_time 
 		 * is the actual time that is simulated for each call.*/
 		bool run_chunk(AurynFloat chunk_time, AurynFloat interval_start, AurynFloat interval_end, bool checking=true);
 
-		/*! Get the current system time in [s] */
+		/*! \brief Gets the current system time in [s] */
 		AurynDouble get_time();
 
-		/*! Get the current clock value in AurynTime */
+		/*! \brief Gets the current clock value in AurynTime */
 		AurynTime get_clock();
 
-		/*! Get a pointer to the current clock. */
+		/*! \brief Gets a pointer to the current clock. */
 		AurynTime * get_clock_ptr();
 
-		/*! Get total number of registered neurons */
+		/*! \brief Get total number of registered neurons */
 		AurynLong get_total_neurons();
 
-		/*! Get total effective load */
+		/*! \brief Get total effective load */
 		AurynDouble get_total_effective_load();
 
-		/*! Get total number of registered synapses */
+		/*! \brief Get total number of registered synapses */
 		AurynLong get_total_synapses();
 
 		/*! \brief Format output file name 
