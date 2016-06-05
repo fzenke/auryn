@@ -56,7 +56,7 @@ void SyncBuffer::init()
 	deltaT = 0.0;
 #endif
 
-    // add a size check here
+    // TODO add a size check here
 	// sizeof(NeuronID) 
 	// sizeof(AurynFloat);
 }

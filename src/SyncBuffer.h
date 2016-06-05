@@ -56,7 +56,7 @@ namespace auryn {
 			NeuronID maxSendSum2;
 			NeuronID syncCount;
 
-			/*! The send buffer size that all ranks agree upon */
+			/*! \brief The send buffer size that all ranks agree upon */
 			NeuronID max_send_size;
 
 			mpi::communicator * mpicom;
@@ -68,7 +68,7 @@ namespace auryn {
 
 			NeuronID count[MINDELAY]; // needed to decode attributes
 
-			/*! vector with offset values to allow to pop more than one delay */
+			/*! \brief vector with offset values to allow to pop more than one delay */
 			std::vector<NeuronID> pop_offsets;
 
 			void reset_send_buffer();
@@ -78,14 +78,19 @@ namespace auryn {
 
 		public:
 
+			/*! \brief The default contructor. */
 			SyncBuffer( mpi::communicator * com );
 
+			/*! \brief Synchronize spikes and additional information across ranks. */
 			void sync();
 
+			/*! \brief Pushes a spike delay with all its spikes to the SyncBuffer. */
 			void push(SpikeDelay * delay, NeuronID size);
+
+			/*! \brief Rerieves a spike delay with all its spikes from the SyncBuffer. */
 			void pop(SpikeDelay * delay, NeuronID size);
 
-			/*! Return max_send_size value which determines the size of the MPI AllGather operation. */
+			/*! \brief Return max_send_size value which determines the size of the MPI AllGather operation. */
 			int get_max_send_buffer_size();	
 
 #ifdef CODE_COLLECT_SYNC_TIMING_STATS
