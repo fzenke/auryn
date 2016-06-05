@@ -33,11 +33,20 @@ SyncBuffer::SyncBuffer( mpi::communicator * com )
 	init();
 }
 
+SyncBuffer::~SyncBuffer(  )
+{
+	delete pop_carry_offsets;
+}
+
 void SyncBuffer::init()
 {
 
-	for ( NeuronID i = 0 ; i < mpicom->size() ; ++i )
-		pop_offsets.push_back(1);
+	pop_offsets = new NeuronID[mpicom->size()];
+	pop_carry_offsets = new NeuronID[ mpicom->size() ];
+	for ( NeuronID i = 0 ; i < mpicom->size() ; ++i ) { 
+		pop_offsets[i] = 0;
+		pop_carry_offsets[i] = 0;
+	}
 
 	overflow_value = -1;
 
@@ -51,6 +60,7 @@ void SyncBuffer::init()
 
 	reset_send_buffer();
 
+
 #ifdef CODE_COLLECT_SYNC_TIMING_STATS
     measurement_start = MPI_Wtime();     
 	deltaT = 0.0;
@@ -61,26 +71,35 @@ void SyncBuffer::init()
 	// sizeof(AurynFloat);
 }
 
-void SyncBuffer::push(SpikeDelay * delay, NeuronID size)
+void SyncBuffer::push(SpikeDelay * delay, const NeuronID size)
 {
-	// loop over circular different delay bins
+	AurynLong unrolled_last_pos = carry_offset;
+	// circular loop over different delay bins
 	for (NeuronID i = 1 ; i < MINDELAY+1 ; ++i ) {
 		SpikeContainer * sc = delay->get_spikes(i);
+		const NeuronID slice = i-1;
 
-		// NeuronID s = (NeuronID) (sc->size());
-		// send_buf[0] += s;
-
-		count[i-1] = 0;
+		count[slice] = 0;
+		// loop over all spikes in current delay slice
 		for (SpikeContainer::const_iterator spike = sc->begin() ; 
 			spike != sc->end() ; 
 			++spike ) {
-			NeuronID compressed = *spike + groupPushOffset1 + (i-1)*size;
-			send_buf.push_back(compressed);
-			count[i-1]++;
+				// compute unrolled position in current delay
+				AurynLong unrolled_pos = *spike + slice*size; 
+				// compute vertical unrolled difference from last spike
+				NeuronID spike_offset = unrolled_pos - unrolled_last_pos;
+				// memorize current position in slice
+				unrolled_last_pos = unrolled_pos; 
+				// TODO add overflow managment
+				// std::cout << "push_back " << spike_offset << std::endl;
+				send_buf.push_back(spike_offset);
+				count[slice]++;
 		}
-
-		send_buf[0] += delay->get_spikes(i)->size(); // send the total number of spikes
 	}
+
+	// set save carry_offset 
+	AurynLong unrolled_pos = MINDELAY*size; 
+	carry_offset = unrolled_pos-unrolled_last_pos;
 
 	// transmit get_num_attributes() attributes for count spikes for all time slices
 	if ( delay->get_num_attributes() ) {
@@ -99,39 +118,55 @@ void SyncBuffer::push(SpikeDelay * delay, NeuronID size)
 			}
 		}
 	}
-
-	groupPushOffset1 += size*MINDELAY;
 }
 
-void SyncBuffer::pop(SpikeDelay * delay, NeuronID size)
+
+void SyncBuffer::null_terminate_send_buffer()
 {
+	send_buf.push_back(carry_offset);
+}
+
+void SyncBuffer::pop(SpikeDelay * delay, const NeuronID size)
+{
+	// clear all receiving buffers in the relevant time range
 	for (NeuronID i = 1 ; i < MINDELAY+1 ; ++i ) {
+		// TODO consider passing the current rank, because in principle it should not require the sync
 		delay->get_spikes(i)->clear();
 		delay->get_attributes(i)->clear();
 	}
 
-
+	// loop over different rank input segments in recv_buf
 	for (int r = 0 ; r < mpicom->size() ; ++r ) {
-		NeuronID numberOfSpikes = recv_buf[r*max_send_size]; // total data
-		NeuronID * iter = &recv_buf[r*max_send_size+pop_offsets[r]]; // first spike
+		AurynLong unrolled_last_pos = pop_carry_offsets[r];
 
-		NeuronID temp  = (*iter - groupPopOffset);
-		NeuronID spike = temp%size; // spike (if it exists) in current group
-		int t = temp/size; // timeslice in MINDELAY if we are out this might be the next group
-
-
+		// reset time slice spike counts
 		for ( int i = 0 ; i < MINDELAY ; ++i ) count[i] = 0;
-		// while we are in the current group && have not read all entries
-		while ( t < MINDELAY && numberOfSpikes ) {  
-			delay->get_spikes(t+1)->push_back(spike);
-			iter++;
-			numberOfSpikes--;
-			count[t]++; // store spike counts for each time-slice
 
-			temp  = (*iter - groupPopOffset);
-			spike = temp%size;
-			t = temp/size;
+		//read current difference element from buffer and interpret as unrolled
+		NeuronID * iter = &recv_buf[r*max_send_size+pop_offsets[r]]; // first spike
+		AurynLong unrolled_spike = *iter + unrolled_last_pos;
+		unrolled_last_pos = unrolled_spike;
+
+		while ( unrolled_last_pos < MINDELAY*size ) { // spike belongs to current group
+
+			// spike lies in this group so lets push it to the right buffer
+			const int slice = unrolled_spike/size;
+			const NeuronID spike = unrolled_spike%size;
+			
+			// std::cout << "pop r:" << r << " slice: " << slice << " spike:" << spike << std::endl;
+
+			delay->get_spikes(slice+1)->push_back(spike); // TODO remember why we needed the plus one again
+			count[slice]++; // store spike counts for each time-slice to decode the spike arguments correctly
+
+			// advance iterator
+			iter++; 
+			unrolled_spike = *iter + unrolled_last_pos;
+			unrolled_last_pos = unrolled_spike;
 		}
+
+		unrolled_spike -= MINDELAY*size;
+		// TODO store carry information and offsets
+		pop_carry_offsets[r] = unrolled_spike;
 
 
 		// extract a total of count*get_num_attributes() attributes 
@@ -155,12 +190,9 @@ void SyncBuffer::pop(SpikeDelay * delay, NeuronID size)
 				}
 			}
 		}
-
-		recv_buf[r*max_send_size] = numberOfSpikes; // save remaining entries
 		pop_offsets[r] = iter - &recv_buf[r*max_send_size]; // save offset in recv_buf section
 	}
 
-	groupPopOffset += size*MINDELAY;
 
 #ifdef DEBUG
 	if ( mpicom->rank() == 0 ) {
@@ -254,11 +286,8 @@ void SyncBuffer::sync()
 
 	// reset
 	NeuronID largest_message = 0;
-	for (std::vector<NeuronID>::iterator iter = pop_offsets.begin() ;
-			iter != pop_offsets.end() ;
-			++iter ) {
-		largest_message = std::max(*iter,largest_message);
-		*iter = 1;
+	for ( int i = 0 ; i < mpicom->size() ; ++i ) { 
+		largest_message = std::max(pop_offsets[i],largest_message);
 	}
 	maxSendSum += largest_message;
 	maxSendSum2 += largest_message*largest_message;
@@ -273,8 +302,13 @@ void SyncBuffer::reset_send_buffer()
 {
 	send_buf.clear();
 	send_buf.push_back(0); // initial size first entry
-	groupPushOffset1 = 0;
-	groupPopOffset = 0;
+
+	// reset carry offsets for push and pop functions
+	carry_offset = 0;
+	for ( int i = 0 ; i < mpicom->size() ; ++i ) { 
+		pop_offsets[i] = 0;
+		pop_carry_offsets[i] = 0;
+	}
 }
 
 int SyncBuffer::get_max_send_buffer_size()

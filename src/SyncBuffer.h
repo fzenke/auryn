@@ -63,13 +63,14 @@ namespace auryn {
 
 			NeuronID overflow_value;
 
-			NeuronID groupPushOffset1;
-			NeuronID groupPopOffset;
+			NeuronID carry_offset;
+
+			NeuronID * pop_carry_offsets;
 
 			NeuronID count[MINDELAY]; // needed to decode attributes
 
 			/*! \brief vector with offset values to allow to pop more than one delay */
-			std::vector<NeuronID> pop_offsets;
+			NeuronID * pop_offsets;
 
 			void reset_send_buffer();
 
@@ -81,14 +82,20 @@ namespace auryn {
 			/*! \brief The default contructor. */
 			SyncBuffer( mpi::communicator * com );
 
+			/*! \brief The default destructor. */
+			virtual ~SyncBuffer( );
+
 			/*! \brief Synchronize spikes and additional information across ranks. */
 			void sync();
 
 			/*! \brief Pushes a spike delay with all its spikes to the SyncBuffer. */
-			void push(SpikeDelay * delay, NeuronID size);
+			void push(SpikeDelay * delay, const NeuronID size);
+
+			/*! \brief Terminate send buffer. */
+			void null_terminate_send_buffer();
 
 			/*! \brief Rerieves a spike delay with all its spikes from the SyncBuffer. */
-			void pop(SpikeDelay * delay, NeuronID size);
+			void pop(SpikeDelay * delay, const NeuronID size);
 
 			/*! \brief Return max_send_size value which determines the size of the MPI AllGather operation. */
 			int get_max_send_buffer_size();	
