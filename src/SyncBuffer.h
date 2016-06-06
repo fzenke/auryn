@@ -28,13 +28,13 @@
 
 #define SYNCBUFFER_SIZE_MARGIN_MULTIPLIER 3 //!< Safety margin for receive buffer size -- a value of 3 should make overflows rare in AI state
 #define SYNCBUFFER_SIZE_HIST_LEN 512 //!< Accumulate history over this number of timesteps before updating the sendbuffer size in the absence of overflows
-#define SYNCBUFFER_DELTA_DATATYPE long //!< Datatype used for delta computation should be a signed "long" for large nets with sparse activity otherwise int
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "SpikeDelay.h"
 #include <vector>
-#include <algorithm>
 #include <boost/mpi.hpp>
+#include <boost/progress.hpp>
 #include <mpi.h>
 
 
@@ -51,9 +51,6 @@ namespace auryn {
 			std::vector<NeuronID> send_buf;
 			std::vector<NeuronID> recv_buf;
 
-			SYNCBUFFER_DELTA_DATATYPE max_delta_size;
-
-
 			// NeuronID size_history[SYNCBUFFER_SIZE_HIST_LEN];
 			NeuronID maxSendSum;
 			NeuronID maxSendSum2;
@@ -66,15 +63,13 @@ namespace auryn {
 
 			NeuronID overflow_value;
 
-			SYNCBUFFER_DELTA_DATATYPE carry_offset;
-
-			SYNCBUFFER_DELTA_DATATYPE * pop_delta_spikes;
-			SYNCBUFFER_DELTA_DATATYPE * last_spike_pos;
+			NeuronID groupPushOffset1;
+			NeuronID groupPopOffset;
 
 			NeuronID count[MINDELAY]; // needed to decode attributes
 
 			/*! \brief vector with offset values to allow to pop more than one delay */
-			NeuronID * pop_offsets;
+			std::vector<NeuronID> pop_offsets;
 
 			void reset_send_buffer();
 
@@ -86,22 +81,14 @@ namespace auryn {
 			/*! \brief The default contructor. */
 			SyncBuffer( mpi::communicator * com );
 
-			NeuronID * read_delta_spike_from_buffer(NeuronID * iter, SYNCBUFFER_DELTA_DATATYPE & delta);
-
-			/*! \brief The default destructor. */
-			virtual ~SyncBuffer( );
-
 			/*! \brief Synchronize spikes and additional information across ranks. */
 			void sync();
 
 			/*! \brief Pushes a spike delay with all its spikes to the SyncBuffer. */
-			void push(SpikeDelay * delay, const NeuronID size);
-
-			/*! \brief Terminate send buffer. */
-			void null_terminate_send_buffer();
+			void push(SpikeDelay * delay, NeuronID size);
 
 			/*! \brief Rerieves a spike delay with all its spikes from the SyncBuffer. */
-			void pop(SpikeDelay * delay, const NeuronID size);
+			void pop(SpikeDelay * delay, NeuronID size);
 
 			/*! \brief Return max_send_size value which determines the size of the MPI AllGather operation. */
 			int get_max_send_buffer_size();	
