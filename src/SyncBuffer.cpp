@@ -95,10 +95,11 @@ void SyncBuffer::push(SpikeDelay * delay, const NeuronID size)
 				// discard carry_offset since its only added to the first spike_delta
 				carry_offset = 0;
 
-				// overflow managment should only ever kick in very very large neuron groups
+				// overflow managment should only ever kick in for very very large neuron groups
 				while ( spike_delta >= std::numeric_limits<NeuronID>::max() ) {
 					send_buf.push_back(std::numeric_limits<NeuronID>::max());
 					spike_delta -= std::numeric_limits<NeuronID>::max();
+					std::cout << " adding overflow package" << std::endl;
 				}
 				
 				// std::cout << " spike " << *spike << " push_back " << spike_delta << std::endl;
