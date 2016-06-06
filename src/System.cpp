@@ -62,6 +62,12 @@ void System::init() {
 		<< std::numeric_limits<NeuronID>::max()-1 << " cells.";
 	auryn::logger->msg(oss.str(),VERBOSE);
 
+	if ( sizeof(NeuronID) != sizeof(AurynFloat) ) {
+		oss.str("");
+		oss << " NeuronID and AurynFloat have different byte sizes which is not supported by SyncBuffer.";
+		auryn::logger->msg(oss.str(),ERROR);
+	}
+
 #ifndef NDEBUG
 	oss.str("");
 	oss << "Warning debugging support is compiled and will impair performance.";
