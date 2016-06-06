@@ -75,8 +75,8 @@ void SyncBuffer::init()
 void SyncBuffer::push(SpikeDelay * delay, const NeuronID size)
 {
 	// DEBUG
-	std::cout << "Rank " << mpicom->rank() << "push\n";
-	delay->print();
+	// std::cout << "Rank " << mpicom->rank() << "push\n";
+	// delay->print();
 	
 	AurynLong unrolled_last_pos = 0;
 	bool at_least_one_spike = false;
@@ -155,8 +155,6 @@ void SyncBuffer::pop(SpikeDelay * delay, const NeuronID size)
 
 	// loop over different rank input segments in recv_buf
 	for (int r = 0 ; r < mpicom->size() ; ++r ) {
-		AurynLong unrolled_last_pos = 0;
-
 		// reset time slice spike counts to extract correct number of attributes later
 		for ( int i = 0 ; i < MINDELAY ; ++i ) count[i] = 0;
 
@@ -164,13 +162,13 @@ void SyncBuffer::pop(SpikeDelay * delay, const NeuronID size)
 		NeuronID * iter = &recv_buf[r*max_send_size+pop_offsets[r]]; // first spike
 
 		AurynLong unrolled_spike = *iter -pop_carry_offsets[r];
-		unrolled_last_pos = unrolled_spike;
 
 		// std::cout << "iter " << *iter << " unrolled " << unrolled_spike << std::endl;
 
 		if ( unrolled_spike >= MINDELAY*size ) { // spike falls beyond all time slices of this group
 			// increase carry by group size and carry on
 			pop_carry_offsets[r] += MINDELAY*size;
+			continue;
 		}
 
 		while ( unrolled_spike < MINDELAY*size ) { // one or more spikes belong to current group
@@ -187,13 +185,12 @@ void SyncBuffer::pop(SpikeDelay * delay, const NeuronID size)
 			// store spike counts for each time-slice to decode the spike arguments correctly
 			count[slice]++; 
 
-			// advance iterator
-			iter++; 
-			unrolled_spike = *iter + unrolled_last_pos; // because we stored differences we need to add 
-			unrolled_last_pos = unrolled_spike;
-
 			// set carry bit in case this spike puts us beyond the end and we leave the loop
 			pop_carry_offsets[r] = MINDELAY*size-unrolled_spike;
+
+			// advance iterator
+			iter++; 
+			unrolled_spike += *iter; // because we stored differences we need to add 
 		}
 
 		// extract a total of count*get_num_attributes() attributes 
@@ -220,13 +217,13 @@ void SyncBuffer::pop(SpikeDelay * delay, const NeuronID size)
 		pop_offsets[r] = iter - &recv_buf[r*max_send_size]; // save offset in recv_buf section
 	}
 
-	for( int i = 0; i < mpicom->size(); ++i ) {
-		MPI_Barrier( *mpicom );
-		if ( i == mpicom->rank() ) {
-			std::cout << "Rank " << mpicom->rank() << "pop " << "\n";
-			delay->print();
-		}
-	}
+	// for( int i = 0; i < mpicom->size(); ++i ) {
+	// 	MPI_Barrier( *mpicom );
+	// 	if ( i == mpicom->rank() ) {
+	// 		std::cout << "Rank " << mpicom->rank() << "pop " << "\n";
+	// 		delay->print();
+	// 	}
+	// }
 
 #ifdef DEBUG
 	if ( mpicom->rank() == 0 ) {
