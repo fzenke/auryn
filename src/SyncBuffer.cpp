@@ -43,7 +43,7 @@ void SyncBuffer::init()
 {
 
 	pop_offsets = new NeuronID[mpicom->size()];
-	pop_carry_offsets = new NeuronID[ mpicom->size() ];
+	pop_carry_offsets = new long[ mpicom->size() ];
 	for ( int i = 0 ; i < mpicom->size() ; ++i ) { 
 		pop_offsets[i] = 0;
 		pop_carry_offsets[i] = 0;
@@ -75,7 +75,9 @@ void SyncBuffer::push(SpikeDelay * delay, const NeuronID size)
 	// std::cout << "Rank " << mpicom->rank() << "push\n";
 	// delay->print();
 	
-	AurynLong unrolled_last_pos = 0;
+	const long grid_size = (long)size*MINDELAY;
+
+	long unrolled_last_pos = 0;
 	bool at_least_one_spike = false;
 	// circular loop over different delay bins
 	for (int slice = 0 ; slice < MINDELAY ; ++slice ) {
@@ -87,9 +89,9 @@ void SyncBuffer::push(SpikeDelay * delay, const NeuronID size)
 			spike != sc->end() ; 
 			++spike ) {
 				// compute unrolled position in current delay
-				AurynLong unrolled_pos = *spike + slice*size; 
+				long unrolled_pos = (long)(*spike) + (long)size*slice; 
 				// compute vertical unrolled difference from last spike
-				AurynLong spike_delta = unrolled_pos + carry_offset - unrolled_last_pos ;
+				long spike_delta = unrolled_pos - unrolled_last_pos + carry_offset;
 				// memorize current position in slice
 				unrolled_last_pos = unrolled_pos; 
 				// discard carry_offset since its only added to the first spike_delta
@@ -97,9 +99,12 @@ void SyncBuffer::push(SpikeDelay * delay, const NeuronID size)
 
 				// overflow managment should only ever kick in for very very large neuron groups
 				while ( spike_delta >= std::numeric_limits<NeuronID>::max() ) {
-					send_buf.push_back(std::numeric_limits<NeuronID>::max());
+					send_buf.push_back( std::numeric_limits<NeuronID>::max() );
 					spike_delta -= std::numeric_limits<NeuronID>::max();
-					std::cout << " adding overflow package" << std::endl;
+					std::cout << *spike << " " << unrolled_pos << " " 
+						<< unrolled_last_pos << " " 
+						<< carry_offset << " " 
+						<<  spike_delta << " adding overflow package" << std::endl;
 				}
 				
 				// std::cout << " spike " << *spike << " push_back " << spike_delta << std::endl;
@@ -112,10 +117,11 @@ void SyncBuffer::push(SpikeDelay * delay, const NeuronID size)
 
 	// set save carry_offset which is the remaining difference from the present group
 	// plus because there might be more than one group without a spike ...
-	if ( at_least_one_spike )
-		carry_offset = MINDELAY*size-unrolled_last_pos;
-	else
-		carry_offset += MINDELAY*size;
+	if ( at_least_one_spike ) {
+		carry_offset = grid_size-unrolled_last_pos;
+	} else {
+		carry_offset += grid_size;
+	}
 
 	// transmit attributes for count spikes for all time slices of this group
 	if ( delay->get_num_attributes() ) {
@@ -141,6 +147,8 @@ void SyncBuffer::null_terminate_send_buffer()
 void SyncBuffer::pop(SpikeDelay * delay, const NeuronID size)
 {
 	// TODO consider passing the current rank, because in principle it should not require the sync
+	
+	const long grid_size = (long)size*MINDELAY;
 
 	// clear all receiving buffers in the relevant time range
 	for (NeuronID i = 1 ; i < MINDELAY+1 ; ++i ) {
@@ -156,10 +164,11 @@ void SyncBuffer::pop(SpikeDelay * delay, const NeuronID size)
 		//read current difference element from buffer and interpret as unrolled
 		NeuronID * iter = &recv_buf[r*max_send_size+pop_offsets[r]]; // first spike
 
-		AurynLong unrolled_spike = *iter;
+		// store pointer value
+		long unrolled_spike = *iter;
 
-		// handle overflow packages if there are any
-		// TODO test overflow mechanism
+		// add overflow packages if there are any 
+		// TODO fix still broken overflow mechanism
 		while ( *iter == std::numeric_limits<NeuronID>::max() ) {
 			iter++; 
 			unrolled_spike += *iter;
@@ -170,13 +179,13 @@ void SyncBuffer::pop(SpikeDelay * delay, const NeuronID size)
 
 		// std::cout << "iter " << *iter << " unrolled " << unrolled_spike << std::endl;
 
-		if ( unrolled_spike >= MINDELAY*size ) { // spike falls beyond all time slices of this group
+		if ( unrolled_spike >= grid_size ) { // spike falls beyond all time slices of this group
 			// increase carry by group size and carry on
-			pop_carry_offsets[r] += MINDELAY*size;
+			pop_carry_offsets[r] += grid_size;
 			continue;
 		}
 
-		while ( unrolled_spike < MINDELAY*size ) { // one or more spikes belong to current group
+		while ( unrolled_spike < grid_size ) { // one or more spikes belong to current group
 
 			// decode spike positon on time slice grid
 			const int slice = unrolled_spike/size;
@@ -191,7 +200,7 @@ void SyncBuffer::pop(SpikeDelay * delay, const NeuronID size)
 			count[slice]++; 
 
 			// set carry bit in case this spike puts us beyond the end and we leave the loop
-			pop_carry_offsets[r] = MINDELAY*size-unrolled_spike;
+			pop_carry_offsets[r] = grid_size-unrolled_spike;
 
 			// advance iterator
 			iter++; 

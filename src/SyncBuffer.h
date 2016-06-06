@@ -63,9 +63,9 @@ namespace auryn {
 
 			NeuronID overflow_value;
 
-			NeuronID carry_offset;
+			long carry_offset;
 
-			NeuronID * pop_carry_offsets;
+			long * pop_carry_offsets;
 
 			NeuronID count[MINDELAY]; // needed to decode attributes
 
