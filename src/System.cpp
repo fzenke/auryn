@@ -58,9 +58,20 @@ void System::init() {
 	auryn::logger->msg(oss.str(),VERBOSE);
 
 	oss.str("");
+	oss << "NeuronID type has size of "
+		<< sizeof(NeuronID) << " bytes.";
+	auryn::logger->msg(oss.str(),VERBOSE);
+
+	oss.str("");
+	oss << "AurynLong type has size of "
+		<< sizeof(AurynLong) << " bytes.";
+	auryn::logger->msg(oss.str(),VERBOSE);
+
+	oss.str("");
 	oss << "Current NeuronID and sync are good for simulations up to "
 		<< std::numeric_limits<NeuronID>::max()-1 << " cells.";
 	auryn::logger->msg(oss.str(),VERBOSE);
+
 
 	if ( sizeof(NeuronID) != sizeof(AurynFloat) ) {
 		oss.str("");
@@ -70,7 +81,7 @@ void System::init() {
 
 #ifndef NDEBUG
 	oss.str("");
-	oss << "Warning debugging support is compiled and will impair performance.";
+	oss << "Warning Auryn was compiled with debugging features which will impair performance.";
 	auryn::logger->warning(oss.str());
 #endif 
 
