@@ -83,7 +83,7 @@ void SpikeMonitor::propagate()
 			if ( *it < n_to && (*it%n_every==0) ) {
 			  // using the good old stdio.h for formatting seems a bit faster 
 			  char buffer[255];
-			  int n = sprintf(buffer,"%f %i\n",auryn::sys->get_time(), *it); 
+			  int n = sprintf(buffer,"%f %u\n",auryn::sys->get_time(), *it); 
 			  outfile.write(buffer,n); 
 			}
 		}
