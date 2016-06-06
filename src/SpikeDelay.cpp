@@ -126,11 +126,13 @@ void SpikeDelay::inc_num_attributes( int x )
 void SpikeDelay::print()
 {
 	for ( int i = 0 ; i < ndelay ; ++i ) {
-		std::cout << "slice " << i << ": ";
 		SpikeContainer * spikes = get_spikes(i);
-		for ( NeuronID k = 0 ; k < spikes->size() ; ++k ) {
-			std::cout << spikes->at(k) << " ";
+		if ( spikes->size() ) {
+			std::cout << "slice " << i << ": ";
+			for ( NeuronID k = 0 ; k < spikes->size() ; ++k ) {
+				std::cout << spikes->at(k) << " ";
+			}
+			std::cout << std::endl;
 		}
-		std::cout << std::endl;
 	}
 }
