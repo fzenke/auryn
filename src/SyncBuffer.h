@@ -69,7 +69,8 @@ namespace auryn {
 
 			SYNCBUFFER_DELTA_DATATYPE carry_offset;
 
-			SYNCBUFFER_DELTA_DATATYPE * pop_carry_offsets;
+			SYNCBUFFER_DELTA_DATATYPE * pop_delta_spikes;
+			SYNCBUFFER_DELTA_DATATYPE * last_spike_pos;
 
 			NeuronID count[MINDELAY]; // needed to decode attributes
 
