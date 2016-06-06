@@ -27,6 +27,7 @@
 
 using namespace auryn;
 
+
 SyncBuffer::SyncBuffer( mpi::communicator * com )
 {
 	mpicom = com;
@@ -51,6 +52,10 @@ void SyncBuffer::init()
 
 	overflow_value = -1;
 
+	/* Maximum delta size. We make this one smaller than max to avoid problems 
+	 * if the datatype is the same as NeuronID and then the max corresponds
+	 * to the overflow value in send buffer ... */
+	max_delta_size = std::numeric_limits<NeuronID>::max()-1; 
 
 	maxSendSum = 0;
 	maxSendSum2 = 0;
@@ -97,18 +102,16 @@ void SyncBuffer::push(SpikeDelay * delay, const NeuronID size)
 				// discard carry_offset since its only added to the first spike_delta
 				carry_offset = 0;
 
-				// overflow managment should only ever kick in for very very large neuron groups
-				while ( spike_delta >= std::numeric_limits<NeuronID>::max() ) {
-					send_buf.push_back( std::numeric_limits<NeuronID>::max() );
-					spike_delta -= std::numeric_limits<NeuronID>::max();
-					std::cout << *spike << " " << unrolled_pos << " " 
-						<< unrolled_last_pos << " " 
-						<< carry_offset << " " 
-						<<  spike_delta << " adding overflow package" << std::endl;
+				// overflow managment -- should only ever kick in for very very large SpikingGroups and very very sparse activity
+				while ( spike_delta >= max_delta_size ) {
+					send_buf.push_back( max_delta_size );
+					spike_delta -= max_delta_size;
 				}
-				
-				// std::cout << " spike " << *spike << " push_back " << spike_delta << std::endl;
+			
+				// storing the spike delta (or its remainder) to buffer
 				send_buf.push_back(spike_delta);
+
+				// increase slice count
 				count[slice]++;
 
 				at_least_one_spike = true;
@@ -144,6 +147,22 @@ void SyncBuffer::null_terminate_send_buffer()
 	send_buf.push_back(carry_offset);
 }
 
+NeuronID * SyncBuffer::read_delta_spike_from_buffer(NeuronID * iter, SYNCBUFFER_DELTA_DATATYPE & delta)
+{
+	delta = 0;
+
+	// add overflow packages if there are any 
+	while ( *iter == max_delta_size ) {
+		delta += *iter;
+		iter++; 
+	}
+
+	// adds element which is not an overflow pacakge
+	delta += *iter;
+
+	return iter;
+}
+
 void SyncBuffer::pop(SpikeDelay * delay, const NeuronID size)
 {
 	// TODO consider passing the current rank, because in principle it should not require the sync
@@ -156,6 +175,7 @@ void SyncBuffer::pop(SpikeDelay * delay, const NeuronID size)
 		delay->get_attributes(i)->clear();
 	}
 
+	SYNCBUFFER_DELTA_DATATYPE last_unrolled_spike = 0;
 	// loop over different rank input segments in recv_buf
 	for (int r = 0 ; r < mpicom->size() ; ++r ) {
 		// reset time slice spike counts to extract correct number of attributes later
@@ -164,18 +184,18 @@ void SyncBuffer::pop(SpikeDelay * delay, const NeuronID size)
 		//read current difference element from buffer and interpret as unrolled
 		NeuronID * iter = &recv_buf[r*max_send_size+pop_offsets[r]]; // first spike
 
-		// store pointer value
-		SYNCBUFFER_DELTA_DATATYPE unrolled_spike = *iter;
+		// init delta spike value 
+		SYNCBUFFER_DELTA_DATATYPE spike_delta = 0;
 
-		// add overflow packages if there are any 
-		// TODO fix still broken overflow mechanism
-		while ( *iter == std::numeric_limits<NeuronID>::max() ) {
-			iter++; 
-			unrolled_spike += *iter;
-		}
+		// read delta spike value from buffer and update iterator
+		iter = read_delta_spike_from_buffer(iter, spike_delta);
+
+		// add delta spike value to last unrollen spike value
+		SYNCBUFFER_DELTA_DATATYPE unrolled_spike = last_unrolled_spike+spike_delta;
 	
 		// subtract carry offset
 		unrolled_spike -= pop_carry_offsets[r];
+
 
 		// std::cout << "iter " << *iter << " unrolled " << unrolled_spike << std::endl;
 
@@ -185,14 +205,14 @@ void SyncBuffer::pop(SpikeDelay * delay, const NeuronID size)
 			continue;
 		}
 
+		last_unrolled_spike = unrolled_spike;
+
 		while ( unrolled_spike < grid_size ) { // one or more spikes belong to current group
 
 			// decode spike positon on time slice grid
 			const int slice = unrolled_spike/size;
 			const NeuronID spike = unrolled_spike%size;
 			
-			// std::cout << "pop r:" << r << " slice: " << slice << " spike:" << spike << std::endl;
-
 			// push spike to appropriate time slice
 			delay->get_spikes(slice+1)->push_back(spike); 
 
@@ -202,9 +222,10 @@ void SyncBuffer::pop(SpikeDelay * delay, const NeuronID size)
 			// set carry bit in case this spike puts us beyond the end and we leave the loop
 			pop_carry_offsets[r] = grid_size-unrolled_spike;
 
-			// advance iterator
+			// advance iterator and read new value from buffer
 			iter++; 
-			unrolled_spike += *iter; // because we stored differences we need to add 
+			iter = read_delta_spike_from_buffer(iter, spike_delta);
+			unrolled_spike += spike_delta; // because we stored differences we need to add here
 		}
 
 		// extract a total of count*get_num_attributes() attributes 
@@ -217,27 +238,12 @@ void SyncBuffer::pop(SpikeDelay * delay, const NeuronID size)
 						attrib = (AurynFloat*)(iter);
 						iter++;
 						ac->push_back(*attrib);
-// #ifdef DEBUG
-// 						if ( mpicom->rank() == 0 )
-// 							std::cout << " reading attr " 
-// 								<< " " << slice << " "  
-// 								<< k << " " << s << std::setprecision(5)
-// 								<< " "  << *attrib << std::endl;
-// #endif // DEBUG
 					}
 				}
 			}
 		}
 		pop_offsets[r] = iter - &recv_buf[r*max_send_size]; // save offset in recv_buf section
 	}
-
-	// for( int i = 0; i < mpicom->size(); ++i ) {
-	// 	MPI_Barrier( *mpicom );
-	// 	if ( i == mpicom->rank() ) {
-	// 		std::cout << "Rank " << mpicom->rank() << "pop " << "\n";
-	// 		delay->print();
-	// 	}
-	// }
 
 #ifdef DEBUG
 	if ( mpicom->rank() == 0 ) {
@@ -297,7 +303,7 @@ void SyncBuffer::sync()
 	// error handling
 	if ( ierr ) {
 		std::cerr << "Error during MPI_Allgather." << std::endl;
-		// TODO add an exceptoin to actually break the run here
+		// TODO add an exception to actually break the run here
 	}
 
 #ifdef CODE_COLLECT_SYNC_TIMING_STATS

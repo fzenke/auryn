@@ -52,6 +52,9 @@ namespace auryn {
 			std::vector<NeuronID> send_buf;
 			std::vector<NeuronID> recv_buf;
 
+			SYNCBUFFER_DELTA_DATATYPE max_delta_size;
+
+
 			// NeuronID size_history[SYNCBUFFER_SIZE_HIST_LEN];
 			NeuronID maxSendSum;
 			NeuronID maxSendSum2;
@@ -82,6 +85,8 @@ namespace auryn {
 
 			/*! \brief The default contructor. */
 			SyncBuffer( mpi::communicator * com );
+
+			NeuronID * read_delta_spike_from_buffer(NeuronID * iter, SYNCBUFFER_DELTA_DATATYPE & delta);
 
 			/*! \brief The default destructor. */
 			virtual ~SyncBuffer( );
