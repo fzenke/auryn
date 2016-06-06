@@ -49,7 +49,7 @@ void SyncBuffer::init()
 	last_spike_pos = new SYNCBUFFER_DELTA_DATATYPE[ mpicom->size() ];
 	for ( int i = 0 ; i < mpicom->size() ; ++i ) { 
 		pop_offsets[i] = 0;
-		pop_delta_spikes[i] = 0;
+		pop_delta_spikes[i] = -1;
 		last_spike_pos[i] = 0;
 	}
 
@@ -181,6 +181,8 @@ void SyncBuffer::pop(SpikeDelay * delay, const NeuronID size)
 
 	// loop over different rank input segments in recv_buf
 	for (int r = 0 ; r < mpicom->size() ; ++r ) {
+
+		// when we enter this function we know this is a new group
 		last_spike_pos[r] = 0;
 
 		// reset time slice spike counts to extract correct number of attributes later
@@ -194,7 +196,7 @@ void SyncBuffer::pop(SpikeDelay * delay, const NeuronID size)
 
 			// std::cout << "have " << pop_delta_spikes[r] << std::endl;
 			
-			if ( pop_delta_spikes[r] == 0 ) {
+			if ( pop_delta_spikes[r] < 0 ) {
 				// read delta spike value from buffer and update iterator
 				iter = read_delta_spike_from_buffer(iter, pop_delta_spikes[r]);
 				// std::cout << "delta " << pop_delta_spikes[r] << std::endl;
@@ -214,7 +216,7 @@ void SyncBuffer::pop(SpikeDelay * delay, const NeuronID size)
 				// save last position
 				last_spike_pos[r] = unrolled_spike;
 
-				pop_delta_spikes[r] = 0;
+				pop_delta_spikes[r] = -1;
 
 				// store spike counts for each time-slice to decode the spike arguments correctly
 				count[slice]++; 
@@ -369,7 +371,7 @@ void SyncBuffer::reset_send_buffer()
 	carry_offset = 0;
 	for ( int i = 0 ; i < mpicom->size() ; ++i ) { 
 		pop_offsets[i] = 0;
-		pop_delta_spikes[i] = 0;
+		pop_delta_spikes[i] = -1;
 	}
 }
 
