@@ -53,7 +53,7 @@ void SyncBuffer::init()
 		last_spike_pos[i] = 0;
 	}
 
-	overflow_value = -1;
+	overflow_value = std::numeric_limits<NeuronID>::max();
 
 	/* Maximum delta size. We make this one smaller than max to avoid problems 
 	 * if the datatype is the same as NeuronID and then the max corresponds
@@ -193,7 +193,7 @@ void SyncBuffer::pop(SpikeDelay * delay, const NeuronID size)
 		while ( true ) {
 
 			// std::cout << "have " << pop_delta_spikes[r] << std::endl;
-
+			
 			if ( pop_delta_spikes[r] == 0 ) {
 				// read delta spike value from buffer and update iterator
 				iter = read_delta_spike_from_buffer(iter, pop_delta_spikes[r]);
@@ -242,6 +242,12 @@ void SyncBuffer::pop(SpikeDelay * delay, const NeuronID size)
 			}
 		}
 		pop_offsets[r] = iter - &recv_buf[r*max_send_size]; // save offset in recv_buf section
+	}
+
+	// TEST TODO comment after testing
+	for (NeuronID i = 1 ; i < MINDELAY+1 ; ++i ) {
+		SpikeContainer * myvector = delay->get_spikes(i);
+		std::sort (myvector->begin(), myvector->end());
 	}
 
 #ifdef DEBUG

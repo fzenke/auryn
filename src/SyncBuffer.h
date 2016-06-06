@@ -31,11 +31,10 @@
 #define SYNCBUFFER_DELTA_DATATYPE long //!< Datatype used for delta computation should be a signed "long" for large nets with sparse activity otherwise int
 
 #include "auryn_definitions.h"
-#include "AurynVector.h"
 #include "SpikeDelay.h"
 #include <vector>
+#include <algorithm>
 #include <boost/mpi.hpp>
-#include <boost/progress.hpp>
 #include <mpi.h>
 
 
