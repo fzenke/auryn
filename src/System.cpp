@@ -59,7 +59,7 @@ void System::init() {
 
 	oss.str("");
 	oss << "Current NeuronID and sync are good for simulations up to "
-		<< std::numeric_limits<NeuronID>::max()/MINDELAY << " cells.";
+		<< std::numeric_limits<NeuronID>::max()-1 << " cells.";
 	auryn::logger->msg(oss.str(),VERBOSE);
 
 #ifndef NDEBUG
