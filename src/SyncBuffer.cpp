@@ -43,7 +43,7 @@ void SyncBuffer::init()
 {
 
 	pop_offsets = new NeuronID[mpicom->size()];
-	pop_carry_offsets = new long[ mpicom->size() ];
+	pop_carry_offsets = new SYNCBUFFER_DELTA_DATATYPE[ mpicom->size() ];
 	for ( int i = 0 ; i < mpicom->size() ; ++i ) { 
 		pop_offsets[i] = 0;
 		pop_carry_offsets[i] = 0;
@@ -75,9 +75,9 @@ void SyncBuffer::push(SpikeDelay * delay, const NeuronID size)
 	// std::cout << "Rank " << mpicom->rank() << "push\n";
 	// delay->print();
 	
-	const long grid_size = (long)size*MINDELAY;
+	const SYNCBUFFER_DELTA_DATATYPE grid_size = (SYNCBUFFER_DELTA_DATATYPE)size*MINDELAY;
 
-	long unrolled_last_pos = 0;
+	SYNCBUFFER_DELTA_DATATYPE unrolled_last_pos = 0;
 	bool at_least_one_spike = false;
 	// circular loop over different delay bins
 	for (int slice = 0 ; slice < MINDELAY ; ++slice ) {
@@ -89,9 +89,9 @@ void SyncBuffer::push(SpikeDelay * delay, const NeuronID size)
 			spike != sc->end() ; 
 			++spike ) {
 				// compute unrolled position in current delay
-				long unrolled_pos = (long)(*spike) + (long)size*slice; 
+				SYNCBUFFER_DELTA_DATATYPE unrolled_pos = (SYNCBUFFER_DELTA_DATATYPE)(*spike) + (SYNCBUFFER_DELTA_DATATYPE)size*slice; 
 				// compute vertical unrolled difference from last spike
-				long spike_delta = unrolled_pos - unrolled_last_pos + carry_offset;
+				SYNCBUFFER_DELTA_DATATYPE spike_delta = unrolled_pos - unrolled_last_pos + carry_offset;
 				// memorize current position in slice
 				unrolled_last_pos = unrolled_pos; 
 				// discard carry_offset since its only added to the first spike_delta
@@ -148,7 +148,7 @@ void SyncBuffer::pop(SpikeDelay * delay, const NeuronID size)
 {
 	// TODO consider passing the current rank, because in principle it should not require the sync
 	
-	const long grid_size = (long)size*MINDELAY;
+	const SYNCBUFFER_DELTA_DATATYPE grid_size = (SYNCBUFFER_DELTA_DATATYPE)size*MINDELAY;
 
 	// clear all receiving buffers in the relevant time range
 	for (NeuronID i = 1 ; i < MINDELAY+1 ; ++i ) {
@@ -165,7 +165,7 @@ void SyncBuffer::pop(SpikeDelay * delay, const NeuronID size)
 		NeuronID * iter = &recv_buf[r*max_send_size+pop_offsets[r]]; // first spike
 
 		// store pointer value
-		long unrolled_spike = *iter;
+		SYNCBUFFER_DELTA_DATATYPE unrolled_spike = *iter;
 
 		// add overflow packages if there are any 
 		// TODO fix still broken overflow mechanism
