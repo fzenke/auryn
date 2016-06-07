@@ -52,12 +52,6 @@ void System::init() {
 	auryn::logger->msg(oss.str(),NOTIFICATION);
 
 	oss.str("");
-	oss << "Current AurynTime good for simulations up to "
-		<< std::numeric_limits<AurynTime>::max()*dt << "s  "
-		<< "( " << std::numeric_limits<AurynTime>::max()*dt/3600 << "h )";
-	auryn::logger->msg(oss.str(),VERBOSE);
-
-	oss.str("");
 	oss << "NeuronID type has size of "
 		<< sizeof(NeuronID) << " bytes.";
 	auryn::logger->msg(oss.str(),VERBOSE);
@@ -70,6 +64,12 @@ void System::init() {
 	oss.str("");
 	oss << "Current NeuronID and sync are good for simulations up to "
 		<< std::numeric_limits<NeuronID>::max()-1 << " cells.";
+	auryn::logger->msg(oss.str(),VERBOSE);
+
+	oss.str("");
+	oss << "Current AurynTime good for simulations up to "
+		<< std::numeric_limits<AurynTime>::max()*dt << "s  "
+		<< "( " << std::numeric_limits<AurynTime>::max()*dt/3600 << "h )";
 	auryn::logger->msg(oss.str(),VERBOSE);
 
 
