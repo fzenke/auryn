@@ -91,7 +91,6 @@ void SyncBuffer::push(SpikeDelay * delay, const NeuronID size)
 	const SYNCBUFFER_DELTA_DATATYPE grid_size = (SYNCBUFFER_DELTA_DATATYPE)size*MINDELAY;
 
 	SYNCBUFFER_DELTA_DATATYPE unrolled_last_pos = 0;
-	bool at_least_one_spike = false;
 	// circular loop over different delay bins
 	for (int slice = 0 ; slice < MINDELAY ; ++slice ) {
 		SpikeContainer * sc = delay->get_spikes(slice+1);
@@ -121,26 +120,20 @@ void SyncBuffer::push(SpikeDelay * delay, const NeuronID size)
 
 				// increase slice count
 				count[slice]++;
-
-				at_least_one_spike = true;
 		}
 	}
 
 	// set save carry_offset which is the remaining difference from the present group
 	// plus because there might be more than one group without a spike ...
-	if ( at_least_one_spike ) {
-		carry_offset = grid_size-unrolled_last_pos;
-	} else {
-		carry_offset += grid_size;
-	}
+	carry_offset += grid_size-unrolled_last_pos;
 
 	// transmit attributes for count spikes for all time slices of this group
 	if ( delay->get_num_attributes() ) {
-		for (int i = 1 ; i < MINDELAY+1 ; ++i ) {
-			AttributeContainer * ac = delay->get_attributes(i);
+		for (int slice = 0 ; slice < MINDELAY ; ++slice ) {
+			AttributeContainer * ac = delay->get_attributes(slice+1);
 			for ( int k = 0 ; k < delay->get_num_attributes() ; ++k ) { // loop over attributes
-				for ( NeuronID s = 0 ; s < count[i-1] ; ++s ) { // loop over spikes
-					send_buf.push_back(*(NeuronID*)(&(ac->at(s+count[i-1]*k))));
+				for ( NeuronID s = 0 ; s < count[slice] ; ++s ) { // loop over spikes
+					send_buf.push_back(*(NeuronID*)(&(ac->at(s+count[slice]*k))));
 				}
 			}
 		}
