@@ -248,7 +248,7 @@ void System::sync()
 	std::vector<SpikingGroup *>::const_iterator iter;
 	for ( iter = spiking_groups.begin() ; iter != spiking_groups.end() ; ++iter ) 
 		syncbuffer->push((*iter)->delay,(*iter)->get_size()); 
-	// syncbuffer->null_terminate_send_buffer();
+	syncbuffer->null_terminate_send_buffer();
 
 	// // use this to artificially worsening the sync
 	// struct timespec tim, tim2;
