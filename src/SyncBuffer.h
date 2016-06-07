@@ -89,8 +89,11 @@ namespace auryn {
 			void init();
 			void free();
 
+			/*! \brief Reads the next spike delta */
 			NeuronID * read_delta_spike_from_buffer(NeuronID * iter, SYNCBUFFER_DELTA_DATATYPE & delta);
 
+			/*! \brief Reads a single spike attribute */
+			NeuronID * read_attribute_from_buffer(NeuronID * iter, AurynFloat & attrib);
 		public:
 
 			/*! \brief The default contructor. */

@@ -94,50 +94,47 @@ void SyncBuffer::push(SpikeDelay * delay, const NeuronID size)
 	// circular loop over different delay bins
 	for (int slice = 0 ; slice < MINDELAY ; ++slice ) {
 		SpikeContainer * sc = delay->get_spikes(slice+1);
+		AttributeContainer * ac = delay->get_attributes(slice+1);
 
 		count[slice] = 0;
 		// loop over all spikes in current delay time slice
-		for (SpikeContainer::const_iterator spike = sc->begin() ; 
-			spike != sc->end() ; 
-			++spike ) {
-				// compute unrolled position in current delay
-				SYNCBUFFER_DELTA_DATATYPE unrolled_pos = (SYNCBUFFER_DELTA_DATATYPE)(*spike) + (SYNCBUFFER_DELTA_DATATYPE)size*slice; 
-				// compute vertical unrolled difference from last spike
-				SYNCBUFFER_DELTA_DATATYPE spike_delta = unrolled_pos + carry_offset - unrolled_last_pos;
-				// memorize current position in slice
-				unrolled_last_pos = unrolled_pos; 
-				// discard carry_offset since its only added to the first spike_delta
-				carry_offset = 0;
+		for (int i = 0 ; 
+				i < sc->size() ; 
+				++i ) {
+			NeuronID spike = sc->at(i);
+			// compute unrolled position in current delay
+			SYNCBUFFER_DELTA_DATATYPE unrolled_pos = (SYNCBUFFER_DELTA_DATATYPE)(spike) + (SYNCBUFFER_DELTA_DATATYPE)size*slice; 
+			// compute vertical unrolled difference from last spike
+			SYNCBUFFER_DELTA_DATATYPE spike_delta = unrolled_pos + carry_offset - unrolled_last_pos;
+			// memorize current position in slice
+			unrolled_last_pos = unrolled_pos; 
+			// discard carry_offset since its only added to the first spike_delta
+			carry_offset = 0;
 
-				// overflow managment -- should only ever kick in for very very large SpikingGroups and very very sparse activity
-				while ( spike_delta >= max_delta_size ) {
-					send_buf.push_back( max_delta_size );
-					spike_delta -= max_delta_size;
-				}
-			
-				// storing the spike delta (or its remainder) to buffer
-				send_buf.push_back(spike_delta);
+			// overflow managment -- should only ever kick in for very very large SpikingGroups and very very sparse activity
+			while ( spike_delta >= max_delta_size ) {
+				send_buf.push_back( max_delta_size );
+				spike_delta -= max_delta_size;
+			}
+		
+			// storing the spike delta (or its remainder) to buffer
+			send_buf.push_back(spike_delta);
 
-				// increase slice count
-				count[slice]++;
+			// append spike attributes here in buffer
+			for ( int k = 0 ; k < delay->get_num_attributes() ; ++k ) { // loop over attributes
+				NeuronID cast_attrib = *(NeuronID*)(&(ac->at(i*delay->get_num_attributes()+k)));
+				send_buf.push_back(cast_attrib);
+				// std::cout << "store " << std::scientific << ac->at(i*delay->get_num_attributes()+k) << " int " << cast_attrib << std::endl;
+			}
+
+			// increase slice count
+			count[slice]++;
 		}
 	}
 
 	// set save carry_offset which is the remaining difference from the present group
 	// plus because there might be more than one group without a spike ...
 	carry_offset += grid_size-unrolled_last_pos;
-
-	// transmit attributes for count spikes for all time slices of this group
-	if ( delay->get_num_attributes() ) {
-		for (int slice = 0 ; slice < MINDELAY ; ++slice ) {
-			AttributeContainer * ac = delay->get_attributes(slice+1);
-			for ( int k = 0 ; k < delay->get_num_attributes() ; ++k ) { // loop over attributes
-				for ( NeuronID s = 0 ; s < count[slice] ; ++s ) { // loop over spikes
-					send_buf.push_back(*(NeuronID*)(&(ac->at(s+count[slice]*k))));
-				}
-			}
-		}
-	}
 }
 
 
@@ -165,6 +162,13 @@ NeuronID * SyncBuffer::read_delta_spike_from_buffer(NeuronID * iter, SYNCBUFFER_
 	return iter;
 }
 
+NeuronID * SyncBuffer::read_attribute_from_buffer(NeuronID * iter, AurynFloat & attrib)
+{
+	attrib = *((AurynFloat*)(iter));
+	iter++; 
+	return iter;
+}
+
 void SyncBuffer::pop(SpikeDelay * delay, const NeuronID size)
 {
 	// TODO consider passing the current rank, because in principle it should not require the sync
@@ -183,7 +187,7 @@ void SyncBuffer::pop(SpikeDelay * delay, const NeuronID size)
 		// when we enter this function we know this is a new group
 		last_spike_pos[r] = 0;
 
-		// reset time slice spike counts to extract correct number of attributes later
+		// reset time slice spike counts to extract correct number of attributes per slice later
 		for ( int i = 0 ; i < MINDELAY ; ++i ) 
 			count[i] = 0;
 
@@ -197,7 +201,6 @@ void SyncBuffer::pop(SpikeDelay * delay, const NeuronID size)
 			if ( pop_delta_spikes[r] == undefined_delta_size ) {
 				// read delta spike value from buffer and update iterator
 				iter = read_delta_spike_from_buffer(iter, pop_delta_spikes[r]);
-				// std::cout << "delta " << pop_delta_spikes[r] << std::endl;
 			}
 
 			SYNCBUFFER_DELTA_DATATYPE unrolled_spike = last_spike_pos[r] + pop_delta_spikes[r];
@@ -213,8 +216,15 @@ void SyncBuffer::pop(SpikeDelay * delay, const NeuronID size)
 
 				// save last position
 				last_spike_pos[r] = unrolled_spike;
-
 				pop_delta_spikes[r] = undefined_delta_size;
+
+				// now that we know where the spike belongs we read the spike attributes from the buffer
+				for ( int k = 0 ; k < delay->get_num_attributes() ; ++k ) { // loop over attributes
+					AurynFloat attrib;
+					iter = read_attribute_from_buffer(iter, attrib);
+					delay->get_attributes(slice+1)->push_back(attrib);
+					// std::cout << "read " << std::scientific << attrib << std::endl;
+				}
 
 				// store spike counts for each time-slice to decode the spike arguments correctly
 				count[slice]++; 
@@ -224,21 +234,6 @@ void SyncBuffer::pop(SpikeDelay * delay, const NeuronID size)
 				pop_delta_spikes[r] -= (grid_size-last_spike_pos[r]);
 				// std::cout << "keep " << pop_delta_spikes[r] << std::endl;
 				break;
-			}
-		}
-
-		// extract a total of count*get_num_attributes() attributes 
-		if ( delay->get_num_attributes() ) {
-			for ( NeuronID slice = 0 ; slice < MINDELAY ; ++slice ) {
-				AttributeContainer * ac = delay->get_attributes(slice+1);
-				for ( int k = 0 ; k < delay->get_num_attributes() ; ++k ) { // loop over attributes
-					for ( NeuronID s = 0 ; s < count[slice] ; ++s ) { // loop over spikes
-						AurynFloat * attrib;
-						attrib = (AurynFloat*)(iter);
-						iter++;
-						ac->push_back(*attrib);
-					}
-				}
 			}
 		}
 		pop_offsets[r] = iter - &recv_buf[r*max_send_size]; // save offset in recv_buf section
