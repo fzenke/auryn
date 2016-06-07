@@ -33,6 +33,7 @@ echo "$REVISION $TESTNAME $RETURNVALUE" >> test_results.dat
 
 if [ $? -ne 0 ]
 then echo "The checksums for the $TESTNAME are different!"
+exit $RETURNVALUE
 fi
 
-exit $RETURNVALUE
+echo "Test finished successfully"
