@@ -81,12 +81,12 @@ namespace auryn {
 			void init();
 			void free();
 
+			NeuronID * read_delta_spike_from_buffer(NeuronID * iter, SYNCBUFFER_DELTA_DATATYPE & delta);
+
 		public:
 
 			/*! \brief The default contructor. */
 			SyncBuffer( mpi::communicator * com );
-
-			NeuronID * read_delta_spike_from_buffer(NeuronID * iter, SYNCBUFFER_DELTA_DATATYPE & delta);
 
 			/*! \brief The default destructor. */
 			virtual ~SyncBuffer( );
