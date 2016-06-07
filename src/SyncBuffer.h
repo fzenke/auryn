@@ -28,7 +28,7 @@
 
 #define SYNCBUFFER_SIZE_MARGIN_MULTIPLIER 3 //!< Safety margin for receive buffer size -- a value of 3 should make overflows rare in AI state
 #define SYNCBUFFER_SIZE_HIST_LEN 512 //!< Accumulate history over this number of timesteps before updating the sendbuffer size in the absence of overflows
-#define SYNCBUFFER_DELTA_DATATYPE long //!< Datatype used for delta computation should be a signed "long" for large nets with sparse activity otherwise int
+#define SYNCBUFFER_DELTA_DATATYPE int //!< Datatype used for delta computation should be a signed "long" for large nets with sparse activity otherwise int
 
 #include "auryn_definitions.h"
 #include "SpikeDelay.h"

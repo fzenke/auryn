@@ -58,7 +58,7 @@ void SyncBuffer::init()
 	/* Maximum delta size. We make this one smaller than max to avoid problems 
 	 * if the datatype is the same as NeuronID and then the max corresponds
 	 * to the overflow value in send buffer ... */
-	max_delta_size = std::numeric_limits<NeuronID>::max()-1; 
+	max_delta_size = std::numeric_limits<SYNCBUFFER_DELTA_DATATYPE>::max()-1; 
 
 	maxSendSum = 0;
 	maxSendSum2 = 0;
