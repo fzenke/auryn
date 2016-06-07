@@ -79,8 +79,6 @@ namespace auryn {
 			SYNCBUFFER_DELTA_DATATYPE * pop_delta_spikes;
 			SYNCBUFFER_DELTA_DATATYPE * last_spike_pos;
 
-			NeuronID count[MINDELAY]; // needed to decode attributes
-
 			/*! \brief vector with offset values to allow to pop more than one delay */
 			NeuronID * pop_offsets;
 

@@ -96,7 +96,6 @@ void SyncBuffer::push(SpikeDelay * delay, const NeuronID size)
 		SpikeContainer * sc = delay->get_spikes(slice+1);
 		AttributeContainer * ac = delay->get_attributes(slice+1);
 
-		count[slice] = 0;
 		// loop over all spikes in current delay time slice
 		for (int i = 0 ; 
 				i < sc->size() ; 
@@ -126,9 +125,6 @@ void SyncBuffer::push(SpikeDelay * delay, const NeuronID size)
 				send_buf.push_back(cast_attrib);
 				// std::cout << "store " << std::scientific << ac->at(i*delay->get_num_attributes()+k) << " int " << cast_attrib << std::endl;
 			}
-
-			// increase slice count
-			count[slice]++;
 		}
 	}
 
@@ -187,10 +183,6 @@ void SyncBuffer::pop(SpikeDelay * delay, const NeuronID size)
 		// when we enter this function we know this is a new group
 		last_spike_pos[r] = 0;
 
-		// reset time slice spike counts to extract correct number of attributes per slice later
-		for ( int i = 0 ; i < MINDELAY ; ++i ) 
-			count[i] = 0;
-
 		//read current difference element from buffer and interpret as unrolled
 		NeuronID * iter = &recv_buf[r*max_send_size+pop_offsets[r]]; // first spike
 
@@ -226,10 +218,6 @@ void SyncBuffer::pop(SpikeDelay * delay, const NeuronID size)
 					// std::cout << "read " << std::scientific << attrib << std::endl;
 				}
 
-				// store spike counts for each time-slice to decode the spike arguments correctly
-				count[slice]++; 
-
-				// advance iterator and read new value from buffer
 			} else {
 				pop_delta_spikes[r] -= (grid_size-last_spike_pos[r]);
 				// std::cout << "keep " << pop_delta_spikes[r] << std::endl;
