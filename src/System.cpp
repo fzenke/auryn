@@ -126,7 +126,7 @@ System::System(mpi::communicator * communicator)
 
 	std::stringstream oss;
 
-	if ( mpicom->size() > 0 ) {
+	if ( mpicom->size() > 1 ) {
 		oss << "MPI run rank "
 			<<  mpicom->rank() << " out of "
 			<<  mpicom->size() << " ranks total.";
