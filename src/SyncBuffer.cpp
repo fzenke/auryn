@@ -246,11 +246,11 @@ void SyncBuffer::pop(SpikeDelay * delay, const NeuronID size)
 		pop_offsets[r] = iter - &recv_buf[r*max_send_size]; // save offset in recv_buf section
 	}
 
-	// TEST TODO comment after testing
-	for (NeuronID i = 1 ; i < MINDELAY+1 ; ++i ) {
-		SpikeContainer * myvector = delay->get_spikes(i);
-		std::sort (myvector->begin(), myvector->end());
-	}
+	// // TEST TODO comment after testing
+	// for (NeuronID i = 1 ; i < MINDELAY+1 ; ++i ) {
+	// 	SpikeContainer * myvector = delay->get_spikes(i);
+	// 	std::sort (myvector->begin(), myvector->end());
+	// }
 
 #ifdef DEBUG
 	if ( mpicom->rank() == 0 ) {
