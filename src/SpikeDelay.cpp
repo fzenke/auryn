@@ -112,6 +112,13 @@ void SpikeDelay::push_back( NeuronID i )
 	get_spikes_immediate()->push_back(i);
 }
 
+void SpikeDelay::push_back( SpikeContainer * sc )
+{
+	for ( NeuronID i = 0 ; i < sc->size() ; ++i ) {
+		push_back(sc->at(i));
+	}
+}
+
 int SpikeDelay::get_num_attributes( )
 {
 	return numSpikeAttributes;

@@ -101,6 +101,11 @@ class SpikeDelay
 		 * This pushes into get_spikes_immediate() */
 		void push_back(NeuronID i); 
 
+		/*! \brief Pushes all elemens from given SpikeContainer into the delay
+		 *
+		 * This pushes into get_spikes_immediate() */
+		void push_back( SpikeContainer * sc ); 
+
 		/*! \brief Returns the number of spike attributes per spike. 
 		 *
 		 * Spike attributes are used to implement short-term plasticity or similar mechanisms efficiently.*/
