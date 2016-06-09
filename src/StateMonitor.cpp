@@ -61,7 +61,6 @@ StateMonitor::StateMonitor(auryn_vector_float * state, NeuronID id, std::string 
 	src = NULL;
 	nid = id;
 	target_variable = state->data+nid;
-	lastval = *target_variable;
 }
 
 StateMonitor::StateMonitor(EulerTrace * trace, NeuronID id, std::string filename, AurynDouble sampling_interval)
@@ -74,7 +73,6 @@ StateMonitor::StateMonitor(EulerTrace * trace, NeuronID id, std::string filename
 	src = NULL;
 	nid = id;
 	target_variable = trace->get_state_ptr()->data+nid;
-	lastval = *target_variable;
 }
 
 void StateMonitor::init(std::string filename, AurynDouble sampling_interval)
