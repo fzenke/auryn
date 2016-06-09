@@ -149,14 +149,14 @@ System::~System()
 
 void System::free() 
 {
-	for ( unsigned int i = 0 ; i < spiking_groups.size() ; ++i )
-		delete spiking_groups[i];
-	for ( unsigned int i = 0 ; i < connections.size() ; ++i )
-		delete connections[i];
-	for ( unsigned int i = 0 ; i < monitors.size() ; ++i )
-		delete monitors[i];
 	for ( unsigned int i = 0 ; i < checkers.size() ; ++i )
 		delete checkers[i];
+	for ( unsigned int i = 0 ; i < monitors.size() ; ++i )
+		delete monitors[i];
+	for ( unsigned int i = 0 ; i < connections.size() ; ++i )
+		delete connections[i];
+	for ( unsigned int i = 0 ; i < spiking_groups.size() ; ++i )
+		delete spiking_groups[i];
 
 	spiking_groups.clear();
 	connections.clear();
