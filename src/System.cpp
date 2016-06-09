@@ -39,6 +39,8 @@ void System::init() {
 	online_rate_monitor_state = 0.0;
 
 	last_elapsed_time = -1.0;
+	// remember starting time
+	time(&t_sys_start);
 
 	progressbar_update_interval = PROGRESSBAR_DEFAULT_UPDATE_INTERVAL;
 
@@ -836,6 +838,14 @@ void System::set_online_rate_monitor_id( unsigned int id )
 AurynDouble System::get_last_elapsed_time()
 {
 	return last_elapsed_time;
+}
+
+AurynDouble System::get_total_elapsed_time()
+{
+	time_t t_now ;
+	time(&t_now);
+	double elapsed  = difftime(t_now,t_sys_start);
+	return elapsed;
 }
 
 void System::flush_monitors()

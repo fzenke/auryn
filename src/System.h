@@ -78,6 +78,9 @@ namespace auryn {
 		/*! Store elapsed time for last call of run */
 		double last_elapsed_time;
 
+		/*! Store staring time of program */
+		time_t t_sys_start;
+
 		int online_rate_monitor_id;
 		double online_rate_monitor_tau;
 		double online_rate_monitor_mul;
@@ -157,8 +160,11 @@ namespace auryn {
 		/*! \brief Sets the timeconstant to compute the online rate average for the status bar. */
 		void set_online_rate_monitor_tau( AurynDouble tau=100e-3 );
 
-		/*! \brief Returns last elapsed time. */
+		/*! \brief Returns last elapsed time in seconds. */
 		double get_last_elapsed_time();
+
+		/*! \brief Returns total elapsed time in seconds. */
+		double get_total_elapsed_time();
 
 		/*! \brief Saves network state to a netstate file
 		 *
