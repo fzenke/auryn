@@ -83,8 +83,9 @@ void EulerTrace::add(NeuronID i, AurynFloat value)
 void EulerTrace::set_target( AurynVectorFloat * target )
 {
 	if ( target != NULL ) {
+		target_ptr = target ;
+		state->copy(target);
 	}
-	target_ptr = target ;
 }
 
 void EulerTrace::set_target( EulerTrace * target )
