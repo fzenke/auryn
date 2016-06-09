@@ -53,7 +53,7 @@ void StimulusGroup::init(StimulusGroupModeType stimulusmode, std::string stimfil
 	mean_on_period = 0.2 ;
 
 	randomintensities = false;
-	scale = 2.0;
+	scale = 2.0; // TODO does this need to be initialized at 2 ?
 	curscale = scale;
 
 	background_during_stimulus = false;
