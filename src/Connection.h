@@ -209,6 +209,7 @@ public:
 
 	/*! \brief Computes mean synaptic weight and std dev of all weights in this connection. */
 	virtual void stats(AurynDouble &mean, AurynDouble &std) = 0;
+	virtual void stats(AurynDouble &mean, AurynDouble &std, NeuronID zid) {};
 
 	/*! \brief Implements save to file functionality. Also called in save_network_state from System class. */
 	virtual bool write_to_file(std::string filename) = 0;
