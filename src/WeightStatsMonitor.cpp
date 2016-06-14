@@ -27,16 +27,16 @@
 
 using namespace auryn;
 
-WeightStatsMonitor::WeightStatsMonitor(Connection * source, std::string filename, AurynDouble binsize) : Monitor(filename)
+WeightStatsMonitor::WeightStatsMonitor(Connection * source, std::string filename, AurynDouble binsize, NeuronID z) : Monitor(filename)
 {
-	init(source,filename,binsize/dt);
+	init(source,filename,binsize/dt,z);
 }
 
 WeightStatsMonitor::~WeightStatsMonitor()
 {
 }
 
-void WeightStatsMonitor::init(Connection * source, std::string filename,AurynTime stepsize)
+void WeightStatsMonitor::init(Connection * source, std::string filename,AurynTime stepsize,NeuronID z)
 {
 	if ( !source->get_destination()->evolve_locally() ) return;
 
@@ -47,13 +47,15 @@ void WeightStatsMonitor::init(Connection * source, std::string filename,AurynTim
 	if ( ssize < 1 ) ssize = 1;
 
 	outfile << std::setiosflags(std::ios::fixed) << std::setprecision(6);
+
+	z_ind = z;
 }
 
 void WeightStatsMonitor::propagate()
 {
 	if (auryn::sys->get_clock()%ssize==0) {
 		AurynDouble mean,std;
-		src->stats(mean,std);
+		src->stats(mean,std,z_ind);
 		outfile << (auryn::sys->get_time()) << " " << mean << " "  << std << std::endl;
 	}
 

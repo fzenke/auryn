@@ -44,11 +44,11 @@ class WeightStatsMonitor : protected Monitor
 protected:
 	Connection * src;
 	AurynTime ssize;
-	NeuronID data_size_limit;
-	void init(Connection * source, string filename, AurynTime stepsize);
+	NeuronID z_ind;
+	void init(Connection * source, string filename, AurynTime stepsize, NeuronID z);
 	
 public:
-	WeightStatsMonitor(Connection * source, string filename, AurynDouble binsize=1.0);
+	WeightStatsMonitor(Connection * source, string filename, AurynDouble binsize=1.0, NeuronID z=0);
 	virtual ~WeightStatsMonitor();
 	void propagate();
 };

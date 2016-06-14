@@ -162,8 +162,8 @@ public:
 	/*! \brief Copies complex matrix mat */
 	void copy(ComplexMatrix * mat);
 
-	void set_data(AurynLong i, T value);
-	void scale_data(AurynLong i, T value);
+	void set_data(AurynLong i, T value, StateID z=0);
+	void scale_data(AurynLong i, T value, StateID z=0);
 	/*! Gets the matching data entry for a given index i and state z*/
 	T get_data(AurynLong i, StateID z=0);
 	/*! Gets the matching data ptr for a given index i and state z*/
@@ -303,24 +303,22 @@ T * ComplexMatrix<T>::get_data_ptr(const NeuronID * ind_ptr, const StateID z)
 template <typename T>
 T ComplexMatrix<T>::get_data(const NeuronID * ind_ptr, StateID z) 
 {
-	return *(get_data_ptr(ind_ptr));
+	return *(get_data_ptr(ind_ptr,z));
 }
 
 
-//FIXME the following functions still need to have added z value support
 template <typename T>
-void ComplexMatrix<T>::set_data(AurynLong i, T value)
+void ComplexMatrix<T>::set_data(AurynLong i, T value, StateID z)
 {
 	if (i<statesize)
-		elementdata[i] = value;
+		elementdata[i+z*get_datasize()] = value;
 }
 
-//FIXME the following functions still need to have added z value support
 template <typename T>
-void ComplexMatrix<T>::scale_data(AurynLong i, T value)
+void ComplexMatrix<T>::scale_data(AurynLong i, T value, StateID z)
 {
 	if (i<statesize)
-		elementdata[i] *= value;
+		elementdata[i+z*get_datasize()] *= value;
 }
 
 
