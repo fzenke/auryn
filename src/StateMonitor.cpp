@@ -61,6 +61,7 @@ StateMonitor::StateMonitor(auryn_vector_float * state, NeuronID id, std::string 
 	src = NULL;
 	nid = id;
 	target_variable = state->data+nid;
+	lastval = *target_variable;
 }
 
 StateMonitor::StateMonitor(EulerTrace * trace, NeuronID id, std::string filename, AurynDouble sampling_interval)
@@ -73,6 +74,7 @@ StateMonitor::StateMonitor(EulerTrace * trace, NeuronID id, std::string filename
 	src = NULL;
 	nid = id;
 	target_variable = trace->get_state_ptr()->data+nid;
+	lastval = *target_variable;
 }
 
 void StateMonitor::init(std::string filename, AurynDouble sampling_interval)
@@ -91,13 +93,20 @@ void StateMonitor::init(std::string filename, AurynDouble sampling_interval)
 
 StateMonitor::~StateMonitor()
 {
+	AurynState value = *target_variable;
+	AurynState deriv = value-lastval;
+	if ( enable_compression && deriv==lastder ) { //terminate output with last value
+			char buffer[255];
+		int n = sprintf(buffer,"%f %f\n",auryn::sys->get_time(), *target_variable); 
+		outfile.write(buffer,n); 
+	}
 }
 
 void StateMonitor::propagate()
 {
 	if ( auryn::sys->get_clock() < t_stop && auryn::sys->get_clock()%ssize==0  ) {
 		char buffer[255];
-		if ( enable_compression ) {
+		if ( enable_compression && auryn::sys->get_clock()>0 ) {
 			AurynState value = *target_variable;
 			AurynState deriv = value-lastval;
 
