@@ -162,8 +162,20 @@ public:
 	/*! \brief Copies complex matrix mat */
 	void copy(ComplexMatrix * mat);
 
+
+	/* \brief Sets element identified by the data index to value */
+	void set_element(AurynLong data_index, T value, StateID z=0);
+
+	/* Deprecated: TODO Remove this function */
 	void set_data(AurynLong i, T value, StateID z=0);
+
+
+	/* \brief Scales element identified by the data index by value */
+	void scale_element(AurynLong data_index, T value, StateID z=0);
+
+	/* Deprecated: TODO Remove this function */
 	void scale_data(AurynLong i, T value, StateID z=0);
+
 	/*! Gets the matching data entry for a given index i and state z*/
 	T get_data(AurynLong i, StateID z=0);
 	/*! Gets the matching data ptr for a given index i and state z*/
@@ -306,21 +318,32 @@ T ComplexMatrix<T>::get_data(const NeuronID * ind_ptr, StateID z)
 	return *(get_data_ptr(ind_ptr,z));
 }
 
+template <typename T>
+void ComplexMatrix<T>::set_element(AurynLong data_index, T value, StateID z)
+{
+	if (data_index<statesize)
+		elementdata[data_index+z*get_datasize()] = value;
+}
+
 
 template <typename T>
 void ComplexMatrix<T>::set_data(AurynLong i, T value, StateID z)
 {
-	if (i<statesize)
-		elementdata[i+z*get_datasize()] = value;
+	set_element(i,value,z);
+}
+
+template <typename T>
+void ComplexMatrix<T>::scale_element(AurynLong data_index, T value, StateID z)
+{
+	if (data_index<statesize)
+		elementdata[data_index+z*get_datasize()] *= value;
 }
 
 template <typename T>
 void ComplexMatrix<T>::scale_data(AurynLong i, T value, StateID z)
 {
-	if (i<statesize)
-		elementdata[i+z*get_datasize()] *= value;
+	scale_element(i, value, z);
 }
-
 
 template <typename T>
 void ComplexMatrix<T>::clear()
