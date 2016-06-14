@@ -228,6 +228,14 @@ namespace auryn {
 				data[i] = value;
 			}
 
+			/*! \brief Squares each element */
+			void sqr()
+			{
+				for ( NeuronID i = 0 ; i < size ; ++i ) {
+					data[i] = data[i]*data[i];
+				}
+			}
+
 			/*! \brief Clips all vector elements to the range min max
 			 *
 			 * \param min Minimum value
