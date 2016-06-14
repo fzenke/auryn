@@ -38,7 +38,7 @@ WeightMonitor::WeightMonitor(SparseConnection * source, ForwardMatrix * m, std::
 	set_mat(m);
 }
 
-WeightMonitor::WeightMonitor(SparseConnection * source, NeuronID i, NeuronID j, std::string filename, AurynDouble interval, RecordingMode mode ) : Monitor(filename)
+WeightMonitor::WeightMonitor(SparseConnection * source, NeuronID i, NeuronID j, std::string filename, AurynDouble interval, RecordingMode mode, NeuronID z ) : Monitor(filename)
 {
 	init(source,i,j,filename,interval/dt);
 
@@ -50,10 +50,10 @@ WeightMonitor::WeightMonitor(SparseConnection * source, NeuronID i, NeuronID j, 
 	switch (recordingmode) {
 		case DATARANGE : 
 			for (AurynLong c = elem_i ; c < elem_j ; ++c)
-				add_to_list(c) ;
+				add_to_list(c,z) ;
 			break;
 		case SINGLE :
-			add_to_list(i,j);
+			add_to_list(i,j,z);
 			break;
 	}
 }
@@ -88,9 +88,9 @@ void WeightMonitor::init(SparseConnection * source, NeuronID i, NeuronID j, std:
 	elem_j = 0;
 }
 
-void WeightMonitor::add_to_list(AurynLong data_index)
+void WeightMonitor::add_to_list(AurynLong data_index, NeuronID z)
 {
-	element_list->push_back( data_index );
+	element_list->push_back( data_index + z*mat->get_statesize() );
 }
 
 void WeightMonitor::add_to_list(AurynWeight * ptr)
