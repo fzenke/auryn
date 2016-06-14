@@ -76,7 +76,10 @@ public:
 	virtual void propagate();
 
 	virtual AurynDouble sum();
-	virtual void stats(AurynDouble &mean, AurynDouble &std);
+	/*! \brief Return stats for connection.
+	 *
+	 * Note that IdentityConnection does not support complex matrix states yet */
+	virtual void stats(AurynDouble &mean, AurynDouble &std, StateID zid = 0);
 	virtual bool write_to_file(string filename);
 	virtual bool load_from_file(string filename);
 	virtual AurynFloat mean();

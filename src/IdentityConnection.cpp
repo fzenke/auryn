@@ -122,7 +122,7 @@ AurynLong IdentityConnection::get_nonzero()
 	return std::min(src->get_pre_size(),dst->get_post_size());
 }
 
-void IdentityConnection::stats(AurynDouble &mean, AurynDouble &std)
+void IdentityConnection::stats(AurynDouble &mean, AurynDouble &std, StateID z)
 {
 	mean = connection_weight;
 	std = 0;
