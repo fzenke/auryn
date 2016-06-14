@@ -125,6 +125,9 @@ class SpikeDelay
 		/*! \brief Like get_spikes_immediate but returns the spike attributes. */
 		AttributeContainer * get_attributes_immediate();
 
+		/*! \brief Print delay contents for debugging . */
+		void print();
+
 		/*! Clears all containers in delay. */
 		void clear();
 };

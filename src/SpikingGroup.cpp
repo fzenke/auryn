@@ -96,6 +96,20 @@ void SpikingGroup::init(NeuronID n, double loadmultiplier, NeuronID total )
 	set_delay(MINDELAY+1); 
 
 	evolve_locally_bool = evolve_locally_bool && ( get_rank_size() > 0 );
+
+	// some safety checks
+	
+	// Issue a warning for large neuron groups to check SyncBuffer delta datatype
+	if ( 1.0*size*MINDELAY > 0.8*std::numeric_limits<NeuronID>::max() ) {
+		oss.str();
+		oss << get_log_name() 
+			<< ":: Auryn detected that you are using at least one large SpikingGroup. " 
+			<< "Please ensure that SyncBuffer is compiled with a delta datatype of sufficient size. "
+			<< "It currently uses SYNCBUFFER_DELTA_DATATYPE. "
+			<< "Failure to do so might create uncought overflows in SyncBuffer which might lead to " 
+			<< "undefined behavior in parallel simulations.";
+		auryn::logger->warning(oss.str());
+	}
 }
 
 void SpikingGroup::lock_range( double rank_fraction )

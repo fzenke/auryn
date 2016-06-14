@@ -52,19 +52,36 @@ void System::init() {
 	auryn::logger->msg(oss.str(),NOTIFICATION);
 
 	oss.str("");
+	oss << "NeuronID type has size of "
+		<< sizeof(NeuronID) << " bytes.";
+	auryn::logger->msg(oss.str(),VERBOSE);
+
+	oss.str("");
+	oss << "AurynLong type has size of "
+		<< sizeof(AurynLong) << " bytes.";
+	auryn::logger->msg(oss.str(),VERBOSE);
+
+	oss.str("");
+	oss << "Current NeuronID and sync are good for simulations up to "
+		<< std::numeric_limits<NeuronID>::max()-1 << " cells.";
+	auryn::logger->msg(oss.str(),VERBOSE);
+
+	oss.str("");
 	oss << "Current AurynTime good for simulations up to "
 		<< std::numeric_limits<AurynTime>::max()*dt << "s  "
 		<< "( " << std::numeric_limits<AurynTime>::max()*dt/3600 << "h )";
 	auryn::logger->msg(oss.str(),VERBOSE);
 
-	oss.str("");
-	oss << "Current NeuronID and sync are good for simulations up to "
-		<< std::numeric_limits<NeuronID>::max()/MINDELAY << " cells.";
-	auryn::logger->msg(oss.str(),VERBOSE);
+
+	if ( sizeof(NeuronID) != sizeof(AurynFloat) ) {
+		oss.str("");
+		oss << " NeuronID and AurynFloat have different byte sizes which is not supported by SyncBuffer.";
+		auryn::logger->msg(oss.str(),ERROR);
+	}
 
 #ifndef NDEBUG
 	oss.str("");
-	oss << "Warning debugging support is compiled and will impair performance.";
+	oss << "Warning Auryn was compiled with debugging features which will impair performance.";
 	auryn::logger->warning(oss.str());
 #endif 
 
@@ -109,7 +126,7 @@ System::System(mpi::communicator * communicator)
 
 	std::stringstream oss;
 
-	if ( mpicom->size() > 0 ) {
+	if ( mpicom->size() > 1 ) {
 		oss << "MPI run rank "
 			<<  mpicom->rank() << " out of "
 			<<  mpicom->size() << " ranks total.";
@@ -231,6 +248,7 @@ void System::sync()
 	std::vector<SpikingGroup *>::const_iterator iter;
 	for ( iter = spiking_groups.begin() ; iter != spiking_groups.end() ; ++iter ) 
 		syncbuffer->push((*iter)->delay,(*iter)->get_size()); 
+	syncbuffer->null_terminate_send_buffer();
 
 	// // use this to artificially worsening the sync
 	// struct timespec tim, tim2;
