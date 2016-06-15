@@ -98,6 +98,16 @@ namespace auryn {
 				delete data;
 			}
 
+			/*! \brief resize data array to new_size */
+			void resize(IndexType new_size) 
+			{
+				if ( size != new_size ) {
+					delete [] data;
+					data = new T [new_size];
+					set_zero(); 
+				}
+			}
+
 			/*! \brief Set all elements to value v. */
 			virtual void set_all(T v) 
 			{
