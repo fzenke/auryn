@@ -294,7 +294,7 @@ namespace auryn {
 	{
 		  virtual const char* what() const throw()
 				{
-						return "Dimensions do not match or trying to read beyond vector size." 
+						return "Dimensions do not match or trying to read beyond vector size. " 
 							   "Are the vectors zero padded to a multiples of four dimension?";
 				}
 	};

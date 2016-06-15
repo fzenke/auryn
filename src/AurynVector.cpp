@@ -48,7 +48,16 @@ inline void sse_store( float * i, __m128 d )
 
 AurynVectorFloat::AurynVectorFloat(NeuronID n) : AurynVector<float>(n)
 {
-
+#ifdef CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY
+	// check that size is a multiple of SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS
+	// which is typically 4 for float and SSE
+	if ( n%SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS ) {
+		std::cerr << "Trying to initilize AurynVectorFloat with explicit SIMD enabled, "
+			" but vector size is not multiple of SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS."
+			<< std::endl; 
+		throw AurynVectorDimensionalityException();
+	}
+#endif /* CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY */
 }
 
 void AurynVectorFloat::scale(float a) 
