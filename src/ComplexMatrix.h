@@ -130,9 +130,6 @@ protected:
 	/*! \brief Array that holds the column indices of non-zero elements */
 	NeuronID * colinds;
 
-	/*! \brief Vector that holds pointers to the state vectors storing the synaptic states. */
-	std::vector< T* > statevectors;
-
 	/*! \brief Returns a synaptic state vector. */
 	T * alloc_synaptic_state_vector();
 
@@ -147,6 +144,9 @@ protected:
 	void free();
 
 public:
+	/*! \brief Vector that holds pointers to the state vectors storing the synaptic states. */
+	std::vector< T* > statevectors;
+
 	ComplexMatrix();
 	ComplexMatrix(ComplexMatrix * mat);
 	ComplexMatrix(NeuronID rows, NeuronID cols, AurynLong size=256, NeuronID values=1 );
@@ -208,6 +208,7 @@ public:
 	void fill_zeros();
 	AurynDouble get_fill_level();
 
+	/*! \brief Value of synaptic state variable i,j,z returns zero if the element is zero or does not exist. */
 	T get(NeuronID i, NeuronID j, NeuronID z=0);
 
 	/*! \brief Returns true if the matrix element exists. */
@@ -511,11 +512,17 @@ void ComplexMatrix<T>::copy(ComplexMatrix * mat)
 
 	clear();
 
-	// for ( NeuronID i = 0 ; i < mat->get_m_rows() ; ++i ) {
-	// 	for ( NeuronID * r = mat->get_row_begin(i) ; r != mat->get_row_end(i) ; ++r ) {
-	// 		push_back(i,*r,mat->get_value(r));
-	// 	}
-	// }
+	// copy sparse strcture and first state
+	for ( NeuronID i = 0 ; i < mat->get_m_rows() ; ++i ) {
+		for ( NeuronID * r = mat->get_row_begin(i) ; r != mat->get_row_end(i) ; ++r ) {
+			push_back(i,*r,mat->get_value(r));
+		}
+	}
+	
+	// copy the other states
+	for ( StateID z = 1 ; z < get_num_synaptic_states() ; ++z ) {
+		std::copy(mat->statevectors[z], mat->statevectors[z]+mat->get_state_size(), statevectors[z]);
+	}
 }
 
 template <typename T>
@@ -705,7 +712,7 @@ template <typename T>
 T * ComplexMatrix<T>::get_ptr(AurynLong data_index)
 {
 	T * data_z0 = get_synaptic_state_vector(0);
-	return &data_z0[data_index];
+	return data_z0+data_index;
 }
 
 template <typename T>
