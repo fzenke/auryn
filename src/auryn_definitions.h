@@ -310,7 +310,7 @@ namespace auryn {
 
 
 	// forward declartion of template class which is implemented in AurynVector.h
-	template <typename T>
+	template <typename T, typename IndexType > 
 	class AurynVector;
 
 	class AurynVectorFloat; // Forward declaration
@@ -329,7 +329,7 @@ namespace auryn {
 	typedef AurynStateVector auryn_vector_float; //!< Default legacy Auryn state vector type
 
 	/*! \brief Legacy definition of AurynVector<unsigned short> */
-	typedef AurynVector<unsigned short> auryn_vector_ushort; //!< Default legacy Auryn ushort vector type
+	typedef AurynVector<unsigned short, NeuronID> auryn_vector_ushort; //!< Default legacy Auryn ushort vector type
 
 
 	// Legacy float vector functions
