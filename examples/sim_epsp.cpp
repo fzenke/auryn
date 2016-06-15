@@ -32,7 +32,7 @@ int main(int ac, char* av[])
 
 	int errcode = 0;
 	char strbuf [255];
-	string outputfile = "out_epsp";
+	string simname = "out_epsp";
 	string tmpstr;
 	AurynWeight w = 1.0;
 
@@ -54,29 +54,25 @@ int main(int ac, char* av[])
 	}
 
 	sys = new System(&world);
+	sys->set_simulation_name(simname);
 	// END Global definitions
-	
+
+	// define input group
 	PoissonGroup * poisson = new PoissonGroup(N,1.);
+
+	// define receiving group
 	IFGroup * neuron = new IFGroup(1);
 
+	// define connection
 	IdentityConnection * con = new IdentityConnection(poisson,neuron,w,GLUT);
 
-	tmpstr = outputfile;
-	tmpstr += ".ras";
-	SpikeMonitor * smon = new SpikeMonitor( neuron, tmpstr.c_str() );
+	// define monitors
+	SpikeMonitor * smon = new SpikeMonitor( neuron, sys->fn("ras") );
+	VoltageMonitor * vmon = new VoltageMonitor( neuron, 0, sys->fn("mem"), 1e-3 );
+	StateMonitor * amon = new StateMonitor( neuron, 0, "g_ampa", sys->fn("ampa") );
+	StateMonitor * nmon = new StateMonitor( neuron, 0, "g_nmda", sys->fn("nmda") );
 
-	tmpstr = outputfile;
-	tmpstr += ".mem";
-	VoltageMonitor * vmon = new VoltageMonitor( neuron, 0, tmpstr.c_str(), 1e-3 );
-
-	tmpstr = outputfile;
-	tmpstr += ".ampa";
-	StateMonitor * amon = new StateMonitor( neuron, 0, "g_ampa", tmpstr.c_str() );
-
-	tmpstr = outputfile;
-	tmpstr += ".nmda";
-	StateMonitor * nmon = new StateMonitor( neuron, 0, "g_nmda", tmpstr.c_str() );
-
+	// run simulation
 	logger->msg("Running ...",PROGRESS);
 	sys->run(10);
 
