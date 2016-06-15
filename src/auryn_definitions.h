@@ -324,6 +324,9 @@ namespace auryn {
 	 * This typically needs to change when AurynState or AurynFloat types are changed. */
 	typedef AurynVectorFloat AurynStateVector; 
 
+	/*! \brief Defines AurynSynStateVector for synaptic states */
+	typedef AurynVector<AurynWeight, AurynLong> AurynSynStateVector; 
+
 	// Legacy state vector types 
 	/*! \brief Legacy definition of AurynStateVector */
 	typedef AurynStateVector auryn_vector_float; //!< Default legacy Auryn state vector type
