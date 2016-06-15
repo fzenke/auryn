@@ -50,7 +50,7 @@ WeightMonitor::WeightMonitor(SparseConnection * source, NeuronID i, NeuronID j, 
 	switch (recordingmode) {
 		case DATARANGE : 
 			for (AurynLong c = elem_i ; c < elem_j ; ++c)
-				add_to_list(c,z) ;
+				add_to_list_by_data_index(c,z) ;
 			break;
 		case SINGLE :
 			add_to_list(i,j,z);
