@@ -524,7 +524,7 @@ void ComplexMatrix<T>::copy(ComplexMatrix * mat)
 	
 	// copy the other states
 	for ( StateID z = 1 ; z < get_num_synaptic_states() ; ++z ) {
-		std::copy(mat->statevectors[z], mat->statevectors[z]+mat->get_state_size(), statevectors[z]);
+		statevectors[z]->copy(mat->statevectors[z]);
 	}
 }
 
