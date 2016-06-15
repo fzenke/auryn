@@ -501,7 +501,7 @@ void ComplexMatrix<T>::free()
 	delete [] rowptrs;
 	delete [] colinds;
 	while ( statevectors.size() ) {
-		AurynVector<T,AurynLong> * vec = statevectors[0];
+		AurynVector<T,AurynLong> * vec = statevectors.back();
 		delete vec;
 		statevectors.pop_back();
 	}
