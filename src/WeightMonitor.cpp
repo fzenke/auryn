@@ -142,7 +142,7 @@ void WeightMonitor::add_to_list( std::vector<neuron_pair>  vec, std::string labe
 
 void WeightMonitor::add_equally_spaced(NeuronID number, NeuronID z)
 {
-	if ( z >= mat->get_z_values() ) {
+	if ( z >= mat->get_num_z_values() ) {
 		auryn::logger->msg("WeightMonitor:: z too large. Trying to monitor complex "
 				"synaptic values which do not exist."
 				,ERROR);
