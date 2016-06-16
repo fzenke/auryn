@@ -142,6 +142,12 @@ namespace auryn {
 		/*! \brief Sets the simulation name. */
 		void set_simulation_name(std::string name);
 
+		/*! \brief Returns the simulation name. */
+		std::string get_simulation_name();
+
+		/*! \brief Set output dir for fn function */
+		void set_output_dir(std::string path);
+
 		virtual ~System();
 
 
@@ -266,13 +272,20 @@ namespace auryn {
 		/*! \brief Format output file name 
 		 *
 		 * Formats output files according to the following convention:
+		 * <outputdir>/<name>.<rank>.<extension> where <name> is taken 
+		 * from System->get_name()
+		 * and returns it as a c string;
+		 * */
+		string fn(std::string extension);
+
+		/*! \brief Format output file name 
+		 *
+		 * Formats output files according to the following convention:
 		 * <outputdir>/<name>.<rank>.<extension>
 		 * and returns it as a c string;
 		 * */
 		string fn(std::string name, std::string extension);
 
-		/*! \brief Set output dir for fn function */
-		void set_output_dir(std::string path);
 
 		/*! \brief Returns global mpi communicator */
 		mpi::communicator * get_com();
