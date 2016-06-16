@@ -42,6 +42,32 @@ namespace auryn {
  * spikes.  Memory has to be reserved when the class is defined and elements can
  * only be inserted row by row starting from "left to right". This scheme
  * enables related data fields to reside in memory next to each other.
+ *
+ * ComplexMatrix generalizes SimpleMatrix to a rank 3 tensor in which each synaptic 
+ * connection can have more than one value (third tensor mode -- corresponding 
+ * to a synaptic state). This allows to efficiently implement state based complex 
+ * synaptic models which have their own internal dynamics. 
+ *
+ * Instead of storing all synaptic data values in one long array the synaptic state 
+ * values are stored in multiple state vectors which can be manipulated efficiently
+ * in a vector based manner.
+ *
+ * For instance, suppose w holds your instance of ComplexMatris in which you have 
+ * set_num_synapse_states(3) which makes it a connectivity matrix which reserves three
+ * state variables of type AurynWeight per synaptic connection. Now, decaying all elements 
+ * of, say, state 3 by a factor "foo" is as simple as w->get_state_vector(2)->scale(foo).
+ * Adding two of the states for all synapses becomes 
+ * w->get_state_vector(2)->add(w->get_state_vector(3)).
+ *
+ * Because these expressions become quickly rather lenghty it is nice to declare shortcuts
+ * in your plastic Connection class such as:
+ * AurynSynStateVector * w_val = w->get_state_vector(0);
+ * AurynSynStateVector * tagging_val = w->get_state_vector(1);
+ * AurynSynStateVector * scaffold_val = w->get_state_vector(2);
+ *
+ * You can now work with these as you are used with AurynVector or AurynStateVector instances 
+ * w_val->saxpy(foo,tagging_val)
+ *
  */
 
 
