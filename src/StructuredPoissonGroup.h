@@ -61,14 +61,15 @@ private:
 	std::ofstream tiserfile;
 
 	AurynTime next_event;
-	bool stimulus_active;
-	int current_stimulus;
-
 
 	void init ( AurynFloat duration, AurynFloat mean_interval, NeuronID no , string outputfile );
 	
 public:
+
+	bool stimulus_active;
+	int current_stimulus;
 	int seedoffset;
+
 	StructuredPoissonGroup(NeuronID n, AurynFloat duration, AurynFloat interval, NeuronID stimuli = 1,  AurynDouble rate=5. ,
 			string tiserfile = "stimulus.dat" );
 	virtual ~StructuredPoissonGroup();
