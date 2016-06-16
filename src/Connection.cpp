@@ -107,39 +107,50 @@ void Connection::set_transmitter(TransmitterType transmitter)
 	if ( dst->evolve_locally() ) {
 		switch ( transmitter ) {
 			case GABA:
-				set_transmitter(dst->get_state_vector("g_gaba"));
+				set_target(dst->get_state_vector("g_gaba"));
 				break;
 			case MEM:
-				set_transmitter(dst->get_state_vector("mem"));
+				set_target(dst->get_state_vector("mem"));
 				break;
 			case CURSYN:
-				set_transmitter(dst->get_state_vector("g_cursyn"));
+				set_target(dst->get_state_vector("g_cursyn"));
 				break;
 			case NMDA:
-				set_transmitter(dst->get_state_vector("g_nmda"));
+				set_target(dst->get_state_vector("g_nmda"));
 				break;
 			case GLUT:
 			case AMPA:
 			default:
-				set_transmitter(dst->get_state_vector("g_ampa"));
+				set_target(dst->get_state_vector("g_ampa"));
 		}
-	} else set_transmitter((AurynWeight *)NULL);
+	} else set_target((AurynWeight *)NULL);
 }
 
-void Connection::set_transmitter(string state_name)
-{
-	set_transmitter(dst->get_state_vector(state_name));
-}
 
-void Connection::set_transmitter(AurynWeight * ptr)
+void Connection::set_target(AurynWeight * ptr)
 {
 	target = ptr;
 }
 
-void Connection::set_transmitter(AurynStateVector * ptr)
+void Connection::set_target(AurynStateVector * ptr)
 {
 	target_state_vector = ptr;
-	set_transmitter(ptr->data);
+	set_target(ptr->data);
+}
+
+void Connection::set_receptor(AurynStateVector * ptr)
+{
+	set_target(ptr);
+}
+
+void Connection::set_receptor(string state_name)
+{
+	set_receptor(dst->get_state_vector(state_name));
+}
+
+void Connection::set_transmitter(string state_name)
+{
+	set_receptor(state_name);
 }
 
 AurynStateVector * Connection::get_target_vector()

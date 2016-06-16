@@ -152,15 +152,27 @@ public:
 	TransmitterType get_transmitter();
 
 	/*! \brief Sets target state of this connection directly via a pointer */
-	void set_transmitter(AurynWeight * ptr);
+	void set_target(AurynWeight * ptr);
 
 	/*! \brief Sets target state of this connection directly via a StateVector */
+	void set_target(AurynStateVector * ptr);
+
+	/*! \brief Same as set_target */
+	void set_receptor(AurynStateVector * ptr);
+
+	/*! \brief Same as set_target */
 	void set_transmitter(AurynStateVector * ptr);
 
-	/*! \brief Sets target state of this connection as one of Auryn's default transmitter types */
+	/*! \brief Sets target state of this connection for a given receptor as one of Auryn's default transmitter types 
+	 *
+	 * The most common transmitter types are GLUT and GABA. The postsynaptic NeuronGroup needs to make use of the g_ampa or g_gaba state 
+	 * vectors (AurynStateVector) for this to work. */
 	void set_transmitter(TransmitterType transmitter);
 
 	/*! \brief Sets target state of this connection directly the name of a state vector */
+	void set_receptor(string state_name);
+
+	/*! \brief Same as set_receptor, but DEPRECATED */
 	void set_transmitter(string state_name);
 
 	/*! \brief Sets source SpikingGroup of this connection. */
