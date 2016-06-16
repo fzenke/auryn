@@ -41,10 +41,6 @@ void DuplexConnection::finalize() // finalize at this level is called only for r
 	oss << "DuplexConnection: Finalizing ...";
 	auryn::logger->msg(oss.str(),VERBOSE);
 
-	bkw->clear();
-	if ( bkw->get_nonzero() > w->get_nonzero() ) {
-		bkw->resize_buffer_and_clear(w->get_nonzero());
-	}
 	compute_reverse_matrix();
 }
 
@@ -108,6 +104,7 @@ void DuplexConnection::compute_reverse_matrix( int z )
 {
 
 	if ( fwd->get_nonzero() <= bkw->get_datasize() ) {
+		auryn::logger->msg("Clearing reverse matrix..." ,VERBOSE);
 		bkw->clear();
 	} else {
 		auryn::logger->msg("Bkw buffer too small reallocating..." ,VERBOSE);
