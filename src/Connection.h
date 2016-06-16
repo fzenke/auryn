@@ -216,9 +216,6 @@ public:
 	 * Calls propagate only if the postsynaptic NeuronGroup exists on the local rank. */
 	void conditional_propagate();
 
-	/*! \brief Computes the sum of all weights in the connection. */
-	virtual AurynDouble sum() = 0;
-
 	/*! \brief Computes mean synaptic weight and std dev of all weights in this connection. */
 	virtual void stats(AurynDouble &mean, AurynDouble &std, StateID zid = 0) = 0;
 
@@ -240,10 +237,6 @@ public:
 	/*! \brief Same as transmit but first checks if the target neuron exists and avoids segfaults that way (but it's also slower). */
 	void safe_transmit(NeuronID id, AurynWeight amount);
 
-	/*! Returns a vector of ConnectionsID of a block specified by the arguments. */
-	virtual std::vector<neuron_pair>  get_block(NeuronID lo_row, NeuronID lo_col, NeuronID hi_row,  NeuronID hi_col) = 0;
-
-	
 	/*! \brief Supplies pointer to SpikeContainer of all presynaptic spikes.
 	 *
 	 * This includes spikes from this group from all other nodes. 
