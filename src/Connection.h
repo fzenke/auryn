@@ -172,6 +172,9 @@ public:
 	/*! \brief Sets target state of this connection directly the name of a state vector */
 	void set_receptor(string state_name);
 
+	/*! \brief Same as set_receptor */
+	void set_target(string state_name);
+
 	/*! \brief Same as set_receptor, but DEPRECATED */
 	void set_transmitter(string state_name);
 

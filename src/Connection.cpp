@@ -148,6 +148,12 @@ void Connection::set_receptor(string state_name)
 	set_receptor(dst->get_state_vector(state_name));
 }
 
+void Connection::set_target(string state_name)
+{
+	set_receptor(state_name);
+}
+
+
 void Connection::set_transmitter(string state_name)
 {
 	set_receptor(state_name);
