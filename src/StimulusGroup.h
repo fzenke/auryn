@@ -87,9 +87,6 @@ protected:
 	static boost::uniform_01<boost::mt19937> order_die; 
 
 
-	/*! current stimulus index */
-	unsigned int cur_stim_index ;
-	bool stimulus_active;
 
 	/*! \brief next stimulus time requiring change in rates */
 	AurynTime next_action_time ;
@@ -121,6 +118,17 @@ protected:
 	AurynFloat curscale;
 	
 public:
+	/*! \brief Current stimulus index 
+	 *
+	 * Do not write this variable. */
+	int cur_stim_index ;
+
+	/*! \brief Current stimulus active 
+	 *
+	 * Only read this state. */
+	bool stimulus_active;
+
+
 	/*! \brief Vector containing all the stimuli. */
 	std::vector<type_pattern> stimuli;
 
