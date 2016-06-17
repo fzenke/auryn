@@ -130,6 +130,27 @@ namespace auryn {
 				}
 			}
 
+
+			/*! \brief Takes each element to the n-th power. 
+			 *
+			 * \param n the exponent */
+			virtual void pow(unsigned int n) 
+			{
+				for ( IndexType i = 0 ; i < size ; ++i ) {
+					data[i] = std::pow(data[i],n);
+				}
+			}
+
+			/*! \brief Takes the square root of each element  
+			 *
+			 * */
+			virtual void sqrt() 
+			{
+				for ( IndexType i = 0 ; i < size ; ++i ) {
+					data[i] = std::sqrt(data[i]);
+				}
+			}
+
 			/*! \brief Adds constant c to each vector element */
 			virtual void add(AurynFloat c) 
 			{
@@ -238,11 +259,33 @@ namespace auryn {
 				data[i] = value;
 			}
 
-			/*! \brief Squares each element */
-			void sqr()
+			/*! \brief Squares each element 
+			 *
+			 * */
+			virtual void sqr() 
+			{	
+				this->mul(this);
+			}
+
+			/*! \brief Rectifies all elements
+			 */
+			void rect()
 			{
 				for ( IndexType i = 0 ; i < size ; ++i ) {
-					data[i] = data[i]*data[i];
+					if ( data[i] < 0.0 ) {
+						 data[i] = 0.0;
+					} 
+				}
+			}
+
+			/*! \brief Negatively rectifies all elements
+			 */
+			void neg_rect()
+			{
+				for ( IndexType i = 0 ; i < size ; ++i ) {
+					if ( data[i] > 0.0 ) {
+						 data[i] = 0.0;
+					} 
 				}
 			}
 
@@ -294,6 +337,9 @@ namespace auryn {
 			void clip(float min, float max);
 			void add(float c);
 			void add(AurynVectorFloat * v);
+
+
+			// TODO add pow function with intrinsics _mm_pow_ps
 
 
 			void mul(float a) { scale(a); };
