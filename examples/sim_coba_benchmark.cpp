@@ -127,6 +127,8 @@ int main(int ac,char *av[]) {
 	logger = new Logger(logfile.str(),world.rank());
 
 	sys = new System(&world);
+
+	if ( fast ) sys->quiet = true;
 	// END Global stuff
 
 	logger->msg("Setting up neuron groups ...",PROGRESS,true);
