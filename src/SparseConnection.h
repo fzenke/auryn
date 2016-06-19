@@ -356,13 +356,17 @@ public:
 	virtual void set_min_weight(AurynWeight minimum_weight);
 
 	/*! \brief Gets minimum weight (for plastic connections). */
-	AurynWeight get_min_weight();
+	AurynWeight get_min_weight() {
+		return wmin;
+	};
 
 	/*! \brief Sets maximum weight (for plastic connections). */
 	virtual void set_max_weight(AurynWeight maximum_weight);
 
 	/*! \brief Gets maximum weight (for plastic connections). */
-	AurynWeight get_max_weight();
+	AurynWeight get_max_weight() {
+		return wmax;
+	};
 
 	/*! \brief Returns a vector of ConnectionsID of a block specified by the arguments */
 	std::vector<neuron_pair> get_block(NeuronID lo_row, NeuronID hi_row, NeuronID lo_col, NeuronID hi_col);

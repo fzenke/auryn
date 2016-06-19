@@ -193,19 +193,9 @@ void SparseConnection::set_min_weight(AurynWeight minimum_weight)
 	wmin = minimum_weight;
 }
 
-AurynWeight SparseConnection::get_min_weight()
-{
-	return wmin;
-}
-
 void SparseConnection::set_max_weight(AurynWeight maximum_weight)
 {
 	wmax = maximum_weight;
-}
-
-AurynWeight SparseConnection::get_max_weight()
-{
-	return wmax;
 }
 
 void SparseConnection::random_data(AurynWeight mean, AurynWeight sigma) 
