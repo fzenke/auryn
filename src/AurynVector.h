@@ -123,7 +123,7 @@ namespace auryn {
 			}
 
 			/*! \brief Scales all vector elements by a. */
-			void scale(AurynFloat a) 
+			void scale(const AurynFloat a) 
 			{
 				for ( IndexType i = 0 ; i < size ; ++i ) {
 					data[i] *= a;
@@ -134,7 +134,7 @@ namespace auryn {
 			/*! \brief Takes each element to the n-th power. 
 			 *
 			 * \param n the exponent */
-			void pow(unsigned int n) 
+			void pow(const unsigned int n) 
 			{
 				for ( IndexType i = 0 ; i < size ; ++i ) {
 					data[i] = std::pow(data[i],n);
@@ -152,7 +152,7 @@ namespace auryn {
 			}
 
 			/*! \brief Adds constant c to each vector element */
-			void add(AurynFloat c) 
+			void add(const AurynFloat c) 
 			{
 				for ( IndexType i = 0 ; i < size ; ++i ) {
 					data[i] += c;
@@ -160,7 +160,7 @@ namespace auryn {
 			}
 
 			/*! \brief Adds the value c to specific vector element i */
-			void add_specific(IndexType i, AurynFloat c) 
+			void add_specific(const IndexType i, const AurynFloat c) 
 			{
 				check_size(i);
 				data[i] += c;
@@ -178,7 +178,7 @@ namespace auryn {
 			}
 
 			/*! \brief Subtract constant c to each vector element */
-			void sub(AurynFloat c) 
+			void sub(const AurynFloat c) 
 			{
 				add(-c);
 			}
@@ -193,7 +193,7 @@ namespace auryn {
 			}
 
 			/*! \brief Multiply all vector elements by constant */
-			void mul(AurynFloat a) 
+			void mul(const AurynFloat a) 
 			{
 				scale(a);
 			}
@@ -229,7 +229,7 @@ namespace auryn {
 			 * \param a The scaling factor for the additional vector
 			 * \param x The additional vector to add
 			 * */
-			void saxpy(AurynFloat a, AurynVector * x) 
+			void saxpy(const AurynFloat a, AurynVector * x) 
 			{
 				check_size(x);
 				for ( IndexType i = 0 ; i < size ; ++i ) {
@@ -334,17 +334,17 @@ namespace auryn {
 			{
 			};
 
-			void scale(float a);
-			void saxpy(float a, AurynVectorFloat * x);
-			void clip(float min, float max);
-			void add(float c);
+			void scale(const float a);
+			void saxpy(const float a, AurynVectorFloat * x);
+			void clip(const float min, const float max);
+			void add(const float c);
 			void add(AurynVectorFloat * v);
 
 
 			// TODO add pow function with intrinsics _mm_pow_ps
 
 
-			void mul(float a) { scale(a); };
+			void mul(const float a) { scale(a); };
 			void mul(AurynVectorFloat * v);
 
 	};
