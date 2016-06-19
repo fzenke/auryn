@@ -214,3 +214,63 @@ void AurynVectorFloat::add(AurynVectorFloat * v)
 	}
 #endif
 }
+
+void AurynVectorFloat::sum(AurynVectorFloat * a, AurynVectorFloat * b) 
+{
+	check_size(a);
+	check_size(b);
+#ifdef CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY
+	float * ea = a->data;
+	float * eb = b->data;
+	for ( float * i = data ; i != data+size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )
+	{
+		__m128 chunk_a = sse_load( ea ); ea+=SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS;
+		__m128 chunk_b = sse_load( eb ); eb+=SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS;
+		__m128 result = _mm_add_ps(chunk_a, chunk_b);
+		sse_store( i, result );
+	}
+#else
+	AurynVector::sum(a,b);
+#endif
+}
+
+void AurynVectorFloat::sum(AurynVectorFloat * a, const float b) 
+{
+	check_size(a);
+#ifdef CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY
+	float * ea = a->data;
+	const __m128 scalar = _mm_set1_ps(b);
+	for ( float * i = data ; i != data+size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )
+	{
+		__m128 chunk_a = sse_load( ea ); ea+=SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS;
+		__m128 result = _mm_add_ps(chunk_a, scalar);
+		sse_store( i, result );
+	}
+#else
+	AurynVector::sum(a,b);
+#endif
+}
+
+void AurynVectorFloat::diff(AurynVectorFloat * a, AurynVectorFloat * b) 
+{
+	check_size(a);
+	check_size(b);
+#ifdef CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY
+	float * ea = a->data;
+	float * eb = b->data;
+	for ( float * i = data ; i != data+size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )
+	{
+		__m128 chunk_a = sse_load( ea ); ea+=SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS;
+		__m128 chunk_b = sse_load( eb ); eb+=SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS;
+		__m128 result = _mm_sub_ps(chunk_a, chunk_b);
+		sse_store( i, result );
+	}
+#else
+	AurynVector::diff(a,b);
+#endif
+}
+
+void AurynVectorFloat::diff(AurynVectorFloat * a, const float b) 
+{
+	sum(a,-b);
+}

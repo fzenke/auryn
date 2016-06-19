@@ -220,13 +220,58 @@ namespace auryn {
 				}
 			}
 
+			/*! \brief Computes the sum a+b and stores the result in this instance 
+			 *
+			 * */
+			void sum(AurynVector * a, AurynVector * b) 
+			{
+				check_size(a);
+				check_size(b);
+				for ( IndexType i = 0 ; i < size ; ++i ) {
+					data[i] = a->data[i]+b->data[i];
+				}
+			}
+
+			/*! \brief Computes the sum a+b and stores the result in this instance 
+			 *
+			 * */
+			void sum(AurynVector * a, const AurynState b) 
+			{
+				check_size(a);
+				for ( IndexType i = 0 ; i < size ; ++i ) {
+					data[i] = a->data[i]+b;
+				}
+			}
+
+			/*! \brief Computes the difference a-b and stores the result in this instance 
+			 *
+			 * */
+			void diff(AurynVector * a, AurynVector * b) 
+			{
+				check_size(a);
+				check_size(b);
+				for ( IndexType i = 0 ; i < size ; ++i ) {
+					data[i] = a->data[i]-b->data[i];
+				}
+			}
+
+			/*! \brief Computes the difference a-b and stores the result in this instance 
+			 *
+			 * */
+			void diff(AurynVector * a, const AurynState b) 
+			{
+				sum(a,-b);
+			}
+
+
 			/*! \brief Copies vector v 
 			 *
 			 * */
 			void copy(AurynVector * v) 
 			{
 				check_size(v);
-				std::copy(v->data, v->data+v->size, data);
+				// std::copy(v->data, v->data+v->size, data);
+				std::memcpy(data, v->data, size*sizeof(T));
 			}
 
 
@@ -346,6 +391,10 @@ namespace auryn {
 			void clip(const float min, const float max);
 			void add(const float c);
 			void add(AurynVectorFloat * v);
+			void sum(AurynVectorFloat * a, AurynVectorFloat * b);
+			void sum(AurynVectorFloat * a, const AurynState b);
+			void diff(AurynVectorFloat * a, AurynVectorFloat * b);
+			void diff(AurynVectorFloat * a, const AurynState b);
 
 
 			// TODO add pow function with intrinsics _mm_pow_ps
