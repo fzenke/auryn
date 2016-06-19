@@ -357,13 +357,13 @@ namespace auryn {
 	void auryn_vector_float_copy (auryn_vector_float * src, auryn_vector_float * dst );
 
 	/*! Auryn vector getter */
-	AurynFloat auryn_vector_float_get (const auryn_vector_float * v, const NeuronID i);
+	AurynFloat auryn_vector_float_get (auryn_vector_float * v, const NeuronID i);
 
 	/*! Auryn vector setter */
 	void auryn_vector_float_set (auryn_vector_float * v, const NeuronID i, AurynFloat x);
 
 	/*! Auryn vector gets pointer to designed element. */
-	AurynFloat * auryn_vector_float_ptr (const auryn_vector_float * v, const NeuronID i);
+	AurynFloat * auryn_vector_float_ptr (auryn_vector_float * v, const NeuronID i);
 
 	/*! Internal  version of auryn_vector_float_mul of gsl operations */
 	void auryn_vector_float_mul( auryn_vector_float * a, auryn_vector_float * b);
@@ -376,9 +376,9 @@ namespace auryn {
 	/*! Computes y := a*x+y
 	 *
 	 * Internal SAXPY version */
-	void auryn_vector_float_saxpy( const float a, const auryn_vector_float * x, const auryn_vector_float * y );
+	void auryn_vector_float_saxpy( const float a, auryn_vector_float * x, auryn_vector_float * y );
 	/*! Internal version to scale a vector with a constant b  */
-	void auryn_vector_float_scale(const float a, const auryn_vector_float * b );
+	void auryn_vector_float_scale(const float a, auryn_vector_float * b );
 	/*! Internal version to clip all the elements of a vector between [a:b]  */
 	void auryn_vector_float_clip(auryn_vector_float * v, const float a , const float b );
 
@@ -416,11 +416,11 @@ namespace auryn {
 	 * performed for performance reasons. */
 	void auryn_vector_ushort_copy (auryn_vector_ushort * src, auryn_vector_ushort * dst );
 	/*! Auryn vector getter */
-	unsigned short auryn_vector_ushort_get (const auryn_vector_ushort * v, const NeuronID i);
+	unsigned short auryn_vector_ushort_get (auryn_vector_ushort * v, const NeuronID i);
 	/*! Auryn vector setter */
 	void auryn_vector_ushort_set (auryn_vector_ushort * v, const NeuronID i, unsigned short x);
 	/*! Auryn vector gets pointer to designed element. */
-	unsigned short * auryn_vector_ushort_ptr (const auryn_vector_ushort * v, const NeuronID i);
+	unsigned short * auryn_vector_ushort_ptr (auryn_vector_ushort * v, const NeuronID i);
 
 } // namespace
 

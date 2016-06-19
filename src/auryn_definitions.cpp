@@ -73,205 +73,46 @@ inline void sse_store( float * i, __m128 d )
 
 void auryn_vector_float_mul( auryn_vector_float * a, auryn_vector_float * b)
 {
-#ifdef CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY
-	#ifdef CODE_ACTIVATE_CILK_INSTRUCTIONS
-	a->data[0:a->size:1] = a->data[0:a->size:1] * b->data[0:b->size:1];
-	#else
-	float * bd = b->data;
-	for ( float * i = a->data ; i != a->data+a->size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )
-	{
-		__m128 chunk_a = sse_load( i );
-		__m128 chunk_b = sse_load( bd ); bd+=SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS;
-		__m128 result = _mm_mul_ps(chunk_a, chunk_b);
-		sse_store( i, result );
-	}
-	#endif /* CODE_ACTIVATE_CILK_INSTRUCTIONS */
-#else
-	for ( NeuronID i = 0 ; i < a->size ; ++i ) {
-		a->data[i] *= b->data[i];
-	}
-#endif
+	a->mul(b);
 }
 
 void auryn_vector_float_add_constant( auryn_vector_float * a, const float b )
 {
-#ifdef CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY
-	#ifdef CODE_ACTIVATE_CILK_INSTRUCTIONS
-	a->data[0:a->size:1] = b + a->data[0:a->size:1];
-	#else
-	const __m128 scalar = _mm_set1_ps(b);
-	for ( float * i = a->data ; i != a->data+a->size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )
-	{
-		// _mm_prefetch((i + SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS),  _MM_HINT_NTA);  
-		__m128 chunk = sse_load( i );
-		__m128 result = _mm_add_ps(chunk, scalar);
-		sse_store( i, result );
-	}
-	#endif /* CODE_ACTIVATE_CILK_INSTRUCTIONS */
-#else
-	for ( NeuronID i = 0 ; i < a->size ; ++i ) {
-		a->data[i] += b;
-	}
-#endif
+	a->add(b);
 }
 
-void auryn_vector_float_scale( const float a, const auryn_vector_float * b )
+void auryn_vector_float_scale( const float a, auryn_vector_float * b )
 {
-#ifdef CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY
-	#ifdef CODE_ACTIVATE_CILK_INSTRUCTIONS
-	b->data[0:b->size:1] = a * b->data[0:b->size:1];
-	#else
-	const __m128 scalar = _mm_set1_ps(a);
-	for ( float * i = b->data ; i != b->data+b->size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )
-	{
-		__m128 chunk = sse_load( i );
-		__m128 result = _mm_mul_ps(chunk, scalar);
-		sse_store( i, result );
-	}
-	#endif /* CODE_ACTIVATE_CILK_INSTRUCTIONS */
-#else
-	for ( NeuronID i = 0 ; i < b->size ; ++i ) {
-		b->data[i] *= a;
-	}
-#endif /* CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY */
+	b->scale(a);
 }
 
-void auryn_vector_float_saxpy( const float a, const auryn_vector_float * x, const auryn_vector_float * y )
+void auryn_vector_float_saxpy( const float a, auryn_vector_float * x, auryn_vector_float * y )
 {
-#ifdef CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY
-	#ifdef CODE_ACTIVATE_CILK_INSTRUCTIONS
-	y->data[0:y->size:1] = a * x->data[0:x->size:1] + y->data[0:y->size:1];
-	#else
-	float * xp = x->data;
-	const __m128 alpha = _mm_set1_ps(a);
-	for ( float * i = y->data ; i < y->data+y->size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )
-	{
-		__m128 chunk = sse_load( xp ); xp += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS;
-		__m128 result     = _mm_mul_ps( alpha, chunk );
-
-		chunk  = sse_load( i );
-		result = _mm_add_ps( result, chunk );
-		sse_store( i, result ); 
-	}
-	#endif /* CODE_ACTIVATE_CILK_INSTRUCTIONS */
-#else
-	for ( NeuronID i = 0 ; i < y->size ; ++i ) {
-		y->data[i] += a * x->data[i];
-	}
-#endif
+	y->saxpy(a,x);
 }
 
 void auryn_vector_float_add( auryn_vector_float * a, auryn_vector_float * b)
 {
-#ifdef CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY
-	#ifdef CODE_ACTIVATE_CILK_INSTRUCTIONS
-	a->data[0:a->size:1] = a->data[0:a->size:1] + b->data[0:b->size:1];
-	#else
-	float * bd = b->data;
-	for ( float * i = a->data ; i != a->data+a->size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )
-	{
-		__m128 chunk_a = sse_load( i );
-		__m128 chunk_b = sse_load( bd ); bd+=SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS;
-		__m128 result = _mm_add_ps(chunk_a, chunk_b);
-		sse_store( i, result );
-	}
-	#endif /* CODE_ACTIVATE_CILK_INSTRUCTIONS */
-#else
-	for ( NeuronID i = 0 ; i < a->size ; ++i ) {
-		a->data[i] += b->data[i];
-	}
-#endif
+	a->add(b);
 }
 
 void auryn_vector_float_sub( auryn_vector_float * a, auryn_vector_float * b)
 {
-#ifdef CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY
-	#ifdef CODE_ACTIVATE_CILK_INSTRUCTIONS
-	a->data[0:a->size:1] = a->data[0:a->size:1] - b->data[0:b->size:1];
-	#else
-	float * bd = b->data;
-	for ( float * i = a->data ; i != a->data+a->size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )
-	{
-		__m128 chunk_a = sse_load( i );
-		__m128 chunk_b = sse_load( bd ); bd+=SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS;
-		__m128 result = _mm_sub_ps(chunk_a, chunk_b);
-		sse_store( i, result );
-	}
-	#endif /* CODE_ACTIVATE_CILK_INSTRUCTIONS */
-#else
-	for ( NeuronID i = 0 ; i < a->size ; ++i ) {
-		a->data[i] -= b->data[i];
-	}
-#endif
+	a->sub(b);
 }
 
 void auryn_vector_float_sub( auryn_vector_float * a, auryn_vector_float * b, auryn_vector_float * r)
 {
-#ifdef CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY
-	for ( NeuronID i = 0 ; i < a->size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )
-	{
-		__m128 chunk_a = sse_load( a->data+i );
-		__m128 chunk_b = sse_load( b->data+i ); 
-		__m128 result = _mm_sub_ps(chunk_a, chunk_b);
-		sse_store( r->data+i, result );
-	}
-#else
-	for ( NeuronID i = 0 ; i < a->size ; ++i ) {
-		r->data[i] = a->data[i] - b->data[i];
-	}
-#endif
+	r->copy(a);
+	r->sub(b);
 }
 
 void auryn_vector_float_clip( auryn_vector_float * v, const float a, const float b ) {
-#ifdef CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY
-	#ifdef CODE_ACTIVATE_CILK_INSTRUCTIONS
-	for ( NeuronID i = 0 ; i < v->size ; ++i ) {
-		if ( v->data[i] < a ) {
-			v->data[i] = a;
-		} else 
-			if ( v->data[i] > b ) 
-				v->data[i] = b;
-	}
-	#else
-	const __m128 lo = _mm_set1_ps(a);
-	const __m128 hi = _mm_set1_ps(b);
-	for ( float * i = v->data ; i != v->data+v->size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )
-	{
-		__m128 chunk = sse_load( i );
-		__m128 result = _mm_min_ps(chunk, hi);
-		result = _mm_max_ps(result, lo);
-		sse_store( i, result );
-	}
-	#endif /* CODE_ACTIVATE_CILK_INSTRUCTIONS */
-#else
-	for ( NeuronID i = 0 ; i < v->size ; ++i ) {
-		if ( v->data[i] < a ) {
-			v->data[i] = a;
-		} else 
-			if ( v->data[i] > b ) 
-				v->data[i] = b;
-	}
-#endif
+	v->clip(a, b);
 }
 
 void auryn_vector_float_clip( auryn_vector_float * v, const float a ) {
-#ifdef CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY
-	#ifdef CODE_ACTIVATE_CILK_INSTRUCTIONS
-	auryn_vector_float_clip( v, a, 1e16 );
-	#else
-	const __m128 lo = _mm_set1_ps(a);
-	const __m128 hi = _mm_set1_ps(0.);
-	for ( float * i = v->data ; i != v->data+v->size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )
-	{
-		__m128 chunk = sse_load( i );
-		__m128 result = _mm_min_ps(chunk, hi);
-		result = _mm_max_ps(result, lo);
-		sse_store( i, result );
-	}
-	#endif /* CODE_ACTIVATE_CILK_INSTRUCTIONS */
-#else
-	auryn_vector_float_clip( v, a, 1e16 );
-#endif
+	v->clip(a,0.0);
 }
 
 auryn_vector_float * auryn_vector_float_alloc( const NeuronID n ) {
@@ -290,11 +131,11 @@ void auryn_vector_float_set_zero ( auryn_vector_float * v ) {
 	v->set_zero();
 }
 
-AurynFloat auryn_vector_float_get ( const auryn_vector_float * v, const NeuronID i ) {
+AurynFloat auryn_vector_float_get ( auryn_vector_float * v, const NeuronID i ) {
 	return v->data[i];
 }
 
-AurynFloat * auryn_vector_float_ptr ( const auryn_vector_float * v, const NeuronID i ) {
+AurynFloat * auryn_vector_float_ptr ( auryn_vector_float * v, const NeuronID i ) {
 	return v->data+i;
 }
 
@@ -303,9 +144,7 @@ void auryn_vector_float_set ( auryn_vector_float * v, const NeuronID i, AurynFlo
 }
 
 void auryn_vector_float_copy ( auryn_vector_float * src, auryn_vector_float * dst ) {
-	// TODO make this a fast memcpy
-	for ( NeuronID i = 0 ; i < dst->size ; ++i ) 
-		dst->data[i] = src->data[i];
+	dst->copy(src);
 }
 
 
@@ -325,11 +164,11 @@ void auryn_vector_ushort_set_zero ( auryn_vector_ushort * v ) {
 	v->set_zero();
 }
 
-unsigned short auryn_vector_ushort_get ( const auryn_vector_ushort * v, const NeuronID i ) {
+unsigned short auryn_vector_ushort_get ( auryn_vector_ushort * v, const NeuronID i ) {
 	return v->data[i];
 }
 
-unsigned short * auryn_vector_ushort_ptr ( const auryn_vector_ushort * v, const NeuronID i ) {
+unsigned short * auryn_vector_ushort_ptr ( auryn_vector_ushort * v, const NeuronID i ) {
 	return v->data+i;
 }
 
