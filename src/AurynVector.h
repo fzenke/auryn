@@ -92,6 +92,17 @@ namespace auryn {
 				set_zero(); // let's give it a defined initial value
 			}
 
+			/*! \brief Copy constructor 
+			 *
+			 * Constructs vector as a copy of argument vector. */
+			AurynVector(AurynVector * vec) 
+			{
+				size = vec->size;
+				data = new T [size];
+				copy(vec);
+			}
+
+
 			/*! \brief Default destructor */
 			virtual ~AurynVector() 
 			{
