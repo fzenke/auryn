@@ -90,7 +90,7 @@ void IFGroup::integrate_linear_nmda_synapses()
 	g_gaba->scale(scale_gaba);
 
     // compute dg_nmda = (g_ampa-g_nmda)*dt/tau_nmda and add to g_nmda
-	AurynFloat mul_nmda = dt/tau_nmda;
+	const AurynFloat mul_nmda = dt/tau_nmda;
 	g_nmda->saxpy(mul_nmda, g_ampa);
 	g_nmda->saxpy(-mul_nmda, g_nmda);
 
@@ -101,8 +101,9 @@ void IFGroup::integrate_linear_nmda_synapses()
 	t_exc->mul(mem);
     
     // inhibitory
-	t_inh->copy(mem);
-	t_inh->add(-e_rev);
+	// t_inh->copy(mem);
+	// t_inh->add(-e_rev);
+	t_inh->diff(mem,e_rev);
 	t_inh->mul(g_gaba);
 }
 
@@ -116,8 +117,9 @@ void IFGroup::integrate_membrane()
 	thr->scale(scale_thr);
     
     // leak
-	t_leak->copy(mem);
-    t_leak->add(-e_rest);
+	// t_leak->copy(mem);
+    // t_leak->add(-e_rest);
+	t_leak->diff(mem,e_rest);
     
     // membrane dynamics
 	AurynFloat mul_tau_mem = dt/tau_mem;
