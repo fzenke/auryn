@@ -113,7 +113,7 @@ public:
 	/*! Resize buffer
 	 *  Allocates a new buffer of size and copies the 
 	 *  old buffers before freeing the memory */
-	void resize_buffer(AurynLong size);
+	void resize_buffer(AurynLong newsize);
 
 	/*! Resizes buffer and clears the matrix. This saves
 	 *  to copy all the data. */
@@ -129,14 +129,14 @@ public:
 	 * \param j col index where to insert element
 	 * \param value to insert
 	 * \throw AurynMatrixBufferException */
-	void push_back(NeuronID i, NeuronID j, T value);
+	void push_back(const NeuronID i, const NeuronID j, const T value);
 	void copy(SimpleMatrix * mat);
 	void set_data(AurynLong i, T value);
 	void scale_data(AurynLong i, T value);
 	/*! Gets the matching data ptr for a given index i*/
-	T * get_data_ptr(AurynLong i);
+	T * get_data_ptr(const AurynLong i);
 	/*! Gets the matching data entry for a given index i*/
-	T get_data(AurynLong i);
+	T get_data(const AurynLong i);
 	/*! Gets the matching data ptr for a given index pointer */
 	T * get_data_ptr(const NeuronID * ind_ptr);
 	/*! Gets the matching data value for a given index pointer */
@@ -256,12 +256,17 @@ void SimpleMatrix<T>::init(NeuronID m, NeuronID n, AurynLong size)
 }
 
 template <typename T>
-void SimpleMatrix<T>::resize_buffer(AurynLong size)
+void SimpleMatrix<T>::resize_buffer(AurynLong newsize)
 {
-	datasize = size;
+	AurynLong oldsize = datasize;
+	AurynLong copysize = std::min(oldsize,newsize);
 
-	NeuronID * new_colinds = new NeuronID [datasize];
-	std::copy(colinds, colinds+get_nonzero(), new_colinds);
+	std::cout << " copy colinds " << std::endl;
+
+	NeuronID * new_colinds = new NeuronID [newsize];
+	std::copy(colinds, colinds+copysize, new_colinds);
+
+	std::cout << " update rowptrs " << std::endl;
 
 	// update rowpointers
 	ptrdiff_t offset = new_colinds-colinds;
@@ -269,20 +274,31 @@ void SimpleMatrix<T>::resize_buffer(AurynLong size)
 		rowptrs[i] += offset;
 	}
 	
+	std::cout << " delete old colinds " << std::endl;
+	// FIXME I get regular crashes in this line:
+	//  invalid pointer: 0x0000000001d954c0 ***
 	delete [] colinds;
+
+	std::cout << " replace colinds " << std::endl;
 	colinds = new_colinds;
 
-	T * new_coldata = new T [datasize];
-	std::copy(coldata, coldata+get_nonzero(), new_coldata);
+	std::cout << " create new data array " << std::endl;
+	T * new_coldata = new T [newsize];
+	std::copy(coldata, coldata+copysize, new_coldata);
 	delete [] coldata;
 	coldata = new_coldata;
+
+	datasize = newsize;
+	std::cout << " done " << std::endl;
 }
 
 template <typename T>
 void SimpleMatrix<T>::resize_buffer_and_clear(AurynLong size)
 {
-	free();
-	init(m_rows, n_cols, size);
+	// free();
+	// init(m_rows, n_cols, size);
+	resize_buffer(size);
+	clear();
 }
 
 template <typename T>
