@@ -360,19 +360,19 @@ public:
 };
 
 template <typename T>
-T * ComplexMatrix<T>::get_data_ptr(const AurynLong data_index, const StateID z)
+inline T * ComplexMatrix<T>::get_data_ptr(const AurynLong data_index, const StateID z)
 {
 	return statevectors[z]->data+data_index;
 }
 
 template <typename T>
-T ComplexMatrix<T>::get_data(const AurynLong i, const StateID z)
+inline T ComplexMatrix<T>::get_data(const AurynLong i, const StateID z)
 {
 	return *get_data_ptr(i,z);
 }
 
 template <typename T>
-T * ComplexMatrix<T>::get_data_ptr(const NeuronID * ind_ptr, const StateID z) 
+inline T * ComplexMatrix<T>::get_data_ptr(const NeuronID * ind_ptr, const StateID z) 
 {
 	size_t ptr_offset = ind_ptr-get_ind_begin();
 	return statevectors[z]->data+ptr_offset;
