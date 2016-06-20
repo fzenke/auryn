@@ -131,13 +131,13 @@ void TripletConnection::set_hom_trace(AurynFloat freq)
 }
 
 
-AurynWeight TripletConnection::get_hom(NeuronID i)
+inline AurynWeight TripletConnection::get_hom(NeuronID i)
 {
 	return pow(tr_post_hom->get(i),2);
 }
 
 
-AurynWeight TripletConnection::dw_pre(NeuronID post)
+inline AurynWeight TripletConnection::dw_pre(NeuronID post)
 {
 	// translate post id to local id on rank: translated_spike
 	NeuronID translated_spike = dst->global2rank(post); 
@@ -145,7 +145,7 @@ AurynWeight TripletConnection::dw_pre(NeuronID post)
 	return dw;
 }
 
-AurynWeight TripletConnection::dw_post(NeuronID pre, NeuronID post)
+inline AurynWeight TripletConnection::dw_post(NeuronID pre, NeuronID post)
 {
 	// at this point post was already translated to a local id in 
 	// the propagate_backward function below.
