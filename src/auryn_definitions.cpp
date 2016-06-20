@@ -85,8 +85,7 @@ void auryn_vector_float_sub( auryn_vector_float * a, auryn_vector_float * b)
 
 void auryn_vector_float_sub( auryn_vector_float * a, auryn_vector_float * b, auryn_vector_float * r)
 {
-	r->copy(a);
-	r->sub(b);
+	r->diff(a,b);
 }
 
 void auryn_vector_float_clip( auryn_vector_float * v, const float a, const float b ) {
