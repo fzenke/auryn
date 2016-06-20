@@ -62,18 +62,18 @@ protected:
 
 public:
 	/*! Stores the membrane potentials. */
-	AurynStateVector * mem __attribute__((aligned(16)));
+	AurynStateVector * mem ;
 	/*! Stores the AMPA conductances of each point neuron. */
-	AurynStateVector * g_ampa __attribute__((aligned(16)));
+	AurynStateVector * g_ampa ;
 	/*! Stores the GABA conductances of each point neuron. */
-	AurynStateVector * g_gaba __attribute__((aligned(16)));
+	AurynStateVector * g_gaba ;
 	/*! Stores the NMDA conductances of each point neuron. */
-	AurynStateVector * g_nmda __attribute__((aligned(16)));
+	AurynStateVector * g_nmda ;
 
 	/*! Stores  threshold terms for moving thresholds. 
 	 *
 	 * TODO Remove and move to downstream. */
-	AurynStateVector * thr __attribute__((aligned(16)));
+	AurynStateVector * thr ;
 
 	/*! Default constructor */
 	NeuronGroup(NeuronID n, double loadmultiplier = 1. , NeuronID total = 0 );
