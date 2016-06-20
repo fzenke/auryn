@@ -270,8 +270,7 @@ namespace auryn {
 			void copy(AurynVector * v) 
 			{
 				check_size(v);
-				// std::copy(v->data, v->data+v->size, data);
-				std::memcpy(data, v->data, size*sizeof(T));
+				std::copy(v->data, v->data+v->size, data);
 			}
 
 

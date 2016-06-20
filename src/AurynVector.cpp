@@ -274,3 +274,4 @@ void AurynVectorFloat::diff(AurynVectorFloat * a, const float b)
 {
 	sum(a,-b);
 }
+
