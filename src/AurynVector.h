@@ -79,6 +79,7 @@ namespace auryn {
 #endif 
 			}
 
+			/*! \brief Implements aligned memory allocation */
 			T * allocate(const IndexType n) {
 				T * ptr = (T*)aligned_alloc(sizeof(T)*SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS,n*sizeof(T));
 				return ptr;
