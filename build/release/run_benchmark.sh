@@ -3,6 +3,7 @@
 # Compile code
 make clean
 ./bootstrap.sh
+sleep 2
 
 # Benchmark parameters
 SIMTIME=100
@@ -23,7 +24,7 @@ function fun_benchmark()
 	done
 
 	awk '{ for (i=1;i<=NF;i++) { sum[i] += 1.0*$i; sum2[i] += 1.0*$i*$i; } } \
-		   END { for (i=1;i<=NF;i++) { mean = 1.*sum[i]/NR; var  = 1.*sum2[i]/NR-mean*mean; std = sqrt(var); \
+		END { for (i=1;i<=NF;i++) { mean = 1.*sum[i]/NR; var  = 1.*sum2[i]/NR-mean*mean; std = sqrt(var + 1.0/12); \
 		   printf "%f  %f\t",mean,std } printf "\n" }' $TMPDIR/times.dat > $TMPDIR/result.dat
 
 	FUNCTION_RESULT=`cat $TMPDIR/result.dat`
