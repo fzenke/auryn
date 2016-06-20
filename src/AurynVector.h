@@ -79,16 +79,20 @@ namespace auryn {
 #endif 
 			}
 
+			T * allocate(const IndexType n) {
+				T * ptr = (T*)aligned_alloc(sizeof(T)*SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS,n*sizeof(T));
+				return ptr;
+			};
+
 		public:
-			// We keep these params public for legacy compatibility reasons
 			IndexType size;
-			T * data __attribute__((aligned(16)));
+			T * data;
 
 			/*! \brief Default constructor */
 			AurynVector(IndexType n) 
 			{
 				size = n;
-				data = new T [n];
+				data = allocate(size);
 				set_zero(); // let's give it a defined initial value
 			}
 
@@ -98,7 +102,7 @@ namespace auryn {
 			AurynVector(AurynVector * vec) 
 			{
 				size = vec->size;
-				data = new T [size];
+				data = allocate(size);
 				copy(vec);
 			}
 
@@ -106,15 +110,15 @@ namespace auryn {
 			/*! \brief Default destructor */
 			virtual ~AurynVector() 
 			{
-				delete data;
+				free(data);
 			}
 
 			/*! \brief resize data array to new_size */
 			void resize(IndexType new_size) 
 			{
 				if ( size != new_size ) {
-					delete [] data;
-					data = new T [new_size];
+					free(data);
+					data = allocate(size);
 					set_zero(); 
 				}
 			}
