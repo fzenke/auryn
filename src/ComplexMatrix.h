@@ -157,12 +157,6 @@ protected:
 	/*! \brief Returns a synaptic state vector. */
 	AurynVector<T,AurynLong> * alloc_synaptic_state_vector();
 
-	/*! \brief Returns pointer to statevector which is an AurynVector of specified synaptic state */
-	AurynVector<T,AurynLong> * get_synaptic_state_vector(StateID z=0);
-
-	/*! \brief Sames as get_synaptic_state_vector(StateID z) */
-	AurynVector<T,AurynLong> * get_state_vector(StateID z=0);
-
 	/*! \brief Matches size of statevectors to number of synaptic states.  */
 	void prepare_state_vectors();
 
@@ -174,12 +168,26 @@ public:
 	/*! \brief Vector that holds pointers to the state vectors storing the synaptic states. */
 	std::vector< AurynVector<T,AurynLong> * > statevectors;
 
+	/*! \brief Empty constructor */
 	ComplexMatrix();
+
+	/*! \brief Copy constructor */
 	ComplexMatrix(ComplexMatrix * mat);
+
+	/*! \brief Default constructor */
 	ComplexMatrix(NeuronID rows, NeuronID cols, AurynLong size=256, NeuronID values=1 );
+
+	/*! \brief Default destructor */
 	virtual ~ComplexMatrix();
 
+	/*! \brief Clears matrix */
 	void clear();
+
+	/*! \brief Returns pointer to statevector which is an AurynVector of specified synaptic state */
+	AurynVector<T,AurynLong> * get_synaptic_state_vector(StateID z=0);
+
+	/*! \brief Sames as get_synaptic_state_vector(StateID z) */
+	AurynVector<T,AurynLong> * get_state_vector(StateID z=0);
 
 	/*! \brief Resizes one state vector and copies existing data 
 	 * */
@@ -271,6 +279,8 @@ public:
 
 	/* Methods concerning synaptic state vectors. */
 
+	/*!\brief Sets number of synaptic states (z-value) */
+	void set_num_synaptic_states(const StateID zsize);
 	/*!\brief Sets number of synaptic states (z-value) */
 	void set_num_synapse_states(const StateID zsize);
 	/*!\brief Returns number of synaptic states (z-value) */
@@ -647,11 +657,17 @@ bool ComplexMatrix<T>::exists(NeuronID i, NeuronID j, NeuronID z)
 }
 
 template <typename T>
-void ComplexMatrix<T>::set_num_synapse_states(StateID zsize)
+void ComplexMatrix<T>::set_num_synaptic_states(StateID zsize)
 {
 	n_z_values = zsize;
 	prepare_state_vectors();
 	resize_buffers(statesize);
+}
+
+template <typename T>
+void ComplexMatrix<T>::set_num_synapse_states(StateID zsize)
+{
+	set_num_synaptic_states(zsize);
 }
 
 template <typename T>
