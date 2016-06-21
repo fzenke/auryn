@@ -58,6 +58,8 @@ private:
 	
 public:
 	Logger(std::string filename, int rank, LogMessageType console = PROGRESS, LogMessageType file = NOTIFICATION );
+	virtual ~Logger();
+
 	void msg( std::string text, LogMessageType type=NOTIFICATION, bool global=false, int line=-1, std::string srcfile="" );
 	void info    ( std::string text );
 	void warning ( std::string text );
@@ -65,11 +67,15 @@ public:
 	void verbose ( std::string text, bool global=false, int line=-1, std::string srcfile="" );
 	void debug ( std::string text, bool global=false, int line=-1, std::string srcfile="" );
 	void notification    ( std::string text );
-	void parameter( std::string name, double value );
-	void parameter( std::string name, int value );
-	void parameter( std::string name, std::string value );
 	void set_rank(int rank);
-	virtual ~Logger();
+
+	template<typename T> 
+	void parameter(std::string name, T value) 
+	{
+		std::stringstream oss;
+		oss << std::scientific << "  Parameter " << name << "=" << value;
+		msg(oss.str(),SETTINGS,true);
+	}
 };
 
 }

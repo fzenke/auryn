@@ -133,29 +133,6 @@ void Logger::debug( std::string text, bool global, int line, std::string srcfile
 	msg(text, VERBOSE, global, line, srcfile );
 }
 
-
-void Logger::parameter(std::string name, double value) 
-{
-	std::stringstream oss;
-	oss << std::scientific << "  Parameter " << name << "=" << value;
-	msg(oss.str(),SETTINGS,true);
-}
-
-void Logger::parameter(std::string name, int value) 
-{
-	std::stringstream oss;
-	oss << std::scientific << "Setting " << name << "=" << value;
-	msg(oss.str(),SETTINGS,true);
-}
-
-void Logger::parameter(std::string name, std::string value) 
-{
-	std::stringstream oss;
-	oss.precision(9);
-	oss << std::scientific << "Setting " << name << "=" << value;
-	msg(oss.str(),SETTINGS,true);
-}
-
 void Logger::set_rank(int rank)
 {
 	local_rank = rank;
