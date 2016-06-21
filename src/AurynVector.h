@@ -363,6 +363,44 @@ namespace auryn {
 				}
 			}
 
+			/*! \brief Computes the variance of the vector elements
+			 *
+			 */
+			double var()
+			{
+				double sum = 0.0;
+				double sum2 = 0.0;
+				for ( IndexType i = 0 ; i < size ; ++i ) {
+					T elem = get(i);
+					sum += elem;
+					sum2 += elem*elem;
+				}
+				double mean = sum/size;
+				double var  = sum2/size-mean*mean;
+				return var;
+			}
+
+
+			/*! \brief Computes the standard deviation of all elements
+			 *
+			 */
+			double std()
+			{
+				return std::sqrt(var());
+			}
+
+			/*! \brief Computes the mean of the vector elements
+			 *
+			 */
+			double mean()
+			{
+				double sum = 0.0;
+				for ( IndexType i = 0 ; i < size ; ++i ) {
+					sum += get(i);
+				}
+				return sum/size;
+			}
+
 			/*! \brief Print vector elements to std out for debugging */
 			void print() {
 				for ( IndexType i = 0 ; i < size ; ++i ) {
