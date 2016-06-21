@@ -278,6 +278,7 @@ namespace auryn {
 		 * */
 		string fn(std::string extension);
 
+
 		/*! \brief Format output file name 
 		 *
 		 * Formats output files according to the following convention:
@@ -285,6 +286,14 @@ namespace auryn {
 		 * and returns it as a c string;
 		 * */
 		string fn(std::string name, std::string extension);
+
+		/*! \brief Format output file name 
+		 *
+		 * Formats output files according to the following convention:
+		 * <outputdir>/<name><index>.<rank>.<extension>
+		 * and returns it as a c string;
+		 * */
+		string fn(std::string name, NeuronID index, std::string extension);
 
 
 		/*! \brief Returns global mpi communicator */

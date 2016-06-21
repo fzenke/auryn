@@ -580,6 +580,17 @@ string System::fn(std::string name, std::string extension)
 	return oss.str();
 }
 
+string System::fn(std::string name, NeuronID index, std::string extension)
+{
+	std::stringstream oss;
+	oss << outputdir << "/" 
+		<< name
+		<< index
+		<< "." << mpicom->rank()
+		<< "." << extension;
+	return oss.str();
+}
+
 string System::fn(std::string extension)
 {
 	return fn(get_simulation_name(), extension);
