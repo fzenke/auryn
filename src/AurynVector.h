@@ -363,20 +363,21 @@ namespace auryn {
 				}
 			}
 
-			/*! \brief Computes the variance of the vector elements
+			/*! \brief Computes the variance of the vector elements 
 			 *
+			 * Uses Bessel's correction to calculate an unbiased estimate of the population variance which 
+			 * requires n > 1 otherwise the output is not defined.
 			 */
 			double var()
 			{
 				double sum = 0.0;
 				double sum2 = 0.0;
 				for ( IndexType i = 0 ; i < size ; ++i ) {
-					T elem = get(i);
-					sum += elem;
-					sum2 += elem*elem;
+					double elem = get(i);
+					sum  += elem;
+					sum2 += std::pow(elem,2);
 				}
-				double mean = sum/size;
-				double var  = sum2/size-mean*mean;
+				double var  = (sum2-(sum*sum)/size)/(size-1);
 				return var;
 			}
 
