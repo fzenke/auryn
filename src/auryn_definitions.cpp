@@ -49,7 +49,9 @@ NeuronID calculate_vector_size(NeuronID i)
 {
 	if ( i%SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS==0 ) 
 		return i;
-	return i+(SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS-i%SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS);
+	NeuronID div = i/SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS; // rounds down
+	NeuronID new_size = (div+1)*SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS; // is multiple of SIMD...
+	return new_size;
 }
 
 
