@@ -593,7 +593,7 @@ void SparseConnection::stats(AurynDouble &mean, AurynDouble &std, NeuronID zid)
 	}
 
 	mean = sum/count;
-	std = sqrt(sum2/count-mean*mean);
+	std = sqrt((sum2-sum*sum/count)/(count-1));
 }
 
 AurynDouble SparseConnection::sum()
