@@ -253,7 +253,7 @@ namespace auryn {
 	{
 		  virtual const char* what() const throw()
 				{
-						return "Memory not aligned to 16bytes.";
+						return "Memory not aligned or problem allocating aligned memory.";
 				}
 	};
 
