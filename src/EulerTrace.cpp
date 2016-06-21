@@ -123,14 +123,6 @@ void EulerTrace::inc(NeuronID i)
    state->data[i]++;
 }
 
-void EulerTrace::check_size(NeuronID x)
-{
-#ifndef NDEBUG
-	if ( x >= size ) {
-		throw AurynVectorDimensionalityException();
-	}
-#endif 
-}
 
 AurynFloat EulerTrace::normalized_get(NeuronID i)
 {

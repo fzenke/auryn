@@ -72,7 +72,14 @@ private:
 	/*! \brief Checks if argument is larger than size and throws and exception if so 
 	 *
 	 * Check only enabled if NDEBUG is not defined.*/
-	void check_size(NeuronID x);
+	void check_size(NeuronID x)
+	{
+#ifndef NDEBUG
+		if ( x >= size ) {
+			throw AurynVectorDimensionalityException();
+		}
+#endif 
+	};
 
 public:
 	/*! Default constructor */
