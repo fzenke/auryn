@@ -266,9 +266,13 @@ public:
 	/*! \brief Returns the pointer to a particular element */
 	T * get_ptr(const NeuronID i, const NeuronID j, const StateID z=0);
 
-	/*! \brief Returns the pointer to a particular element given 
+	/*! \brief Same as get_data_ptr. Returns the pointer to a particular element given 
 	 * its position in the data array. */
-	T * get_ptr(const AurynLong data_index);
+	T * get_ptr(const AurynLong data_index, const StateID z=0);
+
+	/*! \brief Returns a particular element given 
+	 * its position in the data array. */
+	T get_element(const AurynLong data_index, const StateID z);
 
 	/*! Returns data index to a particular element specifed by i and j */
 	AurynLong get_data_index(const NeuronID i, const NeuronID j);
@@ -392,6 +396,12 @@ template <typename T>
 T ComplexMatrix<T>::get_data(const NeuronID * ind_ptr, StateID z) 
 {
 	return *(get_data_ptr(ind_ptr,z));
+}
+
+template <typename T>
+T ComplexMatrix<T>::get_element(const AurynLong data_index, const StateID z)
+{
+	return *get_data_ptr(data_index);
 }
 
 template <typename T>
@@ -777,11 +787,11 @@ T ComplexMatrix<T>::get(NeuronID i, NeuronID j, StateID z)
 }
 
 template <typename T>
-T * ComplexMatrix<T>::get_ptr(AurynLong data_index)
+T * ComplexMatrix<T>::get_ptr(const AurynLong data_index, const StateID z)
 {
-	T * data_z0 = get_synaptic_state_vector(0)->data;
-	return data_z0+data_index;
+	return get_data_ptr(data_index, z);
 }
+
 
 template <typename T>
 T ComplexMatrix<T>::get_value(AurynLong data_index)
