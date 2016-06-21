@@ -175,7 +175,7 @@ public:
 	ComplexMatrix(ComplexMatrix * mat);
 
 	/*! \brief Default constructor */
-	ComplexMatrix(NeuronID rows, NeuronID cols, AurynLong size=256, NeuronID values=1 );
+	ComplexMatrix(NeuronID rows, NeuronID cols, AurynLong size=256, StateID n_values=1 );
 
 	/*! \brief Default destructor */
 	virtual ~ComplexMatrix();
@@ -553,9 +553,9 @@ ComplexMatrix<T>::ComplexMatrix(ComplexMatrix * mat)
 }
 
 template <typename T>
-ComplexMatrix<T>::ComplexMatrix(NeuronID rows, NeuronID cols, AurynLong statesize, NeuronID values )
+ComplexMatrix<T>::ComplexMatrix(NeuronID rows, NeuronID cols, AurynLong statesize, StateID n_values )
 {
-	init(rows, cols, statesize, values);
+	init(rows, cols, statesize, n_values);
 }
 
 template <typename T>
