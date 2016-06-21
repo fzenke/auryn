@@ -39,6 +39,7 @@ void StimulusGroup::init(StimulusGroupModeType stimulusmode, std::string stimfil
 	refractory_period = 1; // initialize with a default of one timestep (avoids two spikes in same time bin)
 
 	activity = new AurynFloat [get_rank_size()];
+	for ( NeuronID i = 0 ; i < get_rank_size() ; ++i ) activity[i] = 0.0;
 	set_baserate(baserate);
 
 	seed(2351301);
