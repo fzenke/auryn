@@ -80,10 +80,21 @@ namespace auryn {
 			}
 
 			/*! \brief Implements aligned memory allocation */
-			T * allocate(const IndexType n) {
-				T * ptr = (T*)aligned_alloc(sizeof(T)*SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS,n*sizeof(T));
-				return ptr;
-			};
+			void allocate(const NeuronID n) {
+				T * ptr = (T*)aligned_alloc(sizeof(T)*SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS,sizeof(T)*n);
+				if ( ptr == NULL ) {
+					// TODO implement proper exception handling
+					throw AurynMemoryAlignmentException(); 
+				}
+				data = ptr;
+				size = n;
+				set_zero();
+			}
+
+			void freebuf() {
+				free(data);
+			}
+		protected:
 
 		public:
 			IndexType size;
@@ -92,9 +103,7 @@ namespace auryn {
 			/*! \brief Default constructor */
 			AurynVector(IndexType n) 
 			{
-				size = n;
-				data = allocate(size);
-				set_zero(); // let's give it a defined initial value
+				allocate(n);
 			}
 
 			/*! \brief Copy constructor 
@@ -102,8 +111,7 @@ namespace auryn {
 			 * Constructs vector as a copy of argument vector. */
 			AurynVector(AurynVector * vec) 
 			{
-				size = vec->size;
-				data = allocate(size);
+				allocate(vec->size);
 				copy(vec);
 			}
 
@@ -111,17 +119,17 @@ namespace auryn {
 			/*! \brief Default destructor */
 			virtual ~AurynVector() 
 			{
-				free(data);
+				freebuf();
 			}
 
 			/*! \brief resize data array to new_size */
 			void resize(IndexType new_size) 
 			{
 				if ( size != new_size ) {
-					free(data);
-					data = allocate(size);
-					set_zero(); 
+					freebuf();
+					allocate(new_size);
 				}
+				set_zero(); 
 			}
 
 			/*! \brief Set all elements to value v. */
@@ -402,6 +410,18 @@ namespace auryn {
 				return sum/size;
 			}
 
+			/*! \brief Computes number of nonzero elements
+			 *
+			 */
+			IndexType nonzero()
+			{
+				IndexType sum = 0;
+				for ( IndexType i = 0 ; i < size ; ++i ) {
+					if ( get(i) != 0 ) ++sum;
+				}
+				return sum;
+			}
+
 			/*! \brief Print vector elements to std out for debugging */
 			void print() {
 				for ( IndexType i = 0 ; i < size ; ++i ) {
@@ -419,6 +439,7 @@ namespace auryn {
 	 */
 	class AurynVectorFloat : public AurynVector<float,NeuronID> 
 	{
+		private:
 
 		public:
 			/*! \brief Default constructor */
@@ -428,6 +449,7 @@ namespace auryn {
 			~AurynVectorFloat() 
 			{
 			};
+
 
 			void scale(const float a);
 			void saxpy(const float a, AurynVectorFloat * x);
