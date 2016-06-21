@@ -360,7 +360,9 @@ PRE_TRACE_MODEL * SpikingGroup::get_pre_trace( AurynFloat x )
 		}
 	}
 
+	auryn::logger->msg("Initializing pre trace instance",VERBOSE);
 #ifndef PRE_TRACE_MODEL_LINTRACE
+	std::cout << " pre size " << get_pre_size() << std::endl;
 	DEFAULT_TRACE_MODEL * tmp = new DEFAULT_TRACE_MODEL(get_pre_size(),x);
 #else
 	PRE_TRACE_MODEL * tmp = new PRE_TRACE_MODEL(get_pre_size(),x,clock_ptr);
@@ -381,6 +383,7 @@ DEFAULT_TRACE_MODEL * SpikingGroup::get_post_trace( AurynFloat x )
 	}
 
 
+	auryn::logger->msg("Initializing post trace instance",VERBOSE);
 	DEFAULT_TRACE_MODEL * tmp = new DEFAULT_TRACE_MODEL(get_post_size(),x);
 	posttraces.push_back(tmp);
 	return tmp;
@@ -412,7 +415,7 @@ EulerTrace * SpikingGroup::get_post_state_trace( AurynStateVector * state, Auryn
 
 	// trace does not exist yet, so we are creating 
 	// it and do the book keeping
-	auryn::logger->msg("Creating new post state trace",VERBOSE);
+	auryn::logger->msg("Initializing post trace instance",VERBOSE);
 	EulerTrace * tmp = new EulerTrace(get_post_size(),tau);
 	tmp->set_target(state);
 	post_state_traces.push_back(tmp);
