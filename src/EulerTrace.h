@@ -69,6 +69,11 @@ private:
 	void init(NeuronID n, AurynFloat timeconstant);
 	void free();
 
+	/*! \brief Checks if argument is larger than size and throws and exception if so 
+	 *
+	 * Check only enabled if NDEBUG is not defined.*/
+	void check_size(NeuronID x);
+
 public:
 	/*! Default constructor */
 	EulerTrace(NeuronID n, AurynFloat timeconstant);
@@ -128,6 +133,7 @@ public:
 
 inline AurynFloat EulerTrace::get(NeuronID i)
 {
+	check_size(i);
 	return state->data[i];
 }
 
