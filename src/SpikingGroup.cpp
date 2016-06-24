@@ -362,7 +362,6 @@ PRE_TRACE_MODEL * SpikingGroup::get_pre_trace( AurynFloat x )
 
 	auryn::logger->msg("Initializing pre trace instance",VERBOSE);
 #ifndef PRE_TRACE_MODEL_LINTRACE
-	std::cout << " pre size " << get_pre_size() << std::endl;
 	DEFAULT_TRACE_MODEL * tmp = new DEFAULT_TRACE_MODEL(get_pre_size(),x);
 #else
 	PRE_TRACE_MODEL * tmp = new PRE_TRACE_MODEL(get_pre_size(),x,clock_ptr);
