@@ -325,7 +325,7 @@ public:
 
 	bool set(const NeuronID i, const NeuronID j, T value);
 	/*! \brief Sets all non-zero elements to value */
-	void set_all(const T value);
+	void set_all(const T value, const StateID z=0);
 	/*! \brief Sets all non-zero elements in row i to value */
 	void set_row(const NeuronID i, const T value);
 	/*! \brief Scales all non-zero elements in row i to value */
@@ -855,10 +855,9 @@ void ComplexMatrix<T>::set_row(NeuronID i, T value)
 }
 
 template <typename T>
-void ComplexMatrix<T>::set_all(T value)
+void ComplexMatrix<T>::set_all(T value, StateID z)
 {
-	for ( AurynLong i = 0 ; i < n_nonzero ; ++i ) 
-		set_data( i , value );
+	get_state_vector(z)->set_all(value);
 }
 
 template <typename T>
