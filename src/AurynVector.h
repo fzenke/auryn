@@ -147,13 +147,20 @@ namespace auryn {
 			}
 
 			/*! \brief Scales all vector elements by a. */
-			void scale(const AurynFloat a) 
+			virtual void scale(const AurynFloat a) 
 			{
 				for ( IndexType i = 0 ; i < size ; ++i ) {
 					data[i] *= a;
 				}
 			}
 
+			/*! \brief Scales all vector elements by a. TODO */
+			void follow(AurynVector<T,IndexType> * v, const float rate) 
+			{
+				for ( IndexType i = 0 ; i < size ; ++i ) {
+					data[i] += rate*(v->data[i]-data[i]);
+				}
+			}
 
 			/*! \brief Takes each element to the n-th power. 
 			 *
@@ -176,7 +183,7 @@ namespace auryn {
 			}
 
 			/*! \brief Adds constant c to each vector element */
-			void add(const AurynFloat c) 
+			virtual void add(const AurynFloat c) 
 			{
 				for ( IndexType i = 0 ; i < size ; ++i ) {
 					data[i] += c;
@@ -293,7 +300,7 @@ namespace auryn {
 			 * \param a The scaling factor for the additional vector
 			 * \param x The additional vector to add
 			 * */
-			void saxpy(const AurynFloat a, AurynVector * x) 
+			virtual void saxpy(const AurynFloat a, AurynVector * x) 
 			{
 				check_size(x);
 				for ( IndexType i = 0 ; i < size ; ++i ) {
@@ -360,7 +367,7 @@ namespace auryn {
 			 * \param min Minimum value
 			 * \param max Maximum value
 			 */
-			void clip(T min, T max)
+			virtual void clip(T min, T max)
 			{
 				for ( IndexType i = 0 ; i < size ; ++i ) {
 					if ( data[i] < min ) {
