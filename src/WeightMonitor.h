@@ -86,9 +86,9 @@ protected:
 	std::vector<type_pattern> * load_patfile( string filename, int maxpat );
 	
 public:
-	WeightMonitor(SparseConnection * source, string filename, AurynDouble interval=1);
-	WeightMonitor(SparseConnection * source, ForwardMatrix * m, string filename, AurynDouble interval=1);
-	WeightMonitor(SparseConnection * source, NeuronID i, NeuronID j, string filename, AurynDouble interval=1, RecordingMode mode = SINGLE, NeuronID z = 0);
+	WeightMonitor(SparseConnection * source, string filename, AurynDouble interval=10.0);
+	WeightMonitor(SparseConnection * source, ForwardMatrix * m, string filename, AurynDouble interval=10.0);
+	WeightMonitor(SparseConnection * source, NeuronID i, NeuronID j, string filename, AurynDouble interval=10.0, RecordingMode mode = SINGLE, NeuronID z = 0);
 	virtual ~WeightMonitor();
 	void propagate();
 
