@@ -224,6 +224,14 @@ namespace auryn {
 				}
 	};
 
+	class AurynMatrixComplexStateException: public std::exception
+	{
+		  virtual const char* what() const throw()
+				{
+						return "Trying to access non existing complex synaptic states.";
+				}
+	};
+
 	class AurynMatrixBufferException: public std::exception
 	{
 		  virtual const char* what() const throw()

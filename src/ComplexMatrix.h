@@ -105,6 +105,8 @@ private:
 	template<class Archive>
 	void load(Archive & ar, const unsigned int version)
 		{
+			const StateID cur_num_syn_states = get_num_synaptic_states();
+
 			ar & m_rows;
 			ar & n_cols;
 			ar & n_z_values;
@@ -112,6 +114,10 @@ private:
 			ar & current_col;
 			ar & statesize;
 			ar & n_nonzero;
+
+			if ( n_z_values != cur_num_syn_states ) { // check if we have the some number of tensor modes
+				throw AurynMatrixComplexStateException();
+			}
 
 			// allocate necessary memory
 			resize_buffers(statesize);
