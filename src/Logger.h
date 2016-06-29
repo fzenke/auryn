@@ -62,6 +62,7 @@ public:
 
 	void msg( std::string text, LogMessageType type=NOTIFICATION, bool global=false, int line=-1, std::string srcfile="" );
 	void info    ( std::string text );
+	void progress( std::string text );
 	void warning ( std::string text );
 	void error   ( std::string text );
 	void verbose ( std::string text, bool global=false, int line=-1, std::string srcfile="" );

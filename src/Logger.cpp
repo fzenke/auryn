@@ -102,6 +102,10 @@ void Logger::msg( std::string text, LogMessageType type, bool global, int line, 
 	last_message = text;
 }
 
+void Logger::progress( std::string text )
+{
+	msg(text, PROGRESS, true);
+}
 
 void Logger::info( std::string text )
 {
