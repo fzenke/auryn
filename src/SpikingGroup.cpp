@@ -613,6 +613,10 @@ void SpikingGroup::virtual_serialize(boost::archive::binary_oarchive & ar, const
 	}
 
 	oss.str("");
+	oss << get_log_name() << " serializing " << state_variables.size() << " state variables";
+	ar & state_variables;
+
+	oss.str("");
 	oss << get_log_name() << " serializing " << pretraces.size() << " pre traces";
 	auryn::logger->msg(oss.str(),VERBOSE);
 	for ( NeuronID i = 0 ; i < pretraces.size() ; ++i )
@@ -648,6 +652,10 @@ void SpikingGroup::virtual_serialize(boost::archive::binary_iarchive & ar, const
 		AurynStateVector * vect = find_state_vector(key);
 		ar & *vect;
 	}
+
+	oss.str("");
+	oss << get_log_name() << " reading " << state_variables.size() << " state variables";
+	ar & state_variables; 
 
 	oss.str("");
 	oss << get_log_name() << " reading " << pretraces.size() << " pre traces";
@@ -841,3 +849,13 @@ int SpikingGroup::get_num_spike_attributes()
 {
 	return delay->get_num_attributes();
 }
+
+
+AurynState * SpikingGroup::get_state_variable(std::string key)
+{
+	if ( state_variables.find(key) == state_variables.end() ) {
+		state_variables[key] = 0.0;
+	} 
+	return &(state_variables.find(key)->second);
+}
+
