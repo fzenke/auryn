@@ -135,6 +135,9 @@ public:
 	/*! Can hold single neuron vectors such as target rates or STP states etc  */
 	std::map<std::string,AurynStateVector *> state_vectors;
 
+	/*! Holds group-wide state variables such as population target rates or global protein levels etc */
+	std::map<std::string,AurynState> state_variables;
+
 	/*! \brief Returns existing state vector by name. 
 	 *
 	 * If the state_vector does not exist the function returns NULL. */
@@ -150,6 +153,9 @@ public:
 
 	/*! \brief Creates a new or returns an existing state vector by name. */
 	AurynStateVector * get_state_vector(std::string key);
+
+	/*! \brief Creates a new group-wide state variable or returns an existing group-wide variable by name then returns a pointer to it. */
+	AurynState * get_state_variable(std::string key);
 
 	/*! \brief Randomizes the content of a state vector with Gaussian random numbers. Seeding is MPI save. */
 	void randomize_state_vector_gauss(std::string state_vector_name, AurynState mean, AurynState sigma, int seed=12239);
