@@ -353,7 +353,11 @@ public:
 	AurynLong get_nonzero();
 	/*! \brief stdout dump of all elements -- for testing only. */
 	void print();
-	/*! \brief Return mean value of elements for the first complex state (z=0). */
+
+	/*! \brief Return mean value of elements for the first complex state (z=0). 
+	 *
+	 * Warning: Note that ComplexMatrix can only compute the mean of all the subset of
+	 * elements stored on thank it runs on. */
 	double mean();
 
 	NeuronID * get_ind_begin();
