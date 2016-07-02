@@ -43,14 +43,13 @@
 
 namespace auryn {
 
-/*! \brief Provides a unity matrix like connectivity */
+/*! \brief Provides all to all connectivity */
 class AllToAllConnection : public Connection
 {
 private:
 	SpikeContainer * spikes;
 	void init(AurynWeight weight);
 	AurynWeight connection_weight;
-	NeuronID lo_src,hi_src,lo_dst,hi_dst;
 
 protected:
 	void free();
