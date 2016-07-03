@@ -263,7 +263,7 @@ namespace auryn {
 			/*! \brief Computes the sum a+b and stores the result in this instance 
 			 *
 			 * */
-			void sum(AurynVector * a, const AurynState b) 
+			void sum(AurynVector * a, const T b) 
 			{
 				check_size(a);
 				for ( IndexType i = 0 ; i < size ; ++i ) {
@@ -286,7 +286,7 @@ namespace auryn {
 			/*! \brief Computes the difference a-b and stores the result in this instance 
 			 *
 			 * */
-			void diff(AurynVector * a, const AurynState b) 
+			void diff(AurynVector * a, const T b) 
 			{
 				sum(a,-b);
 			}
@@ -492,9 +492,9 @@ namespace auryn {
 			void add(const float c);
 			void add(AurynVectorFloat * v);
 			void sum(AurynVectorFloat * a, AurynVectorFloat * b);
-			void sum(AurynVectorFloat * a, const AurynState b);
+			void sum(AurynVectorFloat * a, const float b);
 			void diff(AurynVectorFloat * a, AurynVectorFloat * b);
-			void diff(AurynVectorFloat * a, const AurynState b);
+			void diff(AurynVectorFloat * a, const float b);
 
 
 			// TODO add pow function with intrinsics _mm_pow_ps
