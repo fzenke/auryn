@@ -23,6 +23,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include "AurynVersion.h"
 
 using namespace auryn;
 
@@ -68,15 +69,16 @@ void read_header( std::ifstream * input, double& dt, AurynLong num_events, doubl
 	dt = 1.0/spike_data.time;
 
 	// do some version checking
+	AurynVersion build;
 	NeuronID tag = spike_data.neuronID;
-	if ( tag/1000 != tag_binary_spike_monitor/1000 ) {
+	if ( tag/1000 != build.tag_binary_spike_monitor/1000 ) {
 		std::cerr << "Header not recognized. " 
 			"Not a binary Auryn monitor file?" 
 			 << std::endl;
 		exit(EXIT_FAILURE);
 	}
 
-	if ( tag != tag_binary_spike_monitor ) {
+	if ( tag != build.tag_binary_spike_monitor ) {
 		std::cerr << "# Warning: Either the Auryn version does not match "
 			"the version of this tool or this is not a spike "
 			"raster file." << std::endl; 
@@ -129,10 +131,11 @@ int main(int ac, char* av[])
 		}
 
 		if (vm.count("version")) {
+			AurynVersion build;
 			std::cout << "Auryn Binary Extract version " 
-				 << AURYNVERSION << "." 
-				 << AURYNSUBVERSION << "."
-				 << AURYNREVISION << "\n";
+				 << build.version << "." 
+				 << build.subversion << "."
+				 << build.revision_number << "\n";
 			return EXIT_SUCCESS;
 		}
 

@@ -25,6 +25,7 @@
 
 #include "System.h"
 
+
 using namespace auryn;
 
 void System::init() {
@@ -53,7 +54,7 @@ void System::init() {
 	auryn::logger->msg(oss.str(),NOTIFICATION);
 
 	oss << "Git repository revision "
-	    << auryn_git_describe;
+	    << build.git_describe;
 	auryn::logger->msg(oss.str(),NOTIFICATION);
 
 	oss.str("");
@@ -103,16 +104,16 @@ void System::init() {
 string System::get_version_string()
 {
 	std::stringstream oss;
-	oss << auryn_version
+	oss << build.version
 		<< "."
-		<< auryn_subversion;
+		<< build.subversion;
 
-	if ( auryn_revision_number ) {
+	if ( build.revision_number ) {
 		oss << "."
-		<< auryn_revision_number;
+		<< build.revision_number;
 	}
 
-	oss << auryn_revision_suffix;
+	oss << build.revision_suffix;
 
 	return oss.str();
 }
@@ -617,9 +618,9 @@ void System::save_network_state(std::string basename)
 	
 	auryn::logger->msg("Saving version information ...",VERBOSE);
 	// save simulator version information 
-	oa << auryn_version;
-	oa << auryn_subversion;
-	oa << auryn_revision_number;
+	oa << build.version;
+	oa << build.subversion;
+	oa << build.revision_number;
 
 	auryn::logger->msg("Saving communicator information ...",VERBOSE);
 	// save communicator information 
@@ -746,11 +747,11 @@ void System::load_network_state(std::string basename)
 	bool pass_version = true;
 	int tmp_version;
 	ia >> tmp_version;
-	pass_version = pass_version && auryn_version==tmp_version;
+	pass_version = pass_version && build.version==tmp_version;
 	ia >> tmp_version;
-	pass_version = pass_version && auryn_subversion==tmp_version;
+	pass_version = pass_version && build.subversion==tmp_version;
 	ia >> tmp_version;
-	pass_version = pass_version && auryn_revision_number==tmp_version;
+	pass_version = pass_version && build.revision_number==tmp_version;
 
 	if ( !pass_version ) {
 		auryn::logger->msg("WARNING: Version check failed! Current Auryn version " 

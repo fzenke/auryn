@@ -82,7 +82,7 @@ void BinarySpikeMonitor::init(SpikingGroup * source, std::string filename, Neuro
 	// encoding the version number
 	struct SpikeEvent_type spikeData;
 	spikeData.time = (AurynTime)(1.0/dt);
-	spikeData.neuronID = tag_binary_spike_monitor;
+	spikeData.neuronID = sys->build.tag_binary_spike_monitor;
 	outfile.write((char*)&spikeData, sizeof(SpikeEvent_type));
 }
 

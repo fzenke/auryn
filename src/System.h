@@ -27,13 +27,13 @@
 #define SYSTEM_H_
 
 #include "auryn_definitions.h"
-#include "auryn_version_info.h"
 #include "AurynVector.h"
 #include "SpikingGroup.h"
 #include "Connection.h"
 #include "Monitor.h"
 #include "Checker.h"
 #include "SyncBuffer.h"
+#include "AurynVersion.h"
 
 
 #include <ctime>
@@ -133,6 +133,9 @@ namespace auryn {
 	public:
 		/*! \brief Switch to turn output to quiet mode (no progress bar). */
 		bool quiet;
+
+		/*! \brief Version info */
+		AurynVersion build;
 
 		/*! \brief The progressbar update interval in timesteps of dt. */
 		unsigned int progressbar_update_interval;

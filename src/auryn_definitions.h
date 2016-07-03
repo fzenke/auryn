@@ -58,7 +58,6 @@
 #include <boost/random/normal_distribution.hpp>
 
 #include "Logger.h"
-#include "auryn_version_info.h" 
 
 
 namespace mpi = boost::mpi;
