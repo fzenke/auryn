@@ -37,18 +37,26 @@ in development versions to compile.
 Citing Auryn
 ------------
 
-If you find Auryn useful and you use it or parts of it in one of your
-publications please cite:
+If you find Auryn useful and you use it, please cite:
 
 Zenke, F. and Gerstner, W., 2014.  Limits to high-speed simulations of spiking
 neural networks using general-purpose computers.  Front Neuroinform 8, 76. 
 doi: 10.3389/fninf.2014.00076
 
+url: http://journal.frontiersin.org/Journal/10.3389/fninf.2014.00076/abstract
 
--- Friedemann Zenke, Mar 13 2015
-
-
-
+Bibtex:
+```
+@article{zenke_limits_2014,
+	title = {Limits to high-speed simulations of spiking neural networks using general-purpose computers},
+	author = {Zenke, Friedemann and Gerstner, Wulfram},
+	journal = {Front Neuroinform},
+	year = {2014},
+	volume = {8},
+	url = {http://journal.frontiersin.org/Journal/10.3389/fninf.2014.00076/abstract},
+	doi = {10.3389/fninf.2014.00076}
+}
+```
 
 
 Copyright 2014-2016 Friedemann Zenke.
