@@ -148,7 +148,7 @@ namespace auryn {
 			}
 
 			/*! \brief Scales all vector elements by a. */
-			void scale(const AurynFloat a) 
+			void scale(const T a) 
 			{
 				for ( IndexType i = 0 ; i < size ; ++i ) {
 					data[i] *= a;
@@ -184,7 +184,7 @@ namespace auryn {
 			}
 
 			/*! \brief Adds constant c to each vector element */
-			void add(const AurynFloat c) 
+			void add(const T c) 
 			{
 				for ( IndexType i = 0 ; i < size ; ++i ) {
 					data[i] += c;
@@ -192,10 +192,17 @@ namespace auryn {
 			}
 
 			/*! \brief Adds the value c to specific vector element i */
-			void add_specific(const IndexType i, const AurynFloat c) 
+			void add_specific(const IndexType i, const T c) 
 			{
 				check_size(i);
 				data[i] += c;
+			}
+
+			/*! \brief Multiply to specific vector element with data index i with the constant c*/
+			void mul_specific(const IndexType i, const T c) 
+			{
+				check_size(i);
+				data[i] *= c;
 			}
 
 			/*! \brief Adds a vector v to the vector
@@ -210,7 +217,7 @@ namespace auryn {
 			}
 
 			/*! \brief Subtract constant c to each vector element */
-			void sub(const AurynFloat c) 
+			void sub(const T c) 
 			{
 				add(-c);
 			}
@@ -225,7 +232,7 @@ namespace auryn {
 			}
 
 			/*! \brief Multiply all vector elements by constant */
-			void mul(const AurynFloat a) 
+			void mul(const T a) 
 			{
 				scale(a);
 			}
@@ -301,7 +308,7 @@ namespace auryn {
 			 * \param a The scaling factor for the additional vector
 			 * \param x The additional vector to add
 			 * */
-			void saxpy(const AurynFloat a, AurynVector * x) 
+			void saxpy(const T a, AurynVector * x) 
 			{
 				check_size(x);
 				for ( IndexType i = 0 ; i < size ; ++i ) {
@@ -385,7 +392,7 @@ namespace auryn {
 			 * requires n > 1 otherwise the output is not defined.
 			 *
 			 * Warning: Note that AurynVector can only compute the mean of all the subset of
-			 * elements stored on thank it runs on.
+			 * elements stored on rank it runs on.
 			 */
 			double var()
 			{
@@ -404,7 +411,7 @@ namespace auryn {
 			/*! \brief Computes the standard deviation of all elements on this rank
 			 *
 			 * Warning: Note that AurynVector can only compute the mean of all the subset of
-			 * elements stored on thank it runs on.
+			 * elements stored on rank it runs on.
 			 */
 			double std()
 			{
@@ -414,21 +421,29 @@ namespace auryn {
 			/*! \brief Computes the mean of the vector elements on this rank
 			 *
 			 * Warning: Note that AurynVector can only compute the mean of all the subset of
-			 * elements stored on thank it runs on.
+			 * elements stored on rank it runs on.
 			 */
 			double mean()
+			{
+				return element_sum()/size;
+			}
+
+			/*! \brief Computes the sum of the vector elements
+			 *
+			 */
+			double element_sum()
 			{
 				double sum = 0.0;
 				for ( IndexType i = 0 ; i < size ; ++i ) {
 					sum += get(i);
 				}
-				return sum/size;
+				return sum;
 			}
 
 			/*! \brief Computes number of nonzero elements on this rank
 			 *
 			 * Warning: Note that AurynVector can only compute the mean of all the subset of
-			 * elements stored on thank it runs on.
+			 * elements stored on rank it runs on.
 			 */
 			IndexType nonzero()
 			{
