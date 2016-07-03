@@ -385,10 +385,13 @@ namespace auryn {
 				}
 			}
 
-			/*! \brief Computes the variance of the vector elements 
+			/*! \brief Computes the variance of the vector elements on this rank
 			 *
 			 * Uses Bessel's correction to calculate an unbiased estimate of the population variance which 
 			 * requires n > 1 otherwise the output is not defined.
+			 *
+			 * Warning: Note that AurynVector can only compute the mean of all the subset of
+			 * elements stored on rank it runs on.
 			 */
 			double var()
 			{
@@ -404,16 +407,20 @@ namespace auryn {
 			}
 
 
-			/*! \brief Computes the standard deviation of all elements
+			/*! \brief Computes the standard deviation of all elements on this rank
 			 *
+			 * Warning: Note that AurynVector can only compute the mean of all the subset of
+			 * elements stored on rank it runs on.
 			 */
 			double std()
 			{
 				return std::sqrt(var());
 			}
 
-			/*! \brief Computes the mean of the vector elements
+			/*! \brief Computes the mean of the vector elements on this rank
 			 *
+			 * Warning: Note that AurynVector can only compute the mean of all the subset of
+			 * elements stored on rank it runs on.
 			 */
 			double mean()
 			{
@@ -432,9 +439,10 @@ namespace auryn {
 				return sum;
 			}
 
-
-			/*! \brief Computes number of nonzero elements
+			/*! \brief Computes number of nonzero elements on this rank
 			 *
+			 * Warning: Note that AurynVector can only compute the mean of all the subset of
+			 * elements stored on rank it runs on.
 			 */
 			IndexType nonzero()
 			{
@@ -445,7 +453,7 @@ namespace auryn {
 				return sum;
 			}
 
-			/*! \brief Print vector elements to std out for debugging */
+			/*! \brief Print vector elements jo std out for debugging */
 			void print() {
 				for ( IndexType i = 0 ; i < size ; ++i ) {
 					std::cout << get(i) << " ";
@@ -454,9 +462,12 @@ namespace auryn {
 			}
 	};
 
+
+
+
 	/*! \brief Derived AurynVectorFloat class for performance computation
 	 *
-	 * This class inherits the template AurynVector<float> and overwrites 
+	 * This class inherits the template AurynVector<float,NeuronID> and overwrites 
 	 * some of the functions defined in the template with SIMD intrinsics 
 	 * for higher performance.
 	 */
