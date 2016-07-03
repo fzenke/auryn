@@ -28,6 +28,7 @@
 #define AURYNVERSION_H_
 
 #include <string>
+#include <iostream>
 #include "auryn_definitions.h"
 
 namespace auryn {
@@ -40,11 +41,28 @@ namespace auryn {
 			static int revision_number;
 			static NeuronID tag_binary_spike_monitor;
 			static NeuronID tag_binary_state_monitor;
-			static string revision_suffix;
-			static string git_describe;
+			static std::string revision_suffix;
+			static std::string git_describe;
 		
 		AurynVersion() {};
 		virtual ~AurynVersion() {};
+
+		std::string get_version_string()
+		{
+			std::stringstream oss;
+			oss << version
+				<< "."
+				<< subversion;
+
+			if ( revision_number ) {
+				oss << "."
+				<< revision_number;
+			}
+
+			oss << revision_suffix;
+
+			return oss.str();
+		}
 	};
 
 }

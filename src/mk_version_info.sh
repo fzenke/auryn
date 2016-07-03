@@ -15,34 +15,21 @@ AURYNREVISIONSUFFIXANDHASH="$AURYNREVISIONSUFFIX-$HASH"
 
 GITDESCRIBE=`git describe` 
 
-cat <<EOF > auryn_version_info.h
-#define AURYN_VERSION_INFO_H_
-#ifndef AURYN_VERSION_INFO_H_
+cat <<EOF > AurynVersion.cpp
+// Please note that his file is created by mk_version_info.sh 
+// Changes to this file may thous be overwritten
+#include "AurynVersion.h"
 
 namespace auryn {
 
-/*! The current Auryn version/revision number. 
- *  Should be all ints. */
-const int auryn_version=$AURYNVERSION;
-const int auryn_subversion=$AURYNSUBVERSION;
-const int auryn_revision_number=$AURYNREVISIONNUMBER;
-
-/*! The current Auryn revision suffix. */
-const char auryn_revision_suffix[] = "$AURYNREVISIONSUFFIXANDHASH";
-
-/*! The current Auryn revision string from git describe */
-const char auryn_git_describe[] = "$GITDESCRIBE";
-
-/*! \\brief Tag for header in binary encoded spike monitor files. 
- *
- * The first digits are 28796 for Auryn in 
- * phone dial notation. The remaining 4 digits encode type of binary file and the current Auryn 
- * version */
-const NeuronID tag_binary_spike_monitor = 287960000+100*auryn_version+10*auryn_subversion+1*auryn_revision_number;
-const NeuronID tag_binary_state_monitor = 287961000+100*auryn_version+10*auryn_subversion+1*auryn_revision_number;
+    int AurynVersion::version = $AURYNVERSION;
+    int AurynVersion::subversion = $AURYNSUBVERSION;
+    int AurynVersion::revision_number = $AURYNREVISIONNUMBER;
+    NeuronID AurynVersion::tag_binary_spike_monitor = 287960000+100*$AURYNVERSION+10*$AURYNSUBVERSION+1*$AURYNREVISIONNUMBER; //!< file signature for BinarySpikeMonitor files
+    NeuronID AurynVersion::tag_binary_state_monitor = 287961000+100*$AURYNVERSION+10*$AURYNSUBVERSION+1*$AURYNREVISIONNUMBER; //!< file signature for BinaryStateMonitor files
+    std::string AurynVersion::revision_suffix = "$AURYNREVISIONSUFFIXANDHASH";
+    std::string AurynVersion::git_describe = "$GITDESCRIBE";
 
 }
-
-#endif /*AURYN_VERSION_INFO_H__*/
 
 EOF

@@ -49,10 +49,11 @@ void System::init() {
 
 	std::stringstream oss;
 	oss << "Auryn version "
-		<< get_version_string()
+		<< build.get_version_string()
 	    << " ( compiled " << __DATE__ << " " << __TIME__ << " )";
 	auryn::logger->msg(oss.str(),NOTIFICATION);
 
+	oss.str("");
 	oss << "Git repository revision "
 	    << build.git_describe;
 	auryn::logger->msg(oss.str(),NOTIFICATION);
@@ -101,22 +102,6 @@ void System::init() {
 
 }
 
-string System::get_version_string()
-{
-	std::stringstream oss;
-	oss << build.version
-		<< "."
-		<< build.subversion;
-
-	if ( build.revision_number ) {
-		oss << "."
-		<< build.revision_number;
-	}
-
-	oss << build.revision_suffix;
-
-	return oss.str();
-}
 
 System::System()
 {

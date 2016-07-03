@@ -155,10 +155,6 @@ namespace auryn {
 
 		virtual ~System();
 
-
-		/*! \brief Return formatted version string. */
-		string get_version_string();
-
 		/*! \brief Sets the SpikingGroup ID used to display the rate estimate in the
 		 * progressbar 
 		 *
