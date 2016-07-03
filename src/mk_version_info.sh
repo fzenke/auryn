@@ -35,5 +35,3 @@ namespace auryn {
 EOF
 
 
-export AURYNVERSIONSTRING=$AURYNREVISIONSUFFIXANDHASH
-doxygen
