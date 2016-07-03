@@ -94,6 +94,7 @@ namespace auryn {
 			void freebuf() {
 				free(data);
 			}
+
 		protected:
 
 		public:
@@ -147,7 +148,7 @@ namespace auryn {
 			}
 
 			/*! \brief Scales all vector elements by a. */
-			virtual void scale(const AurynFloat a) 
+			void scale(const AurynFloat a) 
 			{
 				for ( IndexType i = 0 ; i < size ; ++i ) {
 					data[i] *= a;
@@ -183,7 +184,7 @@ namespace auryn {
 			}
 
 			/*! \brief Adds constant c to each vector element */
-			virtual void add(const AurynFloat c) 
+			void add(const AurynFloat c) 
 			{
 				for ( IndexType i = 0 ; i < size ; ++i ) {
 					data[i] += c;
@@ -243,7 +244,7 @@ namespace auryn {
 			/*! \brief Computes the sum a+b and stores the result in this instance 
 			 *
 			 * */
-			virtual void sum(AurynVector * a, AurynVector * b) 
+			void sum(AurynVector * a, AurynVector * b) 
 			{
 				check_size(a);
 				check_size(b);
@@ -255,7 +256,7 @@ namespace auryn {
 			/*! \brief Computes the sum a+b and stores the result in this instance 
 			 *
 			 * */
-			virtual void sum(AurynVector * a, const AurynState b) 
+			void sum(AurynVector * a, const AurynState b) 
 			{
 				check_size(a);
 				for ( IndexType i = 0 ; i < size ; ++i ) {
@@ -266,7 +267,7 @@ namespace auryn {
 			/*! \brief Computes the difference a-b and stores the result in this instance 
 			 *
 			 * */
-			virtual void diff(AurynVector * a, AurynVector * b) 
+			void diff(AurynVector * a, AurynVector * b) 
 			{
 				check_size(a);
 				check_size(b);
@@ -278,7 +279,7 @@ namespace auryn {
 			/*! \brief Computes the difference a-b and stores the result in this instance 
 			 *
 			 * */
-			virtual void diff(AurynVector * a, const AurynState b) 
+			void diff(AurynVector * a, const AurynState b) 
 			{
 				sum(a,-b);
 			}
@@ -300,7 +301,7 @@ namespace auryn {
 			 * \param a The scaling factor for the additional vector
 			 * \param x The additional vector to add
 			 * */
-			virtual void saxpy(const AurynFloat a, AurynVector * x) 
+			void saxpy(const AurynFloat a, AurynVector * x) 
 			{
 				check_size(x);
 				for ( IndexType i = 0 ; i < size ; ++i ) {
@@ -367,7 +368,7 @@ namespace auryn {
 			 * \param min Minimum value
 			 * \param max Maximum value
 			 */
-			virtual void clip(T min, T max)
+			void clip(T min, T max)
 			{
 				for ( IndexType i = 0 ; i < size ; ++i ) {
 					if ( data[i] < min ) {
