@@ -48,9 +48,12 @@ void System::init() {
 
 	std::stringstream oss;
 	oss << "Auryn version "
-		<< get_version_string();
+		<< get_version_string()
+	    << " ( compiled " << __DATE__ << " " << __TIME__ << " )";
+	auryn::logger->msg(oss.str(),NOTIFICATION);
 
-	oss << " ( compiled " << __DATE__ << " " << __TIME__ << " )";
+	oss << "Git repository revision "
+	    << auryn_git_describe;
 	auryn::logger->msg(oss.str(),NOTIFICATION);
 
 	oss.str("");
@@ -100,18 +103,16 @@ void System::init() {
 string System::get_version_string()
 {
 	std::stringstream oss;
-	oss << AURYNVERSION
+	oss << auryn_version
 		<< "."
-		<< AURYNSUBVERSION;
+		<< auryn_subversion;
 
-	if ( AURYNREVISION ) {
+	if ( auryn_revision_number ) {
 		oss << "."
-		<< AURYNREVISION;
+		<< auryn_revision_number;
 	}
 
-#ifdef AURYNVERSIONSUFFIX
-	oss << AURYNVERSIONSUFFIX;
-#endif
+	oss << auryn_revision_suffix;
 
 	return oss.str();
 }
@@ -614,16 +615,11 @@ void System::save_network_state(std::string basename)
 	std::ofstream ofs(netstate_filename.c_str());
 	boost::archive::binary_oarchive oa(ofs);
 	
-	/* Translate version values to const values */
-	const int auryn_version = AURYNVERSION;
-	const int auryn_subversion = AURYNSUBVERSION;
-	const int auryn_revision = AURYNREVISION;
-
 	auryn::logger->msg("Saving version information ...",VERBOSE);
 	// save simulator version information 
 	oa << auryn_version;
 	oa << auryn_subversion;
-	oa << auryn_revision;
+	oa << auryn_revision_number;
 
 	auryn::logger->msg("Saving communicator information ...",VERBOSE);
 	// save communicator information 
@@ -750,11 +746,11 @@ void System::load_network_state(std::string basename)
 	bool pass_version = true;
 	int tmp_version;
 	ia >> tmp_version;
-	pass_version = pass_version && AURYNVERSION==tmp_version;
+	pass_version = pass_version && auryn_version==tmp_version;
 	ia >> tmp_version;
-	pass_version = pass_version && AURYNSUBVERSION==tmp_version;
+	pass_version = pass_version && auryn_subversion==tmp_version;
 	ia >> tmp_version;
-	pass_version = pass_version && AURYNREVISION==tmp_version;
+	pass_version = pass_version && auryn_revision_number==tmp_version;
 
 	if ( !pass_version ) {
 		auryn::logger->msg("WARNING: Version check failed! Current Auryn version " 

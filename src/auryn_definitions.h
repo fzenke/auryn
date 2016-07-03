@@ -58,15 +58,11 @@
 #include <boost/random/normal_distribution.hpp>
 
 #include "Logger.h"
+#include "auryn_version_info.h" 
+
 
 namespace mpi = boost::mpi;
 
-/*! The current Auryn version/revision number. 
- * Should be all ints. */
-#define AURYNVERSION 0
-#define AURYNSUBVERSION 8
-#define AURYNREVISION 0
-#define AURYNVERSIONSUFFIX "-dev"
 
 
 /*! Toggle between memory alignment for
@@ -172,6 +168,7 @@ namespace auryn {
 
 
 
+
 	/*! \brief Determines memory alignment (adapted from ATLAS library) 
 	 *
 	 @param N max return value
@@ -191,13 +188,6 @@ namespace auryn {
 		NeuronID neuronID;
 	};
 
-	/*! \brief Tag for header in binary encoded spike monitor files. 
-	 *
-	 * The first digits are 28796 for Auryn in 
-	 * phone dial notation. The remaining 4 digits encode type of binary file and the current Auryn 
-	 * version */
-	const NeuronID tag_binary_spike_monitor = 287960000+100*AURYNVERSION+10*AURYNSUBVERSION+1*AURYNREVISION;
-	const NeuronID tag_binary_state_monitor = 287961000+100*AURYNVERSION+10*AURYNSUBVERSION+1*AURYNREVISION;
 
 	// Exceptions
 	class AurynOpenFileException: public std::exception

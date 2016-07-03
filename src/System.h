@@ -27,12 +27,14 @@
 #define SYSTEM_H_
 
 #include "auryn_definitions.h"
+#include "auryn_version_info.h"
 #include "AurynVector.h"
 #include "SpikingGroup.h"
 #include "Connection.h"
 #include "Monitor.h"
 #include "Checker.h"
 #include "SyncBuffer.h"
+
 
 #include <ctime>
 
