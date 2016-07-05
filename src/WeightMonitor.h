@@ -146,7 +146,7 @@ public:
 	void add_to_list( std::vector<neuron_pair> vec , string label = "");
 	
 	/*! \brief Adds number of elements to the recording list that are equally spaced in the 
-	 * data vector of SimpleMatrix. 
+	 * data vector of the connection matrix. 
 	 *
 	 * This effectively corresponds to a number of random 
 	 * connection matrix elements (if a random matrix is used). 
