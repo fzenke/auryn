@@ -55,7 +55,7 @@ typedef ComplexMatrix<AurynWeight> ForwardMatrix;
 /*! \brief The base class to create sparse random connections
  * 
  *  This direct derivative of the virtual Connection type is the most commonly used
- *  class to create connections in Auryn. It makes use of the SimpleMatrix container
+ *  class to create connections in Auryn. It makes use of the ComplexMatrix container
  *  to memory efficiently store synaptic weights and to make them easily accessible 
  *  in a feed-forward manner for spike propagation.
  *
@@ -108,40 +108,43 @@ protected:
 
 	void free();
 
-	/*! Allocates memory for a given sparse connectivity matrix. Usually SimpleMatrix or ComplexMatrix */
+	/*! Allocates memory for a given sparse connectivity matrix. Usually ComplexMatrix or ComplexMatrix */
 	void allocate(AurynLong bufsize);
 
 
 	
 public:
-	/*! Switch that toggles for the load_patterns function whether or 
+	/*! \brief Switch that toggles for the load_patterns function whether or 
 	 * not to use the intensity (gamma) value. Default is false. */
 	bool patterns_ignore_gamma; 
 
-	/*! The every_pre parameter allows to skip presynaptically over pattern IDs 
+	/*! \brief The every_pre parameter allows to skip presynaptically over pattern IDs 
 	 * when loading patterns. Default is 1. This can be useful to 
 	 * when loading patterns into the exc->inh connections and 
 	 * there significantly less inhibitory cells than exc ones. */
 	NeuronID patterns_every_pre;
 
-	/*! The every_post parameter allows to skip postsynaptically over pattern IDs 
+	/*! \brief The every_post parameter allows to skip postsynaptically over pattern IDs 
 	 * when loading patterns. Default is 1. This can be useful to 
 	 * when loading patterns into the exc->inh connections and 
 	 * there significantly less inhibitory cells than exc ones. */
 	NeuronID patterns_every_post;
 
-	/*! Switch that toggles the behavior when loading a pattern to
+	/*! \brief Switch that toggles the behavior when loading a pattern to
 	 * wrap neuron IDs back onto existing cells via the modulo 
 	 * function. */
 	bool wrap_patterns;
 
-	/*! A pointer that points per default to the ComplexMatrix
+	/*! \brief A pointer that points per default to the ComplexMatrix
 	 * that stores the connectinos. */
 	ForwardMatrix * w; 
 
 	/*! \brief Empty constructor which should not be used -- TODO should be deprecated at some point. */
 	SparseConnection();
+	/*! \brief Load from wmat file constructor which should not be used -- TODO should be deprecated at some point. */
 	SparseConnection(const char * filename);
+
+	/*! \brief Constructor for manual filling. */
 	SparseConnection(NeuronID rows, NeuronID cols);
 
 	SparseConnection(SpikingGroup * source, NeuronGroup * destination, TransmitterType transmitter = GLUT);
@@ -152,7 +155,9 @@ public:
 	 * The constructor takes the weight and sparseness as secondary arguments. The latter allows Auryn to 
 	 * allocate the approximately right amount of memory inadvance. It is good habit to specify at time of initialization also 
 	 * a connection name and the transmitter type. Both can be set separately with set_transmitter and set_name if the function call gets
-	 * too long and ugly. A connection name is often handy during debugging and the transmitter type is a crucial for obvious resons ...  */
+	 * too long and ugly. 
+	 * A connection name is often handy during debugging and the transmitter type is a crucial for obvious resons ...  
+	 * */
 	SparseConnection(
 			SpikingGroup * source, 
 			NeuronGroup * destination, 
@@ -166,18 +171,24 @@ public:
 	 * except source and destination from another connection instance. */
 	SparseConnection(SpikingGroup * source, NeuronGroup * destination, SparseConnection * con, string name="SparseConnection");
 
+	/*! \brief Sparse block constructor
+	 *
+	 *  This constructor initializes the connection with random sparse weights, but only fills a "block" as specified instead of the
+	 *  entire matrix. */
 	SparseConnection(SpikingGroup * source, NeuronGroup * destination, AurynWeight weight, AurynDouble sparseness, NeuronID lo_row, NeuronID hi_row, NeuronID lo_col, NeuronID hi_col, TransmitterType transmitter=GLUT);
 	
 	/*! \brief The default destructor */
 	virtual ~SparseConnection();
 
-	/*! \brief Is used whenever memory has to be allocated manually. Automatically adjust for number of ranks and for security margin */
+	/*! \brief Is used whenever memory has to be allocated manually. Automatically adjusts for number of ranks and for security margin. */
 	void allocate_manually(AurynLong expected_size);
 
-	/*! \brief This function estimates the required size of the nonzero entry buffer. */
+	/*! \brief This function estimates the required size of the nonzero entry buffer. 
+	 *
+	 * It's typicall used internally or when you know what you are doing. */
 	AurynLong estimate_required_nonzero_entires( AurynLong nonzero , double sigma = 5.);
 
-	/*! \brief This function seeds the generator for all random fill operatios */
+	/*! \brief This function seeds the pseudo random number generator for all random fill operatios. */
 	void seed(NeuronID randomseed);
 
 	/*! \brief Returns weight value of a given element if it exists */
@@ -198,20 +209,20 @@ public:
 	/*! \brief Sets a list of connection to value if they exists  */
 	virtual void set(std::vector<neuron_pair> element_list, AurynWeight value);
 
-	/*! \brief Synonym for random_data_lognormal  */
+	/*! \brief Synonym for random_data  */
 	void random_data(AurynWeight mean, AurynWeight sigma); 
-
-	/*! \brief Initialize with random binary at wlo and whi.  
-	 * \param wlo The lower weight value. 
-	 * \param whi The higher weight value.
-	 * \param prob the probability for the higher value. */
-	void init_random_binary(AurynFloat prob=0.5, AurynWeight wlo=0.0, AurynWeight whi=1.0); 
 
 	/*! \brief Set weights of all existing connections randomly using a normal distrubtion */
 	void random_data_normal(AurynWeight mean, AurynWeight sigma); 
 
 	/*! \brief Set weights of all existing connections randomly using a lognormal distribution */
 	void random_data_lognormal(AurynWeight m, AurynWeight s); 
+
+	/*! \brief Initialize with random binary at wlo and whi.  
+	 * \param wlo The lower weight value. 
+	 * \param whi The higher weight value.
+	 * \param prob the probability for the higher value. */
+	void init_random_binary(AurynFloat prob=0.5, AurynWeight wlo=0.0, AurynWeight whi=1.0); 
 
 	/*! \brief Sets weights in cols to the same value drewn from a Gaussian distribution  */
 	void random_col_data(AurynWeight mean, AurynWeight sigma); 
@@ -243,6 +254,7 @@ public:
 	 *
 	 * Set dist_optimized to false and seed all ranks the same to get the same
 	 * matrix independent of the number of ranks. 
+	 * Called internally or when you know what you are doing.
 	 */ 
 	void connect_block_random(AurynWeight weight, 
 			AurynDouble sparseness, 
@@ -254,7 +266,8 @@ public:
 
 	/*! \brief Finalizes connection after random or manual initialization of the weights.
 	 *
-	 * Essentially pads zeros or non-existing elements at the end of ComplexMatrix. */
+	 * Essentially pads zeros or non-existing elements at the end of ComplexMatrix. 
+	 * Called interally or after manually filling matrices. */
 	virtual void finalize();
 	
 	/*! \brief Pushes a single element to the ComplexMatrix.

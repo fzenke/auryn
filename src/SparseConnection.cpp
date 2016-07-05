@@ -200,6 +200,10 @@ void SparseConnection::set_max_weight(AurynWeight maximum_weight)
 
 void SparseConnection::random_data(AurynWeight mean, AurynWeight sigma) 
 {
+}
+
+void SparseConnection::random_data_normal(AurynWeight mean, AurynWeight sigma) 
+{
 	std::stringstream oss;
 	oss << get_log_name() << "randomizing non-zero connections (gaussian) with mean=" << mean << " sigma=" << sigma ;
 	auryn::logger->msg(oss.str(),NOTIFICATION);
