@@ -166,7 +166,7 @@ void WeightMonitor::add_equally_spaced(NeuronID number, NeuronID z)
 	auryn::logger->msg(oss.str(),VERBOSE);
 }
 
-void WeightMonitor::load_data_range( NeuronID i, NeuronID j )
+void WeightMonitor::load_data_range( AurynLong i, AurynLong j )
 {
 	if ( !src->get_destination()->evolve_locally() ) return; 
 
