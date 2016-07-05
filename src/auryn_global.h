@@ -33,8 +33,13 @@
 
 namespace auryn {
 
+	/*! \brief Global pointer to instance of System which needs to be initialized in every simulation main program. */
 	extern System * sys;
+
+	/*! \brief Global pointer to instance of Logger which needs to be initialized in every simulation main program. */
 	extern Logger * logger;
+
+	/*! \brief Global pointer to instance of mpi::communicator which needs to be initialized in every simulation main program. */
 	extern mpi::communicator * communicator;
 }
 
