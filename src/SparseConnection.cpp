@@ -200,6 +200,7 @@ void SparseConnection::set_max_weight(AurynWeight maximum_weight)
 
 void SparseConnection::random_data(AurynWeight mean, AurynWeight sigma) 
 {
+	random_data_normal(mean, sigma);
 }
 
 void SparseConnection::random_data_normal(AurynWeight mean, AurynWeight sigma) 
