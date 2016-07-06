@@ -52,13 +52,12 @@ private:
 	void virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version ) 
 	{
 		DuplexConnection::virtual_serialize(ar,version);
-		ar & *w;
 	}
 
 	void virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version ) 
 	{
 		DuplexConnection::virtual_serialize(ar,version);
-		ar & *w;
+		DuplexConnection::compute_reverse_matrix(); // just in case the buffer location has changed 
 	}
 
 	void init(AurynFloat tau_hom, AurynFloat eta, AurynFloat kappa, AurynFloat maxweight);
