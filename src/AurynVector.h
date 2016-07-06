@@ -67,6 +67,16 @@ namespace auryn {
 #endif 
 			}
 
+			/*! \brief Computes approximation of exp(x) via series approximation up to order n. */
+			T fast_exp(T x, const int n=5)
+			{
+				T sum = 1.0f; // initialize sum of series
+
+				for (int i = n - 1; i > 0; --i )
+					sum = 1 + x * sum / i;
+
+				return sum;
+			}
 			/*! \brief Checks if vector size matches to this instance
 			 *
 			 * Check only enabled if NDEBUG is not defined.*/
@@ -172,6 +182,15 @@ namespace auryn {
 					data[i] = std::pow(data[i],n);
 				}
 			}
+
+			/*! \brief Computes an approximation of exp(x) for each vector element. */
+			void exp()
+			{
+				for ( IndexType i = 0 ; i < size ; ++i ) {
+					data[i] = fast_exp(data[i]);
+				}
+			}
+
 
 			/*! \brief Takes the square root of each element  
 			 *
@@ -466,11 +485,11 @@ namespace auryn {
 
 
 
-	/*! \brief Derived AurynVectorFloat class for performance computation
+	/*! \brief Default AurynVectorFloat class for performance computation
 	 *
-	 * This class inherits the template AurynVector<float,NeuronID> and overwrites 
-	 * some of the functions defined in the template with SIMD intrinsics 
-	 * for higher performance.
+	 * This class derives from AurynVector<float,NeuronID> and overwrites 
+	 * some performance critical member functions defined in the template 
+	 * with SIMD intrinsics for higher performance.
 	 */
 	class AurynVectorFloat : public AurynVector<float,NeuronID> 
 	{
