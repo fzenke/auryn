@@ -22,6 +22,11 @@
 
 #define N 1
 
+/*!\file 
+ *
+ * \brief Example simulation which simulates one Poisson input onto a single postsynaptic neuron and records the membrane potential 
+ * */
+
 using namespace auryn;
 
 namespace po = boost::program_options;

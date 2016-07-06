@@ -22,6 +22,15 @@
 
 #define N 1
 
+/*!\file 
+ *
+ * \brief Example simulation which simulates one Poisson input with short-term plasticity onto a single 
+ * postsynaptic neuron and records the membrane potential 
+ *
+ * As opposed to sim_epsp.cpp this examples uses a connection with short-term plasticity (Tsodyks Markram model) 
+ * which is implemented in STPConnection.
+ * */
+
 using namespace auryn;
 
 namespace po = boost::program_options;
