@@ -33,14 +33,17 @@ namespace auryn {
 
 	/*! \brief Default Auryn vector template 
 	 *
-	 * This essentially copies the core of GSL vector functionality and makes it a class for easier handling.
+	 * This class implements the base vector class for Auryn.
+	 * Neuronal or synaptic state variables are stored as AurynVectors.
 	 * For performance reasons, time critical functions of this template have to be reimplemented in derived 
-	 * classes with a specific template parameter T. For instance I will always provide a derived type AurynVectorFloat 
-	 * which will per default be synonymous to AurynStateVector which implements SSE instructions for labour 
-	 * intensive operations on the vectors. 
+	 * classes with a specific template parameter T. For instance I will always provide a derived type AurynVectorFloat (T=float)
+	 * which per default is synonymous to AurynStateVector which implements SSE instructions for labour 
+	 * intensive operations on the vectors. When using the AurynStateVector in NeuronGroups etc this will speed up computation 
+	 * performance automatically.
 	 * Note, that all Auryn vectors should initialized with multiple of 4 elements (later that number might change) when
-	 * we add AVX support to the code. If you use get_vector_size functions from SpikingGroup this will automatically
-	 * be taken care of...
+	 * we add AVX support to the code. This is done automatically \if you rely on the get_state_vector function implemented in SpikingGroup.
+	 * Alternatively, if you use get_vector_size functions from SpikingGroup this will automatically
+	 * be taken care of too.
 	 * */
 	template <typename T, typename IndexType = NeuronID > 
 	class AurynVector { 
