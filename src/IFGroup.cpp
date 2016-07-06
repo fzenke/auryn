@@ -60,7 +60,6 @@ void IFGroup::init()
 	t_leak = get_state_vector("t_leak");
 	t_exc =  get_state_vector("t_exc");
 	t_inh = get_state_vector("t_inh");
-	
 
 	clear();
 }
@@ -118,7 +117,7 @@ void IFGroup::integrate_membrane()
 	t_leak->diff(mem,e_rest);
     
     // membrane dynamics
-	AurynFloat mul_tau_mem = dt/tau_mem;
+	const AurynFloat mul_tau_mem = dt/tau_mem;
     mem->saxpy(mul_tau_mem,t_exc);
     mem->saxpy(-mul_tau_mem,t_inh);
     mem->saxpy(-mul_tau_mem,t_leak);
