@@ -117,7 +117,7 @@ public:
 	 * \param mode The recording mode (one of RecordingMode datatype)
 	 * \param z The z state the complex matrix state to record from
 	 * */
-	WeightMonitor(SparseConnection * source, NeuronID i, NeuronID j, string filename, AurynDouble interval=10.0, RecordingMode mode = SINGLE, NeuronID z = 0);
+	WeightMonitor(SparseConnection * source, NeuronID i, NeuronID j, string filename, AurynDouble interval=10.0, RecordingMode mode = SINGLE, StateID z = 0);
 
 	virtual ~WeightMonitor();
 

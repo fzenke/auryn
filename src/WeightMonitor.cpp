@@ -38,7 +38,7 @@ WeightMonitor::WeightMonitor(SparseConnection * source, ForwardMatrix * m, std::
 	set_mat(m);
 }
 
-WeightMonitor::WeightMonitor(SparseConnection * source, NeuronID i, NeuronID j, std::string filename, AurynDouble interval, RecordingMode mode, NeuronID z ) : Monitor(filename)
+WeightMonitor::WeightMonitor(SparseConnection * source, NeuronID i, NeuronID j, std::string filename, AurynDouble interval, RecordingMode mode, StateID z ) : Monitor(filename)
 {
 	init(source,i,j,filename,interval/dt);
 
