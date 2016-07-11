@@ -199,6 +199,10 @@ void SpikingGroup::free()
 	for ( std::map<std::string,AurynStateVector *>::const_iterator iter = state_vectors.begin() ; 
 			iter != state_vectors.end() ;
 			++iter ) {
+		std::stringstream oss;
+		oss << "Freeing " << get_name()
+			<< ": " << iter->first;
+		auryn::logger->msg(oss.str(),VERBOSE);
 		if ( iter->first[0] == '_' ) continue; // do not process volatile state_vector
 		delete iter->second;
 	}
