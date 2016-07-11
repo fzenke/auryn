@@ -36,9 +36,9 @@ SyncBuffer::SyncBuffer( mpi::communicator * com )
 
 SyncBuffer::~SyncBuffer(  )
 {
-	delete pop_offsets;
-	delete pop_delta_spikes;
-	delete last_spike_pos;
+	delete [] pop_offsets;
+	delete [] pop_delta_spikes;
+	delete [] last_spike_pos;
 }
 
 void SyncBuffer::init()
