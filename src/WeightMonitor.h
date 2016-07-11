@@ -58,7 +58,10 @@ enum PatternMode { ALLTOALL, ASSEMBLIES_ONLY};
  *
  * This class perform online monitoring of synaptic weights in a Connection. The class supports different recording modes
  * for single individual weights or multiple weights. Output is written to a human readable text file.
+ * 
+ * \todo Implement a new data_index based element list which can deal with Complex Matrix states in a clean fashion
  */ 
+
 class WeightMonitor : protected Monitor
 {
 protected:

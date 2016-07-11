@@ -315,8 +315,14 @@ void WeightMonitor::load_pattern_connections( std::string filename_pre, std::str
 
 void WeightMonitor::record_single_synapses()
 {
-	for (std::vector<AurynLong>::iterator iter = element_list->begin() ; iter != element_list->end() ; ++iter)
-		outfile << mat->get_data( (*iter) ) << " ";
+	for (std::vector<AurynLong>::iterator iter = element_list->begin() ; iter != element_list->end() ; ++iter) {
+		// the following is a workaround for the old WeightMonitor data_index ptr log to work with the new state vector 
+		// based ComplexMatrix class
+		// thus we need to translate the data index to a state variable z and the actual new data_index
+		const AurynLong data_index = (*iter)%src->w->get_statesize();
+		const StateID z = (*iter)/src->w->get_statesize();
+		outfile << mat->get_data( data_index, z ) << " ";
+	}
 }
 
 void WeightMonitor::record_synapse_groups()
