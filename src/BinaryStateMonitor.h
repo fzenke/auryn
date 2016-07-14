@@ -36,7 +36,9 @@
 
 namespace auryn {
 
-/*! \brief Records from an arbitray state vector of one unit from the source SpikingGroup to a file.*/
+/*! \brief Records from an arbitray state vector of one unit from the source SpikingGroup to a binary file. 
+ *
+ * Binary state files need to be read with the command line tool aubs or with custom code. */
 class BinaryStateMonitor : public Monitor
 {
 private:
