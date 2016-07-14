@@ -40,7 +40,7 @@ namespace auryn {
 			static int subversion;
 			static int revision_number;
 			static NeuronID tag_binary_spike_monitor;
-			static NeuronID tag_binary_state_monitor;
+			static AurynState tag_binary_state_monitor;
 			static std::string revision_suffix;
 			static std::string git_describe;
 		

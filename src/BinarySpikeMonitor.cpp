@@ -80,7 +80,7 @@ void BinarySpikeMonitor::init(SpikingGroup * source, std::string filename, Neuro
 	// the number of timesteps per second
 	// the neuronID field contains a tag 
 	// encoding the version number
-	struct SpikeEvent_type spikeData;
+	SpikeEvent_type spikeData;
 	spikeData.time = (AurynTime)(1.0/dt);
 	spikeData.neuronID = sys->build.tag_binary_spike_monitor;
 	outfile.write((char*)&spikeData, sizeof(SpikeEvent_type));
@@ -104,7 +104,7 @@ void BinarySpikeMonitor::propagate()
 {
 	if ( !active ) return;
 
-	struct SpikeEvent_type spikeData;
+	SpikeEvent_type spikeData;
 	spikeData.time = auryn::sys->get_clock();
 	for (it = src->get_spikes_immediate()->begin() ; it < src->get_spikes_immediate()->end() ; ++it ) {
 		if (*it >= n_from ) {

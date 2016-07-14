@@ -179,7 +179,6 @@ namespace auryn {
 	/*! \brief Rounds vector size to multiple of four to allow using the SSE optimizations. */
 	NeuronID calculate_vector_size(NeuronID i);
 
-
 	/*! \brief Auryn spike event for binary monitors */
 	struct SpikeEvent_type
 	{
@@ -187,6 +186,12 @@ namespace auryn {
 		NeuronID neuronID;
 	};
 
+	/*! \brief Auryn spike event for binary monitors */
+	struct StateValue_type
+	{
+		AurynTime time; 
+		AurynState value;
+	};
 
 	// Exceptions
 	class AurynOpenFileException: public std::exception

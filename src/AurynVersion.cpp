@@ -8,7 +8,7 @@ namespace auryn {
     int AurynVersion::subversion = 8;
     int AurynVersion::revision_number = 0;
     NeuronID AurynVersion::tag_binary_spike_monitor = 287960000+100*0+10*8+1*0; //!< file signature for BinarySpikeMonitor files
-    NeuronID AurynVersion::tag_binary_state_monitor = 287961000+100*0+10*8+1*0; //!< file signature for BinaryStateMonitor files
+    AurynState AurynVersion::tag_binary_state_monitor = 287961000+100*0+10*8+1*0; //!< file signature for BinaryStateMonitor files
     std::string AurynVersion::revision_suffix = "-dev-06f54fe";
     std::string AurynVersion::git_describe = "v0.8.0-dev-5-g06f54fe";
 
