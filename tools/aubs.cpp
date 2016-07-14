@@ -75,7 +75,7 @@ void read_header( std::ifstream * input, double& dt, AurynLong num_events, doubl
 	// do some version checking
 	AurynVersion build;
 	AurynState tag = state_data.value;
-	if ( tag/1000 != build.tag_binary_state_monitor/1000 ) {
+	if ( (int)tag/1000 != (int)(build.tag_binary_state_monitor)/1000 ) {
 		std::cerr << "Header not recognized. " 
 			"Not a BinaryStateMonitor file?" 
 			 << std::endl;
