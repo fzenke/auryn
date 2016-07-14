@@ -1,3 +1,7 @@
 ADD_EXECUTABLE( aube aube.cpp )
 TARGET_LINK_LIBRARIES( aube auryn ${Boost_LIBRARIES} )
 INSTALL (TARGETS aube DESTINATION bin)
+
+ADD_EXECUTABLE( aubs aubs.cpp )
+TARGET_LINK_LIBRARIES( aubs auryn ${Boost_LIBRARIES} )
+INSTALL (TARGETS aubs DESTINATION bin)
