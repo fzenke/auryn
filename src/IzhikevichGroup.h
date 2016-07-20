@@ -33,20 +33,28 @@
 
 namespace auryn {
 
-/*! \brief Conductance based LIF neuron model with absolute refractoriness as used in Vogels and Abbott 2005.
+/*! \brief This NeuronGroup implements the Izhikevich neuron model
+ *
+ * This NeuronGroup implements the nonlinear integrate and fire neuron model by Eugene M. Izhikevich as described in 
+ * Izhikevich, E.M. (2003). Simple model of spiking neurons. IEEE Transactions on Neural Networks 14, 1569–1572.
+ *
+ * In this implementation the state variables have been rescaled to V and seconds for consistency. The model is controlled 
+ * via the public members: avar, bvar, cvar, dvar which correspond to the a,b,c and d parameters in the paper.
+ *
+ * Note that since this model has been rescaled to volts and seconds the reset and jump size paramters (cvar and dvar)
+ * also need to be given in volts (i.e. scaled by 1e-3).
+ *
  */
 class IzhikevichGroup : public NeuronGroup
 {
 private:
-	AurynStateVector * bg_current;
 	AurynStateVector * adaptation_vector;
 	AurynStateVector * temp_vector;
 	AurynStateVector * i_exc, * i_inh;
 
-	AurynFloat e_rest,e_rev_gaba,thr,tau_mem, r_mem, c_mem;
+	AurynFloat e_rev_gaba,thr;
 	AurynFloat tau_ampa,tau_gaba;
 	AurynFloat scale_ampa, scale_gaba;
-	AurynFloat avar, bvar, cvar, dvar;
 
 
 
@@ -64,23 +72,12 @@ public:
 	IzhikevichGroup(NeuronID size);
 	virtual ~IzhikevichGroup();
 
-	/*! \brief Controls the constant current input (per default set so zero) to neuron i */
-	void set_bg_current(NeuronID i, AurynFloat current);
-
-	/*! \brief Controls the constant current input to all neurons */
-	void set_bg_currents(AurynFloat current);
-
-	/*! \brief Gets the current background current value for neuron i */
-	AurynFloat get_bg_current(NeuronID i);
-
-	/*! \brief Sets the membrane time constant (default 20ms) */
-	void set_tau_mem(AurynFloat taum);
-
-	/*! \brief Sets the membrane resistance (default 100 M-ohm) */
-	void set_r_mem(AurynFloat rm);
-
-	/*! \brief Sets the membrane capacitance (default 200pF) */
-	void set_c_mem(AurynFloat cm);
+	AurynFloat avar; /*< The "a" parameter in the Izhikevich model which controls the time course of the adaptation variable u */
+	AurynFloat bvar; /*< The "b" parameter in the Izhikevich model which controls the fixed point of the adaptation variable u */
+	AurynFloat cvar; /*< The "c" parameter in the Izhikevich model which is the reset voltage */
+	AurynFloat dvar; /*< The "d" parameter in the Integrates model which is the spike triggered jump size of the adaptation variable u 
+					   (note that it needs to be rescaled to units of V (i.e. multiplied by 1e-3) when paramters from Izhikevich's
+					   original publication are used because the model has been renormalized to volts for consistency reasons. */
 
 	/*! \brief Sets the exponential time constant for the AMPA channel (default 5ms) */
 	void set_tau_ampa(AurynFloat tau);

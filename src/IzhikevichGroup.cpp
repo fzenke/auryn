@@ -38,19 +38,13 @@ void IzhikevichGroup::init()
 	e_rev_gaba = -80e-3;
 	tau_ampa = 5e-3;
 	tau_gaba = 10e-3;
-    r_mem = 1e8;
-    c_mem = 200e-12;
-	tau_mem = r_mem*c_mem;
 
 	avar = 0.02;   // adaptation variable rate constant
 	bvar = 0.2;    // subtreshold adaptation
 	cvar = -65e-3; // reset voltage
 	dvar = 2.0e-3; // spike triggered adaptation
+	thr = 30e-3; // spike cutoff (reset threshold)
 
-	e_rest = cvar;
-	thr = 30e-3;
-
-	bg_current = get_state_vector("bg_current");
 	adaptation_vector = get_state_vector("izhi_adaptation");
 	i_exc = get_state_vector("i_exc");
 	i_inh = get_state_vector("i_inh");
@@ -64,10 +58,9 @@ void IzhikevichGroup::init()
 void IzhikevichGroup::clear()
 {
 	clear_spikes();
-   mem->set_all(e_rest);
+   mem->set_all(cvar);
    g_ampa->set_all(0.);
    g_gaba->set_all(0.);
-   bg_current->set_all(0.);
 }
 
 
@@ -118,9 +111,6 @@ void IzhikevichGroup::evolve()
 	temp_vector->add(0.140);
 	temp_vector->sub(adaptation_vector);
 
-	// add bg current
-	temp_vector->add(bg_current);
-
 	// add synaptic currents
 	temp_vector->add(i_exc);
 	temp_vector->sub(i_inh);
@@ -141,61 +131,23 @@ void IzhikevichGroup::evolve()
 	g_gaba->scale(scale_gaba);
 }
 
-void IzhikevichGroup::set_bg_current(NeuronID i, AurynFloat current) {
-	if ( localrank(i) )
-		auryn_vector_float_set ( bg_current , global2rank(i) , current ) ;
-}
-
-void IzhikevichGroup::set_bg_currents(AurynFloat current) {
-	for ( NeuronID i = 0 ; i < get_rank_size() ; ++i ) 
-		auryn_vector_float_set ( bg_current , i , current ) ;
-}
-
-void IzhikevichGroup::set_tau_mem(AurynFloat taum)
-{
-	tau_mem = taum;
-	calculate_scale_constants();
-}
-
-void IzhikevichGroup::set_r_mem(AurynFloat rm)
-{
-	r_mem = rm;
-	tau_mem = r_mem*c_mem;
-	calculate_scale_constants();
-}
-
-void IzhikevichGroup::set_c_mem(AurynFloat cm)
-{
-	c_mem = cm;
-	tau_mem = r_mem*c_mem;
-	calculate_scale_constants();
-}
-
-AurynFloat IzhikevichGroup::get_bg_current(NeuronID i) {
-	if ( localrank(i) )
-		return auryn_vector_float_get ( bg_current , global2rank(i) ) ;
-	else 
-		return 0;
-}
-
 std::string IzhikevichGroup::get_output_line(NeuronID i)
 {
 	std::stringstream oss;
 	oss << mem->get(i) << " " << g_ampa->get(i) << " " << g_gaba->get(i) << " " 
-		<< bg_current->get(i) <<"\n";
+		<< "\n";
 	return oss.str();
 }
 
 void IzhikevichGroup::load_input_line(NeuronID i, const char * buf)
 {
-		float vmem,vampa,vgaba,vbgcur;
-		sscanf (buf,"%f %f %f %f",&vmem,&vampa,&vgaba,&vbgcur);
+		float vmem,vampa,vgaba;
+		sscanf (buf,"%f %f %f",&vmem,&vampa,&vgaba);
 		if ( localrank(i) ) {
 			NeuronID trans = global2rank(i);
 			mem->set(trans,vmem);
 			g_ampa->set(trans,vampa);
 			g_gaba->set(trans,vgaba);
-			bg_current->set(trans, vbgcur);
 		}
 }
 
