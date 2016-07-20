@@ -238,14 +238,19 @@ public:
 	/*! \brief Implements load from file functionality. Also called in save_network_state from System class. */
 	virtual bool load_from_file(std::string filename) = 0;
 
-	/*! \brief Transmits a spike to a postsynaptic partner
+	/*! \brief Default way to transmit a spike to a postsynaptic partner
 	 *
 	 * The method adds a given amount to the respective element in the target/transmitter array of the postsynaptic
 	 * neuron specifeid by id. This is a new approach which replaces tadd to old method, increments 
 	 * transmitter specific state variables in neuron id. It turned out much faster that way, because the transmit
 	 * function is one of the most often called function in the simulation and it can be efficiently inlined by the 
 	 * compiler. */
-	inline void transmit(NeuronID id, AurynWeight amount);
+	void transmit(const NeuronID id, const AurynWeight amount);
+
+	/*! \brief Transmits a spike to a given target group and state
+	 *
+	 * The method exposes the transmit interface and should not be used unless you know exactly what you are doing. */
+	void targeted_transmit(NeuronGroup * target_group, AurynStateVector * target_state, const NeuronID id, const AurynWeight amount);
 
 	/*! \brief Same as transmit but first checks if the target neuron exists and avoids segfaults that way (but it's also slower). */
 	void safe_transmit(NeuronID id, AurynWeight amount);
@@ -278,11 +283,18 @@ public:
 
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(Connection)
 
-inline void Connection::transmit(NeuronID id, AurynWeight amount) 
+
+inline void Connection::targeted_transmit(NeuronGroup * target_group, AurynStateVector * target_state, const NeuronID id, const AurynWeight amount) 
 {
-	const NeuronID localid = dst->global2rank(id);
-	target_state_vector->data[localid]+=amount;
+	const NeuronID localid = target_group->global2rank(id);
+	target_state->data[localid]+=amount;
 }
+
+inline void Connection::transmit(const NeuronID id, const AurynWeight amount) 
+{
+	targeted_transmit(dst, target_state_vector, id, amount);
+}
+
 }
 
 #endif /*CONNECTION_H_*/
