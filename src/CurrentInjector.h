@@ -70,21 +70,25 @@ protected:
 	
 public:
 
-	/*! Default Constructor 
+	/*! \brief Default Constructor 
 	 * @param[target] Initializes all currents with this value
 	 * @param[initial_current] Initializes all currents with this value
 	 */
 	CurrentInjector(NeuronGroup * target, std::string neuron_state_name="mem", AurynFloat initial_current=0.0 );
 
-	/*! Sets the state to add the "current" in every timestep to */
+	/*! \brief Sets the state to add the "current" in every timestep to */
 	void set_target_state( std::string state_name = "mem" );
 
-	/*! Default Destructor */
+	/*! \brief Default Destructor */
 	virtual ~CurrentInjector();
 
 
-	/*! Sets the state that is stimulated with Current input.
-	 * This must be a valid state vector name (default = mem) */
+	/*! \brief Sets the state that is stimulated with Current input.
+	 * 
+	 * This must be a valid state vector name (default = mem) 
+	 * 
+	 * \param i Index of neuron
+	 * \param current Current value to set*/
 	void set_current( NeuronID i, AurynFloat current );
 
 	/*! Implementation of necessary propagate() function. */
