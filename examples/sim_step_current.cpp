@@ -71,8 +71,6 @@ int main(int ac, char* av[])
 	// define monitors
 	SpikeMonitor * smon = new SpikeMonitor( neuron, sys->fn("ras") );
 	StateMonitor * vmon = new StateMonitor( neuron, 0, "mem", sys->fn("mem") );
-	StateMonitor * amon = new StateMonitor( neuron, 0, "g_ampa", sys->fn("ampa") );
-	StateMonitor * nmon = new StateMonitor( neuron, 0, "g_nmda", sys->fn("nmda") );
 
 	// run simulation
 	logger->msg("Running ...",PROGRESS);
