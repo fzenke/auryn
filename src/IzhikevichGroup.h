@@ -74,10 +74,10 @@ public:
 	IzhikevichGroup(NeuronID size);
 	virtual ~IzhikevichGroup();
 
-	AurynFloat avar; /*< The "a" parameter in the Izhikevich model which controls the time course of the adaptation variable u */
-	AurynFloat bvar; /*< The "b" parameter in the Izhikevich model which controls the fixed point of the adaptation variable u */
-	AurynFloat cvar; /*< The "c" parameter in the Izhikevich model which is the reset voltage */
-	AurynFloat dvar; /*< The "d" parameter in the Integrates model which is the spike triggered jump size of the adaptation variable u 
+	AurynFloat avar; /*!< The "a" parameter in the Izhikevich model which controls the time course of the adaptation variable u */
+	AurynFloat bvar; /*!< The "b" parameter in the Izhikevich model which controls the fixed point of the adaptation variable u */
+	AurynFloat cvar; /*!< The "c" parameter in the Izhikevich model which is the reset voltage */
+	AurynFloat dvar; /*!< The "d" parameter in the Integrates model which is the spike triggered jump size of the adaptation variable u 
 					   (note that it needs to be rescaled to units of V (i.e. multiplied by 1e-3) when paramters from Izhikevich's
 					   original publication are used because the model has been renormalized to volts for consistency reasons. */
 
