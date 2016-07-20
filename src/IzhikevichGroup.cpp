@@ -46,8 +46,8 @@ void IzhikevichGroup::init()
 	thr = 30e-3; // spike cutoff (reset threshold)
 
 	adaptation_vector = get_state_vector("izhi_adaptation");
-	i_exc = get_state_vector("i_exc");
-	i_inh = get_state_vector("i_inh");
+	cur_exc = get_state_vector("cur_exc");
+	cur_inh = get_state_vector("cur_inh");
 	temp_vector = get_state_vector("_temp");
 
 
@@ -90,17 +90,15 @@ void IzhikevichGroup::calculate_scale_constants()
 
 void IzhikevichGroup::evolve()
 {
-	// TODO do not hardcode parameters and convert to mV
-	
 	// compute synaptic conductance based currents
     // excitatory
-	i_exc->copy(g_ampa);
-	i_exc->scale(-1);
-	i_exc->mul(mem);
+	cur_exc->copy(g_ampa);
+	cur_exc->scale(-1);
+	cur_exc->mul(mem);
     
     // inhibitory
-	i_inh->diff(mem,e_rev_gaba);
-	i_inh->mul(g_gaba);
+	cur_inh->diff(mem,e_rev_gaba);
+	cur_inh->mul(g_gaba);
 
 	// compute izhikevich neuronal dynamics
 	temp_vector->copy(mem);
@@ -112,9 +110,10 @@ void IzhikevichGroup::evolve()
 	temp_vector->sub(adaptation_vector);
 
 	// add synaptic currents
-	temp_vector->add(i_exc);
-	temp_vector->sub(i_inh);
+	temp_vector->add(cur_exc);
+	temp_vector->sub(cur_inh);
 
+	// update membrane voltage
 	mem->saxpy(dt/1e-3,temp_vector); // division by 1e-3 due to rescaling of time from ms -> s
 
 	// update adaptation variable

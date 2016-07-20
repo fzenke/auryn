@@ -33,7 +33,7 @@
 
 namespace auryn {
 
-/*! \brief This NeuronGroup implements the Izhikevich neuron model
+/*! \brief This NeuronGroup implements the Izhikevich neuron model with conductance based AMPA and GABA synapses
  *
  * This NeuronGroup implements the nonlinear integrate and fire neuron model by Eugene M. Izhikevich as described in 
  * Izhikevich, E.M. (2003). Simple model of spiking neurons. IEEE Transactions on Neural Networks 14, 1569–1572.
@@ -41,8 +41,12 @@ namespace auryn {
  * In this implementation the state variables have been rescaled to V and seconds for consistency. The model is controlled 
  * via the public members: avar, bvar, cvar, dvar which correspond to the a,b,c and d parameters in the paper.
  *
- * Note that since this model has been rescaled to volts and seconds the reset and jump size paramters (cvar and dvar)
+ * Note that since this model has been rescaled to volts and seconds the reset and jump size parameters (cvar and dvar)
  * also need to be given in volts (i.e. scaled by 1e-3).
+ *
+ * Also keep in mind that the default interpretation of synaptic synaptic strength given in multiples of the leak
+ * conductance is not longer true for this group and you will need to "gauge" synaptic strength according to the size of 
+ * membrane potential deflection it causes.
  *
  */
 class IzhikevichGroup : public NeuronGroup
@@ -50,13 +54,11 @@ class IzhikevichGroup : public NeuronGroup
 private:
 	AurynStateVector * adaptation_vector;
 	AurynStateVector * temp_vector;
-	AurynStateVector * i_exc, * i_inh;
+	AurynStateVector * cur_exc, * cur_inh;
 
 	AurynFloat e_rev_gaba,thr;
 	AurynFloat tau_ampa,tau_gaba;
 	AurynFloat scale_ampa, scale_gaba;
-
-
 
 	void init();
 	void calculate_scale_constants();
