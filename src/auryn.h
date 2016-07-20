@@ -65,26 +65,29 @@
 #include "IdentityConnection.h"
 #include "AllToAllConnection.h"
 
-// Spiking and Neuron group definitions
-#include "AIF2Group.h"
-#include "IFGroup.h"
-#include "AIFGroup.h"
-#include "AdExGroup.h"
-#include "CubaIFGroup.h"
-#include "TIFGroup.h"
-#include "IafPscDeltaGroup.h"
-#include "IafPscExpGroup.h"
+// Spiking and input group definitions
 #include "SpikingGroup.h"
 #include "NeuronGroup.h"
 #include "PoissonGroup.h"
+#include "FileInputGroup.h"
+#include "FileModulatedPoissonGroup.h"
+#include "StimulusGroup.h"
 #include "ProfilePoissonGroup.h"
 #include "StructuredPoissonGroup.h"
 #include "CorrelatedPoissonGroup.h"
 #include "MovingBumpGroup.h"
-#include "FileModulatedPoissonGroup.h"
 #include "AuditoryBeepGroup.h"
-#include "StimulusGroup.h"
-#include "FileInputGroup.h"
+
+// NeuronGroups
+#include "IFGroup.h"
+#include "CubaIFGroup.h"
+#include "TIFGroup.h"
+#include "AIFGroup.h"
+#include "AIF2Group.h"
+#include "AdExGroup.h"
+#include "IafPscDeltaGroup.h"
+#include "IafPscExpGroup.h"
+#include "IzhikevichGroup.h"
 
 
 // Checker definitions
