@@ -27,7 +27,7 @@ set multiplot layout 1,3
 
 set label 1 at screen 0.001, screen 0.1 'Commit:' left
 set title 'Vogels \& Abbott benchmark'
-set ylabel 'Time (s)'
+set ylabel 'Wall time (s)'
 plot 'benchmark_results.dat' using  3:4:xticlabels(revname(strcol(2))) lc -1
 
 unset ylabel 
