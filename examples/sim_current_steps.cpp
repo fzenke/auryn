@@ -63,14 +63,18 @@ int main(int ac, char* av[])
 	// END Global definitions
 
 	// define neuron group
-	IzhikevichGroup * neuron = new IzhikevichGroup(1);
+	AdExGroup * neuron = new AdExGroup(1);
+	// alternatively you can also use an
+	// IzhikevichGroup * neuron = new IzhikevichGroup(1);
+
 
 	// define current input 
 	CurrentInjector * curinject = new CurrentInjector(neuron, "mem");
 
 	// define monitors
 	SpikeMonitor * smon = new SpikeMonitor( neuron, sys->fn("ras") );
-	StateMonitor * vmon = new StateMonitor( neuron, 0, "mem", sys->fn("mem") );
+	VoltageMonitor * vmon = new VoltageMonitor( neuron, 0, sys->fn("mem") );
+	StateMonitor * wmon = new StateMonitor( neuron, 0, "w", sys->fn("w") );
 
 	// run simulation
 	logger->msg("Running ...",PROGRESS);
