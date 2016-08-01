@@ -52,7 +52,7 @@ SpikeMonitor::~SpikeMonitor()
 
 void SpikeMonitor::init(SpikingGroup * source, std::string filename, NeuronID from, NeuronID to)
 {
-	auryn::sys->register_monitor(this);
+	auryn::sys->register_device(this);
 
 	// sys = system;
 	active = true;

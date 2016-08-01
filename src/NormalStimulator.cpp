@@ -24,7 +24,7 @@ using namespace auryn;
 
 boost::mt19937 NormalStimulator::gen = boost::mt19937();
 
-NormalStimulator::NormalStimulator(NeuronGroup * target, AurynWeight sigma, std::string target_state ) : Monitor( )
+NormalStimulator::NormalStimulator(NeuronGroup * target, AurynWeight sigma, std::string target_state ) : Device( )
 {
 	init(target, sigma, target_state);
 }
@@ -32,7 +32,7 @@ NormalStimulator::NormalStimulator(NeuronGroup * target, AurynWeight sigma, std:
 
 void NormalStimulator::init( NeuronGroup * target, AurynWeight sigma, std::string target_state )
 {
-	auryn::sys->register_monitor(this);
+	auryn::sys->register_device(this);
 	dst = target;
 
 	set_target_state(target_state);

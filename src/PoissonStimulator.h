@@ -30,7 +30,7 @@
 #include "AurynVector.h"
 #include "System.h"
 #include "Logger.h"
-#include "Monitor.h"
+#include "Device.h"
 #include "NeuronGroup.h"
 
 #include <boost/random/mersenne_twister.hpp>
@@ -44,7 +44,7 @@ namespace auryn {
  *  Instances of this class inject independent currents from a Poisson distribution to the NeuronGroup assigned.
  */
 
-class PoissonStimulator : protected Monitor
+class PoissonStimulator : protected Device
 {
 private:
 

@@ -29,7 +29,7 @@ using namespace auryn;
 
 RealTimeMonitor::RealTimeMonitor(std::string filename, AurynDouble start, AurynDouble stop) : Monitor(filename)
 {
-	auryn::sys->register_monitor(this);
+	auryn::sys->register_device(this);
 
 	t_start = start/dt;
 	t_stop = stop/dt;

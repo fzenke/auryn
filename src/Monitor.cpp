@@ -36,8 +36,13 @@ void Monitor::init(std::string filename)
 	open_output_file(filename);
 }
 
-Monitor::Monitor()
+Monitor::Monitor() : Device()
 {
+}
+
+Monitor::Monitor( std::string filename ) : Device()
+{
+	init(filename);
 }
 
 void Monitor::open_output_file(std::string filename)
@@ -53,10 +58,6 @@ void Monitor::open_output_file(std::string filename)
 	}
 }
 
-Monitor::Monitor( std::string filename )
-{
-	init(filename);
-}
 
 Monitor::~Monitor()
 {
@@ -76,8 +77,10 @@ void Monitor::flush()
 
 void Monitor::virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version ) 
 {
+	Device::virtual_serialize(ar, version);
 }
 
 void Monitor::virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version ) 
 {
+	Device::virtual_serialize(ar, version);
 }

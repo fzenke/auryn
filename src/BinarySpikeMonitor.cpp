@@ -67,7 +67,7 @@ void BinarySpikeMonitor::open_output_file(std::string filename)
 
 void BinarySpikeMonitor::init(SpikingGroup * source, std::string filename, NeuronID from, NeuronID to)
 {
-	auryn::sys->register_monitor(this);
+	auryn::sys->register_device(this);
 
 	// sys = system;
 	n_from = from;

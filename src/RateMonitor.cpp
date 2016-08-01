@@ -38,7 +38,7 @@ RateMonitor::~RateMonitor()
 
 void RateMonitor::init(SpikingGroup * source, std::string filename, AurynFloat samplinginterval)
 {
-	auryn::sys->register_monitor(this);
+	auryn::sys->register_device(this);
 
 	src = source;
 	ssize = samplinginterval/dt;

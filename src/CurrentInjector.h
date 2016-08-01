@@ -30,7 +30,7 @@
 #include "AurynVector.h"
 #include "System.h"
 #include "Logger.h"
-#include "Monitor.h"
+#include "Device.h"
 #include "NeuronGroup.h"
 
 
@@ -44,7 +44,7 @@ namespace auryn {
  * 
  */
 
-class CurrentInjector : protected Monitor
+class CurrentInjector : protected Device
 {
 private:
 

@@ -40,7 +40,7 @@ void WeightStatsMonitor::init(Connection * source, std::string filename,AurynTim
 {
 	if ( !source->get_destination()->evolve_locally() ) return;
 
-	auryn::sys->register_monitor(this);
+	auryn::sys->register_device(this);
 
 	src = source;
 	ssize = stepsize;

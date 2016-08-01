@@ -28,6 +28,7 @@
 
 #include "auryn_definitions.h"
 #include "AurynVector.h"
+#include "Device.h"
 #include <fstream>
 #include <string>
 
@@ -41,16 +42,9 @@ namespace auryn {
 	 * Classes inheriting from Monitor have to implement the method propagate. Unlike Checker objects propagate returns void. Use Checker if you need the Monitor to be able to interrupt a run. 
 	 */
 
-	class Monitor
+	class Monitor : public Device
 	{
 	private:
-		/*! Functions necesssary for serialization and loading saving to netstate files. */
-		friend class boost::serialization::access;
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int version)
-		{
-			virtual_serialize(ar, version);
-		}
 
 
 	protected:
@@ -74,19 +68,20 @@ namespace auryn {
 		bool active;
 
 		/*! \brief Flush to file */
-		void flush();
+		virtual void flush();
 
 		/*! \brief Standard constructor */
 		Monitor();
+
 		/*! \brief Standard constructor with file name*/
 		Monitor(std::string filename);
+
 		/*! \brief Standard destructor  */
 		virtual ~Monitor();
+
 		/*! Virtual propagate function to be called in central simulation loop in System */
 		virtual void propagate() = 0;
 	};
-
-	BOOST_SERIALIZATION_ASSUME_ABSTRACT(Checker)
 
 	extern System * sys;
 	extern Logger * logger;

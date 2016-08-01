@@ -140,8 +140,8 @@ void System::free()
 {
 	for ( unsigned int i = 0 ; i < checkers.size() ; ++i )
 		delete checkers[i];
-	for ( unsigned int i = 0 ; i < monitors.size() ; ++i )
-		delete monitors[i];
+	for ( unsigned int i = 0 ; i < devices.size() ; ++i )
+		delete devices[i];
 	for ( unsigned int i = 0 ; i < connections.size() ; ++i )
 		delete connections[i];
 	for ( unsigned int i = 0 ; i < spiking_groups.size() ; ++i )
@@ -149,7 +149,7 @@ void System::free()
 
 	spiking_groups.clear();
 	connections.clear();
-	monitors.clear();
+	devices.clear();
 	checkers.clear();
 
 	delete syncbuffer;
@@ -216,9 +216,9 @@ void System::register_connection(Connection * connection)
 	connections.push_back(connection);
 }
 
-void System::register_monitor(Monitor * monitor)
+void System::register_device(Device * device)
 {
-	monitors.push_back(monitor);
+	devices.push_back(device);
 }
 
 void System::register_checker(Checker * checker)
@@ -286,19 +286,24 @@ void System::propagate()
 		(*iter)->propagate(); 
 }
 
-bool System::monitor(bool checking)
+void System::execute_devices()
 {
-	std::vector<Monitor *>::const_iterator iter;
-	for ( iter = monitors.begin() ; iter != monitors.end() ; ++iter )
+	std::vector<Device *>::const_iterator iter;
+	for ( iter = devices.begin() ; iter != devices.end() ; ++iter )
 		(*iter)->propagate();
+}
 
-	for ( unsigned int i = 0 ; i < checkers.size() ; ++i )
-		if (!checkers[i]->propagate() && checking) {
+
+bool System::execute_checkers()
+{
+	for ( unsigned int i = 0 ; i < checkers.size() ; ++i ) {
+		if (!checkers[i]->propagate() ) {
 			std::stringstream oss;
-			oss << "Checker " << i << " broke run!";
+			oss << "Checker " << i << " triggered abort of simulation!";
 			auryn::logger->msg(oss.str(),WARNING);
 			return false;
 		}
+	}
 
 	return true;
 }
@@ -432,9 +437,13 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 
 		evolve();
 		propagate();
+		execute_devices();
 
-		if (!monitor(checking))
-			return false;
+		if ( checking ) {
+			if (!execute_checkers()) {
+				return false;
+			}
+		}
 
 		evolve_independent(); // used to run in parallel to the sync (and could still in principle)
 		// what is important for event based integration such as done in LinearTrace that this stays
@@ -645,17 +654,17 @@ void System::save_network_state(std::string basename)
 		oa << *(spiking_groups[i]);
 	}
 
-	// Save Monitors
-	auryn::logger->msg("Saving Monitors ...",VERBOSE);
-	for ( unsigned int i = 0 ; i < monitors.size() ; ++i ) {
+	// Save Devices
+	auryn::logger->msg("Saving Devices ...",VERBOSE);
+	for ( unsigned int i = 0 ; i < devices.size() ; ++i ) {
 
 		std::stringstream oss;
-		oss << "Saving Monitor "
+		oss << "Saving Device "
 			<<  i 
 			<< " to stream";
 		auryn::logger->msg(oss.str(),VERBOSE);
 
-		oa << *(monitors[i]);
+		oa << *(devices[i]);
 	}
 
 	auryn::logger->msg("Saving Checkers ...",VERBOSE);
@@ -787,16 +796,16 @@ void System::load_network_state(std::string basename)
 		ia >> *(spiking_groups[i]);
 	}
 
-	// Loading Monitors states
-	auryn::logger->msg("Loading Monitors ...",VERBOSE);
-	for ( unsigned int i = 0 ; i < monitors.size() ; ++i ) {
+	// Loading Devices states
+	auryn::logger->msg("Loading Devices ...",VERBOSE);
+	for ( unsigned int i = 0 ; i < devices.size() ; ++i ) {
 
 		std::stringstream oss;
-		oss << "Loading Monitor "
+		oss << "Loading Device "
 			<<  i;
 		auryn::logger->msg(oss.str(),VERBOSE);
 
-		ia >> *(monitors[i]);
+		ia >> *(devices[i]);
 	}
 
 	
@@ -851,10 +860,10 @@ AurynDouble System::get_total_elapsed_time()
 	return elapsed;
 }
 
-void System::flush_monitors()
+void System::flush_devices()
 {
-	for ( unsigned int i = 0 ; i < monitors.size() ; ++i )
-		monitors[i]->flush();
+	for ( unsigned int i = 0 ; i < devices.size() ; ++i )
+		devices[i]->flush();
 }
 
 #ifdef CODE_COLLECT_SYNC_TIMING_STATS

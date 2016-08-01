@@ -29,7 +29,7 @@ using namespace auryn;
 
 boost::mt19937 PoissonStimulator::gen = boost::mt19937();
 
-PoissonStimulator::PoissonStimulator(NeuronGroup * target, AurynFloat rate, AurynWeight w ) : Monitor( )
+PoissonStimulator::PoissonStimulator(NeuronGroup * target, AurynFloat rate, AurynWeight w ) : Device( )
 {
 	init(target,rate,w);
 }
@@ -37,7 +37,7 @@ PoissonStimulator::PoissonStimulator(NeuronGroup * target, AurynFloat rate, Aury
 
 void PoissonStimulator::init( NeuronGroup * target, AurynFloat rate, AurynWeight w )
 {
-	auryn::sys->register_monitor(this);
+	auryn::sys->register_device(this);
 	dst = target;
 
 	set_target_state();

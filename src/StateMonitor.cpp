@@ -34,7 +34,7 @@ StateMonitor::StateMonitor(SpikingGroup * source, NeuronID id, std::string state
 	if ( !source->localrank(id) ) return; // do not register if neuron is not on the local rank
 
 	init(filename, sampling_interval);
-	auryn::sys->register_monitor(this);
+	auryn::sys->register_device(this);
 	src = source;
 	nid = src->global2rank(id);
 
@@ -57,7 +57,7 @@ StateMonitor::StateMonitor(auryn_vector_float * state, NeuronID id, std::string 
 
 	init(filename, sampling_interval);
 
-	auryn::sys->register_monitor(this);
+	auryn::sys->register_device(this);
 	src = NULL;
 	nid = id;
 	target_variable = state->data+nid;
@@ -70,7 +70,7 @@ StateMonitor::StateMonitor(EulerTrace * trace, NeuronID id, std::string filename
 
 	init(filename, sampling_interval);
 
-	auryn::sys->register_monitor(this);
+	auryn::sys->register_device(this);
 	src = NULL;
 	nid = id;
 	target_variable = trace->get_state_ptr()->data+nid;

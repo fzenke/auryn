@@ -96,6 +96,7 @@
 #include "WeightChecker.h"
 
 // Monitor and stimulator definitions
+#include "Device.h"
 #include "Monitor.h"
 #include "VoltageMonitor.h"
 #include "SpikeMonitor.h"
