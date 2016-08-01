@@ -70,16 +70,16 @@ namespace auryn {
 #endif 
 			}
 
-			/*! \brief Computes approximation of exp(x) via series approximation up to order n. */
-			T fast_exp(T x, const int n=5)
+			/*! \brief Computes approximation of exp(x) via fast series approximation up to n=256. */
+			T fast_exp256(T x)
 			{
-				T sum = 1.0f; // initialize sum of series
+				x = 1.0 + x / 256.0;
+				x *= x; x *= x; x *= x; x *= x;
+				x *= x; x *= x; x *= x; x *= x;
 
-				for (int i = n - 1; i > 0; --i )
-					sum = 1 + x * sum / i;
-
-				return sum;
+				return x;
 			}
+
 			/*! \brief Checks if vector size matches to this instance
 			 *
 			 * Check only enabled if NDEBUG is not defined.*/
@@ -186,11 +186,21 @@ namespace auryn {
 				}
 			}
 
-			/*! \brief Computes an approximation of exp(x) for each vector element. */
+			/*! \brief Computes an approximation of exp(x) for each vector element. 
+			 *
+			 * \param n accuracy */
+			void fast_exp()
+			{
+				for ( IndexType i = 0 ; i < size ; ++i ) {
+					data[i] = fast_exp256(data[i]);
+				}
+			}
+
+			/*! \brief Computes exp(x) for each vector element. */
 			void exp()
 			{
 				for ( IndexType i = 0 ; i < size ; ++i ) {
-					data[i] = fast_exp(data[i]);
+					data[i] = std::exp(data[i]);
 				}
 			}
 
@@ -270,6 +280,14 @@ namespace auryn {
 				}
 			}
 
+			/*! \brief Flips the sign of all elements. */
+			void neg()
+			{
+				for ( IndexType i = 0 ; i < size ; ++i ) {
+					data[i] = -data[i];
+				}
+			}
+
 			/*! \brief Computes the sum a+b and stores the result in this instance 
 			 *
 			 * */
@@ -311,6 +329,16 @@ namespace auryn {
 			void diff(AurynVector * a, const T b) 
 			{
 				sum(a,-b);
+			}
+
+			/*! \brief Computes the difference a-b and stores the result in this instance 
+			 *
+			 * */
+			void diff(const T a, AurynVector * b) 
+			{
+				check_size(b);
+				sum(b,-a);
+				neg();
 			}
 
 
@@ -517,6 +545,7 @@ namespace auryn {
 			void sum(AurynVectorFloat * a, const float b);
 			void diff(AurynVectorFloat * a, AurynVectorFloat * b);
 			void diff(AurynVectorFloat * a, const float b);
+			void diff(const float a, AurynVectorFloat * b );
 
 
 			// TODO add pow function with intrinsics _mm_pow_ps
