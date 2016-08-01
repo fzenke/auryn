@@ -68,7 +68,7 @@ std::string Monitor::generate_filename(std::string name_hint)
 	tmpstr.erase(std::remove(tmpstr.begin(),tmpstr.end(),' '),tmpstr.end());
 	std::transform(tmpstr.begin(), tmpstr.end(), tmpstr.begin(), ::tolower);
 	tmpstr = sys->fn(tmpstr, default_file_extension);
-	std::cout << tmpstr << std::endl;
+	// std::cout << tmpstr << std::endl;
 	return tmpstr;
 }
 
