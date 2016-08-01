@@ -27,8 +27,9 @@
 
 using namespace auryn;
 
+const std::string BinaryStateMonitor::default_extension = "bst";
 
-BinaryStateMonitor::BinaryStateMonitor(SpikingGroup * source, NeuronID id, std::string statename, std::string filename, AurynDouble sampling_interval)  : Monitor()
+BinaryStateMonitor::BinaryStateMonitor(SpikingGroup * source, NeuronID id, std::string statename, std::string filename, AurynDouble sampling_interval)  : Monitor(filename, default_extension)
 {
 
 	if ( !source->localrank(id) ) return; // do not register if neuron is not on the local rank
@@ -51,7 +52,7 @@ BinaryStateMonitor::BinaryStateMonitor(SpikingGroup * source, NeuronID id, std::
 	}
 }
 
-BinaryStateMonitor::BinaryStateMonitor(auryn_vector_float * state, NeuronID id, std::string filename, AurynDouble sampling_interval): Monitor()
+BinaryStateMonitor::BinaryStateMonitor(auryn_vector_float * state, NeuronID id, std::string filename, AurynDouble sampling_interval): Monitor(filename, default_extension)
 {
 	if ( id >= state->size ) return; // do not register if neuron is out of vector range
 
@@ -64,7 +65,7 @@ BinaryStateMonitor::BinaryStateMonitor(auryn_vector_float * state, NeuronID id, 
 	lastval = *target_variable;
 }
 
-BinaryStateMonitor::BinaryStateMonitor(EulerTrace * trace, NeuronID id, std::string filename, AurynDouble sampling_interval): Monitor()
+BinaryStateMonitor::BinaryStateMonitor(EulerTrace * trace, NeuronID id, std::string filename, AurynDouble sampling_interval): Monitor(filename, default_extension)
 {
 	if ( id >= trace->get_state_ptr()->size ) return; // do not register if neuron is out of vector range
 
@@ -94,10 +95,6 @@ void BinaryStateMonitor::open_output_file(std::string filename)
 
 void BinaryStateMonitor::init(std::string filename, AurynDouble sampling_interval)
 {
-	default_file_extension = "bst";
-
-	open_output_file(filename);
-
 	set_stop_time(10.0);
 	ssize = sampling_interval/dt;
 	if ( ssize < 1 ) ssize = 1;
@@ -127,6 +124,8 @@ BinaryStateMonitor::~BinaryStateMonitor()
 		const AurynTime t = auryn::sys->get_clock()-ssize;
 		write_frame(t, lastval);
 	}
+
+	outfile.close();
 }
 
 

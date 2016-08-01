@@ -42,6 +42,8 @@ namespace auryn {
 class BinaryStateMonitor : public Monitor
 {
 private:
+	static const std::string default_extension;
+
 	void write_frame(const AurynTime time, const AurynState value);
 	void open_output_file(std::string filename);
 

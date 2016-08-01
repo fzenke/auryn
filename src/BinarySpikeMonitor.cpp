@@ -28,18 +28,19 @@
 
 using namespace auryn;
 
+const std::string BinarySpikeMonitor::default_extension = "spk";
 
-BinarySpikeMonitor::BinarySpikeMonitor(SpikingGroup * source, std::string filename, NeuronID from, NeuronID to) : Monitor()
+BinarySpikeMonitor::BinarySpikeMonitor(SpikingGroup * source, std::string filename, NeuronID from, NeuronID to) : Monitor(filename, default_extension)
 {
 	init(source,filename,from,to);
 }
 
-BinarySpikeMonitor::BinarySpikeMonitor(SpikingGroup * source, std::string filename, NeuronID to) : Monitor()
+BinarySpikeMonitor::BinarySpikeMonitor(SpikingGroup * source, std::string filename, NeuronID to) : Monitor(filename, default_extension)
 {
 	init(source,filename,0,to);
 }
 
-BinarySpikeMonitor::BinarySpikeMonitor(SpikingGroup * source, std::string filename) : Monitor()
+BinarySpikeMonitor::BinarySpikeMonitor(SpikingGroup * source, std::string filename) : Monitor(filename, default_extension)
 {
 	init(source,filename,0,source->get_size());
 }
@@ -49,27 +50,9 @@ BinarySpikeMonitor::~BinarySpikeMonitor()
 	free();
 }
 
-void BinarySpikeMonitor::open_output_file(std::string filename)
-{
-	if ( filename.empty() ) { // generate a default name
-		filename = generate_filename();
-	}
-
-	outfile.open( filename.c_str(), std::ios::binary );
-	if (!outfile) {
-	  std::stringstream oss;
-	  oss << "Can't open binary output file " << filename;
-	  auryn::logger->msg(oss.str(),ERROR);
-	  exit(1);
-	}
-}
 
 void BinarySpikeMonitor::init(SpikingGroup * source, std::string filename, NeuronID from, NeuronID to)
 {
-	default_file_extension = "spk";
-
-	open_output_file(filename);
-
 	auryn::sys->register_device(this);
 
 	// sys = system;
@@ -91,6 +74,25 @@ void BinarySpikeMonitor::init(SpikingGroup * source, std::string filename, Neuro
 
 void BinarySpikeMonitor::free()
 {
+	outfile.close();
+}
+
+void BinarySpikeMonitor::open_output_file(std::string filename)
+{
+	if ( filename.empty() ) { // generate a default name
+		auryn::logger->debug("Auto generating filename for BinarySpikeMonitor");
+		filename = generate_filename();
+	}
+
+
+	std::cout << filename << std::endl;
+	outfile.open( filename.c_str(), std::ios::binary );
+	if (!outfile) {
+	  std::stringstream oss;
+	  oss << "Can't open binary output file " << filename;
+	  auryn::logger->msg(oss.str(),ERROR);
+	  exit(1);
+	}
 }
 
 void BinarySpikeMonitor::set_offset(NeuronID of)

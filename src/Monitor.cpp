@@ -65,9 +65,9 @@ std::string Monitor::generate_filename(std::string name_hint)
 	std::stringstream oss;
 	oss << get_name() << name_hint;
 	std::string tmpstr = oss.str(); 
-	std::transform(tmpstr.begin(), tmpstr.end(), tmpstr.begin(), ::tolower);
 	tmpstr.erase(std::remove(tmpstr.begin(),tmpstr.end(),' '),tmpstr.end());
-	tmpstr = sys->fn(get_name(), default_file_extension);
+	std::transform(tmpstr.begin(), tmpstr.end(), tmpstr.begin(), ::tolower);
+	tmpstr = sys->fn(tmpstr, default_file_extension);
 	std::cout << tmpstr << std::endl;
 	return tmpstr;
 }

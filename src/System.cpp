@@ -289,8 +289,9 @@ void System::propagate()
 void System::execute_devices()
 {
 	std::vector<Device *>::const_iterator iter;
-	for ( iter = devices.begin() ; iter != devices.end() ; ++iter )
+	for ( iter = devices.begin() ; iter != devices.end() ; ++iter ) {
 		(*iter)->propagate();
+	}
 }
 
 

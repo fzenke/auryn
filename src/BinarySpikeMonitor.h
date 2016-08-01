@@ -48,6 +48,7 @@ namespace auryn {
 class BinarySpikeMonitor : public Monitor
 {
 private:
+	static const std::string default_extension;
     NeuronID n_from;
     NeuronID n_to;
     NeuronID n_every;
