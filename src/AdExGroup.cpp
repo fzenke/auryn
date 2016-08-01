@@ -74,6 +74,11 @@ void AdExGroup::init()
     t_w = auryn_vector_float_ptr ( w , 0 );
     t_ref = auryn_vector_ushort_ptr ( ref , 0 );
 
+	I_leak = get_state_vector("I_leak");
+	I_exc  = get_state_vector("I_exc");
+	I_inh  = get_state_vector("I_inh");
+	temp   = get_state_vector("_temp");
+
     clear();
 
 }
@@ -101,20 +106,42 @@ AdExGroup::~AdExGroup()
 void AdExGroup::evolve()
 {
 
-    // TODO we should vectorize this code and use some fast SSE
-    // library such as http://gruntthepeon.free.fr/ssemath/
-    // for the exponential
+	// Compute
+	//     t_mem[i] += scale_mem * (
+	//             e_rest-t_mem[i]
+	//             + deltat * exp((t_mem[i]-e_thr)/deltat)
+	//             - t_g_ampa[i] * (t_mem[i]-e_rev_ampa)
+	//             - t_g_gaba[i] * (t_mem[i]-e_rev_gaba) 
+	//             -t_w[i] ) ;
+	// as vectorized code
+
+	// Compute currents
+	I_leak->diff(e_rest,mem);
+
+	I_exc->diff(e_rev_ampa, mem);
+	I_exc->mul(g_ampa);
+
+	I_inh->diff(e_rev_gaba, mem);
+	I_inh->mul(g_gaba);
+
+	// compute spike generating current 
+	temp->diff(mem,e_thr);
+	temp->scale(1.0/deltat);
+	temp->fast_exp();
+	temp->scale(deltat);
+
+	// sum up all the currents
+	temp->add(I_leak);
+	temp->add(I_exc);
+	temp->add(I_inh);
+	temp->sub(w); // adaptation current
+
+	// Euler update membrane
+	mem->saxpy(scale_mem, temp);
+
+	// check thresholds
     for (NeuronID i = 0 ; i < get_rank_size() ; ++i ) {
         if (t_ref[i]==0) {
-
-			// Euler upgrade membrane potentital 
-            t_mem[i] += scale_mem * (
-                    e_rest-t_mem[i]
-                    + deltat * exp((t_mem[i]-e_thr)/deltat)
-                    - t_g_ampa[i] * (t_mem[i]-e_rev_ampa)
-                    - t_g_gaba[i] * (t_mem[i]-e_rev_gaba) 
-                    -t_w[i] ) ;
-
             if (t_mem[i]>0.0) {
                 push_spike(i);
                 t_mem[i] = e_reset;
@@ -125,10 +152,17 @@ void AdExGroup::evolve()
             t_ref[i]-- ;
             t_mem[i] = e_rest ;
         }
-
-		// Euler upgrade adaptation variable
-		t_w[i] += scale_w * (a * (t_mem[i]-e_rest) - t_w[i]);
     }
+
+	// computes
+	// dw = scale_w * (a * (t_mem[i]-e_rest) - t_w[i]);
+	// in vector lingo
+	temp->diff(mem,e_rest);
+	temp->scale(a);
+	temp->sub(w);
+	// Euler upgrade adaptation variable
+	w->saxpy(scale_w,temp);
+
 
     g_ampa->scale(scale_ampa);
     g_gaba->scale(scale_gaba);

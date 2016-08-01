@@ -58,7 +58,12 @@ private:
     auryn_vector_ushort * ref;
 
     /*! Stores the adaptation current. */
-    auryn_vector_float * w;
+    AurynStateVector * w;
+
+    AurynStateVector * I_exc;
+    AurynStateVector * I_inh;
+    AurynStateVector * I_leak;
+    AurynStateVector * temp;
 
     AurynFloat * t_g_ampa;
     AurynFloat * t_g_gaba;
