@@ -29,8 +29,10 @@
 #include "auryn_definitions.h"
 #include "AurynVector.h"
 #include "Device.h"
+#include "System.h"
 #include <fstream>
 #include <string>
+#include <algorithm>
 
 namespace auryn {
 
@@ -45,19 +47,26 @@ namespace auryn {
 	class Monitor : public Device
 	{
 	private:
+		/*! Standard initializer to be called by the constructor */
+		void init(std::string filename);
 
+		/*! Standard free function to be called by the destructor - closes the file stream. */
+		void free();
 
 	protected:
 		/*! Output filestream to be used in the derived classes */
 		std::ofstream outfile;
+
 		/*! Stores output filename */
 		std::string fname;
-		/*! Standard initializer to be called by the constructor */
-		void init(std::string filename);
+
+		/*! Default extension */
+		std::string default_file_extension;
+
+
 		/*! Opens a text outputfile -- for binary files redefine this function in derived class. */
 		virtual void open_output_file(std::string filename);
-		/*! Standard free function to be called by the destructor - closes the file stream. */
-		void free();
+
 
 		/*! Functions necesssary for serialization and loading saving to netstate files. */
 		virtual void virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version ) ;
@@ -70,11 +79,14 @@ namespace auryn {
 		/*! \brief Flush to file */
 		virtual void flush();
 
-		/*! \brief Standard constructor */
+		/*! \brief Standard constructor with file name*/
+		Monitor(std::string filename, std::string default_extension = "dat");
+
+		/*! \brief Constructor which does not open a text file for output */
 		Monitor();
 
-		/*! \brief Standard constructor with file name*/
-		Monitor(std::string filename);
+		/*! \brief Generates a default filename from the device ID. */
+		std::string generate_filename(std::string name_hint="");
 
 		/*! \brief Standard destructor  */
 		virtual ~Monitor();

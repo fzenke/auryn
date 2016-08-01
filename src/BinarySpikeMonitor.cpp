@@ -29,20 +29,17 @@
 using namespace auryn;
 
 
-BinarySpikeMonitor::BinarySpikeMonitor(SpikingGroup * source, std::string filename, NeuronID from, NeuronID to)
-	: Monitor(filename)
+BinarySpikeMonitor::BinarySpikeMonitor(SpikingGroup * source, std::string filename, NeuronID from, NeuronID to) : Monitor()
 {
 	init(source,filename,from,to);
 }
 
-BinarySpikeMonitor::BinarySpikeMonitor(SpikingGroup * source, std::string filename, NeuronID to)
-	: Monitor(filename)
+BinarySpikeMonitor::BinarySpikeMonitor(SpikingGroup * source, std::string filename, NeuronID to) : Monitor()
 {
 	init(source,filename,0,to);
 }
 
-BinarySpikeMonitor::BinarySpikeMonitor(SpikingGroup * source, std::string filename)
-	: Monitor(filename )
+BinarySpikeMonitor::BinarySpikeMonitor(SpikingGroup * source, std::string filename) : Monitor()
 {
 	init(source,filename,0,source->get_size());
 }
@@ -54,7 +51,9 @@ BinarySpikeMonitor::~BinarySpikeMonitor()
 
 void BinarySpikeMonitor::open_output_file(std::string filename)
 {
-	if ( filename.empty() ) return; // stimulators do not necessary need an outputfile
+	if ( filename.empty() ) { // generate a default name
+		filename = generate_filename();
+	}
 
 	outfile.open( filename.c_str(), std::ios::binary );
 	if (!outfile) {
@@ -67,6 +66,10 @@ void BinarySpikeMonitor::open_output_file(std::string filename)
 
 void BinarySpikeMonitor::init(SpikingGroup * source, std::string filename, NeuronID from, NeuronID to)
 {
+	default_file_extension = "spk";
+
+	open_output_file(filename);
+
 	auryn::sys->register_device(this);
 
 	// sys = system;

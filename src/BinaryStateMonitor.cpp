@@ -28,7 +28,7 @@
 using namespace auryn;
 
 
-BinaryStateMonitor::BinaryStateMonitor(SpikingGroup * source, NeuronID id, std::string statename, std::string filename, AurynDouble sampling_interval)  
+BinaryStateMonitor::BinaryStateMonitor(SpikingGroup * source, NeuronID id, std::string statename, std::string filename, AurynDouble sampling_interval)  : Monitor()
 {
 
 	if ( !source->localrank(id) ) return; // do not register if neuron is not on the local rank
@@ -51,7 +51,7 @@ BinaryStateMonitor::BinaryStateMonitor(SpikingGroup * source, NeuronID id, std::
 	}
 }
 
-BinaryStateMonitor::BinaryStateMonitor(auryn_vector_float * state, NeuronID id, std::string filename, AurynDouble sampling_interval)
+BinaryStateMonitor::BinaryStateMonitor(auryn_vector_float * state, NeuronID id, std::string filename, AurynDouble sampling_interval): Monitor()
 {
 	if ( id >= state->size ) return; // do not register if neuron is out of vector range
 
@@ -64,7 +64,7 @@ BinaryStateMonitor::BinaryStateMonitor(auryn_vector_float * state, NeuronID id, 
 	lastval = *target_variable;
 }
 
-BinaryStateMonitor::BinaryStateMonitor(EulerTrace * trace, NeuronID id, std::string filename, AurynDouble sampling_interval)
+BinaryStateMonitor::BinaryStateMonitor(EulerTrace * trace, NeuronID id, std::string filename, AurynDouble sampling_interval): Monitor()
 {
 	if ( id >= trace->get_state_ptr()->size ) return; // do not register if neuron is out of vector range
 
@@ -79,7 +79,9 @@ BinaryStateMonitor::BinaryStateMonitor(EulerTrace * trace, NeuronID id, std::str
 
 void BinaryStateMonitor::open_output_file(std::string filename)
 {
-	if ( filename.empty() ) return; // stimulators do not necessary need an outputfile
+	if ( filename.empty() ) { // generate a default name
+		filename = generate_filename();
+	}
 
 	outfile.open( filename.c_str(), std::ios::binary );
 	if (!outfile) {
@@ -92,6 +94,8 @@ void BinaryStateMonitor::open_output_file(std::string filename)
 
 void BinaryStateMonitor::init(std::string filename, AurynDouble sampling_interval)
 {
+	default_file_extension = "bst";
+
 	open_output_file(filename);
 
 	set_stop_time(10.0);

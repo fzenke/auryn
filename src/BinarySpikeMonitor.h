@@ -59,7 +59,7 @@ private:
 	void free();
 
 public:
-	BinarySpikeMonitor(SpikingGroup * source, std::string filename);
+	BinarySpikeMonitor(SpikingGroup * source, std::string filename="");
 	BinarySpikeMonitor(SpikingGroup * source, std::string filename, NeuronID to);
 	BinarySpikeMonitor(SpikingGroup * source, std::string filename, NeuronID from, NeuronID to);
 	void set_offset(NeuronID of);

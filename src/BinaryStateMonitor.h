@@ -88,7 +88,7 @@ public:
 	 * \param filename The filename of the file to dump the output to
 	 * \param sampling_interval The sampling interval in seconds
 	 */
-	BinaryStateMonitor(SpikingGroup * source, NeuronID id, string statename, string filename, AurynDouble sampling_interval=dt);
+	BinaryStateMonitor(SpikingGroup * source, NeuronID id, string statename, std::string filename="", AurynDouble sampling_interval=dt);
 
 	/*! \brief Alternative constructor
 	 *
@@ -96,7 +96,7 @@ public:
 	 * \param filename The filename of the file to dump the output to
 	 * \param sampling_interval The sampling interval in seconds
 	 */
-	BinaryStateMonitor(auryn_vector_float * state, NeuronID id, string filename, AurynDouble sampling_interval=dt);
+	BinaryStateMonitor(auryn_vector_float * state, NeuronID id, std::string filename="", AurynDouble sampling_interval=dt);
 
 	/*! \brief EulerTrace constructor
 	 *
@@ -104,7 +104,7 @@ public:
 	 * \param filename The filename of the file to dump the output to
 	 * \param sampling_interval The sampling interval in seconds
 	 */
-	BinaryStateMonitor(EulerTrace * trace, NeuronID id, string filename, AurynDouble sampling_interval=dt);
+	BinaryStateMonitor(EulerTrace * trace, NeuronID id, std::string filename="", AurynDouble sampling_interval=dt);
 
 	/*! \brief Sets relative time at which to stop recording 
 	 *
