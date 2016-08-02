@@ -331,8 +331,11 @@ void System::progressbar ( double fraction, AurynTime clk ) {
 
 	std::cout<< percent << "%     "<< setiosflags(std::ios::fixed) << " t=" << time ;
 
-	if ( online_rate_monitor_id >= 0 ) 
-		std::cout  << std::setprecision(1) << "  f=" << online_rate_monitor_state << " Hz  ";
+	if ( online_rate_monitor_id >= 0 ) {
+		std::cout  << std::setprecision(1) << "  f=" << online_rate_monitor_state << " Hz"
+			<< " in " << spiking_groups.at(online_rate_monitor_id)->get_name();
+
+	}
 
 	std::cout << std::flush;
 
@@ -426,10 +429,10 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 				<< "s with SpeedFactor=" << td/(LOGGER_MARK_INTERVAL*dt);
 
 			AurynTime simtime_left = total_time-dt*(get_clock()-starttime+1);
-			AurynDouble remaining = simtime_left*td/(LOGGER_MARK_INTERVAL*dt)/60; // in minutes
-			if ( remaining > 5 ) { // only show when more than 5min
+			AurynDouble remaining_minutes = simtime_left*td/(LOGGER_MARK_INTERVAL*dt)/60; // in minutes
+			if ( remaining_minutes > 5 ) { // only show when more than 5min
 			oss	<< ", approximately "
-				<< remaining
+				<< remaining_minutes
 				<< "min of runtime remaining";
 			}
 
