@@ -138,6 +138,7 @@ void AdExGroup::evolve()
 
 	// Euler update membrane
 	mem->saxpy(scale_mem, temp);
+	mem->clip(e_rev_gaba, 20e-3); // needs to be larger than 0.0 
 
 	// check thresholds
     for (NeuronID i = 0 ; i < get_rank_size() ; ++i ) {
