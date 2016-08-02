@@ -333,7 +333,7 @@ void System::progressbar ( double fraction, AurynTime clk ) {
 
 	if ( online_rate_monitor_id >= 0 ) {
 		std::cout  << std::setprecision(1) << "  f=" << online_rate_monitor_state << " Hz"
-			<< " in " << spiking_groups.at(online_rate_monitor_id)->get_name();
+			<< " in " << spiking_groups.at(online_rate_monitor_id)->get_name() << "   ";
 
 	}
 
