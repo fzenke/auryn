@@ -154,6 +154,11 @@ public:
 	/*! \brief Creates a new or returns an existing state vector by name. */
 	AurynStateVector * get_state_vector(std::string key);
 
+	/*! \brief Returns an new state vector by name. 
+	 *
+	 * \todo Implement an exception when a state vector already exists. */
+	AurynStateVector * get_new_state_vector(std::string key);
+
 	/*! \brief Creates a new group-wide state variable or returns an existing group-wide variable by name then returns a pointer to it. */
 	AurynState * get_state_variable(std::string key);
 

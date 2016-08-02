@@ -717,6 +717,10 @@ AurynStateVector * SpikingGroup::get_state_vector(std::string key)
 	}
 }
 
+AurynStateVector * SpikingGroup::get_new_state_vector(std::string key) {
+	return get_state_vector(key);
+}
+
 AurynStateVector * SpikingGroup::find_state_vector(std::string key)
 {
 	if ( state_vectors.find(key) == state_vectors.end() ) {
