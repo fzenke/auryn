@@ -111,7 +111,16 @@ namespace auryn {
 		protected:
 
 		public:
+			/*! \brief Size of the vector
+			 *
+			 * \todo Consider including a non_zero size paramter too,
+			 * because we are using this template also in sparse matrices now
+			 * for complex synaptic dynamics in which not all elements are necessarily
+			 * used...
+			 * */
 			IndexType size;
+
+			/*! \brief Pointer to the array housing the data */
 			T * data;
 
 			/*! \brief Default constructor */
