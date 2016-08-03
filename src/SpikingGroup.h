@@ -81,7 +81,6 @@ private:
 	static int last_locked_rank;
 
 	bool evolve_locally_bool;
-	inline int msgtag(int x, int y);
 
 	/*! Parameter that characterizes the computational load the SpikingGroup causes with respect to IFGroup. It's used vor load balancing*/
 	double effective_load_multiplier;

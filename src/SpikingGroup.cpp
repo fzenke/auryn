@@ -210,12 +210,6 @@ void SpikingGroup::free()
 
 }
 
-inline int SpikingGroup::msgtag(int x, int y) {
-	mpi::communicator * mpicom = communicator;
-	return x*mpicom->size()+y + (mpicom->size()*mpicom->size()) * get_uid(); // make messages unique for each SpikingGroup
-}
-
-
 void SpikingGroup::set_clock_ptr(AurynTime * clock) {
 	clock_ptr = clock;
 	delay->set_clock_ptr(clock);
