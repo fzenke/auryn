@@ -33,4 +33,4 @@ ADD_SUBDIRECTORY(examples)
 ADD_SUBDIRECTORY(tools)
 
 # Unit tests
-ADD_SUBDIRECTORY(tests/src)
+ADD_SUBDIRECTORY(test/src)
