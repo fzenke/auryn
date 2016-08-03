@@ -26,6 +26,7 @@
 #ifndef AURYNVECTOR_H_
 #define AURYNVECTOR_H_
 
+#include <ctime>
 #include "auryn_definitions.h"
 
 
@@ -70,16 +71,15 @@ namespace auryn {
 #endif 
 			}
 
-			/*! \brief Computes approximation of exp(x) via series approximation up to order n. */
-			T fast_exp(T x, const int n=5)
+			/*! \brief Computes approximation of exp(x) via fast series approximation up to n=256. */
+			T fast_exp256(T x)
 			{
-				T sum = 1.0f; // initialize sum of series
-
-				for (int i = n - 1; i > 0; --i )
-					sum = 1 + x * sum / i;
-
-				return sum;
+				x = 1.0 + x / 256.0;
+				x *= x; x *= x; x *= x; x *= x;
+				x *= x; x *= x; x *= x; x *= x;
+				return x;
 			}
+
 			/*! \brief Checks if vector size matches to this instance
 			 *
 			 * Check only enabled if NDEBUG is not defined.*/
@@ -111,7 +111,16 @@ namespace auryn {
 		protected:
 
 		public:
+			/*! \brief Size of the vector
+			 *
+			 * \todo Consider including a non_zero size paramter too,
+			 * because we are using this template also in sparse matrices now
+			 * for complex synaptic dynamics in which not all elements are necessarily
+			 * used...
+			 * */
 			IndexType size;
+
+			/*! \brief Pointer to the array housing the data */
 			T * data;
 
 			/*! \brief Default constructor */
@@ -136,14 +145,23 @@ namespace auryn {
 				freebuf();
 			}
 
-			/*! \brief resize data array to new_size */
+			/*! \brief resize data array to new_size 
+			 *
+			 * The function tries to preserve data while resizing. 
+			 * If a vector is downsized elements at the end are simply dropped.
+			 * When the vector size is increased the new elements at the end are
+			 * intialized with zeros.*/
 			void resize(IndexType new_size) 
 			{
 				if ( size != new_size ) {
-					freebuf();
+					T * old_data = data;
+					IndexType old_size = size;
 					allocate(new_size);
+					// copy old data
+					const size_t copy_size = std::min(old_size,new_size) * sizeof(T);
+					std::memcpy(data, old_data, copy_size);
+					free(old_data);
 				}
-				set_zero(); 
 			}
 
 			/*! \brief Set all elements to value v. */
@@ -158,6 +176,27 @@ namespace auryn {
 			void set_zero() 
 			{
 				set_all(0.0);
+			}
+
+			void set_random_normal(AurynState mean=0.0, AurynState sigma=1.0, unsigned int seed=8721)
+			{
+				if ( seed == 0 )
+					seed = static_cast<unsigned int>(std::time(0));
+				boost::mt19937 randgen(seed); 
+				boost::normal_distribution<> dist((double)mean, (double)sigma);
+				boost::variate_generator<boost::mt19937&, boost::normal_distribution<> > die(randgen, dist);
+				AurynState rv;
+				for ( IndexType i = 0 ; i<size ; ++i ) {
+					rv = die();
+					data[i] = rv;
+				}
+			}
+
+			/*! \brief Initializes vector elements with Gaussian of unit 
+			 * varince and a seed derived from system time if no seed or seed of 0 is given. */
+			void set_random(unsigned int seed = 0) 
+			{
+				set_random_normal(0.0,1.0,seed);
 			}
 
 			/*! \brief Scales all vector elements by a. */
@@ -186,11 +225,21 @@ namespace auryn {
 				}
 			}
 
-			/*! \brief Computes an approximation of exp(x) for each vector element. */
+			/*! \brief Computes an approximation of exp(x) for each vector element. 
+			 *
+			 * \param n accuracy */
+			void fast_exp()
+			{
+				for ( IndexType i = 0 ; i < size ; ++i ) {
+					data[i] = fast_exp256(data[i]);
+				}
+			}
+
+			/*! \brief Computes exp(x) for each vector element. */
 			void exp()
 			{
 				for ( IndexType i = 0 ; i < size ; ++i ) {
-					data[i] = fast_exp(data[i]);
+					data[i] = std::exp(data[i]);
 				}
 			}
 
@@ -270,6 +319,14 @@ namespace auryn {
 				}
 			}
 
+			/*! \brief Flips the sign of all elements. */
+			void neg()
+			{
+				for ( IndexType i = 0 ; i < size ; ++i ) {
+					data[i] = -data[i];
+				}
+			}
+
 			/*! \brief Computes the sum a+b and stores the result in this instance 
 			 *
 			 * */
@@ -311,6 +368,16 @@ namespace auryn {
 			void diff(AurynVector * a, const T b) 
 			{
 				sum(a,-b);
+			}
+
+			/*! \brief Computes the difference a-b and stores the result in this instance 
+			 *
+			 * */
+			void diff(const T a, AurynVector * b) 
+			{
+				check_size(b);
+				sum(b,-a);
+				neg();
 			}
 
 
@@ -517,6 +584,7 @@ namespace auryn {
 			void sum(AurynVectorFloat * a, const float b);
 			void diff(AurynVectorFloat * a, AurynVectorFloat * b);
 			void diff(AurynVectorFloat * a, const float b);
+			void diff(const float a, AurynVectorFloat * b );
 
 
 			// TODO add pow function with intrinsics _mm_pow_ps
