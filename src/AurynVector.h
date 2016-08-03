@@ -99,6 +99,15 @@ namespace auryn {
 				free(data);
 			}
 
+            /*! \brief Computes approximation of exp(x) via fast series approximation up to n=256. */
+            T fast_exp256(T x)
+            {
+                    x = 1.0 + x / 256.0;
+                    x *= x; x *= x; x *= x; x *= x;
+                    x *= x; x *= x; x *= x; x *= x;
+                    return x;
+            }
+
 		protected:
 
 		public:
@@ -312,17 +321,17 @@ namespace auryn {
 
 			/*! \brief Computes an approximation of exp(x) for each vector element. 
 			 *
-			 * Computes:
-			 *	x = 1.0 + x / 256.0;
-			 *	x *= x; x *= x; x *= x; x *= x;
-			 *	x *= x; x *= x; x *= x; x *= x;
 			 * */
 			void fast_exp()
 			{
-				mul(0.00390625); // ie. 1.0/256.0
-				add(1.0);
-				for ( int i = 0 ; i < 8 ; ++i ) {
-					sqr();
+				// mul(0.00390625); // ie. 1.0/256.0
+				// add(1.0);
+				// for ( int i = 0 ; i < 8 ; ++i ) {
+				// 	sqr();
+				// }
+				// seems as if the naive version is faster
+				for ( IndexType i = 0 ; i < size ; ++i ) {
+					data[i] = fast_exp256(data[i]);
 				}
 			}
 
