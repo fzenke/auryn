@@ -383,7 +383,7 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 
 	std::stringstream oss;
 	oss << "Simulation triggered ( " 
-		<< "runtime=" << runtime << "s )";
+		<< "runtime=" << runtime << "s ) ...";
 	auryn::logger->msg(oss.str(),NOTIFICATION);
 
 	if ( clock == 0 && mpicom ) { // only show this once for clock==0
@@ -435,10 +435,13 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 			oss.str("");
 			oss << "Mark set ("
 				<< get_time()
-				<< "s). Ran for " << td << "s ";
+				<< "s). ";
 
-			oss	<< "with SpeedFactor=" 
-				<< std::scientific << td/(LOGGER_MARK_INTERVAL*dt);
+			if ( td > 50 ) {
+				oss << "Ran for " << td << "s "
+					<< "with SpeedFactor=" 
+					<< std::scientific << td/(LOGGER_MARK_INTERVAL*dt);
+			}
 
 			AurynTime simtime_left = total_time-dt*(get_clock()-starttime+1);
 			AurynDouble remaining_minutes = simtime_left*td/(LOGGER_MARK_INTERVAL*dt)/60; // in minutes
@@ -497,7 +500,7 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 
 	oss.str("");
 	oss << "Simulation finished. Elapsed wall time " 
-		<< elapsed << "s ";
+		<< elapsed << "s. ";
 
 	if ( elapsed > 50 ) { // only display if we have some stats
 		oss << "with SpeedFactor=" 
@@ -539,15 +542,14 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 
 bool System::run(AurynFloat simulation_time, bool checking)
 {
-
-	AurynTime starttime = get_clock();
-	AurynTime stoptime = get_clock() + (AurynTime) (simulation_time/dt);
-
 	// throw an exception if the stoptime is post the range of AurynTime
 	if ( get_time() + simulation_time > std::numeric_limits<AurynTime>::max()*dt ) {
 		auryn::logger->msg("The requested simulation time exceeds the number of possible timesteps limited by AurynTime datatype.",ERROR);
 		throw AurynTimeOverFlowException();
 	}
+
+	AurynTime starttime = get_clock();
+	AurynTime stoptime = get_clock() + (AurynTime) (simulation_time/dt);
 
 	return run(starttime, stoptime, simulation_time, checking);
 }
