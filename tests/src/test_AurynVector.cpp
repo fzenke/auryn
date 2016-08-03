@@ -39,4 +39,25 @@ BOOST_AUTO_TEST_CASE( pow2 ) {
 		BOOST_CHECK_EQUAL( v.data[i] , (float)i*(float)i );
 }
 
+BOOST_AUTO_TEST_CASE( fast_exp ) {
+	// checks for less than one percent relative
+	// deviation on the interval -2.0..1.6
+	float max = 2.0;
+	float tolerance = 1e-2;
+	int n = 10;
+
+    auryn::AurynVector<float> v( n );
+	for ( int i = 0 ; i < n ; ++i ) {
+		v.set(i,1.0*(i-n/2)/(n/2)*max);
+	}
+
+	v.fast_exp();
+	for ( int i = 0 ; i < n ; ++i ) {
+		float answer = std::exp(1.0*(i-n/2)/(n/2)*max);
+		float deviation = std::abs(v.data[i]-answer)/answer;
+		// std::cout << deviation << std::endl;
+		BOOST_CHECK( deviation < tolerance );
+	}
+}
+
 // EOF
