@@ -195,10 +195,6 @@ public:
 	/*! \brief Sames as get_synaptic_state_vector(StateID z) */
 	AurynVector<T,AurynLong> * get_state_vector(StateID z=0);
 
-	/*! \brief Resizes one state vector and copies existing data 
-	 * */
-	AurynVector<T,AurynLong> * resize_state_vector(AurynVector<T,AurynLong> * old, AurynLong oldsize, AurynLong newsize);
-
 	/*! \brief Resize buffer
 	 *
 	 *  Allocates a new buffer of size and copies the 
@@ -500,21 +496,11 @@ void ComplexMatrix<T>::init(NeuronID m, NeuronID n, AurynLong size, NeuronID z)
 }
 
 template <typename T>
-AurynVector<T,AurynLong> * ComplexMatrix<T>::resize_state_vector(AurynVector<T,AurynLong> * old, AurynLong oldsize, AurynLong newsize)
-{
-	AurynVector<T,AurynLong> * new_elementdata = new AurynVector<T,AurynLong>(newsize);
-	AurynLong element_count = std::min(newsize,oldsize);
-	std::copy(old->data, old->data+element_count, new_elementdata->data);
-	delete [] old;
-	return new_elementdata;
-}
-
-template <typename T>
-void ComplexMatrix<T>::resize_buffers(AurynLong size)
+void ComplexMatrix<T>::resize_buffers(AurynLong new_size)
 {
 	AurynLong oldsize = get_statesize();
-	if ( oldsize == size ) return;
-	statesize = size;
+	if ( oldsize == new_size ) return;
+	statesize = new_size;
 
 	NeuronID * new_colinds = new NeuronID [get_datasize()];
 	std::copy(colinds, colinds+get_nonzero(), new_colinds);
@@ -529,10 +515,8 @@ void ComplexMatrix<T>::resize_buffers(AurynLong size)
 	colinds = new_colinds;
 
 	for ( StateID i = 0 ; i < get_num_synaptic_states() ; ++i ) {
-		AurynVector<T,AurynLong> * nvec = resize_state_vector(statevectors[i], oldsize, size);
-		statevectors[i] = nvec;
+		statevectors[i]->resize(new_size);
 	}
-	
 }
 
 template <typename T>
@@ -731,6 +715,10 @@ T * ComplexMatrix<T>::get_state_end(StateID z)
 template <typename T>
 AurynLong ComplexMatrix<T>::get_data_index(NeuronID i, NeuronID j)
 {
+#ifdef DEBUG
+		std::cout << "cm: starting bisect " << i << ":" << j << std::endl;
+#endif // DEBUG
+
 	// check bounds
 	if ( !(i < m_rows && j < n_cols) ) return data_index_error_value;
 
@@ -738,26 +726,29 @@ AurynLong ComplexMatrix<T>::get_data_index(NeuronID i, NeuronID j)
 	NeuronID * lo = rowptrs[i];
 	NeuronID * hi = rowptrs[i+1];
 	NeuronID * c  = hi;
+
+	if ( lo >= hi ) // no elements/targets in this row
+		return data_index_error_value; 
 	
 	while ( lo < hi ) {
 		c = lo + (hi-lo)/2;
 		if ( *c < j ) lo = c+1;
 		else hi = c;
 #ifdef DEBUG
-		std::cout << i << ":" << j << "   " << *lo << ":" << *hi << std::endl;
+		std::cout << "cm: " << i << ":" << j << "   " << *lo << ":" << *hi << std::endl;
 #endif // DEBUG
 	}
 	
 	if ( *lo == j ) {
 #ifdef DEBUG
-		std::cout << "found element at data array position " 
+		std::cout << "cm: " << "found element at data array position " 
 			<< (lo-colinds) << std::endl;
 #endif // DEBUG
 		return (lo-colinds);
 	}
 
 #ifdef DEBUG
-		std::cout << "element not found" << std::endl;
+		std::cout << "cm: " << "element not found" << std::endl;
 #endif // DEBUG
 
 	return data_index_error_value; 
@@ -969,6 +960,7 @@ NeuronID ComplexMatrix<T>::get_n_cols()
 template <typename T>
 void ComplexMatrix<T>::print()
 {
+	std::cout << get_nonzero() << " elements in sparse matrix:" << std::endl;
 	for (NeuronID i = 0 ; i < m_rows ; ++i) {
 		for (NeuronID * r = get_row_begin(i) ; r != get_row_end(i) ; ++r ) {
 			std::cout << i << " " << *r << " " << *get_ptr(r-colinds) << "\n"; 
