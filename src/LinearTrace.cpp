@@ -45,19 +45,12 @@ void LinearTrace::init(NeuronID n, AurynFloat timeconstant, AurynTime * clk)
 		state[i] = 0.;
 		timestamp[i] = 0;
 	}
-
-	// set up exp lookuptable
-	explut = new AurynFloat[zerointerval];
-	for ( AurynTime i = 0 ; i < zerointerval ; ++i ) {
-		explut[i] = exp( - (AurynDouble) (i)/tau_auryntime);
-	}
 }
 
 void LinearTrace::free()
 {
 	delete [] state;
 	delete [] timestamp;
-	delete [] explut;
 }
 
 LinearTrace::LinearTrace(NeuronID n, AurynFloat timeconstant, AurynTime * clk)
@@ -87,12 +80,10 @@ void LinearTrace::add(NeuronID i, AurynFloat value)
 	state[i] += value;
 }
 
-
 AurynFloat * LinearTrace::get_state_ptr()
 {
 	return state;
 }
-
 
 AurynFloat LinearTrace::get_tau()
 {
@@ -105,25 +96,19 @@ inline void LinearTrace::update(NeuronID i)
 	if ( timediff >= zerointerval )
 		state[i] = 0.0;
 	else {
-		// state[i] *= exp( - (AurynDouble) (timediff)/tau_auryntime);
-		state[i] *= explut[timediff]; // reading from our LUT
+		state[i] *= std::exp( -(dt*timediff)/tau);
 	}
 	timestamp[i] = *clock;
 }
 
 void LinearTrace::inc(NeuronID i)
 {
-	if ( *clock > timestamp[i]+zerointerval ) { // meaning the last spike has faded away
-		state[i] = 1.0;
-	} else {
-		update(i);
-		state[i] += 1.0;
-	}
+	update(i);
+	state[i] += 1.0;
 }
 
 AurynFloat LinearTrace::get(NeuronID i)
 {
-	// if ( timestamp[i] == zerotime_auryntime ) return state[i];
 	update(i);
 	return state[i];
 }
