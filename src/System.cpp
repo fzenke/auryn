@@ -496,8 +496,8 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 	last_elapsed_time = elapsed;
 
 	oss.str("");
-	oss << "Simulation finished. Ran for " 
-		<< elapsed  << "s ";
+	oss << "Simulation finished. Elapsed wall time " 
+		<< elapsed << "s ";
 
 	if ( elapsed > 50 ) { // only display if we have some stats
 		oss << "with SpeedFactor=" 
