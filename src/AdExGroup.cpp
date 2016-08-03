@@ -36,38 +36,40 @@ AdExGroup::AdExGroup(NeuronID size) : NeuronGroup(size)
 void AdExGroup::calculate_scale_constants()
 {
     scale_mem  = dt/tau_mem;
-    scale_w = dt/tau_w;
+    scale_w    = dt/tau_w;
     scale_ampa = exp(-dt/tau_ampa);
     scale_gaba = exp(-dt/tau_gaba);
 }
 
 void AdExGroup::init()
 {
-    g_leak = 10e-9;
-    e_rest = -70e-3;
-    e_reset = -58e-3;
+    e_rest = -70.6e-3; // resting potential
+    e_reset = e_rest; // reset voltage
+    e_thr = -50.4e-3; // V_t spike threshold
+    g_leak = 30e-9; // leak conductance
+    tau_w = 144e-3; // adaptation time constant
+    c_mem = 281e-12; // membrane capacitance
+    tau_mem = c_mem/g_leak;
+    deltat = 2e-3; // slope factor
+	set_a(4e-9); // subthreshold adaptation variable in units of Siemens
+	set_b(0.0805e-9); // spike triggered adaptation variable in units of nA
+
+	// conductance based synaptic parameters
+    tau_ampa = 5e-3;
+    tau_gaba = 10e-3; 
     e_rev_ampa = 0;
     e_rev_gaba = -80e-3;
-    e_thr = -50e-3;
-    tau_ampa = 5e-3;
-    tau_gaba = 10e-3;
-    tau_w = 30e-3;
-    c_mem = 200e-12;
-    tau_mem = c_mem/g_leak;
-    deltat = 2e-3;
-    a = 2e-9/g_leak;
-    b = 0./g_leak;
 
-    set_refractory_period(0e-3);
+    set_refractory_period(0);
+
+	// init adaptation current variable "w"
     w = get_state_vector("w");
 
     calculate_scale_constants();
     ref = auryn_vector_ushort_alloc (get_vector_size());
-    bg_current = get_state_vector("bg_current");
 
     t_g_ampa = auryn_vector_float_ptr ( g_ampa , 0 );
     t_g_gaba = auryn_vector_float_ptr ( g_gaba , 0 );
-    t_bg_cur = auryn_vector_float_ptr ( bg_current , 0 );
     t_mem = auryn_vector_float_ptr ( mem , 0 );
     t_w = auryn_vector_float_ptr ( w , 0 );
     t_ref = auryn_vector_ushort_ptr ( ref , 0 );
@@ -79,13 +81,12 @@ void AdExGroup::init()
 void AdExGroup::clear()
 {
     clear_spikes();
-    for (NeuronID i = 0; i < get_rank_size(); i++) {
-       mem->set( i, e_rest);
-       g_ampa->set( i, 0.);
-       auryn_vector_ushort_set (ref, i, 0);
-       auryn_vector_float_set (g_gaba, i, 0.);
-       auryn_vector_float_set (bg_current, i, 0.);
-    }
+
+	mem->set_all(e_rest);
+	g_ampa->set_zero();
+	g_gaba->set_zero();
+	w->set_zero();
+	ref->set_zero();
 }
 
 
@@ -105,15 +106,14 @@ void AdExGroup::evolve()
     // for the exponential
     for (NeuronID i = 0 ; i < get_rank_size() ; ++i ) {
         if (t_ref[i]==0) {
-            t_w[i] += scale_w * (a * (t_mem[i]-e_rest) - t_w[i]);
 
+			// Euler upgrade membrane potentital 
             t_mem[i] += scale_mem * (
                     e_rest-t_mem[i]
                     + deltat * exp((t_mem[i]-e_thr)/deltat)
                     - t_g_ampa[i] * (t_mem[i]-e_rev_ampa)
-                    - t_g_gaba[i] * (t_mem[i]-e_rev_gaba)
-                    + t_bg_cur[i]-t_w[i]);
-
+                    - t_g_gaba[i] * (t_mem[i]-e_rev_gaba) 
+                    -t_w[i] ) ;
 
             if (t_mem[i]>0.0) {
                 push_spike(i);
@@ -125,27 +125,19 @@ void AdExGroup::evolve()
             t_ref[i]-- ;
             t_mem[i] = e_rest ;
         }
+
+		// Euler upgrade adaptation variable
+		t_w[i] += scale_w * (a * (t_mem[i]-e_rest) - t_w[i]);
     }
 
-    auryn_vector_float_scale(scale_ampa,g_ampa);
-    auryn_vector_float_scale(scale_gaba,g_gaba);
-}
-
-void AdExGroup::set_bg_current(NeuronID i, AurynFloat current)
-{
-    if ( localrank(i) )
-        auryn_vector_float_set ( bg_current , global2rank(i) , current ) ;
+    g_ampa->scale(scale_ampa);
+    g_gaba->scale(scale_gaba);
 }
 
 void AdExGroup::set_tau_w(AurynFloat tauw)
 {
     tau_w = tauw;
     calculate_scale_constants();
-}
-
-void AdExGroup::set_b(AurynFloat _b)
-{
-    b = _b;
 }
 
 void AdExGroup::set_e_reset(AurynFloat ereset)
@@ -166,12 +158,17 @@ void AdExGroup::set_e_rest(AurynFloat erest)
 
 void AdExGroup::set_a(AurynFloat _a)
 {
-    a = _a;
+    a = _a/g_leak;
+}
+
+void AdExGroup::set_b(AurynFloat _b)
+{
+    b = _b/g_leak;
 }
 
 void AdExGroup::set_delta_t(AurynFloat d)
 {
-    deltat = d;
+    deltat = d/g_leak;
 }
 
 void AdExGroup::set_g_leak(AurynFloat g)
@@ -188,12 +185,6 @@ void AdExGroup::set_c_mem(AurynFloat cm)
     calculate_scale_constants();
 }
 
-AurynFloat AdExGroup::get_bg_current(NeuronID i) {
-    if ( localrank(i) )
-        return bg_current->get( global2rank(i) ) ;
-    else
-        return 0;
-}
 
 std::string AdExGroup::get_output_line(NeuronID i)
 {
@@ -201,23 +192,21 @@ std::string AdExGroup::get_output_line(NeuronID i)
     oss << mem->get(i) << " " 
 		<< g_ampa->get(i) << " " 
 		<< g_gaba->get(i) << " "
-        << ref->get(i) << " "
-        << bg_current->get( i) <<"\n";
+        << ref->get(i) <<"\n";
     return oss.str();
 }
 
 void AdExGroup::load_input_line(NeuronID i, const char * buf)
 {
-        float vmem,vampa,vgaba,vbgcur;
+        float vmem,vampa,vgaba;
         NeuronID vref;
-        sscanf (buf,"%f %f %f %u %f",&vmem,&vampa,&vgaba,&vref,&vbgcur);
+        sscanf (buf,"%f %f %f %u",&vmem,&vampa,&vgaba,&vref);
         if ( localrank(i) ) {
             NeuronID trans = global2rank(i);
             mem->set(trans,vmem);
             g_ampa->set(trans,vampa);
             g_gaba->set(trans,vgaba);
             ref->set( trans, vref);
-            bg_current->set( trans, vbgcur);
         }
 }
 
