@@ -436,6 +436,9 @@ T * SimpleMatrix<T>::get_ptr(NeuronID i, NeuronID j)
 	NeuronID * lo = rowptrs[i];
 	NeuronID * hi = rowptrs[i+1];
 	NeuronID * c  = hi;
+
+	if ( lo >= hi ) // no elements/targets in this row
+		return NULL; 
 	
 	while ( lo < hi ) {
 		c = lo + (hi-lo)/2;
