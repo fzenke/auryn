@@ -63,6 +63,9 @@ namespace auryn {
 	private:
 		AurynTime clock;
 		mpi::communicator * mpicom;
+		unsigned int mpi_size_;
+		unsigned int mpi_rank_;
+
 		std::string simulation_name;
 
 		SyncBuffer * syncbuffer;
@@ -303,6 +306,18 @@ namespace auryn {
 
 		/*! \brief Returns global mpi communicator */
 		mpi::communicator * get_com();
+
+		/*! \brief Returns number of ranks
+		 *
+		 * like mpicom->size(), but also defined when run
+		 * without mpi. */
+		unsigned int mpi_size();
+
+		/*! \brief Returns current rank
+		 *
+		 * like mpicom->rank(), but also defined when run
+		 * without mpi. */
+		unsigned int mpi_rank();
 
 #ifdef CODE_COLLECT_SYNC_TIMING_STATS
 		AurynDouble deltaT;
