@@ -117,7 +117,9 @@ BOOST_AUTO_TEST_CASE( sparse_complex_prune ) {
 	}
 	mat.fill_zeros();
 
+	// Prune the matrix
 	mat.prune();
+	BOOST_CHECK_EQUAL( mat.get_nonzero(), mat.get_datasize() );
 
 	mat.get_synaptic_state_vector(1)->copy(mat.get_synaptic_state_vector(0));
 	mat.get_synaptic_state_vector(1)->scale(2);
