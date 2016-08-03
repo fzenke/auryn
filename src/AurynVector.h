@@ -227,11 +227,18 @@ namespace auryn {
 
 			/*! \brief Computes an approximation of exp(x) for each vector element. 
 			 *
-			 * \param n accuracy */
+			 * Computes
+			 *
+			 *	x = 1.0 + x / 256.0;
+			 *	x *= x; x *= x; x *= x; x *= x;\
+			 *	x *= x; x *= x; x *= x; x *= x;
+			 * */
 			void fast_exp()
 			{
-				for ( IndexType i = 0 ; i < size ; ++i ) {
-					data[i] = fast_exp256(data[i]);
+				mul(0.00390625); // ie. 1.0/256.0
+				add(1.0);
+				for ( int i = 0 ; i < 8 ; ++i ) {
+					sqr();
 				}
 			}
 
@@ -435,6 +442,15 @@ namespace auryn {
 			void sqr() 
 			{	
 				this->mul(this);
+			}
+
+			/*! \brief Takes absolute value of each element
+			 *
+			 * */
+			void abs() 
+			{	
+				sqr();
+				sqrt();
 			}
 
 			/*! \brief Rectifies all elements
