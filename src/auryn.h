@@ -72,6 +72,7 @@
 #include "FileInputGroup.h"
 #include "FileModulatedPoissonGroup.h"
 #include "StimulusGroup.h"
+#include "SpikeTimingStimGroup.h"
 #include "ProfilePoissonGroup.h"
 #include "StructuredPoissonGroup.h"
 #include "CorrelatedPoissonGroup.h"
