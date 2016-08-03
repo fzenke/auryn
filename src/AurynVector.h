@@ -26,6 +26,7 @@
 #ifndef AURYNVECTOR_H_
 #define AURYNVECTOR_H_
 
+#include <ctime>
 #include "auryn_definitions.h"
 
 
@@ -76,7 +77,6 @@ namespace auryn {
 				x = 1.0 + x / 256.0;
 				x *= x; x *= x; x *= x; x *= x;
 				x *= x; x *= x; x *= x; x *= x;
-
 				return x;
 			}
 
@@ -145,14 +145,23 @@ namespace auryn {
 				freebuf();
 			}
 
-			/*! \brief resize data array to new_size */
+			/*! \brief resize data array to new_size 
+			 *
+			 * The function tries to preserve data while resizing. 
+			 * If a vector is downsized elements at the end are simply dropped.
+			 * When the vector size is increased the new elements at the end are
+			 * intialized with zeros.*/
 			void resize(IndexType new_size) 
 			{
 				if ( size != new_size ) {
-					freebuf();
+					T * old_data = data;
+					IndexType old_size = size;
 					allocate(new_size);
+					// copy old data
+					const size_t copy_size = std::min(old_size,new_size) * sizeof(T);
+					std::memcpy(data, old_data, copy_size);
+					free(old_data);
 				}
-				set_zero(); 
 			}
 
 			/*! \brief Set all elements to value v. */
@@ -167,6 +176,27 @@ namespace auryn {
 			void set_zero() 
 			{
 				set_all(0.0);
+			}
+
+			void set_random_normal(AurynState mean=0.0, AurynState sigma=1.0, unsigned int seed=8721)
+			{
+				if ( seed == 0 )
+					seed = static_cast<unsigned int>(std::time(0));
+				boost::mt19937 randgen(seed); 
+				boost::normal_distribution<> dist((double)mean, (double)sigma);
+				boost::variate_generator<boost::mt19937&, boost::normal_distribution<> > die(randgen, dist);
+				AurynState rv;
+				for ( IndexType i = 0 ; i<size ; ++i ) {
+					rv = die();
+					data[i] = rv;
+				}
+			}
+
+			/*! \brief Initializes vector elements with Gaussian of unit 
+			 * varince and a seed derived from system time if no seed or seed of 0 is given. */
+			void set_random(unsigned int seed = 0) 
+			{
+				set_random_normal(0.0,1.0,seed);
 			}
 
 			/*! \brief Scales all vector elements by a. */
