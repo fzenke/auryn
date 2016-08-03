@@ -272,6 +272,14 @@ void AurynVectorFloat::diff(AurynVectorFloat * a, AurynVectorFloat * b)
 
 void AurynVectorFloat::diff(AurynVectorFloat * a, const float b) 
 {
+	check_size(a);
 	sum(a,-b);
+}
+
+void AurynVectorFloat::diff(const float a, AurynVectorFloat * b ) 
+{
+	check_size(b);
+	sum(b,-a);
+	neg();
 }
 
