@@ -34,8 +34,6 @@ void LinearTrace::init(NeuronID n, AurynFloat timeconstant, AurynTime * clk)
 	tau_auryntime = (AurynTime) (timeconstant/dt);
 	zerointerval = 5*tau_auryntime;
 
-	zerotime_auryntime = 0;
-
 	// clock = auryn::sys->get_clock_ptr();
 	clock = clk;
 	state = new AurynFloat[size];
