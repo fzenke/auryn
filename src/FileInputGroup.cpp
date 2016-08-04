@@ -38,6 +38,8 @@ void FileInputGroup::init(std::string filename)
 
 	active = true;
 
+	loop_grid_size = 1;
+
 	if ( evolve_locally() ) {
 		spkfile.open(filename.c_str(),std::ifstream::in);
 		if (!spkfile) {
@@ -70,6 +72,9 @@ FileInputGroup::~FileInputGroup()
 	spkfile.close();
 }
 
+void FileInputGroup::read_event(AurynTime & event_time, NeuronID & neuron_id, const AurynTime time_offset)
+{
+}
 
 void FileInputGroup::evolve()
 {
@@ -84,6 +89,7 @@ void FileInputGroup::evolve()
 			therewasalastspike = false;
 		}
 
+		char buffer[255];
 		while (ftime <= auryn::sys->get_clock() && spkfile.getline(buffer, 256) ) {
 			std::stringstream line ( buffer ) ;
 			line >> t;
@@ -101,6 +107,9 @@ void FileInputGroup::evolve()
 
 		if ( playinloop && spkfile.eof() ) {
 			off = ftime+dly;
+			if ( off%loop_grid_size ) {
+				off = (off/loop_grid_size+1)*loop_grid_size;
+			}
 			spkfile.clear();
 			spkfile.seekg(0,std::ios::beg);
 		}
@@ -108,5 +117,14 @@ void FileInputGroup::evolve()
 	else { // keep track of time
 		off = auryn::sys->get_clock();
 		ftime = off;
+	}
+}
+
+
+void FileInputGroup::set_loop_grid(AurynDouble grid_size)
+{
+	if ( grid_size > 0 ) {
+		loop_grid_size = grid_size/dt;
+		if ( loop_grid_size == 0 ) loop_grid_size = 1;
 	}
 }

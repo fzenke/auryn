@@ -48,20 +48,31 @@ class FileInputGroup : public SpikingGroup
 private:
 	AurynTime ftime;
 	NeuronID lastspike;
+	AurynTime next_event_time;
+	NeuronID next_event_spike;
 	bool therewasalastspike;
 	bool playinloop;
+
+	/*! \brief Aligns looped file input to a grid of this size */
+	AurynTime loop_grid_size;
+
 	AurynTime dly;
 	AurynTime off;
 	std::ifstream spkfile;
-	char buffer[255];
 	void init(string filename );
-	
+	void read_event(AurynTime & event_time, NeuronID & neuron_id, const AurynTime time_offset);
+
 public:
-	bool active ;
+
 	FileInputGroup(NeuronID n, string filename );
-	FileInputGroup(NeuronID n, string filename , bool loop, AurynFloat delay=0.0 );
+	FileInputGroup(NeuronID n, string filename , bool loop=true, AurynFloat delay=0.0 );
 	virtual ~FileInputGroup();
 	virtual void evolve();
+
+	/*!\brief Aligned loop blocks to a temporal grid of this size 
+	 *
+	 * */
+	void set_loop_grid(AurynDouble grid_size);
 
 };
 
