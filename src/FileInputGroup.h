@@ -54,6 +54,7 @@ private:
 
 	AurynTime time_delay;
 	AurynTime time_offset;
+	AurynTime reset_time;
 
 
 	std::vector<SpikeEvent_type> input_spikes;
@@ -62,6 +63,7 @@ private:
 	void init(string filename );
 
 	AurynTime get_offset_clock();
+	AurynTime get_next_grid_point( AurynTime time );
 
 public:
 
