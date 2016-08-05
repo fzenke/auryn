@@ -36,31 +36,32 @@
 
 namespace auryn {
 
-/*! \brief Reads files from a ras file and emits them as SpikingGroup in a simulation.
+/*! \brief Reads spikes from a ras file and emits them as SpikingGroup in a simulation.
  *
- * When the FileInputGroup reaches the end of a designated ras file it can
- * depending on the settings start over again at the beginning or do nothing.
- * This is controlled by the loop directive.  In addition to that it is
- * possible to specify a certain delay between loops.
+ * FileInputGroup first reads the entire ras file into memory and emits the spikes then during the simulation
+ * without file access. It supports looping over the input spikes by setting the loop argument with the constructor 
+ * to true.
  */
 class FileInputGroup : public SpikingGroup
 {
 private:
-	AurynTime ftime;
-	NeuronID lastspike;
 	AurynTime next_event_time;
 	NeuronID next_event_spike;
-	bool therewasalastspike;
 	bool playinloop;
 
 	/*! \brief Aligns looped file input to a grid of this size */
 	AurynTime loop_grid_size;
 
-	AurynTime dly;
-	AurynTime off;
-	std::ifstream spkfile;
+	AurynTime time_delay;
+	AurynTime time_offset;
+
+
+	std::vector<SpikeEvent_type> input_spikes;
+	std::vector<SpikeEvent_type>::const_iterator spike_iter; 
+
 	void init(string filename );
-	void read_event(AurynTime & event_time, NeuronID & neuron_id, const AurynTime time_offset);
+
+	AurynTime get_offset_clock();
 
 public:
 
@@ -74,6 +75,10 @@ public:
 	 * */
 	void set_loop_grid(AurynDouble grid_size);
 
+	/*!\brief Load spikes from file
+	 *
+	 * */
+	void load_spikes(std::string filename);
 };
 
 }
