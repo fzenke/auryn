@@ -131,6 +131,12 @@ protected:
 public:
 	SpikeDelay * delay;
 
+	/*! \brief Toggles group active 
+	 *
+	 * Groups do not necessarily obey this toggle though. */
+	bool active;
+
+
 	/*! Can hold single neuron vectors such as target rates or STP states etc  */
 	std::map<std::string,AurynStateVector *> state_vectors;
 

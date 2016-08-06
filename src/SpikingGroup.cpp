@@ -55,6 +55,7 @@ void SpikingGroup::init(NeuronID n, double loadmultiplier, NeuronID total )
 	group_name = "SpikingGroup";
 	unique_id  = unique_id_count++;
 	size = n;
+	active = true;
 	effective_load_multiplier = loadmultiplier;
 
 	if ( total > 0 ) {
