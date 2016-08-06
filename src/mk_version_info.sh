@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Script generates auryn_revision.h according to the following values
+# Script generates auryn_revision.cpp according to the following values
 
 AURYNVERSION=0
 AURYNSUBVERSION=8
@@ -10,12 +10,14 @@ AURYNREVISIONSUFFIX="-dev"
 
 # Do not edit below
 
+OUTDIR=`dirname $0`
+
 HASH=`git log --pretty=format:'%h' -n 1`
 AURYNREVISIONSUFFIXANDHASH="$AURYNREVISIONSUFFIX-$HASH"
 
 GITDESCRIBE=`git describe` 
 
-cat <<EOF > AurynVersion.cpp
+cat <<EOF > $OUTDIR/AurynVersion.cpp
 // Please note that his file is created by mk_version_info.sh 
 // Changes to this file may thous be overwritten
 #include "AurynVersion.h"
