@@ -72,6 +72,9 @@ public:
 	virtual ~DuplexConnection();
 	virtual void finalize();
 
+	/*! \brief Prune weight matrices. */
+	void prune();
+
 };
 
 }
