@@ -9,7 +9,7 @@ class AurynBinarySpikeFile:
     This class gives abstract access to binary Auryn spike raster file (spk).
 
     Public methods:
-    get_spikes_from_interval: extracts spikes (tuples of time and neuron id) for a given temporal range.
+    get_spikes: extracts spikes (tuples of time and neuron id) for a given temporal range.
     get_spike_times_from_interval: extracts the spike times of a single unit and a given temporal range.
     '''
     def __init__(self, filename, debug_output=False):
@@ -84,7 +84,7 @@ class AurynBinarySpikeFile:
         return self.datafile.read(bufsize*self.frame_size)
 
 
-    def get_spikes_from_interval( self, t_start, t_stop ):
+    def get_spikes( self, t_start=0.0, t_stop=1e32, max_id=1e32 ):
         idx_start = self.find_frame( t_start, lower=False )
         idx_stop = self.find_frame( t_stop, lower=True )
         start_pos = idx_start*self.frame_size
@@ -96,7 +96,8 @@ class AurynBinarySpikeFile:
         spikes = []
         for i in xrange(num_elements):
             at, nid = struct.unpack_from(self.data_format, data, i*self.frame_size)
-            spikes.append((self.timestep*at, nid))
+            if nid<max_id:
+                spikes.append((self.timestep*at, nid))
         return spikes
 
     def get_spike_times_from_interval( self, neuron_id=0, t_start=0, t_stop=1e32 ):
@@ -130,10 +131,10 @@ class AurynBinarySpikes:
         for filename in self.filenames:
             self.spike_files.append( AurynBinarySpikeFile(filename) )
 
-    def get_spikes_from_interval( self, t_start, t_stop ):
+    def get_spikes( self, t_start=0.0, t_stop=1e32, max_id=1e32 ):
         spikes = []
         for spk in self.spike_files:
-            spikes.extend( spk.get_spikes_from_interval( t_start, t_stop ) )
+            spikes.extend( spk.get_spikes( t_start, t_stop, max_id ) )
 
         spikes.sort(key=lambda tup: tup[0])
         return spikes
@@ -153,7 +154,7 @@ class AurynBinarySpikes:
         ''' 
         hist = np.zeros(max_neuron_id) 
         for t_spike in trigger_times:
-            spikes = self.get_spikes_from_interval(t_spike-time_window, t_spike)
+            spikes = self.get_spikes(t_spike-time_window, t_spike)
             sar = np.array(spikes, dtype=int)[:,1]
             counts = np.bincount(sar, minlength=max_neuron_id)
             hist += counts
@@ -161,27 +162,20 @@ class AurynBinarySpikes:
 
 
 def main():
-    t_win = 100e-3
-    num_neurons = 4096 
-    nid = 12
+    # running the example program sim_coba_binmon will
+    # generate this file
+    filenames = ["/tmp/coba.0.e.spk"]
 
-    filename = "/home/zenke/data/sim/rf2.0.e.spk"
-    spkf     = AurynBinarySpikeFile(filename)
+    t_start = 0.0
+    t_end   = 0.3
+    n_max = 200
 
-    print "Getting firing times"
-    t_spikes = spkf.get_spike_times_from_interval(nid, 1000, 2000)
+    spikecontainer = AurynBinarySpikes(filenames)
+    spikes = np.array(spikecontainer.get_spikes(t_start,t_end,max_id=n_max))
 
-    filenames = ["/home/zenke/data/sim/rf2.0.s.spk",    
-                 "/home/zenke/data/sim/rf2.1.s.spk",
-                 "/home/zenke/data/sim/rf2.2.s.spk",
-                 "/home/zenke/data/sim/rf2.3.s.spk" ]
-    spks      = AurynBinarySpikes(filenames)
-
-
-    print "Computing RF"
-    hist = spks.time_triggered_histogram(t_spikes, t_win, num_neurons)
-    pl.imshow(hist.reshape((64,64)), origin='lower')
-    pl.colorbar()
+    pl.scatter(spikes[:,0], spikes[:,1])
+    pl.xlabel("Time [s]")
+    pl.ylabel("Neuron ID")
     pl.show()
     
 
