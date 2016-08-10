@@ -458,11 +458,13 @@ void SpikingGroup::evolve_traces()
 	for ( NeuronID i = 0 ; i < post_state_traces.size() ; i++ ) {
 
 		// spike triggered component
-		for (SpikeContainer::const_iterator spike = get_spikes_immediate()->begin() ; 
-				spike != get_spikes_immediate()->end() ; 
-				++spike ) {
-			NeuronID translated_spike = global2rank(*spike); // only to be used for post traces
-			post_state_traces[i]->add(translated_spike, post_state_traces_spike_biases[i]);
+		if ( post_state_traces_spike_biases[i] != 0 ) {
+			for (SpikeContainer::const_iterator spike = get_spikes_immediate()->begin() ; 
+					spike != get_spikes_immediate()->end() ; 
+					++spike ) {
+				NeuronID translated_spike = global2rank(*spike); // only to be used for post traces
+				post_state_traces[i]->add(translated_spike, post_state_traces_spike_biases[i]);
+			}
 		}
 
 		// follow the target vector (instead of evolve)
