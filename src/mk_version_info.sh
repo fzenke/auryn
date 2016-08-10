@@ -26,7 +26,7 @@ namespace auryn {
     int AurynVersion::subversion = $AURYNSUBVERSION;
     int AurynVersion::revision_number = $AURYNREVISIONNUMBER;
     NeuronID AurynVersion::tag_binary_spike_monitor = 287960000+100*$AURYNVERSION+10*$AURYNSUBVERSION+1*$AURYNREVISIONNUMBER; //!< file signature for BinarySpikeMonitor files
-    AurynState AurynVersion::tag_binary_state_monitor = 287961000+100*$AURYNVERSION+10*$AURYNSUBVERSION+1*$AURYNREVISIONNUMBER; //!< file signature for BinaryStateMonitor files
+    AurynState AurynVersion::tag_binary_state_monitor = 61000+100*$AURYNVERSION+10*$AURYNSUBVERSION+1*$AURYNREVISIONNUMBER; //!< file signature for BinaryStateMonitor files
     std::string AurynVersion::revision_suffix = "$AURYNREVISIONSUFFIXANDHASH";
     std::string AurynVersion::git_describe = "$GITDESCRIBE";
 
