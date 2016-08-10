@@ -39,8 +39,41 @@ namespace auryn {
 	/*! \brief Global pointer to instance of Logger which needs to be initialized in every simulation main program. */
 	extern Logger * logger;
 
-	/*! \brief Global pointer to instance of mpi::communicator which needs to be initialized in every simulation main program. */
-	extern mpi::communicator * communicator;
+	/*! \brief Global pointer to instance of mpi::environment which needs to be initialized in every simulation main program. */
+	extern mpi::environment * mpienv;
+
+	/*! \brief Global pointer to instance of mpi::mpicommunicator which needs to be initialized in every simulation main program. */
+	extern mpi::communicator * mpicommunicator;
+
+	/*! Initalizes Auryn simulation environment. */
+	inline void auryn_init(int ac, char* av[], string dir=".", string simulation_name="", string logfile_prefix="" )
+	{
+		// init MPI environment
+		mpienv = new mpi::environment(ac, av); 
+		mpicommunicator = new mpi::communicator(); 
+
+
+		// Init logger environment
+		try 
+		{ 
+			char strbuf_tmp [255]; 
+			string log_prefix_ = av[0];
+			if ( !logfile_prefix.empty() ) log_prefix_ = logfile_prefix;
+			sprintf(strbuf_tmp, "%s/%s.%d.log", dir.c_str(), log_prefix_.c_str(), mpicommunicator->rank()); 
+			string auryn_simulation_logfile = strbuf_tmp; 
+			logger = new Logger(auryn_simulation_logfile,mpicommunicator->rank(),PROGRESS,EVERYTHING); 
+		} 
+		catch ( AurynOpenFileException excpt ) 
+		{ 
+			std::cerr << "Cannot proceed without log file. Exiting all ranks ..." << std::endl; 
+			mpienv->abort(1); 
+		} 
+
+		// Init Auryn Kernel
+		auryn::sys = new System(mpicommunicator); 
+		sys->set_output_dir(dir);
+		sys->set_simulation_name(simulation_name);
+	}
 }
 
 #endif /*AURYN_GLOBAL_H__*/

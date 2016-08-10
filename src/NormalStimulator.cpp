@@ -44,7 +44,7 @@ void NormalStimulator::init( NeuronGroup * target, AurynWeight sigma, std::strin
 	oss << std::scientific << "NormalStimulator:: initializing with mean " << get_lambda();
 	auryn::logger->msg(oss.str(),NOTIFICATION);
 
-	seed(61093*auryn::communicator->rank());
+	seed(61093*sys->mpi_rank());
 	dist = new boost::normal_distribution<float> (0.0, get_lambda());
 	die  = new boost::variate_generator<boost::mt19937&, boost::normal_distribution<float> > ( gen, *dist );
 }

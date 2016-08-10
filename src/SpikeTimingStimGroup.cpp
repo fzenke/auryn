@@ -45,6 +45,7 @@ SpikeTimingStimGroup::~SpikeTimingStimGroup()
 void SpikeTimingStimGroup::init()
 {
 	refractory_period = 0.0;
+	scale = 1.0;
 }
 
 void SpikeTimingStimGroup::redraw()

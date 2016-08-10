@@ -50,7 +50,7 @@ void PoissonStimulator::init( NeuronGroup * target, AurynFloat rate, AurynWeight
 	oss << std::scientific << "PoissonStimulator:: initializing with mean " << get_lambda();
 	auryn::logger->msg(oss.str(),NOTIFICATION);
 
-	seed(61093*auryn::communicator->rank());
+	seed(61093*sys->mpi_rank());
 	dist = new boost::poisson_distribution<int> (get_lambda());
 	die  = new boost::variate_generator<boost::mt19937&, boost::poisson_distribution<int> > ( gen, *dist );
 }

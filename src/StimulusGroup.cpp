@@ -54,7 +54,7 @@ void StimulusGroup::init(StimulusGroupModeType stimulusmode, std::string stimfil
 	mean_on_period = 0.2 ;
 
 	randomintensities = false;
-	scale = 2.0; // TODO does this need to be initialized at 2 ?
+	scale = 1.0; // TODO does this need to be initialized at 2 ?
 	curscale = scale;
 
 	background_during_stimulus = false;
@@ -560,7 +560,7 @@ void StimulusGroup::seed(int rndseed)
 	boost::variate_generator<boost::mt19937&, boost::uniform_int<> > die(order_gen, dist);
 
 	NeuronID rnd = die();
-	for (int i = 0 ; i < auryn::communicator->rank() ; ++i ) {
+	for (int i = 0 ; i < sys->mpi_rank() ; ++i ) {
 		rnd = die();
 	}
 

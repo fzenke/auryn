@@ -356,7 +356,7 @@ BOOST_SERIALIZATION_ASSUME_ABSTRACT(SpikingGroup)
 
 	extern System * sys;
 	extern Logger * logger;
-	extern mpi::communicator * communicator;
+	extern mpi::communicator * mpicommunicator;
 
 
 inline NeuronID SpikingGroup::global2rank(NeuronID i) {

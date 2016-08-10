@@ -116,7 +116,7 @@ int main(int ac,char *av[]) {
 	// BEGIN Global stuff
 	mpi::environment env(ac, av);
 	mpi::communicator world;
-	communicator = &world;
+	mpicommunicator = &world;
 
 	oss << dir  << "/coba." << world.rank() << ".";
 	string outputfile = oss.str();

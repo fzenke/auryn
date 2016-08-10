@@ -101,7 +101,7 @@ int main(int ac,char *av[]) {
 	// BEGIN Global definitions
 	mpi::environment env(ac, av);
 	mpi::communicator world;
-	communicator = &world;
+	mpicommunicator = &world;
 
 	std::stringstream oss;
 	oss << dir  << "/" << simname << "." << world.rank() << ".";

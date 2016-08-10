@@ -41,7 +41,7 @@ void PoissonGroup::init(AurynDouble  rate)
 		set_rate( rate );
 
 		std::stringstream oss;
-		oss << "PoissonGroup:: Seeding with " << auryn::communicator->rank();
+		oss << "PoissonGroup:: Seeding with " << sys->mpi_rank();
 		auryn::logger->msg(oss.str(),NOTIFICATION);
 	}
 }
@@ -96,6 +96,6 @@ void PoissonGroup::evolve()
 
 void PoissonGroup::seed(int s)
 {
-		gen.seed(s+auryn::communicator->rank()); // TODO solve seeding problem 
+		gen.seed(s+sys->mpi_rank()); // TODO solve seeding problem 
 }
 

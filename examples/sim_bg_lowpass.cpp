@@ -482,7 +482,7 @@ int main(int ac, char* av[])
 	// BEGIN Global stuff
 	mpi::environment env(ac, av);
 	mpi::communicator world;
-	communicator = &world;
+	mpicommunicator = &world;
 
 	sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.log", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), world.rank());
 	std::string logfile = strbuf;

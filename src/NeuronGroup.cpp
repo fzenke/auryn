@@ -77,7 +77,7 @@ void NeuronGroup::random_mem(AurynState mean, AurynState sigma)
 
 void NeuronGroup::random_uniform_mem(AurynState lo, AurynState hi)
 {
-	boost::mt19937 ng_gen(42+auryn::communicator->rank()); // produces same series every time 
+	boost::mt19937 ng_gen(42+auryn::mpicommunicator->rank()); // produces same series every time 
 	boost::uniform_01<boost::mt19937> die = boost::uniform_01<boost::mt19937> (ng_gen);
 	AurynState rv;
 
@@ -91,7 +91,7 @@ void NeuronGroup::random_uniform_mem(AurynState lo, AurynState hi)
 
 void NeuronGroup::random_nmda(AurynState mean, AurynState sigma)
 {
-	boost::mt19937 ng_gen(53+auryn::communicator->rank()); // produces same series every time 
+	boost::mt19937 ng_gen(53+auryn::mpicommunicator->rank()); // produces same series every time 
 	boost::normal_distribution<> dist((double)mean, (double)sigma);
 	boost::variate_generator<boost::mt19937&, boost::normal_distribution<> > die(ng_gen, dist);
 	AurynState rv;
