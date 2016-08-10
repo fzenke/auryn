@@ -3,6 +3,9 @@ import numpy as np
 import pylab as pl
 import struct
 
+
+current_version = (0,8,0)
+
 class AurynBinaryFile:
     '''
     This class is the abstract base class to access binary Auryn files.
@@ -42,12 +45,18 @@ class AurynBinaryFile:
     def read_frames(self, bufsize):
         return self.datafile.read(bufsize*self.frame_size)
 
-    def init_file_info(self):
+    def open_file(self):
+
+        # TODO add exception handling
+        self.frame_size = struct.calcsize(self.data_format)
+        self.datafile = open(self.filename, "rb")
+
         # Reader spk file header
         data = self.datafile.read(self.frame_size)
         self.header = struct.unpack(self.data_format, data)
         self.timestep = 1.0/self.header[0]
-        version_code = self.header[1]%1000
+        version_code = int(self.header[1])%1000
+        # TODO add header signature checks
         self.file_version = (version_code%10, (version_code%100)/10, (version_code%1000)/100)
         if self.class_version != self.file_version:
             print("Warning! Version mismatch between the decoding tool and the file version.")
@@ -70,6 +79,41 @@ class AurynBinaryFile:
         at,val = self.get_frame(self.last_frame)
         self.t_max = at*self.timestep
 
+class AurynBinaryStateFile(AurynBinaryFile):
+    '''
+    This class gives abstract access to binary Auryn state monitor file.
+
+    Public methods:
+    get_data: extracts time series data from the specified interval 
+    '''
+    def __init__(self, filename, debug_output=False):
+        # These params might have to adapted ot different Auryn datatypes and versions
+        self.data_format = "@If"
+        self.class_version = current_version 
+
+        self.debug = debug_output
+        self.filename = filename
+        self.open_file()
+
+    def __del__(self):
+        self.datafile.close()
+
+    def get_data(self, t_start=0.0, t_stop=1e32):
+        ''' Returns timeseries of state for given temporal interval'''
+        idx_start = self.find_frame( t_start, lower=False )
+        idx_stop  = self.find_frame( t_stop, lower=True )
+        start_pos = idx_start*self.frame_size
+        num_elements = idx_stop-idx_start
+
+        self.datafile.seek(start_pos,0)
+        raw_data = self.datafile.read(num_elements*self.frame_size)
+
+        data = []
+        for i in xrange(num_elements):
+            at, val = struct.unpack_from(self.data_format, raw_data, i*self.frame_size)
+            data.append((self.timestep*at, val))
+        return data
+
 
 class AurynBinarySpikeFile(AurynBinaryFile):
     '''
@@ -82,17 +126,11 @@ class AurynBinarySpikeFile(AurynBinaryFile):
     def __init__(self, filename, debug_output=False):
         # These params might have to adapted ot different Auryn datatypes and versions
         self.data_format = "@II"
-        self.class_version = (0,8,0)
+        self.class_version = current_version
 
         self.debug = debug_output
         self.filename = filename
-
-        self.frame_size = struct.calcsize(self.data_format)
-        self.datafile = open(filename, "rb")
-        # TODO add exception handling
-
-        self.init_file_info()
-
+        self.open_file()
 
     def __del__(self):
         self.datafile.close()
