@@ -15,6 +15,7 @@ class AurynBinarySpikeFile:
         self.filename = filename
         self.frame_size = struct.calcsize(self.data_format)
         self.datafile = open(filename, "rb")
+        # TODO add exception handling
 
         # Reader spk file header
         data = self.datafile.read(self.frame_size)
@@ -139,31 +140,32 @@ class AurynBinarySpikes:
             hist += counts
         return hist
 
+
+def main():
+    t_win = 100e-3
+    num_neurons = 4096 
+    nid = 12
+
+    filename = "/home/zenke/data/sim/rf2.0.e.spk"
+    spkf     = AurynBinarySpikeFile(filename)
+
+    print "Getting firing times"
+    t_spikes = spkf.get_spike_times_from_interval(nid, 1000, 2000)
+
+    filenames = ["/home/zenke/data/sim/rf2.0.s.spk",    
+                 "/home/zenke/data/sim/rf2.1.s.spk",
+                 "/home/zenke/data/sim/rf2.2.s.spk",
+                 "/home/zenke/data/sim/rf2.3.s.spk" ]
+    spks      = AurynBinarySpikes(filenames)
+
+
+    print "Computing RF"
+    hist = spks.compute_linear_receptive_field(t_spikes, t_win, num_neurons)
+    pl.imshow(hist.reshape((64,64)), origin='lower')
+    pl.colorbar()
+    pl.show()
     
 
-# spikes = get_spikes_from_interval(200.0, 220.0)
-# sar = np.array(spikes)
-# pl.scatter(sar[:,0],sar[:,1])
+if __name__ == "__main__":
+    main()
 
-t_win = 100e-3
-num_neurons = 4096 
-nid = 12
-
-filename = "/home/zenke/data/sim/rf2.0.e.spk"
-spkf     = AurynBinarySpikeFile(filename)
-
-print "Getting firing times"
-t_spikes = spkf.get_spike_times_from_interval(nid, 1000, 2000)
-
-filenames = ["/home/zenke/data/sim/rf2.0.s.spk",    
-             "/home/zenke/data/sim/rf2.1.s.spk",
-             "/home/zenke/data/sim/rf2.2.s.spk",
-             "/home/zenke/data/sim/rf2.3.s.spk" ]
-spks      = AurynBinarySpikes(filenames)
-
-
-print "Computing RF"
-hist = spks.compute_linear_receptive_field(t_spikes, t_win, num_neurons)
-pl.imshow(hist.reshape((64,64)), origin='lower')
-pl.colorbar()
-pl.show()
