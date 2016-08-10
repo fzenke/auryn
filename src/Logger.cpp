@@ -55,6 +55,16 @@ Logger::~Logger()
 	outfile.close();
 }
 
+void Logger::set_console_loglevel(LogMessageType level)
+{
+	console_out = level;
+}
+
+void Logger::set_logfile_loglevel(LogMessageType level)
+{
+	file_out = level;
+}
+
 void Logger::msg( std::string text, LogMessageType type, bool global, int line, std::string srcfile )
 {
 	time_t rawtime;
