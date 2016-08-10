@@ -131,10 +131,12 @@ class AurynBinarySpikes:
         hist = np.zeros(max_neuron_id) 
         for t_spike in stim_times:
             spikes = self.get_spikes_from_interval(t_spike-time_window, t_spike)
-            sar = np.array(spikes)[:,1]
-            for spk in sar:
-                if spk < max_neuron_id:
-                    hist[spk] += 1
+            sar = np.array(spikes, dtype=int)[:,1]
+            #for spk in sar:
+            #    if spk < max_neuron_id:
+            #        hist[spk] += 1
+            counts = np.bincount(sar, minlength=max_neuron_id)
+            hist += counts
         return hist
 
     
@@ -151,7 +153,7 @@ filename = "/home/zenke/data/sim/rf2.0.e.spk"
 spkf     = AurynBinarySpikeFile(filename)
 
 print "Getting firing times"
-t_spikes = spkf.get_spike_times_from_interval(nid, 1000, 1200)
+t_spikes = spkf.get_spike_times_from_interval(nid, 1000, 2000)
 
 filenames = ["/home/zenke/data/sim/rf2.0.s.spk",    
              "/home/zenke/data/sim/rf2.1.s.spk",
