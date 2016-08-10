@@ -5,6 +5,13 @@ import struct
 
 
 class AurynBinarySpikeFile:
+    '''
+    This class gives abstract access to binary Auryn spike raster file (spk).
+
+    Public methods:
+    get_spikes_from_interval: extracts spikes (tuples of time and neuron id) for a given temporal range.
+    get_spike_times_from_interval: extracts the spike times of a single unit and a given temporal range.
+    '''
     def __init__(self, filename, debug_output=False):
         # These params might have to adapted ot different Auryn datatypes and versions
         self.data_format = "@II"
@@ -114,6 +121,9 @@ class AurynBinarySpikeFile:
         return spike_times
 
 class AurynBinarySpikes:
+    '''
+    A wrapper class for easy extraction of spikes from multiple spk files from different ranks.
+    '''
     def __init__(self, filenames):
         self.filenames = filenames
         self.spike_files = []
@@ -128,14 +138,23 @@ class AurynBinarySpikes:
         spikes.sort(key=lambda tup: tup[0])
         return spikes
 
-    def compute_linear_receptive_field(self, stim_times, time_window=100e-3, max_neuron_id=1024):
+    def time_triggered_histogram(self, trigger_times, time_window=100e-3, max_neuron_id=1024):
+        '''
+        Sums spikes within a given time window which precede given trigger times.
+
+        This function can be used to compute reverese correlations, for instance to
+        compute a linear receptive field. Note that for that reason the given time 
+        window precedes the trigger time.
+
+        Keyword arguments:
+        trigger_times -- list of trigger times
+        time_window -- size of time window to sum over in seconds (default 0.1s)
+        max_neuron_id -- the number of neurons
+        ''' 
         hist = np.zeros(max_neuron_id) 
-        for t_spike in stim_times:
+        for t_spike in trigger_times:
             spikes = self.get_spikes_from_interval(t_spike-time_window, t_spike)
             sar = np.array(spikes, dtype=int)[:,1]
-            #for spk in sar:
-            #    if spk < max_neuron_id:
-            #        hist[spk] += 1
             counts = np.bincount(sar, minlength=max_neuron_id)
             hist += counts
         return hist
@@ -160,7 +179,7 @@ def main():
 
 
     print "Computing RF"
-    hist = spks.compute_linear_receptive_field(t_spikes, t_win, num_neurons)
+    hist = spks.time_triggered_histogram(t_spikes, t_win, num_neurons)
     pl.imshow(hist.reshape((64,64)), origin='lower')
     pl.colorbar()
     pl.show()
