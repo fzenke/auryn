@@ -51,7 +51,7 @@ PatternStimulator::~PatternStimulator()
 
 void PatternStimulator::init(NeuronGroup * target, std::string filename, AurynFloat scale, NeuronID maximum_patterns)
 {
-	auryn::sys->register_monitor(this);
+	auryn::sys->register_device(this);
 
 	dst = target;
 	set_scale(scale);

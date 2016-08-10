@@ -68,7 +68,7 @@ void CorrelatedPoissonGroup::init(AurynDouble  rate, NeuronID gsize, AurynDouble
 
 		dist = new boost::uniform_01<> ();
 		die  = new boost::variate_generator<boost::mt19937&, boost::uniform_01<> > ( gen, *dist );
-		seed(auryn::communicator->rank()); // seeding problem
+		seed(sys->mpi_rank()); // seeding problem
 
 		x = new NeuronID [ngroups];
 		for ( int i = 0 ; i < ngroups ; ++i ) {
@@ -77,7 +77,7 @@ void CorrelatedPoissonGroup::init(AurynDouble  rate, NeuronID gsize, AurynDouble
 		}
 
 		oss.str("");
-		oss << "CorrelatedPoissonGroup:: Seeding with " << auryn::communicator->rank();
+		oss << "CorrelatedPoissonGroup:: Seeding with " << sys->mpi_rank();
 		auryn::logger->msg(oss.str(),NOTIFICATION);
 	}
 }

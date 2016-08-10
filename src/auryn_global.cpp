@@ -27,7 +27,8 @@
 
 
 namespace auryn {
-	System * sys;
+	mpi::communicator * mpicommunicator;
+	mpi::environment * mpienv;
 	Logger * logger;
-	mpi::communicator * communicator;
+	System * sys;
 }

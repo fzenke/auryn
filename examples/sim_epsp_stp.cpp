@@ -46,15 +46,8 @@ int main(int ac, char* av[])
 	AurynWeight w = 1.0;
 
 	// BEGIN Global definitions
-	mpi::environment env(ac, av);
-	mpi::communicator world;
-	communicator = &world;
-
-	sprintf(strbuf, "out_epsp_stp.%d.log", world.rank());
-	string logfile = strbuf;
-	logger = new Logger(logfile,world.rank(),PROGRESS,EVERYTHING);
-
-	sys = new System(&world);
+	auryn_init( ac, av );
+	sys->set_simulation_name(outputfile);
 	// END Global definitions
 
 	// Sets up a single presynaptic Poisson neuron which fires at 1Hz
@@ -122,6 +115,6 @@ int main(int ac, char* av[])
 	delete sys;
 
 	if (errcode)
-		env.abort(errcode);
+		mpienv->abort(errcode);
 	return errcode;
 }

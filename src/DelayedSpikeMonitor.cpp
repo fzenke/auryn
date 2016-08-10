@@ -52,7 +52,7 @@ DelayedSpikeMonitor::~DelayedSpikeMonitor()
 
 void DelayedSpikeMonitor::init(SpikingGroup * source, std::string filename, NeuronID from, NeuronID to)
 {
-	auryn::sys->register_monitor(this);
+	auryn::sys->register_device(this);
 
 	// sys = system;
 	n_from = from;

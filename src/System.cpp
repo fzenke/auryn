@@ -45,7 +45,14 @@ void System::init() {
 
 	progressbar_update_interval = PROGRESSBAR_DEFAULT_UPDATE_INTERVAL;
 
-	syncbuffer = new SyncBuffer(mpicom);
+	mpi_size_ = 1;
+	mpi_rank_ = 0;
+	syncbuffer = NULL;
+	if ( mpicom ) {
+		syncbuffer = new SyncBuffer(mpicom);
+		mpi_size_ = mpicom->size();
+		mpi_rank_ = mpicom->rank();
+	} 
 
 	std::stringstream oss;
 	oss << "Auryn version "
@@ -105,6 +112,7 @@ void System::init() {
 
 System::System()
 {
+	mpicom = NULL;
 	init();
 }
 
@@ -115,14 +123,14 @@ System::System(mpi::communicator * communicator)
 
 	std::stringstream oss;
 
-	if ( mpicom->size() > 1 ) {
+	if ( mpi_size() > 1 ) {
 		oss << "MPI run rank "
-			<<  mpicom->rank() << " out of "
-			<<  mpicom->size() << " ranks total.";
+			<<  mpi_rank() << " out of "
+			<<  mpi_size() << " ranks total.";
 		auryn::logger->msg(oss.str(),NOTIFICATION);
 	}
 
-	if ( mpicom->size() > 0 && (mpicom->size() & (mpicom->size()-1)) ) {
+	if ( mpi_size() > 0 && (mpi_size() & (mpi_size()-1)) ) {
 		oss.str("");
 		oss << "WARNING! The number of processes is not a power of two. "
 			<< "This causes impaired performance or even crashes "
@@ -140,8 +148,8 @@ void System::free()
 {
 	for ( unsigned int i = 0 ; i < checkers.size() ; ++i )
 		delete checkers[i];
-	for ( unsigned int i = 0 ; i < monitors.size() ; ++i )
-		delete monitors[i];
+	for ( unsigned int i = 0 ; i < devices.size() ; ++i )
+		delete devices[i];
 	for ( unsigned int i = 0 ; i < connections.size() ; ++i )
 		delete connections[i];
 	for ( unsigned int i = 0 ; i < spiking_groups.size() ; ++i )
@@ -149,10 +157,11 @@ void System::free()
 
 	spiking_groups.clear();
 	connections.clear();
-	monitors.clear();
+	devices.clear();
 	checkers.clear();
 
-	delete syncbuffer;
+	if ( mpicom )
+		delete syncbuffer;
 }
 
 void System::step()
@@ -216,9 +225,9 @@ void System::register_connection(Connection * connection)
 	connections.push_back(connection);
 }
 
-void System::register_monitor(Monitor * monitor)
+void System::register_device(Device * device)
 {
-	monitors.push_back(monitor);
+	devices.push_back(device);
 }
 
 void System::register_checker(Checker * checker)
@@ -286,19 +295,25 @@ void System::propagate()
 		(*iter)->propagate(); 
 }
 
-bool System::monitor(bool checking)
+void System::execute_devices()
 {
-	std::vector<Monitor *>::const_iterator iter;
-	for ( iter = monitors.begin() ; iter != monitors.end() ; ++iter )
+	std::vector<Device *>::const_iterator iter;
+	for ( iter = devices.begin() ; iter != devices.end() ; ++iter ) {
 		(*iter)->propagate();
+	}
+}
 
-	for ( unsigned int i = 0 ; i < checkers.size() ; ++i )
-		if (!checkers[i]->propagate() && checking) {
+
+bool System::execute_checkers()
+{
+	for ( unsigned int i = 0 ; i < checkers.size() ; ++i ) {
+		if (!checkers[i]->propagate() ) {
 			std::stringstream oss;
-			oss << "Checker " << i << " broke run!";
+			oss << "Checker " << i << " triggered abort of simulation!";
 			auryn::logger->msg(oss.str(),WARNING);
 			return false;
 		}
+	}
 
 	return true;
 }
@@ -325,8 +340,11 @@ void System::progressbar ( double fraction, AurynTime clk ) {
 
 	std::cout<< percent << "%     "<< setiosflags(std::ios::fixed) << " t=" << time ;
 
-	if ( online_rate_monitor_id >= 0 ) 
-		std::cout  << std::setprecision(1) << "  f=" << online_rate_monitor_state << " Hz  ";
+	if ( online_rate_monitor_id >= 0 ) {
+		std::cout  << std::setprecision(1) << "  f=" << online_rate_monitor_state << " Hz"
+			<< " in " << spiking_groups.at(online_rate_monitor_id)->get_name() << "   ";
+
+	}
 
 	std::cout << std::flush;
 
@@ -365,30 +383,31 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 
 	std::stringstream oss;
 	oss << "Simulation triggered ( " 
-		<< "runtime=" << runtime << "s )";
+		<< "runtime=" << runtime << "s ) ...";
 	auryn::logger->msg(oss.str(),NOTIFICATION);
 
-	oss.str("");
-	oss	<< "On this rank: neurons_total="<< get_total_neurons() 
-		<< ", effective_load=" << get_total_effective_load()
-		<< ", synapses_total=" << get_total_synapses();
-	auryn::logger->msg(oss.str(),SETTINGS);
-
-
-	if (mpicom->rank() == 0) {
-		AurynLong all_ranks_total_neurons;
-		reduce(*mpicom, get_total_neurons(), all_ranks_total_neurons, std::plus<AurynLong>(), 0);
-
-		AurynLong all_ranks_total_synapses;
-		reduce(*mpicom, get_total_synapses(), all_ranks_total_synapses, std::plus<AurynLong>(), 0);
-
+	if ( clock == 0 && mpicom ) { // only show this once for clock==0
 		oss.str("");
-		oss	<< "On all ranks: neurons_total="<< all_ranks_total_neurons 
-			<< ", synapses_total=" << all_ranks_total_synapses;
+		oss	<< "On this rank: neurons_total="<< get_total_neurons() 
+			<< ", effective_load=" << get_total_effective_load()
+			<< ", synapses_total=" << get_total_synapses();
 		auryn::logger->msg(oss.str(),SETTINGS);
-	} else {
-		reduce(*mpicom, get_total_neurons(), std::plus<AurynLong>(), 0);
-		reduce(*mpicom, get_total_synapses(), std::plus<AurynLong>(), 0);
+
+		if ( mpi_rank() == 0 ) { 
+			AurynLong all_ranks_total_neurons;
+			reduce(*mpicom, get_total_neurons(), all_ranks_total_neurons, std::plus<AurynLong>(), 0);
+
+			AurynLong all_ranks_total_synapses;
+			reduce(*mpicom, get_total_synapses(), all_ranks_total_synapses, std::plus<AurynLong>(), 0);
+
+			oss.str("");
+			oss	<< "On all ranks: neurons_total="<< all_ranks_total_neurons 
+				<< ", synapses_total=" << all_ranks_total_synapses;
+			auryn::logger->msg(oss.str(),SETTINGS);
+		} else {
+			reduce(*mpicom, get_total_neurons(), std::plus<AurynLong>(), 0);
+			reduce(*mpicom, get_total_synapses(), std::plus<AurynLong>(), 0);
+		}
 	}
 
 #ifdef CODE_COLLECT_SYNC_TIMING_STATS
@@ -401,7 +420,7 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 
 	while ( get_clock() < stoptime ) {
 
-	    if ( (mpicom->rank()==0) && (not quiet) && ( (get_clock()%progressbar_update_interval==0) || get_clock()==(stoptime-1) ) ) {
+	    if ( (mpi_rank()==0) && (not quiet) && ( (get_clock()%progressbar_update_interval==0) || get_clock()==(stoptime-1) ) ) {
 			double fraction = 1.0*(get_clock()-starttime+1)*dt/total_time;
 			progressbar(fraction,get_clock()); // TODO find neat solution for the rate
 		}
@@ -416,14 +435,19 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 			oss.str("");
 			oss << "Mark set ("
 				<< get_time()
-				<< "s). Ran for " << td
-				<< "s with SpeedFactor=" << td/(LOGGER_MARK_INTERVAL*dt);
+				<< "s). ";
+
+			if ( td > 50 ) {
+				oss << "Ran for " << td << "s "
+					<< "with SpeedFactor=" 
+					<< std::scientific << td/(LOGGER_MARK_INTERVAL*dt);
+			}
 
 			AurynTime simtime_left = total_time-dt*(get_clock()-starttime+1);
-			AurynDouble remaining = simtime_left*td/(LOGGER_MARK_INTERVAL*dt)/60; // in minutes
-			if ( remaining > 5 ) { // only show when more than 5min
+			AurynDouble remaining_minutes = simtime_left*td/(LOGGER_MARK_INTERVAL*dt)/60; // in minutes
+			if ( remaining_minutes > 5 ) { // only show when more than 5min
 			oss	<< ", approximately "
-				<< remaining
+				<< std::setprecision(0) << remaining_minutes
 				<< "min of runtime remaining";
 			}
 
@@ -432,9 +456,13 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 
 		evolve();
 		propagate();
+		execute_devices();
 
-		if (!monitor(checking))
-			return false;
+		if ( checking ) {
+			if (!execute_checkers()) {
+				return false;
+			}
+		}
 
 		evolve_independent(); // used to run in parallel to the sync (and could still in principle)
 		// what is important for event based integration such as done in LinearTrace that this stays
@@ -443,7 +471,7 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 		
 		step();	
 
-		if ( mpicom->size()>1 && (get_clock())%(MINDELAY) == 0 ) {
+		if ( mpi_size()>1 && (get_clock())%(MINDELAY) == 0 ) {
 			sync();
 		} 
 
@@ -471,16 +499,19 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 	last_elapsed_time = elapsed;
 
 	oss.str("");
-	oss << "Simulation finished. Ran for " 
-		<< elapsed 
-		<< "s with SpeedFactor=" 
-		<< elapsed/runtime
-		<< " (network clock=" << get_clock() << ")";
+	oss << "Simulation finished. Elapsed wall time " 
+		<< elapsed << "s. ";
+
+	if ( elapsed > 50 ) { // only display if we have some stats
+		oss << "with SpeedFactor=" 
+			<< std::scientific << elapsed/runtime
+			<< " (network clock=" << get_clock() << ")";
+	}
 	auryn::logger->msg(oss.str(),NOTIFICATION);
 
 
 #ifdef CODE_COLLECT_SYNC_TIMING_STATS
-	if (mpicom->rank() == 0) {
+	if (mpi_rank() == 0) {
 		double minimum;
 		reduce(*mpicom, elapsed, minimum, mpi::minimum<double>(), 0);
 
@@ -511,15 +542,14 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 
 bool System::run(AurynFloat simulation_time, bool checking)
 {
-
-	AurynTime starttime = get_clock();
-	AurynTime stoptime = get_clock() + (AurynTime) (simulation_time/dt);
-
 	// throw an exception if the stoptime is post the range of AurynTime
 	if ( get_time() + simulation_time > std::numeric_limits<AurynTime>::max()*dt ) {
 		auryn::logger->msg("The requested simulation time exceeds the number of possible timesteps limited by AurynTime datatype.",ERROR);
 		throw AurynTimeOverFlowException();
 	}
+
+	AurynTime starttime = get_clock();
+	AurynTime stoptime = get_clock() + (AurynTime) (simulation_time/dt);
 
 	return run(starttime, stoptime, simulation_time, checking);
 }
@@ -562,7 +592,7 @@ string System::fn(std::string name, std::string extension)
 {
 	std::stringstream oss;
 	oss << outputdir << "/" << name
-	<< "." << mpicom->rank()
+	<< "." << mpi_rank()
 	<< "." << extension;
 	return oss.str();
 }
@@ -573,7 +603,7 @@ string System::fn(std::string name, NeuronID index, std::string extension)
 	oss << outputdir << "/" 
 		<< name
 		<< index
-		<< "." << mpicom->rank()
+		<< "." << mpi_rank()
 		<< "." << extension;
 	return oss.str();
 }
@@ -592,7 +622,7 @@ void System::save_network_state(std::string basename)
 		std::stringstream oss;
 		oss << outputdir 
 			<< "/" << basename
-			<< "." << mpicom->rank()
+			<< "." << mpi_rank()
 			<< ".netstate";
 		netstate_filename = oss.str();
 	} // oss goes out of focus
@@ -609,9 +639,9 @@ void System::save_network_state(std::string basename)
 
 	auryn::logger->msg("Saving communicator information ...",VERBOSE);
 	// save communicator information 
-	int tmp_int = mpicom->size();
+	int tmp_int = mpi_size();
 	oa << tmp_int;
-	tmp_int = mpicom->rank();
+	tmp_int = mpi_rank();
 	oa << tmp_int;
 
 
@@ -645,17 +675,17 @@ void System::save_network_state(std::string basename)
 		oa << *(spiking_groups[i]);
 	}
 
-	// Save Monitors
-	auryn::logger->msg("Saving Monitors ...",VERBOSE);
-	for ( unsigned int i = 0 ; i < monitors.size() ; ++i ) {
+	// Save Devices
+	auryn::logger->msg("Saving Devices ...",VERBOSE);
+	for ( unsigned int i = 0 ; i < devices.size() ; ++i ) {
 
 		std::stringstream oss;
-		oss << "Saving Monitor "
+		oss << "Saving Device "
 			<<  i 
 			<< " to stream";
 		auryn::logger->msg(oss.str(),VERBOSE);
 
-		oa << *(monitors[i]);
+		oa << *(devices[i]);
 	}
 
 	auryn::logger->msg("Saving Checkers ...",VERBOSE);
@@ -679,7 +709,7 @@ void System::save_network_state_text(std::string basename)
 
 	char filename [255];
 	for ( unsigned int i = 0 ; i < connections.size() ; ++i ) {
-		sprintf(filename, "%s.%d.%d.wmat", basename.c_str(), i, mpicom->rank());
+		sprintf(filename, "%s.%d.%d.wmat", basename.c_str(), i, mpi_rank());
 
 		std::stringstream oss;
 		oss << "Saving connection "
@@ -690,7 +720,7 @@ void System::save_network_state_text(std::string basename)
 	}
 
 	for ( unsigned int i = 0 ; i < spiking_groups.size() ; ++i ) {
-		sprintf(filename, "%s.%d.%d.gstate", basename.c_str(), i, mpicom->rank());
+		sprintf(filename, "%s.%d.%d.gstate", basename.c_str(), i, mpi_rank());
 
 		std::stringstream oss;
 		oss << "Saving group "
@@ -710,7 +740,7 @@ void System::load_network_state(std::string basename)
 	{
 		std::stringstream oss;
 		oss << basename
-			<< "." << mpicom->rank()
+			<< "." << mpi_rank()
 			<< ".netstate";
 		netstate_filename = oss.str();
 	} // oss goes out of focus
@@ -749,9 +779,9 @@ void System::load_network_state(std::string basename)
 	bool pass_comm = true;
 	int tmp_int;
 	ia >> tmp_int;
-	pass_comm = pass_comm && (tmp_int == mpicom->size());
+	pass_comm = pass_comm && (tmp_int == mpi_size());
 	ia >> tmp_int;
-	pass_comm = pass_comm && (tmp_int == mpicom->rank());
+	pass_comm = pass_comm && (tmp_int == mpi_rank());
 
 	if ( !pass_comm ) {
 		auryn::logger->msg("ERROR: Communicator size or rank do not match! "
@@ -787,16 +817,16 @@ void System::load_network_state(std::string basename)
 		ia >> *(spiking_groups[i]);
 	}
 
-	// Loading Monitors states
-	auryn::logger->msg("Loading Monitors ...",VERBOSE);
-	for ( unsigned int i = 0 ; i < monitors.size() ; ++i ) {
+	// Loading Devices states
+	auryn::logger->msg("Loading Devices ...",VERBOSE);
+	for ( unsigned int i = 0 ; i < devices.size() ; ++i ) {
 
 		std::stringstream oss;
-		oss << "Loading Monitor "
+		oss << "Loading Device "
 			<<  i;
 		auryn::logger->msg(oss.str(),VERBOSE);
 
-		ia >> *(monitors[i]);
+		ia >> *(devices[i]);
 	}
 
 	
@@ -851,10 +881,10 @@ AurynDouble System::get_total_elapsed_time()
 	return elapsed;
 }
 
-void System::flush_monitors()
+void System::flush_devices()
 {
-	for ( unsigned int i = 0 ; i < monitors.size() ; ++i )
-		monitors[i]->flush();
+	for ( unsigned int i = 0 ; i < devices.size() ; ++i )
+		devices[i]->flush();
 }
 
 #ifdef CODE_COLLECT_SYNC_TIMING_STATS
@@ -884,3 +914,14 @@ void System::reset_sync_time()
 }
 
 #endif
+
+
+unsigned int System::mpi_size()
+{
+	return mpi_size_;
+}
+
+unsigned int System::mpi_rank()
+{
+	return mpi_rank_;
+}

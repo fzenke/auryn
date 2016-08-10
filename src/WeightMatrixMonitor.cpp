@@ -38,7 +38,7 @@ WeightMatrixMonitor::~WeightMatrixMonitor()
 
 void WeightMatrixMonitor::init(Connection * source, AurynFloat stepsize)
 {
-	auryn::sys->register_monitor(this);
+	auryn::sys->register_device(this);
 
 	src = source;
 	ssize = (AurynTime) (stepsize/dt);

@@ -29,21 +29,28 @@ using namespace auryn;
 
 void Monitor::init(std::string filename)
 {
-	fname = filename;
+	if ( filename.empty() ) { // generate default filename from device id
+		fname = generate_filename();
+	} else 
+		fname = filename;
 
 	active = true;
-
-	open_output_file(filename);
+	open_output_file(fname);
 }
 
-Monitor::Monitor()
+Monitor::Monitor( std::string filename, std::string default_extension ) : Device()
 {
+	default_file_extension = default_extension;
+	init(filename);
+}
+
+Monitor::Monitor( ) : Device()
+{
+	default_file_extension = "dat";
 }
 
 void Monitor::open_output_file(std::string filename)
 {
-	if ( filename.empty() ) return; // stimulators do not necessary need an outputfile
-
 	outfile.open( filename.c_str(), std::ios::out );
 	if (!outfile) {
 	  std::stringstream oss;
@@ -53,9 +60,16 @@ void Monitor::open_output_file(std::string filename)
 	}
 }
 
-Monitor::Monitor( std::string filename )
+std::string Monitor::generate_filename(std::string name_hint) 
 {
-	init(filename);
+	std::stringstream oss;
+	oss << get_name() << name_hint;
+	std::string tmpstr = oss.str(); 
+	tmpstr.erase(std::remove(tmpstr.begin(),tmpstr.end(),' '),tmpstr.end());
+	std::transform(tmpstr.begin(), tmpstr.end(), tmpstr.begin(), ::tolower);
+	tmpstr = sys->fn(tmpstr, default_file_extension);
+	// std::cout << tmpstr << std::endl;
+	return tmpstr;
 }
 
 Monitor::~Monitor()
@@ -76,8 +90,10 @@ void Monitor::flush()
 
 void Monitor::virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version ) 
 {
+	Device::virtual_serialize(ar, version);
 }
 
 void Monitor::virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version ) 
 {
+	Device::virtual_serialize(ar, version);
 }

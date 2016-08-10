@@ -131,7 +131,7 @@ void SparseConnection::init()
 	else skip_diagonal = false;
 
 	if ( !has_been_seeded ) { // seed it only once 
-		int rseed = 12345*auryn::communicator->rank() ;
+		int rseed = 12345*sys->mpi_rank() ;
 		seed(rseed);
 	}
 
@@ -342,7 +342,7 @@ void SparseConnection::connect_block_random(AurynWeight weight,
 	int r = 0; // these variables are used to speed up building the matrix if the destination is distributed
 	int s = 1;
 
-	r = auryn::communicator->rank()-dst->get_locked_rank(); 
+	r = sys->mpi_rank()-dst->get_locked_rank(); 
 	s = dst->get_locked_range();
 
 	// correction for "refractoriness"

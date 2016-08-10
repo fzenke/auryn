@@ -48,6 +48,7 @@ namespace auryn {
 class BinarySpikeMonitor : public Monitor
 {
 private:
+	static const std::string default_extension;
     NeuronID n_from;
     NeuronID n_to;
     NeuronID n_every;
@@ -59,7 +60,7 @@ private:
 	void free();
 
 public:
-	BinarySpikeMonitor(SpikingGroup * source, std::string filename);
+	BinarySpikeMonitor(SpikingGroup * source, std::string filename="");
 	BinarySpikeMonitor(SpikingGroup * source, std::string filename, NeuronID to);
 	BinarySpikeMonitor(SpikingGroup * source, std::string filename, NeuronID from, NeuronID to);
 	void set_offset(NeuronID of);

@@ -54,7 +54,7 @@ PatternMonitor::~PatternMonitor()
 
 void PatternMonitor::init(SpikingGroup * source, std::string filename, NeuronID maximum_patterns, AurynFloat binsize)
 {
-	auryn::sys->register_monitor(this);
+	auryn::sys->register_device(this);
 
 	linked_to_stimgroup = false;
 

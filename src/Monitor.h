@@ -28,8 +28,11 @@
 
 #include "auryn_definitions.h"
 #include "AurynVector.h"
+#include "Device.h"
+#include "System.h"
 #include <fstream>
 #include <string>
+#include <algorithm>
 
 namespace auryn {
 
@@ -41,29 +44,29 @@ namespace auryn {
 	 * Classes inheriting from Monitor have to implement the method propagate. Unlike Checker objects propagate returns void. Use Checker if you need the Monitor to be able to interrupt a run. 
 	 */
 
-	class Monitor
+	class Monitor : public Device
 	{
 	private:
-		/*! Functions necesssary for serialization and loading saving to netstate files. */
-		friend class boost::serialization::access;
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int version)
-		{
-			virtual_serialize(ar, version);
-		}
+		/*! Standard initializer to be called by the constructor */
+		void init(std::string filename);
 
+		/*! Standard free function to be called by the destructor - closes the file stream. */
+		void free();
 
 	protected:
 		/*! Output filestream to be used in the derived classes */
 		std::ofstream outfile;
+
 		/*! Stores output filename */
 		std::string fname;
-		/*! Standard initializer to be called by the constructor */
-		void init(std::string filename);
+
+		/*! Default extension */
+		std::string default_file_extension;
+
+
 		/*! Opens a text outputfile -- for binary files redefine this function in derived class. */
 		virtual void open_output_file(std::string filename);
-		/*! Standard free function to be called by the destructor - closes the file stream. */
-		void free();
+
 
 		/*! Functions necesssary for serialization and loading saving to netstate files. */
 		virtual void virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version ) ;
@@ -74,19 +77,23 @@ namespace auryn {
 		bool active;
 
 		/*! \brief Flush to file */
-		void flush();
+		virtual void flush();
 
-		/*! \brief Standard constructor */
-		Monitor();
 		/*! \brief Standard constructor with file name*/
-		Monitor(std::string filename);
+		Monitor(std::string filename, std::string default_extension = "dat");
+
+		/*! \brief Constructor which does not open a text file for output */
+		Monitor();
+
+		/*! \brief Generates a default filename from the device ID. */
+		std::string generate_filename(std::string name_hint="");
+
 		/*! \brief Standard destructor  */
 		virtual ~Monitor();
+
 		/*! Virtual propagate function to be called in central simulation loop in System */
 		virtual void propagate() = 0;
 	};
-
-	BOOST_SERIALIZATION_ASSUME_ABSTRACT(Checker)
 
 	extern System * sys;
 	extern Logger * logger;

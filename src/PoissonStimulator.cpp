@@ -29,7 +29,7 @@ using namespace auryn;
 
 boost::mt19937 PoissonStimulator::gen = boost::mt19937();
 
-PoissonStimulator::PoissonStimulator(NeuronGroup * target, AurynFloat rate, AurynWeight w ) : Monitor( )
+PoissonStimulator::PoissonStimulator(NeuronGroup * target, AurynFloat rate, AurynWeight w ) : Device( )
 {
 	init(target,rate,w);
 }
@@ -37,7 +37,7 @@ PoissonStimulator::PoissonStimulator(NeuronGroup * target, AurynFloat rate, Aury
 
 void PoissonStimulator::init( NeuronGroup * target, AurynFloat rate, AurynWeight w )
 {
-	auryn::sys->register_monitor(this);
+	auryn::sys->register_device(this);
 	dst = target;
 
 	set_target_state();
@@ -50,7 +50,7 @@ void PoissonStimulator::init( NeuronGroup * target, AurynFloat rate, AurynWeight
 	oss << std::scientific << "PoissonStimulator:: initializing with mean " << get_lambda();
 	auryn::logger->msg(oss.str(),NOTIFICATION);
 
-	seed(61093*auryn::communicator->rank());
+	seed(61093*sys->mpi_rank());
 	dist = new boost::poisson_distribution<int> (get_lambda());
 	die  = new boost::variate_generator<boost::mt19937&, boost::poisson_distribution<int> > ( gen, *dist );
 }

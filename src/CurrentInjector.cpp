@@ -28,9 +28,9 @@
 using namespace auryn;
 
 
-CurrentInjector::CurrentInjector(NeuronGroup * target, std::string neuron_state_name, AurynFloat initial_current ) : Monitor( )
+CurrentInjector::CurrentInjector(NeuronGroup * target, std::string neuron_state_name, AurynFloat initial_current ) : Device( )
 {
-	auryn::sys->register_monitor(this);
+	auryn::sys->register_device(this);
 	dst = target;
 
 	set_target_state(neuron_state_name);

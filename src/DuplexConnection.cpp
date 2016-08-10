@@ -152,3 +152,9 @@ void DuplexConnection::compute_reverse_matrix( int z )
 	}
 }
 
+void DuplexConnection::prune(  )
+{
+	auryn::logger->msg("Pruning weight matrix",VERBOSE);
+	fwd->prune();
+	compute_reverse_matrix();
+}

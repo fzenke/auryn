@@ -72,6 +72,7 @@
 #include "FileInputGroup.h"
 #include "FileModulatedPoissonGroup.h"
 #include "StimulusGroup.h"
+#include "SpikeTimingStimGroup.h"
 #include "ProfilePoissonGroup.h"
 #include "StructuredPoissonGroup.h"
 #include "CorrelatedPoissonGroup.h"
@@ -96,6 +97,7 @@
 #include "WeightChecker.h"
 
 // Monitor and stimulator definitions
+#include "Device.h"
 #include "Monitor.h"
 #include "VoltageMonitor.h"
 #include "SpikeMonitor.h"

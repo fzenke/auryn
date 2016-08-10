@@ -4,6 +4,9 @@
 *.l[oa]
 */.libs
 
+*.pyc
+
+
 # Ignore docs
 docs/*
 

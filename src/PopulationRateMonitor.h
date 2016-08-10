@@ -56,6 +56,7 @@ private:
 protected:
 	/*! The source SpikingGroup */
 	SpikingGroup * src;
+
 	/*! Default init method */
 	void init(SpikingGroup * source, string filename, AurynDouble binsize);
 	
@@ -66,9 +67,11 @@ public:
 	 @param[source] The source spiking group.
 	 @param[filename] The filename to write to (should be different for each rank.)
 	 @param[binsize] The binsize used for counting in seconds.*/
-	PopulationRateMonitor(SpikingGroup * source, string filename, AurynDouble binsize=1.0);
+	PopulationRateMonitor(SpikingGroup * source, string filename="", AurynDouble binsize=0.1);
+
 	/*! Default Destructor */
 	virtual ~PopulationRateMonitor();
+
 	/*! Implementation of necessary propagate() function. */
 	void propagate();
 };

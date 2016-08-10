@@ -34,8 +34,6 @@ void LinearTrace::init(NeuronID n, AurynFloat timeconstant, AurynTime * clk)
 	tau_auryntime = (AurynTime) (timeconstant/dt);
 	zerointerval = 5*tau_auryntime;
 
-	zerotime_auryntime = 0;
-
 	// clock = auryn::sys->get_clock_ptr();
 	clock = clk;
 	state = new AurynFloat[size];
@@ -92,12 +90,15 @@ AurynFloat LinearTrace::get_tau()
 
 inline void LinearTrace::update(NeuronID i)
 {
-	int timediff = *clock - timestamp[i];
-	if ( timediff >= zerointerval )
+	const int timediff = *clock - timestamp[i];
+	if ( timediff == 0 ) return;
+
+	if ( timediff >= zerointerval ) {
 		state[i] = 0.0;
-	else {
+	} else { // as a last resort call exp
 		state[i] *= std::exp( -(dt*timediff)/tau);
 	}
+
 	timestamp[i] = *clock;
 }
 

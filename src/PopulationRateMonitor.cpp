@@ -38,7 +38,7 @@ PopulationRateMonitor::~PopulationRateMonitor()
 
 void PopulationRateMonitor::init(SpikingGroup * source, std::string filename, AurynDouble binsize)
 {
-	auryn::sys->register_monitor(this);
+	auryn::sys->register_device(this);
 
 	src = source;
 	invbsize = 1.0/binsize;

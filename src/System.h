@@ -30,7 +30,7 @@
 #include "AurynVector.h"
 #include "SpikingGroup.h"
 #include "Connection.h"
-#include "Monitor.h"
+#include "Device.h"
 #include "Checker.h"
 #include "SyncBuffer.h"
 #include "AurynVersion.h"
@@ -63,6 +63,9 @@ namespace auryn {
 	private:
 		AurynTime clock;
 		mpi::communicator * mpicom;
+		unsigned int mpi_size_;
+		unsigned int mpi_rank_;
+
 		std::string simulation_name;
 
 		SyncBuffer * syncbuffer;
@@ -70,7 +73,7 @@ namespace auryn {
 
 		std::vector<SpikingGroup *> spiking_groups;
 		std::vector<Connection *> connections;
-		std::vector<Monitor *> monitors;
+		std::vector<Device *> devices;
 		std::vector<Checker *> checkers;
 
 		string outputdir;
@@ -113,13 +116,17 @@ namespace auryn {
 		void propagate();
 
 
-		/*! Performs integration of Connection objects. 
+		/*! \brief Performs integration of Connection objects. 
+		 *
 		 * Since this is independent of the SpikingGroup evolve we 
 		 * can do this while we are waiting for synchronization. */
 		void evolve_independent();
 
-		/*! Calls all monitors. */
-		bool monitor(bool checking);
+		/*! \brief Calls all monitors. */
+		void execute_devices();
+
+		/*! \brief Calls all checkers. */
+		bool execute_checkers();
 
 		/*! Implements integration and spike propagation of a single integration step. */
 		void step();
@@ -208,10 +215,10 @@ namespace auryn {
 		void save_network_state_text(std::string basename);
 
 
-		/*! \brief Flush monitors 
+		/*! \brief Flush devices 
 		 *
 		 * Write monitor data buffers to file. */
-		void flush_monitors();
+		void flush_devices();
 
 
 		/*! \brief Registers an instance of SpikingGroup to the spiking_groups vector. 
@@ -224,10 +231,10 @@ namespace auryn {
 		 * Called internally by constructor of Connection. */
 		void register_connection(Connection * connection);
 
-		/*! \brief Registers an instance of Monitor to the monitors vector. 
+		/*! \brief Registers an instance of Device to the devices vector. 
 		 *
 		 * Called internally by constructor of Monitor. */
-		void register_monitor(Monitor * monitor);
+		void register_device(Device * device);
 
 		/*! \brief Registers an instance of Checker to the checkers vector. 
 		 * 
@@ -299,6 +306,18 @@ namespace auryn {
 
 		/*! \brief Returns global mpi communicator */
 		mpi::communicator * get_com();
+
+		/*! \brief Returns number of ranks
+		 *
+		 * like mpicom->size(), but also defined when run
+		 * without mpi. */
+		unsigned int mpi_size();
+
+		/*! \brief Returns current rank
+		 *
+		 * like mpicom->rank(), but also defined when run
+		 * without mpi. */
+		unsigned int mpi_rank();
 
 #ifdef CODE_COLLECT_SYNC_TIMING_STATS
 		AurynDouble deltaT;

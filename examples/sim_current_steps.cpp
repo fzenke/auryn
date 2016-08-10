@@ -41,36 +41,24 @@ int main(int ac, char* av[])
 	string tmpstr;
 	AurynWeight w = 1.0;
 
+
 	// BEGIN Global definitions
-	mpi::environment env(ac, av);
-	mpi::communicator world;
-	communicator = &world;
-
-	try
-	{
-		sprintf(strbuf, "current_steps.%d.log", world.rank());
-		string logfile = strbuf;
-		logger = new Logger(logfile,world.rank(),PROGRESS,EVERYTHING);
-	}
-	catch ( AurynOpenFileException excpt )
-	{
-		std::cerr << "Cannot proceed without log file. Exiting all ranks ..." << '\n';
-		env.abort(1);
-	}
-
-	sys = new System(&world);
-	sys->set_simulation_name(simname);
+	auryn_init( ac, av, ".", simname );
 	// END Global definitions
 
 	// define neuron group
-	IzhikevichGroup * neuron = new IzhikevichGroup(1);
+	AdExGroup * neuron = new AdExGroup(1);
+	// alternatively you can also use an
+	// IzhikevichGroup * neuron = new IzhikevichGroup(1);
+
 
 	// define current input 
 	CurrentInjector * curinject = new CurrentInjector(neuron, "mem");
 
 	// define monitors
 	SpikeMonitor * smon = new SpikeMonitor( neuron, sys->fn("ras") );
-	StateMonitor * vmon = new StateMonitor( neuron, 0, "mem", sys->fn("mem") );
+	VoltageMonitor * vmon = new VoltageMonitor( neuron, 0, sys->fn("mem") );
+	StateMonitor * wmon = new StateMonitor( neuron, 0, "w", sys->fn("w") );
 
 	// run simulation
 	logger->msg("Running ...",PROGRESS);
@@ -99,6 +87,6 @@ int main(int ac, char* av[])
 	delete sys;
 
 	if (errcode)
-		env.abort(errcode);
+		mpienv->abort(errcode);
 	return errcode;
 }

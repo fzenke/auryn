@@ -36,33 +36,53 @@
 
 namespace auryn {
 
-/*! \brief Reads files from a ras file and emits them as SpikingGroup in a simulation.
+/*! \brief Reads spikes from a ras file and emits them as SpikingGroup in a simulation.
  *
- * When the FileInputGroup reaches the end of a designated ras file it can
- * depending on the settings start over again at the beginning or do nothing.
- * This is controlled by the loop directive.  In addition to that it is
- * possible to specify a certain delay between loops.
+ * FileInputGroup first reads the entire ras file into memory and emits the spikes then during the simulation
+ * without file access. It supports looping over the input spikes by setting the loop argument with the constructor 
+ * to true.
+ *
+ * \todo Somehow this group seems to swallow the first spike -- have to luck into this
  */
 class FileInputGroup : public SpikingGroup
 {
 private:
-	AurynTime ftime;
-	NeuronID lastspike;
-	bool therewasalastspike;
+	AurynTime next_event_time;
+	NeuronID next_event_spike;
 	bool playinloop;
-	AurynTime dly;
-	AurynTime off;
-	std::ifstream spkfile;
-	char buffer[255];
+
+	/*! \brief Aligns looped file input to a grid of this size */
+	AurynTime loop_grid_size;
+
+	AurynTime time_delay;
+	AurynTime time_offset;
+	AurynTime reset_time;
+
+
+	std::vector<SpikeEvent_type> input_spikes;
+	std::vector<SpikeEvent_type>::const_iterator spike_iter; 
+
 	void init(string filename );
-	
+
+	AurynTime get_offset_clock();
+	AurynTime get_next_grid_point( AurynTime time );
+
 public:
-	bool active ;
+
 	FileInputGroup(NeuronID n, string filename );
-	FileInputGroup(NeuronID n, string filename , bool loop, AurynFloat delay=0.0 );
+	FileInputGroup(NeuronID n, string filename , bool loop=true, AurynFloat delay=0.0 );
 	virtual ~FileInputGroup();
 	virtual void evolve();
 
+	/*!\brief Aligned loop blocks to a temporal grid of this size 
+	 *
+	 * */
+	void set_loop_grid(AurynDouble grid_size);
+
+	/*!\brief Load spikes from file
+	 *
+	 * */
+	void load_spikes(std::string filename);
 };
 
 }

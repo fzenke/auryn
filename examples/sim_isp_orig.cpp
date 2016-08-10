@@ -195,22 +195,12 @@ int main(int ac, char* av[])
     }
 
 	// BEGIN Global definitions
-	mpi::environment env(ac, av);
-	mpi::communicator world;
-	communicator = &world;
-
-	netstatfile = outputfile;
-	std::stringstream oss;
-	oss << outputfile << "." << world.rank();
-	string basename = oss.str();
-	oss << ".log";
-	string logfile = oss.str();
-	logger = new Logger(logfile,world.rank());
-
-	sys = new System(&world);
+	auryn_init( ac, av );
 	// END Global definitions
-
-
+	std::stringstream oss;
+    oss << outputfile << "." << sys->mpi_rank();
+    string basename = oss.str();
+	
 
 	logger->msg("Setting up neuron groups ...",PROGRESS,true);
 	TIFGroup * neurons_e = new TIFGroup(NE);

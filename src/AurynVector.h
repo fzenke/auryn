@@ -71,15 +71,6 @@ namespace auryn {
 #endif 
 			}
 
-			/*! \brief Computes approximation of exp(x) via fast series approximation up to n=256. */
-			T fast_exp256(T x)
-			{
-				x = 1.0 + x / 256.0;
-				x *= x; x *= x; x *= x; x *= x;
-				x *= x; x *= x; x *= x; x *= x;
-				return x;
-			}
-
 			/*! \brief Checks if vector size matches to this instance
 			 *
 			 * Check only enabled if NDEBUG is not defined.*/
@@ -107,6 +98,15 @@ namespace auryn {
 			void freebuf() {
 				free(data);
 			}
+
+            /*! \brief Computes approximation of exp(x) via fast series approximation up to n=256. */
+            T fast_exp256(T x)
+            {
+                    x = 1.0 + x / 256.0;
+                    x *= x; x *= x; x *= x; x *= x;
+                    x *= x; x *= x; x *= x; x *= x;
+                    return x;
+            }
 
 		protected:
 
@@ -164,8 +164,42 @@ namespace auryn {
 				}
 			}
 
+			/*! \brief Copies vector v 
+			 *
+			 * */
+			void copy(AurynVector * v) 
+			{
+				check_size(v);
+				std::copy(v->data, v->data+v->size, data);
+			}
+
+			/*! \brief Gets element i from vector */
+			T get(IndexType i)
+			{
+				check_size(i);
+				return data[i];
+			}
+
+			/*! \brief Gets pointer to element i from vector 
+			 *
+			 * When no argument is given the function returns the first element of 
+			 * data array of the vector. */
+			T * ptr(IndexType i = 0)
+			{
+				check_size(i);
+				return data+i;
+			}
+
+			/*! \brief Sets element i in vector to value */
+			void set(IndexType i, T value)
+			{
+				check_size(i);
+				data[i] = value;
+			}
+
+
 			/*! \brief Set all elements to value v. */
-			void set_all(T v) 
+			void set_all(const T v) 
 			{
 				for ( IndexType i = 0 ; i < size ; ++i ) {
 					data[i] = v;
@@ -178,84 +212,17 @@ namespace auryn {
 				set_all(0.0);
 			}
 
-			void set_random_normal(AurynState mean=0.0, AurynState sigma=1.0, unsigned int seed=8721)
-			{
-				if ( seed == 0 )
-					seed = static_cast<unsigned int>(std::time(0));
-				boost::mt19937 randgen(seed); 
-				boost::normal_distribution<> dist((double)mean, (double)sigma);
-				boost::variate_generator<boost::mt19937&, boost::normal_distribution<> > die(randgen, dist);
-				AurynState rv;
-				for ( IndexType i = 0 ; i<size ; ++i ) {
-					rv = die();
-					data[i] = rv;
-				}
-			}
-
-			/*! \brief Initializes vector elements with Gaussian of unit 
-			 * varince and a seed derived from system time if no seed or seed of 0 is given. */
-			void set_random(unsigned int seed = 0) 
-			{
-				set_random_normal(0.0,1.0,seed);
-			}
-
 			/*! \brief Scales all vector elements by a. */
-			void scale(const T a) 
+			virtual void scale(const T a) 
 			{
 				for ( IndexType i = 0 ; i < size ; ++i ) {
 					data[i] *= a;
 				}
 			}
 
-			/*! \brief Scales all vector elements by a. TODO */
-			void follow(AurynVector<T,IndexType> * v, const float rate) 
-			{
-				for ( IndexType i = 0 ; i < size ; ++i ) {
-					data[i] += rate*(v->data[i]-data[i]);
-				}
-			}
-
-			/*! \brief Takes each element to the n-th power. 
-			 *
-			 * \param n the exponent */
-			void pow(const unsigned int n) 
-			{
-				for ( IndexType i = 0 ; i < size ; ++i ) {
-					data[i] = std::pow(data[i],n);
-				}
-			}
-
-			/*! \brief Computes an approximation of exp(x) for each vector element. 
-			 *
-			 * \param n accuracy */
-			void fast_exp()
-			{
-				for ( IndexType i = 0 ; i < size ; ++i ) {
-					data[i] = fast_exp256(data[i]);
-				}
-			}
-
-			/*! \brief Computes exp(x) for each vector element. */
-			void exp()
-			{
-				for ( IndexType i = 0 ; i < size ; ++i ) {
-					data[i] = std::exp(data[i]);
-				}
-			}
-
-
-			/*! \brief Takes the square root of each element  
-			 *
-			 * */
-			void sqrt() 
-			{
-				for ( IndexType i = 0 ; i < size ; ++i ) {
-					data[i] = std::sqrt(data[i]);
-				}
-			}
 
 			/*! \brief Adds constant c to each vector element */
-			void add(const T c) 
+			virtual void add(const T c) 
 			{
 				for ( IndexType i = 0 ; i < size ; ++i ) {
 					data[i] += c;
@@ -279,7 +246,7 @@ namespace auryn {
 			/*! \brief Adds a vector v to the vector
 			 *
 			 * No checking of the dimensions match! */
-			void add(AurynVector * v) 
+			virtual void add(AurynVector * v) 
 			{
 				check_size(v);
 				for ( IndexType i = 0 ; i < size ; ++i ) {
@@ -288,13 +255,13 @@ namespace auryn {
 			}
 
 			/*! \brief Subtract constant c to each vector element */
-			void sub(const T c) 
+			virtual void sub(const T c) 
 			{
 				add(-c);
 			}
 
 			/*! \brief Elementwise subtraction */
-			void sub(AurynVector * v) 
+			virtual void sub(AurynVector * v) 
 			{
 				check_size(v);
 				for ( IndexType i = 0 ; i < size ; ++i ) {
@@ -303,7 +270,7 @@ namespace auryn {
 			}
 
 			/*! \brief Multiply all vector elements by constant */
-			void mul(const T a) 
+			virtual void mul(const T a) 
 			{
 				scale(a);
 			}
@@ -311,11 +278,79 @@ namespace auryn {
 			/*! \brief Element-wise vector multiply  
 			 *
 			 * */
-			void mul(AurynVector * v) 
+			virtual void mul(AurynVector * v) 
 			{
 				check_size(v);
 				for ( IndexType i = 0 ; i < size ; ++i ) {
 					data[i] *= v->data[i];
+				}
+			}
+
+			/*! \brief SAXPY operation as in GSL 
+			 *
+			 * Computes a*x + y and stores the result to y where y is the present instance. 
+			 * \param a The scaling factor for the additional vector
+			 * \param x The additional vector to add
+			 * */
+			virtual void saxpy(const T a, AurynVector * x) 
+			{
+				check_size(x);
+				for ( IndexType i = 0 ; i < size ; ++i ) {
+					data[i] += a * x->data[i];
+				}
+			}
+
+
+			/*! \brief Scales all vector elements by a. TODO */
+			void follow(AurynVector<T,IndexType> * v, const float rate) 
+			{
+				for ( IndexType i = 0 ; i < size ; ++i ) {
+					data[i] += rate*(v->data[i]-data[i]);
+				}
+			}
+
+			/*! \brief Takes each element to the n-th power. 
+			 *
+			 * \param n the exponent */
+			void pow(const unsigned int n) 
+			{
+				for ( IndexType i = 0 ; i < size ; ++i ) {
+					data[i] = std::pow(data[i],n);
+				}
+			}
+
+			/*! \brief Computes an approximation of exp(x) for each vector element. 
+			 *
+			 * */
+			void fast_exp()
+			{
+				// mul(0.00390625); // ie. 1.0/256.0
+				// add(1.0);
+				// for ( int i = 0 ; i < 8 ; ++i ) {
+				// 	sqr();
+				// }
+				// seems as if the naive version is faster
+				for ( IndexType i = 0 ; i < size ; ++i ) {
+					data[i] = fast_exp256(data[i]);
+				}
+			}
+
+			/*! \brief Computes exp(x) for each vector element. */
+			void exp()
+			{
+				for ( IndexType i = 0 ; i < size ; ++i ) {
+					data[i] = std::exp(data[i]);
+				}
+			}
+
+
+			/*! \brief Takes the square root of each element  
+			 *
+			 * */
+			void sqrt() 
+			{
+				for ( IndexType i = 0 ; i < size ; ++i ) {
+					data[i] = std::sqrt(data[i]);
 				}
 			}
 
@@ -381,60 +416,21 @@ namespace auryn {
 			}
 
 
-			/*! \brief Copies vector v 
-			 *
-			 * */
-			void copy(AurynVector * v) 
-			{
-				check_size(v);
-				std::copy(v->data, v->data+v->size, data);
-			}
-
-
-			/*! \brief SAXPY operation as in GSL 
-			 *
-			 * Computes a*x + y and stores the result to y where y is the present instance. 
-			 * \param a The scaling factor for the additional vector
-			 * \param x The additional vector to add
-			 * */
-			void saxpy(const T a, AurynVector * x) 
-			{
-				check_size(x);
-				for ( IndexType i = 0 ; i < size ; ++i ) {
-					data[i] += a * x->data[i];
-				}
-			}
-
-			/*! \brief Gets element i from vector */
-			T get(IndexType i)
-			{
-				check_size(i);
-				return data[i];
-			}
-
-			/*! \brief Gets pointer to element i from vector 
-			 *
-			 * When no argument is given the function returns the first element of 
-			 * data array of the vector. */
-			T * ptr(IndexType i = 0)
-			{
-				check_size(i);
-				return data+i;
-			}
-
-			/*! \brief Sets element i in vector to value */
-			void set(IndexType i, T value)
-			{
-				check_size(i);
-				data[i] = value;
-			}
-
 			/*! \brief Squares each element 
 			 *
 			 * */
 			void sqr() 
 			{	
 				this->mul(this);
+			}
+
+			/*! \brief Takes absolute value of each element
+			 *
+			 * */
+			void abs() 
+			{	
+				sqr();
+				sqrt();
 			}
 
 			/*! \brief Rectifies all elements
@@ -543,6 +539,28 @@ namespace auryn {
 				return sum;
 			}
 
+			void set_random_normal(AurynState mean=0.0, AurynState sigma=1.0, unsigned int seed=8721)
+			{
+				if ( seed == 0 )
+					seed = static_cast<unsigned int>(std::time(0));
+				boost::mt19937 randgen(seed); 
+				boost::normal_distribution<> dist((double)mean, (double)sigma);
+				boost::variate_generator<boost::mt19937&, boost::normal_distribution<> > die(randgen, dist);
+				AurynState rv;
+				for ( IndexType i = 0 ; i<size ; ++i ) {
+					rv = die();
+					data[i] = rv;
+				}
+			}
+
+			/*! \brief Initializes vector elements with Gaussian of unit 
+			 * varince and a seed derived from system time if no seed or seed of 0 is given. */
+			void set_random(unsigned int seed = 0) 
+			{
+				set_random_normal(0.0,1.0,seed);
+			}
+
+
 			/*! \brief Print vector elements jo std out for debugging */
 			void print() {
 				for ( IndexType i = 0 ; i < size ; ++i ) {
@@ -582,16 +600,13 @@ namespace auryn {
 			void add(AurynVectorFloat * v);
 			void sum(AurynVectorFloat * a, AurynVectorFloat * b);
 			void sum(AurynVectorFloat * a, const float b);
+			void mul(const float a) { scale(a); };
+			void mul(AurynVectorFloat * v);
 			void diff(AurynVectorFloat * a, AurynVectorFloat * b);
 			void diff(AurynVectorFloat * a, const float b);
 			void diff(const float a, AurynVectorFloat * b );
 
-
 			// TODO add pow function with intrinsics _mm_pow_ps
-
-
-			void mul(const float a) { scale(a); };
-			void mul(AurynVectorFloat * v);
 
 	};
 

@@ -70,6 +70,18 @@ public:
 	void notification    ( std::string text );
 	void set_rank(int rank);
 
+	/*!\brief Sets loglevel for console output 
+	 *
+	 * \param level The log level
+	 * */
+	void set_console_loglevel(LogMessageType level = PROGRESS);
+
+	/*!\brief Sets loglevel for file output 
+	 *
+	 * \param level The log level
+	 * */
+	void set_logfile_loglevel(LogMessageType level = NOTIFICATION);
+
 	template<typename T> 
 	void parameter(std::string name, T value) 
 	{

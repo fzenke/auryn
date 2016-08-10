@@ -39,7 +39,7 @@ namespace auryn {
  * Instances of this class inject currents that vary over time to subpopulations of the NeuronGroup assigned.
  */
 
-class NormalStimulator : protected Monitor
+class NormalStimulator : protected Device
 {
 private:
 

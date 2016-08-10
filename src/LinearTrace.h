@@ -46,7 +46,6 @@ private:
 	AurynFloat tau;
 	AurynTime tau_auryntime;
 	AurynTime zerointerval;
-	AurynTime zerotime_auryntime;
 	AurynTime * timestamp;
 	AurynTime * clock;
 	void init(NeuronID n, AurynFloat timeconstant, AurynTime * clk);

@@ -245,7 +245,7 @@ int main(int ac, char* av[])
 	// BEGIN Global init
 	mpi::environment env(ac, av);
 	mpi::communicator world;
-	communicator = &world;
+	mpicommunicator = &world;
 
 	sprintf(strbuf, "%s/bg_static.%d.log", dir.c_str(), world.rank());
 	string logfile = strbuf;

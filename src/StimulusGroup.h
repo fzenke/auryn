@@ -141,9 +141,6 @@ public:
 	/*! \brief Enables a finite refractory time specified in AurynTime (only works for non-binary-pattern mode. */
 	AurynTime refractory_period;
 
-	/*! \brief Determines if the Group is active or bypassed upon evolution. */
-	bool active;
-
 	/*! \brief Determines if the Group is using random activation intervals */
 	bool randomintervals;
 

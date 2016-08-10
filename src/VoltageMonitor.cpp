@@ -50,7 +50,7 @@ void VoltageMonitor::init(NeuronGroup * source, NeuronID id, std::string filenam
 	tStop = -1; // at the end of all times ...
 
 	if ( nid < src->get_post_size() ) {
-		auryn::sys->register_monitor(this);
+		auryn::sys->register_device(this);
 		outfile << std::setiosflags(std::ios::fixed) << std::setprecision(6);
 		outfile << "# Recording from neuron " << gid << "\n";
 	}

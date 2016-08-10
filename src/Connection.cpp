@@ -51,8 +51,15 @@ Connection::Connection(SpikingGroup * source, NeuronGroup * destination, Transmi
 void Connection::init(TransmitterType transmitter)
 {
 	set_transmitter(transmitter);
-	set_name("Unspecified");
 
+	// set a default name based on the neuron group names
+	std::stringstream s;
+	s <<   src->get_name() 
+		<< " -> "
+		<< dst->get_name();
+	set_name(s.str());
+
+	// init default parameters
 	number_of_spike_attributes = 0;
 
 	// Here we store how many spike attributes have already been 

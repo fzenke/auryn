@@ -81,7 +81,6 @@ private:
 	static int last_locked_rank;
 
 	bool evolve_locally_bool;
-	inline int msgtag(int x, int y);
 
 	/*! Parameter that characterizes the computational load the SpikingGroup causes with respect to IFGroup. It's used vor load balancing*/
 	double effective_load_multiplier;
@@ -132,6 +131,12 @@ protected:
 public:
 	SpikeDelay * delay;
 
+	/*! \brief Toggles group active 
+	 *
+	 * Groups do not necessarily obey this toggle though. */
+	bool active;
+
+
 	/*! Can hold single neuron vectors such as target rates or STP states etc  */
 	std::map<std::string,AurynStateVector *> state_vectors;
 
@@ -153,6 +158,11 @@ public:
 
 	/*! \brief Creates a new or returns an existing state vector by name. */
 	AurynStateVector * get_state_vector(std::string key);
+
+	/*! \brief Returns an new state vector by name. 
+	 *
+	 * \todo Implement an exception when a state vector already exists. */
+	AurynStateVector * get_new_state_vector(std::string key);
 
 	/*! \brief Creates a new group-wide state variable or returns an existing group-wide variable by name then returns a pointer to it. */
 	AurynState * get_state_variable(std::string key);
@@ -296,7 +306,7 @@ public:
 	 * */
 	EulerTrace * get_post_state_trace( std::string state_name="mem", AurynFloat tau=10e-3, AurynFloat b=0.0 );
 
-	/*! \brief Returns a post trace of a neuronal state variable specifcied by pointer
+	/*! \brief Returns a post trace of a neuronal state variable specified by pointer
 	 *
 	 * This trace is an cotinuously integrated EulerTrace which uses the follow 
 	 * function on the mem state vector. 
@@ -346,7 +356,7 @@ BOOST_SERIALIZATION_ASSUME_ABSTRACT(SpikingGroup)
 
 	extern System * sys;
 	extern Logger * logger;
-	extern mpi::communicator * communicator;
+	extern mpi::communicator * mpicommunicator;
 
 
 inline NeuronID SpikingGroup::global2rank(NeuronID i) {

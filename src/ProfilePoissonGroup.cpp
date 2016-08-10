@@ -37,7 +37,7 @@ void ProfilePoissonGroup::init(AurynDouble  rate)
 
 		dist = new boost::uniform_01<> ();
 		die  = new boost::variate_generator<boost::mt19937&, boost::uniform_01<> > ( gen, *dist );
-		seed(auryn::communicator->rank()); // seeding problem
+		seed(sys->mpi_rank()); // seeding problem
 		x = 0;
 		jumpsize = 0;
 
@@ -46,7 +46,7 @@ void ProfilePoissonGroup::init(AurynDouble  rate)
 		set_flat_profile();
 
 		std::stringstream oss;
-		oss << "ProfilePoissonGroup:: Seeding with " << auryn::communicator->rank();
+		oss << "ProfilePoissonGroup:: Seeding with " << sys->mpi_rank();
 		auryn::logger->msg(oss.str(),NOTIFICATION);
 	}
 }

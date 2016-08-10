@@ -194,20 +194,10 @@ int main(int ac, char* av[])
         std::cerr << "Exception of unknown type!\n";
     }
 
-	// BEGIN Global stuff
-	mpi::environment env(ac, av);
-	mpi::communicator world;
-	communicator = &world;
-
-	std::stringstream oss;
-	oss << dir << "/" << simname << "." << world.rank();
-	outputfile = oss.str();
-	oss << ".log";
-	string logfile = oss.str();
-	logger = new Logger(logfile,world.rank(),PROGRESS,EVERYTHING);
-	sys = new System(&world);
-	// END Global stuff
-
+	// BEGIN Global definitions
+	auryn_init( ac, av );
+	sys->set_simulation_name(simname);
+	// END Global definitions
 
 
 	logger->msg("Setting up neuron groups ...",PROGRESS,true);
@@ -357,6 +347,6 @@ int main(int ac, char* av[])
 	delete sys;
 
 	if (errcode)
-		env.abort(errcode);
+		mpienv->abort(errcode);
 	return errcode;
 }

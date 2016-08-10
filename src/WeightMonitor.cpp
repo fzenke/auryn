@@ -66,7 +66,7 @@ WeightMonitor::~WeightMonitor()
 
 void WeightMonitor::init(SparseConnection * source, NeuronID i, NeuronID j, std::string filename, AurynTime stepsize)
 {
-	auryn::sys->register_monitor(this);
+	auryn::sys->register_device(this);
 	src = source;
 	set_mat(src->w);
 	ssize = stepsize;

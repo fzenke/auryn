@@ -27,14 +27,15 @@
 
 using namespace auryn;
 
+const std::string BinaryStateMonitor::default_extension = "bst";
 
-BinaryStateMonitor::BinaryStateMonitor(SpikingGroup * source, NeuronID id, std::string statename, std::string filename, AurynDouble sampling_interval)  
+BinaryStateMonitor::BinaryStateMonitor(SpikingGroup * source, NeuronID id, std::string statename, std::string filename, AurynDouble sampling_interval)  : Monitor(filename, default_extension)
 {
 
 	if ( !source->localrank(id) ) return; // do not register if neuron is not on the local rank
 
 	init(filename, sampling_interval);
-	auryn::sys->register_monitor(this);
+	auryn::sys->register_device(this);
 	src = source;
 	nid = src->global2rank(id);
 
@@ -51,26 +52,26 @@ BinaryStateMonitor::BinaryStateMonitor(SpikingGroup * source, NeuronID id, std::
 	}
 }
 
-BinaryStateMonitor::BinaryStateMonitor(auryn_vector_float * state, NeuronID id, std::string filename, AurynDouble sampling_interval)
+BinaryStateMonitor::BinaryStateMonitor(auryn_vector_float * state, NeuronID id, std::string filename, AurynDouble sampling_interval): Monitor(filename, default_extension)
 {
 	if ( id >= state->size ) return; // do not register if neuron is out of vector range
 
 	init(filename, sampling_interval);
 
-	auryn::sys->register_monitor(this);
+	auryn::sys->register_device(this);
 	src = NULL;
 	nid = id;
 	target_variable = state->data+nid;
 	lastval = *target_variable;
 }
 
-BinaryStateMonitor::BinaryStateMonitor(EulerTrace * trace, NeuronID id, std::string filename, AurynDouble sampling_interval)
+BinaryStateMonitor::BinaryStateMonitor(EulerTrace * trace, NeuronID id, std::string filename, AurynDouble sampling_interval): Monitor(filename, default_extension)
 {
 	if ( id >= trace->get_state_ptr()->size ) return; // do not register if neuron is out of vector range
 
 	init(filename, sampling_interval);
 
-	auryn::sys->register_monitor(this);
+	auryn::sys->register_device(this);
 	src = NULL;
 	nid = id;
 	target_variable = trace->get_state_ptr()->data+nid;
@@ -79,7 +80,9 @@ BinaryStateMonitor::BinaryStateMonitor(EulerTrace * trace, NeuronID id, std::str
 
 void BinaryStateMonitor::open_output_file(std::string filename)
 {
-	if ( filename.empty() ) return; // stimulators do not necessary need an outputfile
+	if ( filename.empty() ) { // generate a default name
+		filename = generate_filename();
+	}
 
 	outfile.open( filename.c_str(), std::ios::binary );
 	if (!outfile) {
@@ -92,8 +95,6 @@ void BinaryStateMonitor::open_output_file(std::string filename)
 
 void BinaryStateMonitor::init(std::string filename, AurynDouble sampling_interval)
 {
-	open_output_file(filename);
-
 	set_stop_time(10.0);
 	ssize = sampling_interval/dt;
 	if ( ssize < 1 ) ssize = 1;
@@ -123,6 +124,8 @@ BinaryStateMonitor::~BinaryStateMonitor()
 		const AurynTime t = auryn::sys->get_clock()-ssize;
 		write_frame(t, lastval);
 	}
+
+	outfile.close();
 }
 
 
