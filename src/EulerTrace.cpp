@@ -31,8 +31,8 @@ void EulerTrace::init(NeuronID n, AurynFloat timeconstant)
 {
 	size = n;
 	set_timeconstant(timeconstant);
-	state = new AurynVectorFloat ( calculate_vector_size(size) ); 
-	temp = new AurynVectorFloat ( calculate_vector_size(size) ); // temp vector
+	state = new AurynStateVector ( calculate_vector_size(size) ); 
+	temp = new AurynStateVector ( calculate_vector_size(size) ); // temp vector
 	set_all(0.);
 	target_ptr = NULL;
 }
@@ -69,7 +69,7 @@ void EulerTrace::set_all(AurynFloat value)
 	state->set_all(value);
 }
 
-void EulerTrace::add(AurynVectorFloat * values)
+void EulerTrace::add(AurynStateVector * values)
 {
    state->add( values );
 }
@@ -80,7 +80,7 @@ void EulerTrace::add(NeuronID i, AurynFloat value)
    state->data[i] += value;
 }
 
-void EulerTrace::set_target( AurynVectorFloat * target )
+void EulerTrace::set_target( AurynStateVector * target )
 {
 	if ( target != NULL ) {
 		target_ptr = target ;
@@ -107,7 +107,7 @@ void EulerTrace::follow()
 	auryn_vector_float_saxpy( -dt/tau, temp, state );
 }
 
-AurynVectorFloat * EulerTrace::get_state_ptr()
+AurynStateVector * EulerTrace::get_state_ptr()
 {
 	return state;
 }
