@@ -479,26 +479,10 @@ int main(int ac, char* av[])
 	double primetime = 3*tau_hom;
 
 
-	// BEGIN Global stuff
-	mpi::environment env(ac, av);
-	mpi::communicator world;
-	mpicommunicator = &world;
+	sprintf(strbuf, "%s/%s_e%.2et%.2f%s", dir.c_str(), file_prefix, eta, tau_hom, label.c_str());
+	std::string logfile_prefix = strbuf;
 
-	sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.log", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), world.rank());
-	std::string logfile = strbuf;
-	logger = new Logger(logfile,world.rank(),PROGRESS,EVERYTHING);
-
-	sys = new System(&world);
-	// boost::filesystem::path p = av[0];
-	// string binaryname = p.stem().string();
-	// sys->set_simulation_name(binaryname);
-	// END Global stuff
-
-	if (!infilename.empty()) {
-		std::stringstream iss;
-		iss << infilename << "." << world.rank();
-		infilename = iss.str();
-	}
+	auryn_init(ac, av, dir=".", "", logfile_prefix);
 
 	logger->msg("Setting up neuron groups ...",PROGRESS,true);
 
@@ -606,12 +590,12 @@ int main(int ac, char* av[])
 	logger->msg(msg,PROGRESS,true);
 
 	if (wmatdump) {
-		sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.weight", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), world.rank());
+		sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.weight", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), sys->mpi_rank());
 		WeightMatrixMonitor * wmatmon = new WeightMatrixMonitor( con_ee, strbuf , wmat_interval );
 	}
 
 	if ( !fast ) {
-		sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.syn", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), world.rank());
+		sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.syn", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), sys->mpi_rank());
 		WeightMonitor * wmon = new WeightMonitor( con_ee, strbuf, 10 ); 
 		for ( int i = 0 ; i < 5 ; ++i ) {
 			for ( int j = 0 ; j < 5 ; ++j ) {
@@ -620,28 +604,28 @@ int main(int ac, char* av[])
 			}
 		}
 
-		sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.%c.ras", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), world.rank(), 'e');
+		sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.%c.ras", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), sys->mpi_rank(), 'e');
 		SpikeMonitor * smon_e = new SpikeMonitor( neurons_e, strbuf , 2500);
 
-		// sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.%c.ras", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), world.rank(), 'p');
+		// sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.%c.ras", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), sys->mpi_rank(), 'p');
 		// SpikeMonitor * smon_p = new SpikeMonitor( poisson, strbuf , 2500);
 	}
 
-	sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.%c.prate", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), world.rank(), 'e');
+	sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.%c.prate", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), sys->mpi_rank(), 'e');
 	PopulationRateMonitor * pmon_e = new PopulationRateMonitor( neurons_e, strbuf, 1.0 );
 
 	if ( wall ) {
-		sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.rt", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), world.rank());
+		sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.rt", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), sys->mpi_rank());
 		RealTimeMonitor * rtmon = new RealTimeMonitor( strbuf );
 	}
 
-	// sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.%c.prate", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), world.rank(), 'i');
+	// sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.%c.prate", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), sys->mpi_rank(), 'i');
 	// PopulationRateMonitor * pmon_i = new PopulationRateMonitor( neurons_i, strbuf, 1.0 );
 
-	// sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.%c.mem", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), world.rank(), 'e');
+	// sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.%c.mem", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), sys->mpi_rank(), 'e');
 	// VoltageMonitor * vmon_e = new VoltageMonitor( neurons_e, 33, strbuf );
 
-	// sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.%c.ras", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), world.rank(), 'i');
+	// sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.%c.ras", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), sys->mpi_rank(), 'i');
 	// SpikeMonitor * smon_i = new SpikeMonitor( neurons_i, strbuf , 500);
 
 	RateChecker * chk = new RateChecker( neurons_e , 0.1 , 20.*kappa , tau_chk);
@@ -653,11 +637,11 @@ int main(int ac, char* av[])
 		oss << "Changing cell input ... ";
 		logger->msg(oss.str(),PROGRESS,true);
 
-		sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.pat", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), world.rank());
+		sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.pat", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), sys->mpi_rank());
 		PatternMonitor * patmon = new PatternMonitor(neurons_e,strbuf,patfile.c_str(), 10, 1.);
 		PatternStimulator * patstim = new PatternStimulator(neurons_e,currentfile.c_str(),patfile.c_str());
 
-		sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.scal", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), world.rank());
+		sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.scal", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), sys->mpi_rank());
 		WeightMonitor * wmon_scal = new WeightMonitor( con_ee, 0, 0, strbuf, 1, ELEMENTLIST); 
 		wmon_scal->add_to_list( con_ee->get_pre_partners(0) );
 		wmon_scal->add_to_list( con_ee->get_pre_partners(10) );
@@ -665,7 +649,7 @@ int main(int ac, char* av[])
 	}
 
 	// if ( corr ) {
-	// 	sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.%c.pat", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), world.rank(), 'c');
+	// 	sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.%c.pat", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), sys->mpi_rank(), 'c');
 	// 	PatternMonitor * pmon_c = new PatternMonitor( neurons_e, strbuf,corr_pat_file.c_str() );
 	// }
 
@@ -703,7 +687,7 @@ int main(int ac, char* av[])
 			SparseConnection * con_corr_i = new SparseConnection(corr_e,neurons_i,w*strength,sparseness*plen*psize/ni,GLUT);
 
 			// set up Weight monitor
-			sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.%c.ras", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), world.rank(), 'c');
+			sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.%c.ras", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), sys->mpi_rank(), 'c');
 			SpikeMonitor * smon_c = new SpikeMonitor( corr_e, strbuf , psize );
 		}
 
@@ -746,7 +730,7 @@ int main(int ac, char* av[])
 				// SparseConnection * con_corr_i = new SparseConnection(corr_e,neurons_i,w*strength,sparseness*plen*psize/ni,GLUT);
 
 				// set up Weight monitor
-				sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.%c.ras", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), world.rank(), 'c');
+				sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.%c.ras", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), sys->mpi_rank(), 'c');
 				SpikeMonitor * smon_c = new SpikeMonitor( corr_e, strbuf , psize );
 			}
 
@@ -780,7 +764,7 @@ if ( prefile != "" ) {
 // adding patterns
 if ( patfile != "" ) {
 	logger->msg("Preparing stimulus ...",PROGRESS,true);
-	sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.stim", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), world.rank());
+	sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.stim", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), sys->mpi_rank());
 	StimulusGroup * stimgroup = new StimulusGroup(ne,patfile,strbuf);
 	stimgroup->set_mean_on_period(onperiod);
 	stimgroup->set_mean_off_period(offperiod);
@@ -813,27 +797,27 @@ if ( patfile != "" ) {
 
 	if (!fast) {
 		logger->msg("Saving neurons state ...",PROGRESS,true);
-		sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.e.nstate", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), world.rank());
+		sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.e.nstate", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), sys->mpi_rank());
 		neurons_e->write_to_file(strbuf);
-		sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.i.nstate", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), world.rank());
+		sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.i.nstate", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), sys->mpi_rank());
 		neurons_i->write_to_file(strbuf);
 
 		logger->msg("Saving weight matrix ...",PROGRESS,true);
-		sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.wmat", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), world.rank());
+		sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.wmat", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), sys->mpi_rank());
 		con_ee->write_to_file(strbuf);
 
-		sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.ei.wmat", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), world.rank());
+		sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.ei.wmat", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), sys->mpi_rank());
 		con_ei->write_to_file(strbuf);
 
 		for ( int i = 0 ; i < corr_connections.size() ; ++i ) {
-			sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.%d.wmat", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), i, world.rank());
+			sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.%d.wmat", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), i, sys->mpi_rank());
 			corr_connections[i]->write_to_file(strbuf);
 		}
 	}
 
 
 	// save lifetime
-	sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.lifetime", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), world.rank());
+	sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.lifetime", dir.c_str(), file_prefix, eta, tau_hom, label.c_str(), sys->mpi_rank());
 	std::ofstream killfile;
 	killfile.open(strbuf);
 	killfile << sys->get_time()-primetime << std::endl;
@@ -843,7 +827,7 @@ if ( patfile != "" ) {
 	delete sys;
 
 	if (errcode) {
-		env.abort(errcode);
+		mpienv->abort(errcode);
 	}
 
 	return errcode;
