@@ -199,8 +199,8 @@ def main():
     t_end   = 0.3
     n_max = 200
 
-    spikecontainer = AurynBinarySpikeView(filenames)
-    spikes = np.array(spikecontainer.get_spikes(t_start,t_end,max_id=n_max))
+    spkfile = AurynBinarySpikeView(filenames)
+    spikes = np.array(spkfile.get_spikes(t_start,t_end,max_id=n_max))
 
     pl.scatter(spikes[:,0], spikes[:,1])
     pl.xlabel("Time [s]")
