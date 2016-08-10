@@ -43,7 +43,6 @@ class LinearTrace
 private:
 	NeuronID size;
 	AurynFloat * state;
-	AurynFloat * explut;
 	AurynFloat tau;
 	AurynTime tau_auryntime;
 	AurynTime zerointerval;
