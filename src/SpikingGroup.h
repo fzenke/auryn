@@ -306,7 +306,7 @@ public:
 	 * */
 	EulerTrace * get_post_state_trace( std::string state_name="mem", AurynFloat tau=10e-3, AurynFloat b=0.0 );
 
-	/*! \brief Returns a post trace of a neuronal state variable specifcied by pointer
+	/*! \brief Returns a post trace of a neuronal state variable specified by pointer
 	 *
 	 * This trace is an cotinuously integrated EulerTrace which uses the follow 
 	 * function on the mem state vector. 
