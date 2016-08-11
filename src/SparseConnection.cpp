@@ -131,7 +131,7 @@ void SparseConnection::init()
 	else skip_diagonal = false;
 
 	if ( !has_been_seeded ) { // seed it only once 
-		int rseed = 12345*sys->mpi_rank() ;
+		unsigned int rseed = sys->get_seed();
 		seed(rseed);
 	}
 

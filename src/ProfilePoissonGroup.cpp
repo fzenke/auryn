@@ -37,7 +37,7 @@ void ProfilePoissonGroup::init(AurynDouble  rate)
 
 		dist = new boost::uniform_01<> ();
 		die  = new boost::variate_generator<boost::mt19937&, boost::uniform_01<> > ( gen, *dist );
-		seed(sys->mpi_rank()); // seeding problem
+		seed(sys->get_seed()); // seeding problem
 		x = 0;
 		jumpsize = 0;
 

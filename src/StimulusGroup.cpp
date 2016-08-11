@@ -554,21 +554,12 @@ void StimulusGroup::set_stimulation_mode( StimulusGroupModeType mode ) {
 
 void StimulusGroup::seed(int rndseed)
 {
-	order_gen.seed(rndseed); // has to be seeded identically on all ranks!
+	order_gen.seed(sys->get_synced_seed()); // has to be seeded identically on all ranks!
 
-	boost::uniform_int<> dist(0,std::numeric_limits<int>::max());
-	boost::variate_generator<boost::mt19937&, boost::uniform_int<> > die(order_gen, dist);
-
-	NeuronID rnd = die();
-	for (int i = 0 ; i < sys->mpi_rank() ; ++i ) {
-		rnd = die();
-	}
-
-	order_gen.seed(rndseed); // has to be again here otherwise it is different on all ranks
-
+	unsigned int rnd = rndseed + sys->get_seed(); // adds salt to make it different across ranks
 	std::stringstream oss;
 	oss << "StimulusGroup:: " 
-		<< "seeding poisson generator with " 
+		<< "seeding Poisson generator with " 
 		<< rnd;
 	auryn::logger->msg(oss.str(),VERBOSE);
 	
