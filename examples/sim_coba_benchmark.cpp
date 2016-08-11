@@ -113,23 +113,13 @@ int main(int ac,char *av[]) {
         std::cerr << "Exception of unknown type!\n";
     }
 
-	// BEGIN Global stuff
-	mpi::environment env(ac, av);
-	mpi::communicator world;
-	mpicommunicator = &world;
 
-	oss << dir  << "/coba." << world.rank() << ".";
+	string simname = "sim_coba_benchmark";
+	auryn_init( ac, av, dir, simname, simname );
+	oss << dir  << "/coba." << sys->mpi_rank() << ".";
 	string outputfile = oss.str();
-
-	char tmp [255];
-	std::stringstream logfile;
-	logfile << outputfile << "log";
-	logger = new Logger(logfile.str(),world.rank());
-
-	sys = new System(&world);
-
 	if ( fast ) sys->quiet = true;
-	// END Global stuff
+
 
 	logger->msg("Setting up neuron groups ...",PROGRESS,true);
 
@@ -190,7 +180,7 @@ int main(int ac,char *av[]) {
 	if (!sys->run(simtime,true)) 
 			errcode = 1;
 
-	if ( world.rank() == 0 ) {
+	if ( sys->mpi_rank() == 0 ) {
 		logger->msg("Saving elapsed time ..." ,PROGRESS,true);
 		char filenamebuf [255];
 		sprintf(filenamebuf, "%s/elapsed.dat", dir.c_str());
@@ -204,7 +194,7 @@ int main(int ac,char *av[]) {
 	delete sys;
 
 	if (errcode)
-		env.abort(errcode);
+		mpienv->abort(errcode);
 
 
 
