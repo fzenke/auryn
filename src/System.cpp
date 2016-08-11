@@ -93,6 +93,12 @@ void System::init() {
 		auryn::logger->msg(oss.str(),ERROR);
 	}
 
+	// init random number generator
+	// gen  = boost::mt19937();
+	dist = new boost::random::uniform_int_distribution<> ();
+	die  = new boost::variate_generator<boost::mt19937&, boost::random::uniform_int_distribution<> > ( gen, *dist );
+	set_master_seed(3521);
+
 #ifndef NDEBUG
 	oss.str("");
 	oss << "Warning Auryn was compiled with debugging features which will impair performance.";
@@ -924,4 +930,28 @@ unsigned int System::mpi_size()
 unsigned int System::mpi_rank()
 {
 	return mpi_rank_;
+}
+
+void System::set_master_seed( unsigned int seed )
+{
+	if ( seed == 0 ) {
+		seed = static_cast<unsigned int>(std::time(0));
+	}
+
+	const unsigned int master_seed_multiplier = 257;
+	gen.seed(seed*master_seed_multiplier*mpi_rank());
+}
+
+unsigned int System::get_seed()
+{
+	return (*die)();
+}
+
+unsigned int System::get_synced_seed()
+{
+	unsigned int value;
+	if ( mpi_rank() == 0 ) value = get_seed();
+	broadcast(*mpicom, value, 0);
+	// std::cout << mpi_rank() << " " << value << std::endl;
+	return value;
 }

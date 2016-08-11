@@ -36,7 +36,7 @@ void PoissonGroup::init(AurynDouble  rate)
 
 		dist = new boost::uniform_01<> ();
 		die  = new boost::variate_generator<boost::mt19937&, boost::uniform_01<> > ( gen, *dist );
-		seed(620349123); 
+		gen.seed(sys->get_seed());
 		x = 0;
 		set_rate( rate );
 
@@ -94,8 +94,9 @@ void PoissonGroup::evolve()
 	x -= get_rank_size();
 }
 
-void PoissonGroup::seed(int s)
+void PoissonGroup::seed(unsigned int s)
 {
-		gen.seed(s+sys->mpi_rank()); // TODO solve seeding problem 
+	unsigned int tmp = s + sys->get_seed(); // adds salt to user seed
+	gen.seed( tmp );  
 }
 

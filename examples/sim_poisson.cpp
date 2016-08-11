@@ -35,7 +35,7 @@ int main(int ac, char* av[])
 	string msg;
 
 	NeuronID size = 1000;
-	NeuronID seed = 1;
+	unsigned int seed = 1;
 	double kappa = 5.;
 	double simtime = 1.;
 
