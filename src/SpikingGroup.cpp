@@ -58,8 +58,6 @@ void SpikingGroup::init(NeuronID n, double loadmultiplier, NeuronID total )
 	active = true;
 	effective_load_multiplier = loadmultiplier;
 
-	salt = sys->get_seed();
-
 	if ( total > 0 ) {
 		anticipated_total = total;
 		std::stringstream oss;
@@ -99,7 +97,6 @@ void SpikingGroup::init(NeuronID n, double loadmultiplier, NeuronID total )
 	set_delay(MINDELAY+1); 
 
 	evolve_locally_bool = evolve_locally_bool && ( get_rank_size() > 0 );
-
 
 	// some safety checks
 	
@@ -732,7 +729,7 @@ AurynStateVector * SpikingGroup::find_state_vector(std::string key)
 
 void SpikingGroup::randomize_state_vector_gauss(std::string state_vector_name, AurynState mean, AurynState sigma, int seed)
 {
-	boost::mt19937 ng_gen(seed + salt); // produces same series every time 
+	boost::mt19937 ng_gen(seed+auryn::mpicommunicator->rank()); // produces same series every time 
 	boost::normal_distribution<> dist((double)mean, (double)sigma);
 	boost::variate_generator<boost::mt19937&, boost::normal_distribution<> > die(ng_gen, dist);
 	AurynState rv;
