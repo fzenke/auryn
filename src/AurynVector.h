@@ -85,18 +85,26 @@ namespace auryn {
 
 			/*! \brief Implements aligned memory allocation */
 			void allocate(const NeuronID n) {
+#ifdef CODE_ALIGNED_SIMD_INSTRUCTIONS
 				T * ptr = (T*)aligned_alloc(sizeof(T)*SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS,sizeof(T)*n);
 				if ( ptr == NULL ) {
 					// TODO implement proper exception handling
 					throw AurynMemoryAlignmentException(); 
 				}
+#else
+				T * ptr = new T[n];
+#endif
 				data = ptr;
 				size = n;
 				set_zero();
 			}
 
 			void freebuf() {
+#ifdef CODE_ALIGNED_SIMD_INSTRUCTIONS
 				free(data);
+#else
+				delete [] data;
+#endif
 			}
 
             /*! \brief Computes approximation of exp(x) via fast series approximation up to n=256. */
