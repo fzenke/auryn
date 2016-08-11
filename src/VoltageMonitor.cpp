@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -25,7 +25,9 @@
 
 #include "VoltageMonitor.h"
 
-VoltageMonitor::VoltageMonitor(NeuronGroup * source, NeuronID id, string filename, AurynDouble stepsize) : Monitor(filename)
+using namespace auryn;
+
+VoltageMonitor::VoltageMonitor(NeuronGroup * source, NeuronID id, std::string filename, AurynDouble stepsize) : Monitor(filename)
 {
 	init(source,id,filename,(AurynTime)(stepsize/dt));
 }
@@ -34,7 +36,7 @@ VoltageMonitor::~VoltageMonitor()
 {
 }
 
-void VoltageMonitor::init(NeuronGroup * source, NeuronID id, string filename, AurynTime stepsize)
+void VoltageMonitor::init(NeuronGroup * source, NeuronID id, std::string filename, AurynTime stepsize)
 {
 	// only register if the neuron exists on this rank
 	src = source;
@@ -48,26 +50,31 @@ void VoltageMonitor::init(NeuronGroup * source, NeuronID id, string filename, Au
 	tStop = -1; // at the end of all times ...
 
 	if ( nid < src->get_post_size() ) {
-		sys->register_monitor(this);
-		outfile << setiosflags(ios::fixed) << setprecision(6);
+		auryn::sys->register_device(this);
+		outfile << std::setiosflags(std::ios::fixed) << std::setprecision(6);
 		outfile << "# Recording from neuron " << gid << "\n";
 	}
 }
 
 void VoltageMonitor::propagate()
 {
-	if ( sys->get_clock() < tStop && (sys->get_clock())%ssize==0 ) {
-		double voltage = src->get_mem(nid);
+	if ( auryn::sys->get_clock() < tStop ) {
+		// we output spikes irrespectively of the sampling interval, because 
+		// the membrane potential isn't a smooth function for most IF models when
+		// they spike, so it's easy to "miss" a spike otherwise
+		double voltage = src->mem->get(nid);
 		if ( paste_spikes ) {
 			SpikeContainer * spikes = src->get_spikes_immediate();
 			for ( int i = 0 ; i < spikes->size() ; ++i ) {
 				if ( spikes->at(i) == gid ) {
 					voltage = VOLTAGEMONITOR_PASTED_SPIKE_HEIGHT;
-					break;
+					outfile << (auryn::sys->get_time()) << " " << voltage << "\n";
+					return;
 				}
 			}
 		}
-		outfile << (sys->get_time()) << " " << voltage << "\n";
+		if ( (auryn::sys->get_clock())%ssize==0 )
+			outfile << (auryn::sys->get_time()) << " " << voltage << "\n";
 	}
 }
 
@@ -81,7 +88,7 @@ void VoltageMonitor::record_for(AurynDouble time)
 void VoltageMonitor::set_stop_time(AurynDouble time)
 {
 	if (time < 0) {
-		logger->msg("Warning: Negative stop times not supported -- ingoring.",WARNING);
+		auryn::logger->msg("Warning: Negative stop times not supported -- ingoring.",WARNING);
 	} 
-	else tStop = sys->get_clock() + time/dt;
+	else tStop = auryn::sys->get_clock() + time/dt;
 }

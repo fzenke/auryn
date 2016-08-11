@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -20,7 +20,7 @@
 
 #include "auryn.h"
 
-using namespace std;
+using namespace auryn;
 
 namespace po = boost::program_options;
 namespace mpi = boost::mpi;
@@ -58,12 +58,12 @@ int main(int ac, char* av[])
         po::notify(vm);    
 
         if (vm.count("help")) {
-            cout << desc << "\n";
+            std::cout << desc << "\n";
             return 1;
         }
 
         if (vm.count("kappa")) {
-            cout << "kappa set to " 
+            std::cout << "kappa set to " 
                  << vm["kappa"].as<double>() << ".\n";
 			kappa = vm["kappa"].as<double>();
         } 
@@ -75,68 +75,50 @@ int main(int ac, char* av[])
         } 
 
         if (vm.count("simtime")) {
-            cout << "simtime set to " 
+            std::cout << "simtime set to " 
                  << vm["simtime"].as<double>() << ".\n";
 			simtime = vm["simtime"].as<double>();
         } 
 
         if (vm.count("size")) {
-            cout << "size set to " 
+            std::cout << "size set to " 
                  << vm["size"].as<int>() << ".\n";
 			size = vm["size"].as<int>();
         } 
 
         if (vm.count("seed")) {
-            cout << "seed set to " 
+            std::cout << "seed set to " 
                  << vm["seed"].as<int>() << ".\n";
 			seed = vm["seed"].as<int>();
         } 
     }
-    catch(exception& e) {
-        cerr << "error: " << e.what() << "\n";
+    catch(std::exception& e) {
+        std::cerr << "error: " << e.what() << "\n";
         return 1;
     }
     catch(...) {
-        cerr << "Exception of unknown type!\n";
+        std::cerr << "Exception of unknown type!\n";
     }
 
-	// BEGIN Global stuff
-	mpi::environment env(ac, av);
-	mpi::communicator world;
-	communicator = &world;
-
-	try
-	{
-		sprintf(strbuf, "%s/%s.%d.log", dir.c_str(), file_prefix.c_str(), world.rank() );
-		string logfile = strbuf;
-		logger = new Logger(logfile,world.rank(),PROGRESS,EVERYTHING);
-	}
-	catch ( AurynOpenFileException excpt )
-	{
-		std::cerr << "Cannot proceed without log file. Exiting all ranks ..." << '\n';
-		env.abort(1);
-	}
-
-	sys = new System(&world);
-	// END Global stuff
+	auryn_init(ac, av);
 
 	PoissonGroup * poisson = new PoissonGroup(size,kappa);
 	poisson->seed(seed);
 
-	sprintf(strbuf, "%s/%s.%d.ras", dir.c_str(), file_prefix.c_str(), world.rank() );
+	sprintf(strbuf, "%s/%s.%d.ras", dir.c_str(), file_prefix.c_str(), sys->mpi_rank() );
 	SpikeMonitor * smon_e = new SpikeMonitor( poisson, strbuf, size);
 
-	sprintf(strbuf, "%s/%s.%d.prate", dir.c_str(), file_prefix.c_str(), world.rank() );
+	sprintf(strbuf, "%s/%s.%d.prate", dir.c_str(), file_prefix.c_str(), sys->mpi_rank() );
 	PopulationRateMonitor * pmon_e = new PopulationRateMonitor( poisson, strbuf, 1.0 );
 
 	RateChecker * chk = new RateChecker( poisson , -1 , 20.*kappa , 10);
 	if (!sys->run(simtime,false)) 
 			errcode = 1;
 
-	logger->msg("Freeing ...",PROGRESS,true);
-	delete sys;
 
 	if (errcode)
-		env.abort(errcode);
+		mpienv->abort(errcode);
+	logger->msg("Freeing ...",PROGRESS,true);
+	auryn_free();
 	return errcode;
 }

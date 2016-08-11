@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -27,6 +27,7 @@
 #define PROFILEPOISSONGROUP_H_
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "System.h"
 #include "SpikingGroup.h"
 
@@ -37,7 +38,7 @@
 
 #define PROFILEPOISSON_LOAD_MULTIPLIER 0.01
 
-using namespace std;
+namespace auryn {
 
 /*! \brief A SpikingGroup that creates poissonian spikes with a given rate
  * and spatial profile.
@@ -69,7 +70,7 @@ protected:
 	boost::uniform_01<> * dist;
 	boost::variate_generator<boost::mt19937&, boost::uniform_01<> > * die;
 
-	AurynFloat * profile; //!< stores the spatial distribution of relative firing rates
+	auryn_vector_float * profile; //!< stores the spatial distribution of relative firing rates
 	
 public:
 	/*! Standard constructor. 
@@ -92,7 +93,20 @@ public:
 	void set_rate(AurynDouble rate);
 
 	void normalize_profile();
+
+	/*! \begin Sets firing rate profile to the array elements given in newprofile 
+	 *
+	 * Expects a vector of the size n of the SpikingGroup. */
 	void set_profile(AurynFloat * newprofile);
+
+	/*! \begin Sets firing rate profile to a state vector 
+	 *
+	 * Note, does not normalize the profile to a probability distribution! 
+	 * Net firing rate can change! Expects a state vector with appropriate 
+	 * size on the rank which is smaller than or equal to the size of this 
+	 * group.*/
+	void set_profile(auryn_vector_float * newprofile);
+
 	void set_flat_profile();
 	void set_gaussian_profile(AurynDouble  mean, AurynDouble sigma, AurynDouble floor=0.0);
 
@@ -102,5 +116,7 @@ public:
 	/*! Use this to seed the random number generator. */
 	void seed(int s);
 };
+
+}
 
 #endif /*NEURONGROUP_H_*/

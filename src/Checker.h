@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -27,9 +27,10 @@
 #define CHECKER_H_
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "SpikingGroup.h"
 
-using namespace std;
+namespace auryn {
 
 class System;
 
@@ -54,27 +55,23 @@ private:
 		virtual_serialize(ar, version);
 	}
 
-	virtual void virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version ) = 0;
-	virtual void virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version ) = 0;
+	virtual void virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version );
+	virtual void virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version );
 
 protected:
-	SpikingGroup * src;
 	
 public:
-	Checker(SpikingGroup * source);
+	Checker();
 	virtual ~Checker();
 	/*! The propagate function of Checkers is for internal use. 
 	 * It is called by System and returns true to signal a break. 
 	 * If checking is enabled for it will stop the current run.
 	 */
 	virtual bool propagate() = 0 ;
-	/*! The propagate function of Checkers returns a bool value.
-	 * When true this signals a break to System, which if checking
-	 * is enabled will stop the current run.
-	 */
-	virtual AurynFloat get_property() = 0 ;
 };
 
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(Checker)
+
+}
 
 #endif /*CHECKER_H_*/

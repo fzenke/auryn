@@ -1,12 +1,12 @@
-cmake_minimum_required (VERSION 2.6)
+cmake_minimum_required (VERSION 2.8.11)
 project (Auryn)
 
 # The version number.
 set (Auryn_VERSION_MAJOR 0)
-set (Auryn_VERSION_MINOR 6)
+set (Auryn_VERSION_MINOR 7)
 
 # Important GCC Compiler flags for Auryn's performance
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=native -ffast-math")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=native -ffast-math -pipe")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -pedantic")
 
 # Display flags (for debugging only)
@@ -18,7 +18,11 @@ FIND_PACKAGE(MPI REQUIRED)
 
 # Required Boost libraries 
 SET(BOOST_MIN_VERSION "1.41.0")
-FIND_PACKAGE(Boost ${BOOST_MIN_VERSION} REQUIRED COMPONENTS mpi serialization program_options date_time)
+FIND_PACKAGE(Boost ${BOOST_MIN_VERSION} REQUIRED COMPONENTS mpi serialization program_options date_time unit_test_framework system filesystem)
+
+# Recommended: Doxygen
+FIND_PACKAGE(Doxygen)
+
 
 INCLUDE_DIRECTORIES( ${MPI_CXX_INCLUDE_PATH} )
 INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIRS} )
@@ -28,3 +32,5 @@ ADD_SUBDIRECTORY(src)
 ADD_SUBDIRECTORY(examples)
 ADD_SUBDIRECTORY(tools)
 
+# Unit tests
+ADD_SUBDIRECTORY(test/src)

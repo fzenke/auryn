@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -25,6 +25,8 @@
 
 #include "AuditoryBeepGroup.h"
 
+using namespace auryn;
+
 void AuditoryBeepGroup::init ( AurynFloat duration, AurynFloat interval, AurynFloat rate )
 {
 	stimulus_duration = duration/dt;
@@ -45,12 +47,12 @@ void AuditoryBeepGroup::init ( AurynFloat duration, AurynFloat interval, AurynFl
 
 	set_flat_profile();
 
-	stringstream oss;
+	std::stringstream oss;
 	oss << "AuditoryBeepGroup:: Set up with stimulus_duration=" 
 		<< stimulus_duration 
 		<< " and interval=" 
 		<< stimulation_period;
-	logger->msg(oss.str(),NOTIFICATION);
+	auryn::logger->msg(oss.str(),NOTIFICATION);
 }
 
 AuditoryBeepGroup::AuditoryBeepGroup(NeuronID n, AurynFloat duration, AurynFloat interval, AurynDouble rate ) : ProfilePoissonGroup( n , rate ) 
@@ -64,7 +66,7 @@ AuditoryBeepGroup::~AuditoryBeepGroup()
 
 void AuditoryBeepGroup::evolve()
 {
-	if ( sys->get_clock() >= next_event ) {
+	if ( auryn::sys->get_clock() >= next_event ) {
 		if ( stimulus_active ) {
 			stimulus_active = false;
 			set_flat_profile();
@@ -72,7 +74,7 @@ void AuditoryBeepGroup::evolve()
 
 			ProfilePoissonGroup::evolve();
 
-			next_event = sys->get_clock()+stimulation_period; 
+			next_event = auryn::sys->get_clock()+stimulation_period; 
 		} else {
 			stimulus_active = true;
 
@@ -87,7 +89,7 @@ void AuditoryBeepGroup::evolve()
 			ProfilePoissonGroup::evolve();
 
 			set_rate(rate_on);
-			next_event = sys->get_clock()+stimulus_duration; 
+			next_event = auryn::sys->get_clock()+stimulus_duration; 
 		}
 	} else {
 		ProfilePoissonGroup::evolve();

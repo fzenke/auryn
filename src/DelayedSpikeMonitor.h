@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -27,18 +27,24 @@
 #define DELAYEDSPIKEMONITOR_H_
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "SpikingGroup.h"
 #include "Monitor.h"
 #include "System.h"
 #include <fstream>
 
-using namespace std;
+namespace auryn {
 
 /*! \brief SpikeMonitor that reads the delayed spikes as they are
  *         received by a postsynaptic neuron.
  *
- * This monitor has mainly testing pruposes since it records all
- * the spikes on each node (which effectively multiplies spikes.
+ * Usually SpikeMonitor writes spikes to file for the rank that it runs on. i.e. each rank 
+ * writes is own spk file which then need to be merged. This monitor writes all spikes from 
+ * all ranks to files on all ranks. The spikes writen by this monitor are delayed by the 
+ * axonal delay (because they need to be communicated from all ranks to all ranks first).
+ * The main role of this monitor is to test SyncBuffer and Auryn's spike synchornization.
+ * It records all
+ * the spikes on each node (which effectively multiplies spikes).
  */
 class DelayedSpikeMonitor : Monitor
 {
@@ -48,16 +54,18 @@ private:
 	SpikeContainer::const_iterator it;
 	SpikingGroup * src;
 	NeuronID offset;
-	void init(SpikingGroup * source, string filename, NeuronID from, NeuronID to);
+	void init(SpikingGroup * source, std::string filename, NeuronID from, NeuronID to);
 	void free();
 	
 public:
-	DelayedSpikeMonitor(SpikingGroup * source, string filename);
-	DelayedSpikeMonitor(SpikingGroup * source, string filename, NeuronID to);
-	DelayedSpikeMonitor(SpikingGroup * source, string filename, NeuronID from, NeuronID to);
+	DelayedSpikeMonitor(SpikingGroup * source, std::string filename);
+	DelayedSpikeMonitor(SpikingGroup * source, std::string filename, NeuronID to);
+	DelayedSpikeMonitor(SpikingGroup * source, std::string filename, NeuronID from, NeuronID to);
 	void set_offset(NeuronID of);
 	virtual ~DelayedSpikeMonitor();
 	void propagate();
 };
+
+}
 
 #endif /*DELAYEDSPIKEMONITOR_H_*/

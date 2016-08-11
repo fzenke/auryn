@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -27,14 +27,21 @@
 #define TRIPLETDECAYCONNECTION_H_
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "TripletConnection.h"
 #include "EulerTrace.h"
 
 #define TRIPLETDECAYCONNECTION_EULERUPGRADE_STEP 0.999
 
-using namespace std;
+namespace auryn {
 
 
+/*! \brief Implements triplet STDP with an exponential weight decay
+ *
+ * This is one of the Connection objects used for most simulations in Zenke et
+ * al. 2013 to simulate large plastic recurrent networks with homeostatic
+ * triplet STDP.
+ */
 class TripletDecayConnection : public TripletConnection
 {
 
@@ -69,5 +76,7 @@ public:
 	virtual void propagate();
 
 };
+
+}
 
 #endif /*TRIPLETDECAYCONNECTION_H_*/

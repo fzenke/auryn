@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -25,6 +25,8 @@
 
 #include "STPConnection.h"
 
+using namespace auryn;
+
 void STPConnection::init() 
 {
 	if ( src->get_rank_size() > 0 ) {
@@ -44,10 +46,10 @@ void STPConnection::init()
 
 	}
 
-	// registering the right amount of spike attributes
+	// Registering the right amount of spike attributes
 	// this line is very important finding bugs due to 
 	// this being wrong or missing is hard 
-	src->set_num_spike_attributes(1);
+	add_number_of_spike_attributes(1);
 
 }
 
@@ -55,8 +57,7 @@ void STPConnection::init()
 STPConnection::STPConnection(const char * filename) 
 : SparseConnection(filename)
 {
-	if ( dst->get_post_size() > 0 ) 
-		init();
+	init();
 }
 
 STPConnection::STPConnection(SpikingGroup * source, NeuronGroup * destination, 
@@ -70,8 +71,7 @@ STPConnection::STPConnection(SpikingGroup * source, NeuronGroup * destination,
 		TransmitterType transmitter) 
 : SparseConnection(source, destination, filename, transmitter)
 {
-	if ( dst->get_post_size() > 0 ) 
-		init();
+	init();
 }
 
 
@@ -83,11 +83,10 @@ STPConnection::STPConnection(NeuronID rows, NeuronID cols)
 
 STPConnection::STPConnection( SpikingGroup * source, NeuronGroup * destination, 
 		AurynWeight weight, AurynFloat sparseness, 
-		TransmitterType transmitter, string name) 
+		TransmitterType transmitter, std::string name) 
 : SparseConnection(source,destination,weight,sparseness,transmitter, name)
 {
-	if ( dst->get_post_size() > 0 ) 
-		init();
+	init();
 }
 
 void STPConnection::free()
@@ -103,12 +102,12 @@ void STPConnection::free()
 
 STPConnection::~STPConnection()
 {
-	if ( dst->get_post_size() > 0 ) 
-		free();
+	free();
 }
 
 void STPConnection::push_attributes()
 {
+	// need to push one attribute for each spike
 	SpikeContainer * spikes = src->get_spikes_immediate();
 	for (SpikeContainer::const_iterator spike = spikes->begin() ;
 			spike != spikes->end() ; ++spike ) {
@@ -119,26 +118,36 @@ void STPConnection::push_attributes()
 		auryn_vector_float_set( state_x, spk, x-u*x );
 		auryn_vector_float_set( state_u, spk, u+Ujump*(1-u) );
 
-		// TODO spike translation or introduce local_spikes function in SpikingGroup and implement this there ... (better option)
+		// TODO spike translation or introduce local_spikes 
+		// function in SpikingGroup and implement this there ... (better option)
 		src->push_attribute( x*u ); 
+
 	}
+
+	// If we had two spike attributes in this connection we push 
+	// the second attribute for each spike here:
+	//
+	// SpikeContainer * spikes = src->get_spikes_immediate();
+	// for (SpikeContainer::const_iterator spike = spikes->begin() ;
+	// 		spike != spikes->end() ; ++spike ) {
+	// 	AurynFloat other_attribute = foo+bar;
+	// 	src->push_attribute( other_attribute ); 
+	// }
 }
 
 void STPConnection::evolve()
 {
-	// dynamics of x
-	auryn_vector_float_set_all( state_temp, 1);
-	auryn_vector_float_saxpy(-1,state_x,state_temp);
-	auryn_vector_float_saxpy(dt/tau_d,state_temp,state_x);
+	if ( src->evolve_locally() ) {
+		// dynamics of x
+		auryn_vector_float_set_all( state_temp, 1);
+		auryn_vector_float_saxpy(-1,state_x,state_temp);
+		auryn_vector_float_saxpy(dt/tau_d,state_temp,state_x);
 
-	// dynamics of u
-	auryn_vector_float_set_all( state_temp, Ujump);
-	auryn_vector_float_saxpy(-1,state_u,state_temp);
-	auryn_vector_float_saxpy(dt/tau_f,state_temp,state_u);
-
-	// double x = auryn_vector_float_get( state_x, 0 );
-	// double u = auryn_vector_float_get( state_u, 0 );
-	// cout << setprecision(5) << x << " " << u << " " << x*u << endl;
+		// dynamics of u
+		auryn_vector_float_set_all( state_temp, Ujump);
+		auryn_vector_float_saxpy(-1,state_u,state_temp);
+		auryn_vector_float_saxpy(dt/tau_f,state_temp,state_u);
+	}
 }
 
 void STPConnection::propagate()
@@ -148,19 +157,23 @@ void STPConnection::propagate()
 	}
 
 	if ( dst->evolve_locally() ) { // necessary 
+		NeuronID * ind = w->get_row_begin(0); // first element of index array
+		AurynWeight * data = w->get_data_begin(); // first element of data array
 
-		if (src->get_spikes()->size()>0) {
-			NeuronID * ind = w->get_row_begin(0); // first element of index array
-			AurynWeight * data = w->get_data_begin();
-			AttributeContainer::const_iterator attr = src->get_attributes()->begin();
-			SpikeContainer::const_iterator spikes_end = src->get_spikes()->end();
-			for (SpikeContainer::const_iterator spike = src->get_spikes()->begin() ;
-					spike != spikes_end ; ++spike ) {
-				for (NeuronID * c = w->get_row_begin(*spike) ; c != w->get_row_end(*spike) ; ++c ) {
-					AurynWeight value = data[c-ind] * *attr; 
-					transmit( *c , value );
-				}
-				++attr;
+		// loop over spikes
+		for (int i = 0 ; i < src->get_spikes()->size() ; ++i ) {
+			// get spike at pos i in SpikeContainer
+			NeuronID spike = src->get_spikes()->at(i);
+
+			// extract spike attribute from attribute stack;
+			AurynFloat attribute = get_spike_attribute(i);
+
+			// loop over postsynaptic targets
+			for (NeuronID * c = w->get_row_begin(spike) ; 
+					c != w->get_row_end(spike) ; 
+					++c ) {
+				AurynWeight value = data[c-ind] * attribute; 
+				transmit( *c , value );
 			}
 		}
 	}

@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -27,19 +27,25 @@
 #define LINEARTRACE_H_
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 
-using namespace std;
+namespace auryn {
+
+
+/*! \brief Exponential synaptic trace which exactly solves in an event-based manner.
+ *
+ * Since this trace is normally slower than brut-force computing all traces
+ * with forward Euler (EulerTrace), it is disabled by default.
+ */
 
 class LinearTrace
 {
 private:
 	NeuronID size;
 	AurynFloat * state;
-	AurynFloat * explut;
 	AurynFloat tau;
 	AurynTime tau_auryntime;
 	AurynTime zerointerval;
-	AurynTime zerotime_auryntime;
 	AurynTime * timestamp;
 	AurynTime * clock;
 	void init(NeuronID n, AurynFloat timeconstant, AurynTime * clk);
@@ -58,6 +64,8 @@ public:
 	AurynFloat get(NeuronID i);
 	AurynFloat * get_state_ptr();
 };
+
+}
 
 
 #endif /*LINEARTRACE_H_*/

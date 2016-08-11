@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -27,6 +27,7 @@
 #define PATTERNMONITOR_H_
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "Monitor.h"
 #include "System.h"
 #include "SpikingGroup.h"
@@ -34,7 +35,7 @@
 #include <fstream>
 #include <iomanip>
 
-using namespace std;
+namespace auryn {
 
 /*! \brief Monitor class to record population firing rates
  * 
@@ -55,7 +56,7 @@ private:
 	/*! Maximum number of patterns to record from */
 	NeuronID maxpat;
 	/*! Vector storing all the patterns */
-	vector<type_pattern> * patterns;
+	std::vector<type_pattern> * patterns;
 
 	bool linked_to_stimgroup;
 
@@ -94,5 +95,7 @@ public:
 	/*! Load patterns from file */
 	void load_patterns( string filename );
 };
+
+}
 
 #endif /*PATTERNMONITOR_H_*/

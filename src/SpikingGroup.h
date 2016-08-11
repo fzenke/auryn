@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -27,6 +27,7 @@
 #define SPIKINGGROUP_H_
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 // #include "SpikeContainer.h"
 #include "SpikeDelay.h"
 #include "EulerTrace.h"
@@ -37,8 +38,7 @@
 #include <map>
 
 
-using namespace std;
-namespace mpi = boost::mpi;
+namespace auryn {
 
 class System;
 
@@ -64,7 +64,7 @@ private:
 	/*! Stores the current value of the gid count */
 	static NeuronID unique_id_count;
 
-	static vector<mpi::request> reqs;
+	static std::vector<mpi::request> reqs;
 
 	/*! Standard initialization of the object. */
 	void init(NeuronID size, double loadmultiplier, NeuronID total );
@@ -81,7 +81,6 @@ private:
 	static int last_locked_rank;
 
 	bool evolve_locally_bool;
-	inline int msgtag(int x, int y);
 
 	/*! Parameter that characterizes the computational load the SpikingGroup causes with respect to IFGroup. It's used vor load balancing*/
 	double effective_load_multiplier;
@@ -90,123 +89,207 @@ private:
 	int axonaldelay;
 
 protected:
-	/*! Pretraces */
-	vector<PRE_TRACE_MODEL *> pretraces;
+	/*! \brief Pretraces */
+	std::vector<PRE_TRACE_MODEL *> pretraces;
 
-	/*! Posttraces */
-	vector<DEFAULT_TRACE_MODEL *> posttraces;
+	/*! \brief Posttraces */
+	std::vector<DEFAULT_TRACE_MODEL *> posttraces;
 
-	/*! Post state traces */
-	vector<EulerTrace *> post_state_traces;
-	vector<AurynFloat> post_state_traces_spike_biases;
-	vector<string> post_state_traces_state_names;
+	/*! \brief Post state traces */
+	std::vector<EulerTrace *> post_state_traces;
+	std::vector<AurynFloat> post_state_traces_spike_biases;
+	std::vector<AurynStateVector *> post_state_traces_states;
 
-	/*! Identifying name for object */
-	string group_name;
+	/*! \brief Identifying name for object */
+	std::string group_name;
 
-	/*! Stores the size of the group */
+	/*! \brief Stores the size of the group */
     NeuronID size;
-	/*! Stores the size of the group on this rank */
+	/*! \brief Stores the size of the group on this rank */
 	NeuronID rank_size;
-	/*! SpikeContainers to store spikes produced during one step of evolve. */
+	/*! \brief SpikeContainers to store spikes produced during one step of evolve. */
 	SpikeContainer * spikes;
 	AttributeContainer * attribs;
 
 	/*! Stores the length of output delay */
 	static AurynTime * clock_ptr;
 
-
 	/* Functions related to loading and storing the state from files */
 	virtual void load_input_line(NeuronID i, const char * buf);
-	virtual string get_output_line(NeuronID i);
 
+	virtual std::string get_output_line(NeuronID i);
+
+	/*! \brief Implementatinon of serialize function for writing. */
 	virtual void virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version );
+
+	/*! \brief Implementatinon of serialize function for reading. */
 	virtual void virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version );
+
+	/*! \brief Frees potentially allocated memory */
+	void free();
 	
 public:
 	SpikeDelay * delay;
 
+	/*! \brief Toggles group active 
+	 *
+	 * Groups do not necessarily obey this toggle though. */
+	bool active;
+
+
 	/*! Can hold single neuron vectors such as target rates or STP states etc  */
-	map<string,auryn_vector_float *> state_vectors;
+	std::map<std::string,AurynStateVector *> state_vectors;
+
+	/*! Holds group-wide state variables such as population target rates or global protein levels etc */
+	std::map<std::string,AurynState> state_variables;
 
 	/*! \brief Returns existing state vector by name. 
 	 *
 	 * If the state_vector does not exist the function returns NULL. */
-	auryn_vector_float * find_state_vector(string key);
+	AurynStateVector * find_state_vector(std::string key);
 
 	/*! \brief Adds a state vector passed as an argument to the dictinary. */
-	void add_state_vector( string key, auryn_vector_float * state_vector );
+	void add_state_vector( std::string key, AurynStateVector * state_vector );
+
+	/*! \brief Removes a state vector passed as an argument to the dictinary.
+	 *
+	 * The state vector is not freed automatically! */
+	void remove_state_vector( std::string key );
 
 	/*! \brief Creates a new or returns an existing state vector by name. */
-	auryn_vector_float * get_state_vector(string key);
+	AurynStateVector * get_state_vector(std::string key);
 
-	/*! Randomizes the content of a state vector with Gaussian random numbers. Seeding is MPI save. */
-	void randomize_state_vector_gauss(string state_vector_name, AurynState mean, AurynState sigma, int seed=12239);
+	/*! \brief Returns an new state vector by name. 
+	 *
+	 * \todo Implement an exception when a state vector already exists. */
+	AurynStateVector * get_new_state_vector(std::string key);
 
-	/*! Default constructor */
+	/*! \brief Creates a new group-wide state variable or returns an existing group-wide variable by name then returns a pointer to it. */
+	AurynState * get_state_variable(std::string key);
+
+	/*! \brief Randomizes the content of a state vector with Gaussian random numbers. Seeding is MPI save. */
+	void randomize_state_vector_gauss(std::string state_vector_name, AurynState mean, AurynState sigma, int seed=12239);
+
+	/*! \brief Default constructor */
 	SpikingGroup(NeuronID size, double loadmultiplier = 1., NeuronID total = 0 );
-	/*! Default destructor */
+
+	/*! \brief Default destructor */
 	virtual ~SpikingGroup();
 
-	/*! Evolves traces */
+	/*! \brief Evolves traces */
 	virtual void evolve_traces();
 
-	/*! Give a name */
-	void set_name(string s);
+	/*! \brief Set connection name */
+	void set_name(std::string s);
 
-	/*! Retrieves the groups name */
-	string get_name();
+	/*! \brief Retrieves the groups name */
+	std::string get_name();
 
-	void set_num_spike_attributes(int x);
+	/*! \brief Extracts the class name of the connection from the file name */
+	std::string get_file_name();
+
+	/*! \brief Returns a string which is the combination of file and connection name for logging. */
+	std::string get_log_name();
+
+	/*! \brief Instructs SpikingGroup to increase the number of spike attributes by x.
+	 *
+	 * The reason we only increment the size is that multiple Connection objects such as
+	 * STPConnection might want to add an attribute to a spike. These might be different
+	 * to allow synaptic type dependent plasticity and hence will all have to be transmitted 
+	 * without knowledge about the other synapses which might want to submit a different value.*/
+	void inc_num_spike_attributes(int x);
 	int get_num_spike_attributes();
 
-	/*! Frees potentially allocated memory */
-	void free();
+	/*! \brief Virtual pure evolve function which needs to be implemented by derived classes
+	 *
+	 * The evolve function is called during simulations in every timestep by the System class. 
+	 * It updates the internal state of the spiking group and pushes spikes which 
+	 * are generated in this timestep to the axonal output delay (SpikeDelay).
+	 */
 	virtual void evolve() = 0;
+
+	/*! \brief Conditional evolve functino which is called by System
+	 *
+	 * This function invoces evolve if the present group has work to be done on the current rank.
+	 * Thus the call of evolve is made conditional on the fact if there is work to be done for this
+	 * group on the present rank. This is only important for MPI parallel simulations.
+	 */
 	void conditional_evolve();
+
+	/*! \brief Returns locked rank for SpikingGroups which are not distributed across all ranks */
 	unsigned int get_locked_rank();
+
+	/*! \brief Returns locked range of ranks for SpikingGroups which are not distributed across all ranks */
 	unsigned int get_locked_range();
+
+	/*! \brief Returns pointer to a spike container that contains spikes which arrive in this timestep from all neurons in this group. 
+	 *
+	 * In paralell simulations the SpikeContainer returned is at this point in time guaranteed to contain spikes from all ranks. */
 	SpikeContainer * get_spikes();
-	/*! Supplies pointer to SpikeContainer of spikes generated during the last evolve() step. */
+
+	/*! \brief Returns pointer to SpikeContainer of spikes generated during the last evolve() step. */
 	SpikeContainer * get_spikes_immediate();
-	/*! Supplies pointer to Attributecontainer for usage in propagating Connection objects. Same as get_spikes_immediate(), however might be overwritten to contain Spikes that have been delayed. */
+
+	/*! \brief Returns pointer to Attributecontainer for usage in propagating Connection objects. Same as get_spikes_immediate(), however might be overwritten to contain Spikes that have been delayed. */
 	AttributeContainer * get_attributes();
-	/*! Supplies pointer to Attributecontainer of spikes generated during the last evolve() step. */
+
+	/*! \brief Returns pointer to Attributecontainer of spikes generated during the last evolve() step. */
 	AttributeContainer * get_attributes_immediate();
-	/*! Returns the size of the group. */
+
+	/*! \brief Returns the size of the group. */
 	NeuronID get_size();
+
+	/*! \brief Returns the size of the group. 
+	 *
+	 * It's the size that should be used when a presynaptic trace is defined on this grou,  hence the name. */
 	NeuronID get_pre_size();
-	/*! Determines rank size and stores it in local variable. */
+
+	/*! \brief Determines rank size and stores it in local variable. */
 	NeuronID calculate_rank_size(int rank = -1);
-	/*! Returns the size of the rank. */
+
+	/*! \brief Returns the size on this rank. */
 	NeuronID get_rank_size();
+
+	/*! \brief Returns the size on this rank. 
+	 *
+	 * It's the size that should be used when a postsynaptic trace is defined on this group, hence the name. */
 	NeuronID get_post_size();
-	/*! Returns the effective load of the group. */
+
+	/*! \brief Returns the effective load of the group. */
 	AurynDouble get_effective_load();
 
 	void set_clock_ptr(AurynTime * clock);
-	/*! Returns true if this group is hosted at a single CPU. */
+
+	/*! \brief Returns true if this group is hosted at a single CPU. */
 	bool evolve_locally();
 
 
-	/*! Get the unique ID of the class */
+	/*! \brief Get the unique ID of the class */
 	NeuronID get_uid();
 
-	/*! Returns a pre trace with time constant x 
+	/*! \brief Returns a pre trace with time constant x 
+	 * 
 	 * Checks first if an instance of a trace exists and returns it
-	 * otherwise creates a new instance first */
+	 * otherwise creates a new instance first. */
 	PRE_TRACE_MODEL * get_pre_trace( AurynFloat x );
 
-	/*! Returns a post trace with time constant x 
+	/*! \brief Returns a post trace with time constant x 
+	 *
 	 * Checks first if an instance of a trace exists and returns it
-	 * otherwise creates a new instance first */
+	 * otherwise creates a new instance first. */
 	DEFAULT_TRACE_MODEL * get_post_trace( AurynFloat x );
 
+	/*! \brief Pushes a spike into the axonal SpikeDelay buffer */
 	void push_spike(NeuronID spike);
 
+	/*! \brief Pushes a spike attribute into the axonal SpikeDelay buffer 
+	 *
+	 * This is for instance used to implement short-term plasticity in which each presynaptic spike is associated
+	 * with a certain currently available amount of presynaptic neurotransmitter. Spike attributes are float values
+	 * which can be attaced to a spike to convey this information. */
 	void push_attribute(AurynFloat attrib);
 
-	/*! Clear all spikes stored in the delays which is useful to reset a network during runtime */
+	/*! \brief Clears all spikes stored in the delays which is useful to reset a network during runtime */
 	void clear_spikes();
 
 
@@ -215,25 +298,50 @@ public:
 	 *
 	 * This trace is an cotinuously integrated EulerTrace which uses the follow 
 	 * function on the mem state vector. 
+	 * @param state_name A string stating the neurons state name
 	 * @param tau The time constant of the trace.
 	 * @param b The optional parameter b allows to specify a spike triggered contribution
 	 * which will be added instantaneously to the trace upon each 
 	 * postsynaptic spike.
 	 * */
-	EulerTrace * get_post_state_trace( AurynFloat tau, string state_name="mem", AurynFloat b=0.0 );
+	EulerTrace * get_post_state_trace( std::string state_name="mem", AurynFloat tau=10e-3, AurynFloat b=0.0 );
 
-	/*! Sets axonal delay for this SpikingGroup */
+	/*! \brief Returns a post trace of a neuronal state variable specified by pointer
+	 *
+	 * This trace is an cotinuously integrated EulerTrace which uses the follow 
+	 * function on the mem state vector. 
+	 * @param state A pointer to the relevant state vector
+	 * @param tau The time constant of the trace.
+	 * @param b The optional parameter b allows to specify a spike triggered contribution
+	 * which will be added instantaneously to the trace upon each 
+	 * postsynaptic spike.
+	 * */
+	EulerTrace * get_post_state_trace( AurynStateVector * state, AurynFloat tau=10e-3, AurynFloat b=0.0 );
+
+	/*! \brief Sets axonal delay for this SpikingGroup 
+	 *
+	 * Note the delay needs to be larger er equal to the MINDELAY defined in auryn_definitions.h */
 	void set_delay( int d );
 
+	/*! \brief Writes current states of SpikingGroup to human-readible textfile if implemented in derived class */
 	virtual bool write_to_file(const char * filename);
+
+	/*! \brief Reads current states of SpikingGroup to human-readible textfile if implemented in derived class */
 	virtual bool load_from_file(const char * filename);
 
+	/*! \brief Returns size (num of neurons) on the current rank */
 	NeuronID ranksize();
+
+	/*! \brief Converts global NeuronID within the SpikingGroup to the local NeuronID on this rank. */
 	NeuronID global2rank(NeuronID i); 
+
+	/*! \brief Converts local NeuronID within on this rank to global NeuronID . */
 	NeuronID rank2global(NeuronID i);
+
+	/*! \brief Checks if the global NeuronID i is housed on this rank. */
 	bool localrank(NeuronID i);
 
-	/*! Rank size but rounded up to multiples of 4 for SSE compatibility */
+	/*! \brief Rank size but rounded up to multiples of 4 (or potentially some other and larger number in future versions) for SSE compatibility */
 	NeuronID get_vector_size();
 
 #ifdef CODE_GATHER_STATS_WAITALL_TIME
@@ -246,9 +354,9 @@ public:
 
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(SpikingGroup)
 
-extern System * sys;
-extern Logger * logger;
-extern mpi::communicator * communicator;
+	extern System * sys;
+	extern Logger * logger;
+	extern mpi::communicator * mpicommunicator;
 
 
 inline NeuronID SpikingGroup::global2rank(NeuronID i) {
@@ -260,6 +368,6 @@ inline NeuronID SpikingGroup::get_rank_size()
 	return rank_size;
 } 
 
-
+} // closing namespace brackets
 
 #endif /*SPIKINGGROUP_H_*/

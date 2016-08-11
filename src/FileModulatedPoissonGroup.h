@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -27,6 +27,7 @@
 #define FILEMODULATEDGROUP_H_
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "System.h"
 #include "SpikingGroup.h"
 #include "PoissonGroup.h"
@@ -36,7 +37,7 @@
 #include <boost/random/variate_generator.hpp>
 #include <boost/random/exponential_distribution.hpp>
 
-using namespace std;
+namespace auryn {
 
 /*! \brief A special Poisson generator that reads its instantaneous
  * firing rate from a tiser file. Datapoints in the rate file are
@@ -54,7 +55,7 @@ private:
 	char buffer[255];
 	bool stimulus_active;
 
-	ifstream inputfile;
+	std::ifstream inputfile;
 
 	void init ( string filename );
 	
@@ -63,5 +64,7 @@ public:
 	virtual ~FileModulatedPoissonGroup();
 	virtual void evolve();
 };
+
+} // namespace 
 
 #endif /*FILEMODULATEDGROUP_H_*/

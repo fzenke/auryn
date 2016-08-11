@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -35,10 +35,9 @@
 
 #define CERRLEVEL WARNING
 
-using namespace std;
-
-/*! Enum type for significance level of a given message send to the logger */
-enum LogMessageType { EVERYTHING, VERBOSE, NOTIFICATION, SETTINGS, PROGRESS, WARNING, ERROR, NONE };
+namespace auryn {
+/*! \brief Enum type for significance level of a given message send to the Logger */
+enum LogMessageType { EVERYTHING, VERBOSE, INFO, NOTIFICATION, SETTINGS, PROGRESS, WARNING, ERROR, NONE };
 
 /*! \brief A generic logger class that logs to screen and a log-file.
  *
@@ -48,23 +47,50 @@ enum LogMessageType { EVERYTHING, VERBOSE, NOTIFICATION, SETTINGS, PROGRESS, WAR
 class Logger
 {
 private:
-	string fname;
-	ofstream outfile;
+	std::string fname;
+	std::ofstream outfile;
 	int local_rank;
 	LogMessageType console_out;
 	LogMessageType file_out;
 
-	string last_message;
+	std::string last_message;
 
 	
 public:
-	Logger(string filename, int rank, LogMessageType console = PROGRESS, LogMessageType file = NOTIFICATION );
-	void msg( string text, LogMessageType type=NOTIFICATION, bool global=false, int line=-1, string srcfile="" );
-	void parameter( string name, double value );
-	void parameter( string name, int value );
-	void parameter( string name, string value );
-	void set_rank(int rank);
+	Logger(std::string filename, int rank, LogMessageType console = PROGRESS, LogMessageType file = NOTIFICATION );
 	virtual ~Logger();
+
+	void msg( std::string text, LogMessageType type=NOTIFICATION, bool global=false, int line=-1, std::string srcfile="" );
+	void info    ( std::string text );
+	void progress( std::string text );
+	void warning ( std::string text );
+	void error   ( std::string text );
+	void verbose ( std::string text, bool global=false, int line=-1, std::string srcfile="" );
+	void debug ( std::string text, bool global=false, int line=-1, std::string srcfile="" );
+	void notification    ( std::string text );
+	void set_rank(int rank);
+
+	/*!\brief Sets loglevel for console output 
+	 *
+	 * \param level The log level
+	 * */
+	void set_console_loglevel(LogMessageType level = PROGRESS);
+
+	/*!\brief Sets loglevel for file output 
+	 *
+	 * \param level The log level
+	 * */
+	void set_logfile_loglevel(LogMessageType level = NOTIFICATION);
+
+	template<typename T> 
+	void parameter(std::string name, T value) 
+	{
+		std::stringstream oss;
+		oss << std::scientific << "  Parameter " << name << "=" << value;
+		msg(oss.str(),SETTINGS,true);
+	}
 };
+
+}
 
 #endif /*LOGGER_H_*/

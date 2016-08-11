@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -25,10 +25,12 @@
 
 #include "AIFGroup.h"
 
+using namespace auryn;
+
 
 AIFGroup::AIFGroup( NeuronID size, AurynFloat load, NeuronID total ) : NeuronGroup(size,load,total)
 {
-	sys->register_spiking_group(this);
+	auryn::sys->register_spiking_group(this);
 	if ( evolve_locally() ) init();
 }
 
@@ -46,7 +48,7 @@ void AIFGroup::init()
 	e_rev = -80e-3;
 	thr_rest = -50e-3;
 	dthr = 100e-3;
-	tau_thr = 2e-3;
+	tau_thr = 5e-3;
 	tau_mem = 20e-3;
 	tau_ampa = 5e-3;
 	tau_gaba = 10e-3;
@@ -92,7 +94,7 @@ void AIFGroup::random_adapt(AurynState mean, AurynState sigma)
 	for ( AurynLong i = 0 ; i<get_rank_size() ; ++i ) {
 		rv = die();
 		if ( rv>0 ) 
-			set_val (g_adapt1, i, rv ); 
+			g_adapt1->set( i, rv ); 
 	}
 
 	init_state();
@@ -110,27 +112,26 @@ AIFGroup::~AIFGroup()
 void AIFGroup::integrate_linear_nmda_synapses()
 {
 	// decay of ampa and gaba channel, i.e. multiply by exp(-dt/tau)
-    auryn_vector_float_scale(scale_ampa,g_ampa);
-    auryn_vector_float_scale(scale_gaba,g_gaba);
-    auryn_vector_float_scale(scale_adapt1,g_adapt1);
+	g_ampa->scale(scale_ampa);
+	g_gaba->scale(scale_gaba);
+	g_adapt1->scale(scale_adapt1);
 
     // compute dg_nmda = (g_ampa-g_nmda)*dt/tau_nmda and add to g_nmda
-	AurynFloat mul_nmda = dt/tau_nmda;
-    auryn_vector_float_saxpy(mul_nmda,g_ampa,g_nmda);
-	auryn_vector_float_saxpy(-mul_nmda,g_nmda,g_nmda);
+	const AurynFloat mul_nmda = dt/tau_nmda;
+	g_nmda->saxpy(mul_nmda, g_ampa);
+	g_nmda->saxpy(-mul_nmda, g_nmda);
 
     // excitatory
-    auryn_vector_float_copy(g_ampa,t_exc);
-    auryn_vector_float_scale(-A_ampa,t_exc);
-    auryn_vector_float_saxpy(-A_nmda,g_nmda,t_exc);
-    auryn_vector_float_mul(t_exc,mem);
+	t_exc->copy(g_ampa);
+	t_exc->scale(-A_ampa);
+	t_exc->saxpy(-A_nmda,g_nmda);
+	t_exc->mul(mem);
     
     // inhibitory
-    auryn_vector_float_copy(g_gaba,t_leak); // using t_leak as temp here
-    auryn_vector_float_saxpy(1,g_adapt1,t_leak);
-    auryn_vector_float_copy(mem,t_inh);
-    auryn_vector_float_add_constant(t_inh,-e_rev);
-    auryn_vector_float_mul(t_inh,t_leak);
+    t_leak->copy(g_gaba); // using t_leak as temp here
+    t_leak->saxpy(1.0, g_adapt1); 
+	t_inh->diff(mem,e_rev);
+	t_inh->mul(t_leak);
 }
 
 /// Integrate the internal state
@@ -140,31 +141,30 @@ void AIFGroup::integrate_linear_nmda_synapses()
 void AIFGroup::integrate_membrane()
 {
 	// moving threshold
-    auryn_vector_float_scale(scale_thr,thr);
+	thr->scale(scale_thr);
     
     // leak
-	auryn_vector_float_copy(mem,t_leak);
-    auryn_vector_float_add_constant(t_leak,-e_rest);
+	t_leak->diff(mem,e_rest);
     
     // membrane dynamics
-	AurynFloat mul_tau_mem = dt/tau_mem;
-    auryn_vector_float_saxpy(mul_tau_mem,t_exc,mem);
-    auryn_vector_float_saxpy(-mul_tau_mem,t_inh,mem);
-    auryn_vector_float_saxpy(-mul_tau_mem,t_leak,mem);
+	const AurynFloat mul_tau_mem = dt/tau_mem;
+    mem->saxpy(mul_tau_mem,t_exc);
+    mem->saxpy(-mul_tau_mem,t_inh);
+    mem->saxpy(-mul_tau_mem,t_leak);
 }
 
 void AIFGroup::check_thresholds()
 {
-	auryn_vector_float_clip( mem, e_rev );
+	mem->clip( e_rev, 0.0 );
 
 	AurynState * thr_ptr = thr->data;
 	for ( AurynState * i = mem->data ; i != mem->data+get_rank_size() ; ++i ) { // it's important to use rank_size here otherwise there might be spikes from units that do not exist
     	if ( *i > ( thr_rest + *thr_ptr ) ) {
 			NeuronID unit = i-mem->data;
 			push_spike(unit);
-		    set_val (mem, unit, e_rest); // reset
-	        set_val (thr, unit, dthr); //refractory
-			add_val (g_adapt1, unit, dg_adapt1);
+		    mem->set( unit, e_rest); // reset
+	        thr->set( unit, dthr); //refractory
+			g_adapt1->add_specific( unit, dg_adapt1);
 		} 
 		thr_ptr++;
 	}

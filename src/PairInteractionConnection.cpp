@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -19,6 +19,8 @@
 */
 
 #include "PairInteractionConnection.h"
+
+using namespace auryn;
 
 void PairInteractionConnection::init(AurynWeight maxw)
 {
@@ -65,7 +67,7 @@ PairInteractionConnection::PairInteractionConnection(SpikingGroup * source, Neur
 
 PairInteractionConnection::PairInteractionConnection(SpikingGroup * source, NeuronGroup * destination, 
 		AurynWeight weight, AurynFloat sparseness, 
-		AurynWeight maxweight , TransmitterType transmitter, string name) 
+		AurynWeight maxweight , TransmitterType transmitter, std::string name) 
 : DuplexConnection(source, destination, weight, sparseness, transmitter, name)
 {
 	init(maxweight);
@@ -78,7 +80,7 @@ PairInteractionConnection::~PairInteractionConnection()
 
 inline AurynWeight PairInteractionConnection::dw_fwd(NeuronID post)
 {
-	AurynTime diff = sys->get_clock()-last_spike_post[post];
+	AurynTime diff = auryn::sys->get_clock()-last_spike_post[post];
 	if ( stdp_active ) {
 		if ( diff >= WINDOW_MAX_SIZE ) diff = WINDOW_MAX_SIZE-1;
 		double dw = window_post_pre[diff];
@@ -89,7 +91,7 @@ inline AurynWeight PairInteractionConnection::dw_fwd(NeuronID post)
 
 inline AurynWeight PairInteractionConnection::dw_bkw(NeuronID pre)
 {
-	AurynTime diff = sys->get_clock()-last_spike_pre[pre];
+	AurynTime diff = auryn::sys->get_clock()-last_spike_pre[pre];
 	if ( stdp_active ) {
 		if ( diff >= WINDOW_MAX_SIZE ) diff = WINDOW_MAX_SIZE-1;
 		double dw = window_pre_post[diff];
@@ -115,7 +117,7 @@ inline void PairInteractionConnection::propagate_forward()
 			data[c-ind] += dw_fwd(*c);
         }
 		// update pre_trace
-		last_spike_pre[*spike] = sys->get_clock();
+		last_spike_pre[*spike] = auryn::sys->get_clock();
 	}
 }
 
@@ -131,7 +133,7 @@ inline void PairInteractionConnection::propagate_backward()
 			  *data[c-ind] += dw_bkw(*c);
 		}
 		// update post trace
-		last_spike_post[*spike] = sys->get_clock();
+		last_spike_post[*spike] = auryn::sys->get_clock();
 	}
 }
 
@@ -145,9 +147,9 @@ void PairInteractionConnection::propagate()
 void PairInteractionConnection::load_window_from_file( const char * filename , double scale ) 
 {
 
-	stringstream oss;
+	std::stringstream oss;
 	oss << "PairInteractionConnection:: Loading STDP window from " << filename;
-	logger->msg(oss.str(),NOTIFICATION);
+	auryn::logger->msg(oss.str(),NOTIFICATION);
 
 	// default window all zeros
 	for ( int i = 0 ; i < WINDOW_MAX_SIZE ; ++i ) {
@@ -155,11 +157,11 @@ void PairInteractionConnection::load_window_from_file( const char * filename , d
 		window_post_pre[i] = 0;
 	}
 
-	ifstream infile (filename);
+	std::ifstream infile (filename);
 	if (!infile) {
-		stringstream oes;
+		std::stringstream oes;
 		oes << "Can't open input file " << filename;
-		logger->msg(oes.str(),ERROR);
+		auryn::logger->msg(oes.str(),ERROR);
 		return;
 	}
 
@@ -174,10 +176,10 @@ void PairInteractionConnection::load_window_from_file( const char * filename , d
 	sscanf (buffer,"# %u %f",&size,&timebinsize);
 
 	if ( size > 2*WINDOW_MAX_SIZE )
-		logger->msg("PairInteractionConnection:: STDP window too large ... truncating!",WARNING);
+		auryn::logger->msg("PairInteractionConnection:: STDP window too large ... truncating!",WARNING);
 
 	if ( dt < timebinsize )
-		logger->msg("PairInteractionConnection:: Timebinning of loaded STDP window is different from simulator timestep.",WARNING);
+		auryn::logger->msg("PairInteractionConnection:: Timebinning of loaded STDP window is different from simulator timestep.",WARNING);
 
 	double sum_pre_post = 0 ;
 	double sum_post_pre = 0 ;
@@ -202,20 +204,20 @@ void PairInteractionConnection::load_window_from_file( const char * filename , d
 	}
 
 	// for ( int i = 0 ; i < WINDOW_MAX_SIZE ; ++i ) {
-	// 	cout << scientific << window_pre_post[i] << endl;
+	// 	std::cout << std::ifstream << window_pre_post[i] << std::endl;
 	// }
 	// for ( int i = 0 ; i < WINDOW_MAX_SIZE ; ++i ) {
-	// 	cout << scientific << window_post_pre[i] << endl;
+	// 	std::cout << std::ifstream << window_post_pre[i] << std::endl;
 	// }
 
 
 	oss.str("");
 	oss << "PairInteractionConnection:: sum_pre_post=" 
-		<< scientific 
+		<< std::scientific
 		<< sum_pre_post 
 		<< " sum_post_pre=" 
 		<< sum_post_pre;
-	logger->msg(oss.str(),NOTIFICATION);
+	auryn::logger->msg(oss.str(),NOTIFICATION);
 
 	infile.close();
 

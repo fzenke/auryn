@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -27,14 +27,18 @@
 #define EULERTRACE_H_
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 
+namespace auryn {
 
-
-using namespace std;
-
-/*! \brief Solves a set of identical linear differential equations with the Euler method. It is used to implement synaptic traces in most STDP models.
+/*! \brief Solves a set of identical linear differential equations with the
+ * Euler method. It is used to implement synaptic traces in most STDP models.
  *
- * This solver simultaneoulsy computes linear traces (mostly to implement synapses) using Euler's method. Another solver is readily available within the Auryn framework. The LinearTrace objects solves the same problem but using the analytic solution. This results in less updates. However - so far it turned out to be inferior in performance to the EulerTrace. 
+ * This solver simultaneoulsy computes linear traces (mostly to implement
+ * synapses) using Euler's method. Another solver is readily available within
+ * the Auryn framework. The LinearTrace objects solves the same problem but
+ * using the analytic solution. This results in less updates. However - so far
+ * it turned out to be inferior in performance to the EulerTrace. 
  */
 class EulerTrace
 {
@@ -52,11 +56,11 @@ private:
 	/*! The size of the group. */
 	NeuronID size;
 	/*! The internal state vector. */
-	auryn_vector_float * state;
+	AurynStateVector * state;
 	/*! The target vector for follow operation. */
-	auryn_vector_float * target_ptr;
+	AurynStateVector * target_ptr;
 	/*! Temp update vector for follow operation. */
-	auryn_vector_float * temp;
+	AurynStateVector * temp;
 	/*! Multiplicative factor to downscale the values in every timestep. */
 	AurynFloat scale_const;
 	/*! Decay time constant in [s]. */
@@ -64,6 +68,18 @@ private:
 
 	void init(NeuronID n, AurynFloat timeconstant);
 	void free();
+
+	/*! \brief Checks if argument is larger than size and throws and exception if so 
+	 *
+	 * Check only enabled if NDEBUG is not defined.*/
+	void check_size(NeuronID x)
+	{
+#ifndef NDEBUG
+		if ( x >= size ) {
+			throw AurynVectorDimensionalityException();
+		}
+#endif 
+	};
 
 public:
 	/*! Default constructor */
@@ -76,10 +92,10 @@ public:
 	void set(NeuronID i , AurynFloat value);
 	/*! Set all traces to same value */
 	void set_all( AurynFloat value);
-	/*! Add auryn_vector_float to state vector
-	 * \param values auryn_vector_float to add
+	/*! Add AurynStateVector to state vector
+	 * \param values AurynStateVector to add
 	 */
-	void add(auryn_vector_float * values);
+	void add(AurynStateVector * values);
 	/*! Add designated value to single trace in the group.
 	 * \param i index of trace to change
 	 * \param value value to add to the trace
@@ -99,7 +115,7 @@ public:
 	void set_timeconstant( AurynFloat timeconstant );
 
 	/*! set the target vector for follow operation */
-	void set_target( auryn_vector_float * target );
+	void set_target( AurynStateVector * target );
 
 	/*! set the target vector for follow operation */
 	void set_target( EulerTrace * target );
@@ -118,14 +134,17 @@ public:
 	 * \param i index of trace to get
 	 */ 
 	AurynFloat normalized_get(NeuronID i);
-	/*! Get pointer to state auryn_vector_float for fast processing within the GSL vector framekwork. */
-	auryn_vector_float * get_state_ptr();
+	/*! Get pointer to state AurynStateVector for fast processing within the GSL vector framekwork. */
+	AurynStateVector * get_state_ptr();
 };
 
 inline AurynFloat EulerTrace::get(NeuronID i)
 {
+	check_size(i);
 	return state->data[i];
 }
+
+} // namespace
 
 #endif /*EULERTRACE_H_*/
 

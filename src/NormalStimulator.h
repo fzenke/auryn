@@ -22,6 +22,7 @@
 #define NORMALSTIMULATOR_H_
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "System.h"
 #include "Logger.h"
 #include "Monitor.h"
@@ -31,14 +32,14 @@
 #include <boost/random/variate_generator.hpp>
 #include <boost/random/normal_distribution.hpp>
 
-using namespace std;
+namespace auryn {
 
 /*! \brief Stimulator class to inject timeseries of currents to patterns (subpopulations) of neurons 
  * 
  * Instances of this class inject currents that vary over time to subpopulations of the NeuronGroup assigned.
  */
 
-class NormalStimulator : protected Monitor
+class NormalStimulator : protected Device
 {
 private:
 
@@ -103,5 +104,7 @@ public:
 	void propagate();
 
 };
+
+}
 
 #endif /*POISSONSTIMULATOR_H_*/

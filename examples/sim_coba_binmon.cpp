@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -23,7 +23,7 @@
 
 #include "auryn.h"
 
-using namespace std;
+using namespace auryn;
 
 namespace po = boost::program_options;
 namespace mpi = boost::mpi;
@@ -36,7 +36,7 @@ int main(int ac,char *av[]) {
 	string fwmat_ie = "";
 	string fwmat_ii = "";
 
-	stringstream oss;
+	std::stringstream oss;
 	string strbuf ;
 	string msg;
 
@@ -75,7 +75,7 @@ int main(int ac,char *av[]) {
         po::notify(vm);    
 
         if (vm.count("help")) {
-            cout << desc << "\n";
+            std::cout << desc << "\n";
             return 1;
         }
 
@@ -108,34 +108,28 @@ int main(int ac,char *av[]) {
         } 
 
     }
-    catch(exception& e) {
-        cerr << "error: " << e.what() << "\n";
+    catch(std::exception& e) {
+        std::cerr << "error: " << e.what() << "\n";
         return 1;
     }
     catch(...) {
-        cerr << "Exception of unknown type!\n";
+        std::cerr << "Exception of unknown type!\n";
     }
 
-	// BEGIN Global stuff
-	mpi::environment env(ac, av);
-	mpi::communicator world;
-	communicator = &world;
 
-	oss << dir  << "/coba." << world.rank() << ".";
+	auryn_init(ac, av);
+
+	oss << dir  << "/coba." << sys->mpi_rank() << ".";
 	string outputfile = oss.str();
 
-	char tmp [255];
-	stringstream logfile;
-	logfile << outputfile << "log";
-	logger = new Logger(logfile.str(),world.rank(),PROGRESS,EVERYTHING);
-
-	sys = new System(&world);
-	// END Global stuff
 
 	logger->msg("Setting up neuron groups ...",PROGRESS,true);
 
 	TIFGroup * neurons_e = new TIFGroup( ne);
 	TIFGroup * neurons_i = new TIFGroup( ni);
+
+	neurons_e->set_refractory_period(5.0e-3); // minimal ISI 5.1ms
+	neurons_i->set_refractory_period(5.0e-3);
 
 	neurons_e->set_state("bg_current",2e-2); // corresponding to 200pF for C=200pF and tau=20ms
 	neurons_i->set_state("bg_current",2e-2);
@@ -171,13 +165,13 @@ int main(int ac,char *av[]) {
 		msg = "Setting up monitors ...";
 		logger->msg(msg,PROGRESS,true);
 
-		stringstream filename;
-		filename << outputfile << "e.bras";
+		std::stringstream filename;
+		filename << outputfile << "e.spk";
 		BinarySpikeMonitor * smon_e = new BinarySpikeMonitor( neurons_e, filename.str().c_str() );
 
 		filename.str("");
 		filename.clear();
-		filename << outputfile << "i.bras";
+		filename << outputfile << "i.spk";
 		BinarySpikeMonitor * smon_i = new BinarySpikeMonitor( neurons_i, filename.str().c_str() );
 	}
 
@@ -188,11 +182,11 @@ int main(int ac,char *av[]) {
 	if (!sys->run(simtime,true)) 
 			errcode = 1;
 
-	logger->msg("Freeing ..." ,PROGRESS,true);
-	delete sys;
 
 	if (errcode)
-		env.abort(errcode);
+		mpienv->abort(errcode);
 
+	logger->msg("Freeing ..." ,PROGRESS,true);
+	auryn_free();
 	return errcode;
 }

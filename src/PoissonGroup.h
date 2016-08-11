@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -27,6 +27,7 @@
 #define POISSONGROUP_H_
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "System.h"
 #include "SpikingGroup.h"
 
@@ -37,7 +38,7 @@
 
 #define POISSON_LOAD_MULTIPLIER 0.01
 
-using namespace std;
+namespace auryn {
 
 /*! \brief A SpikingGroup that creates poissonian spikes with a given rate.
  *
@@ -85,5 +86,7 @@ public:
 	/*! Use this to seed the random number generator. */
 	void seed(int s);
 };
+
+}
 
 #endif /*NEURONGROUP_H_*/

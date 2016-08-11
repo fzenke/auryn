@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -24,6 +24,8 @@
 */
 
 #include "SymmetricSTDPConnection.h"
+
+using namespace auryn;
 
 void SymmetricSTDPConnection::init(AurynFloat eta, AurynFloat kappa, AurynFloat tau_stdp, AurynWeight maxweight)
 {
@@ -61,7 +63,7 @@ SymmetricSTDPConnection::SymmetricSTDPConnection(SpikingGroup * source, NeuronGr
 SymmetricSTDPConnection::SymmetricSTDPConnection(SpikingGroup * source, NeuronGroup * destination, 
 		AurynWeight weight, AurynFloat sparseness, 
 		AurynFloat eta, AurynFloat kappa, AurynFloat tau_stdp, 
-		AurynWeight maxweight , TransmitterType transmitter, string name) 
+		AurynWeight maxweight , TransmitterType transmitter, std::string name) 
 : DuplexConnection(source, destination, weight, sparseness, transmitter, name)
 {
 	init(eta , kappa, tau_stdp, maxweight);

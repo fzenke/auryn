@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -27,6 +27,7 @@
 #define CORRELATEDPOISSONGROUP_H_
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "System.h"
 #include "SpikingGroup.h"
 
@@ -36,7 +37,7 @@
 
 #define CORRELATEDPOISSON_LOAD_MULTIPLIER 0.01
 
-using namespace std;
+namespace auryn {
 
 /*! \brief A PoissonGroup with multiple subpopulations that co-modulate their firing
  *         rate according to an Ornstein Uhlenbeck process.
@@ -107,5 +108,7 @@ public:
 	AurynDouble get_rate();
 	void seed(int s);
 };
+
+}
 
 #endif /*NEURONGROUP_H_*/

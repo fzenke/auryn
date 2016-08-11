@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -27,6 +27,7 @@
 #define AUDITORYBEEPGROUP_H_
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "System.h"
 #include "SpikingGroup.h"
 #include "ProfilePoissonGroup.h"
@@ -36,7 +37,7 @@
 #include <boost/random/variate_generator.hpp>
 #include <boost/random/exponential_distribution.hpp>
 
-using namespace std;
+namespace auryn {
 
 /*! \brief A special Poisson generator that mimicks thalamo-cortical input to
  * auditory cortex layer 3/4.
@@ -91,5 +92,7 @@ public:
 	virtual ~AuditoryBeepGroup();
 	virtual void evolve();
 };
+
+}
 
 #endif /*AUDITORYBEEPGROUP_H_*/

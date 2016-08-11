@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -27,13 +27,14 @@
 #define CURRENTINJECTOR_H_
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "System.h"
 #include "Logger.h"
-#include "Monitor.h"
+#include "Device.h"
 #include "NeuronGroup.h"
 
 
-using namespace std;
+namespace auryn {
 
 /*! \brief Stimulator class to add values in each timestep to arbitrary neuronal states. 
  *
@@ -43,7 +44,7 @@ using namespace std;
  * 
  */
 
-class CurrentInjector : protected Monitor
+class CurrentInjector : protected Device
 {
 private:
 
@@ -58,6 +59,9 @@ private:
 	/*! Returns the lambda parameter of the pmf for Current. */
 	AurynFloat get_lambda();
 
+	/*! Scale factor which should include dt and any respective resistance. */
+	AurynFloat alpha;
+
 protected:
 
 	/*! The target NeuronGroup */
@@ -65,26 +69,33 @@ protected:
 
 	
 public:
-	/*! Default Constructor 
+
+	/*! \brief Default Constructor 
 	 * @param[target] Initializes all currents with this value
 	 * @param[initial_current] Initializes all currents with this value
 	 */
-	CurrentInjector(NeuronGroup * target, string neuron_state_name="mem", AurynFloat initial_current=0.0 );
+	CurrentInjector(NeuronGroup * target, std::string neuron_state_name="mem", AurynFloat initial_current=0.0 );
 
-	/*! Sets the state to add the "current" in every timestep to */
-	void set_target_state( string state_name = "mem" );
+	/*! \brief Sets the state to add the "current" in every timestep to */
+	void set_target_state( std::string state_name = "mem" );
 
-	/*! Default Destructor */
+	/*! \brief Default Destructor */
 	virtual ~CurrentInjector();
 
 
-	/*! Sets the state that is stimulated with Current input.
-	 * This must be a valid state vector name (default = mem) */
+	/*! \brief Sets the state that is stimulated with Current input.
+	 * 
+	 * This must be a valid state vector name (default = mem) 
+	 * 
+	 * \param i Index of neuron
+	 * \param current Current value to set*/
 	void set_current( NeuronID i, AurynFloat current );
 
 	/*! Implementation of necessary propagate() function. */
 	void propagate();
 
 };
+
+}
 
 #endif /*CURRENTINJECTOR_H_*/

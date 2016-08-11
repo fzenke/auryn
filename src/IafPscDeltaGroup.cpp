@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -25,9 +25,11 @@
 
 #include "IafPscDeltaGroup.h"
 
+using namespace auryn;
+
 IafPscDeltaGroup::IafPscDeltaGroup(NeuronID size) : NeuronGroup(size)
 {
-	sys->register_spiking_group(this);
+	auryn::sys->register_spiking_group(this);
 	if ( evolve_locally() ) init();
 }
 
@@ -107,10 +109,10 @@ void IafPscDeltaGroup::set_tau_mem(AurynFloat taum)
 }
 
 
-string IafPscDeltaGroup::get_output_line(NeuronID i)
+std::string IafPscDeltaGroup::get_output_line(NeuronID i)
 {
-	stringstream oss;
-	oss << get_mem(i) << " " << auryn_vector_ushort_get (ref, i) << "\n";
+	std::stringstream oss;
+	oss << mem->get(i) << " " << ref->get( i) << "\n";
 	return oss.str();
 }
 
@@ -121,7 +123,7 @@ void IafPscDeltaGroup::load_input_line(NeuronID i, const char * buf)
 	sscanf (buf,"%f %f %f %u",&vmem,&vampa,&vgaba,&vref);
 	if ( localrank(i) ) {
 		NeuronID trans = global2rank(i);
-		set_mem(trans,vmem);
+		mem->set(trans,vmem);
 		auryn_vector_ushort_set (ref, trans, vref);
 	}
 }

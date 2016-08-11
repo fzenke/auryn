@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -39,6 +39,7 @@
 // Core simulator definitions
 #include "auryn_global.h"
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "System.h"
 #include "SyncBuffer.h"
 #include "Logger.h"
@@ -57,43 +58,51 @@
 #include "SymmetricSTDPConnection.h"
 #include "STPConnection.h"
 #include "ABSConnection.h"
-#include "TripletConnection.h"
 #include "DuplexConnection.h"
+#include "TripletConnection.h"
 #include "TripletDecayConnection.h"
+#include "TripletScalingConnection.h"
 #include "IdentityConnection.h"
+#include "AllToAllConnection.h"
 
-// Spiking and Neuron group definitions
-#include "AIF2Group.h"
-#include "IafPscDeltaGroup.h"
-#include "IFGroup.h"
-#include "AIFGroup.h"
-#include "AdExGroup.h"
-#include "CubaIFGroup.h"
-#include "TIFGroup.h"
+// Spiking and input group definitions
 #include "SpikingGroup.h"
 #include "NeuronGroup.h"
 #include "PoissonGroup.h"
+#include "FileInputGroup.h"
+#include "FileModulatedPoissonGroup.h"
+#include "StimulusGroup.h"
+#include "SpikeTimingStimGroup.h"
 #include "ProfilePoissonGroup.h"
 #include "StructuredPoissonGroup.h"
 #include "CorrelatedPoissonGroup.h"
-#include "FileModulatedPoissonGroup.h"
+#include "MovingBumpGroup.h"
 #include "AuditoryBeepGroup.h"
-#include "StimulusGroup.h"
-#include "FileInputGroup.h"
+
+// NeuronGroups
+#include "IFGroup.h"
+#include "CubaIFGroup.h"
+#include "TIFGroup.h"
+#include "AIFGroup.h"
+#include "AIF2Group.h"
+#include "AdExGroup.h"
+#include "IafPscDeltaGroup.h"
+#include "IafPscExpGroup.h"
+#include "IzhikevichGroup.h"
 
 
 // Checker definitions
 #include "Checker.h"
 #include "RateChecker.h"
+#include "WeightChecker.h"
 
 // Monitor and stimulator definitions
+#include "Device.h"
 #include "Monitor.h"
-#include "GabaMonitor.h"
-#include "NmdaMonitor.h"
-#include "AmpaMonitor.h"
 #include "VoltageMonitor.h"
 #include "SpikeMonitor.h"
 #include "BinarySpikeMonitor.h"
+#include "BinaryStateMonitor.h"
 #include "DelayedSpikeMonitor.h"
 #include "RealTimeMonitor.h"
 #include "RateMonitor.h"
@@ -106,6 +115,7 @@
 #include "WeightMonitor.h"
 #include "WeightMatrixMonitor.h"
 #include "PoissonStimulator.h"
+#include "NormalStimulator.h"
 #include "PatternStimulator.h"
 #include "CurrentInjector.h"
 

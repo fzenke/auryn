@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -27,13 +27,14 @@
 #define WEIGHTPATTERNMONITOR_H_
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "Monitor.h"
 #include "System.h"
 #include "Connection.h"
 #include <fstream>
 #include <iomanip>
 
-using namespace std;
+namespace auryn {
 
 /*! \brief Records mean weights from a connection specified by one or two
  *  pattern files. Can be used to easily monitor the mean synaptic weight
@@ -47,15 +48,15 @@ protected:
 
 
 
-	vector<type_pattern> pre_patterns;
-	vector<type_pattern> post_patterns;
+	std::vector<type_pattern> pre_patterns;
+	std::vector<type_pattern> post_patterns;
 
 
 	void init(Connection * source, string filename, AurynTime stepsize);
 	AurynWeight compute_pattern_mean(const NeuronID i, const NeuronID j);
 
 	/*! Mother function for loading patterns */
-	void load_patterns(string filename, vector<type_pattern> & patterns );
+	void load_patterns(std::string filename, std::vector<type_pattern> & patterns );
 	
 public:
 	/*! Maximum number of patterns to record from */
@@ -75,5 +76,7 @@ size_t max_patterns;
 	virtual ~WeightPatternMonitor();
 	void propagate();
 };
+
+}
 
 #endif /*WEIGHTPATTERNMONITOR_H_*/

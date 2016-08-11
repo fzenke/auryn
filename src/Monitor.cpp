@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -25,34 +25,51 @@
 
 #include "Monitor.h"
 
+using namespace auryn;
 
-void Monitor::init(string filename)
+void Monitor::init(std::string filename)
 {
-	fname = filename;
+	if ( filename.empty() ) { // generate default filename from device id
+		fname = generate_filename();
+	} else 
+		fname = filename;
 
-	open_output_file(filename);
+	active = true;
+	open_output_file(fname);
 }
 
-Monitor::Monitor()
+Monitor::Monitor( std::string filename, std::string default_extension ) : Device()
 {
+	default_file_extension = default_extension;
+	init(filename);
 }
 
-void Monitor::open_output_file(string filename)
+Monitor::Monitor( ) : Device()
 {
-	if ( filename.empty() ) return; // stimulators do not necessary need an outputfile
+	default_file_extension = "dat";
+}
 
-	outfile.open( filename.c_str(), ios::out );
+void Monitor::open_output_file(std::string filename)
+{
+	outfile.open( filename.c_str(), std::ios::out );
 	if (!outfile) {
-	  stringstream oss;
+	  std::stringstream oss;
 	  oss << "Can't open output file " << filename;
-	  logger->msg(oss.str(),ERROR);
+	  auryn::logger->msg(oss.str(),ERROR);
 	  exit(1);
 	}
 }
 
-Monitor::Monitor( string filename )
+std::string Monitor::generate_filename(std::string name_hint) 
 {
-	init(filename);
+	std::stringstream oss;
+	oss << get_name() << name_hint;
+	std::string tmpstr = oss.str(); 
+	tmpstr.erase(std::remove(tmpstr.begin(),tmpstr.end(),' '),tmpstr.end());
+	std::transform(tmpstr.begin(), tmpstr.end(), tmpstr.begin(), ::tolower);
+	tmpstr = sys->fn(tmpstr, default_file_extension);
+	// std::cout << tmpstr << std::endl;
+	return tmpstr;
 }
 
 Monitor::~Monitor()
@@ -65,11 +82,18 @@ void Monitor::free()
 	outfile.close();
 }
 
+void Monitor::flush()
+{
+	outfile.flush();
+}
+
 
 void Monitor::virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version ) 
 {
+	Device::virtual_serialize(ar, version);
 }
 
 void Monitor::virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version ) 
 {
+	Device::virtual_serialize(ar, version);
 }

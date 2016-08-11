@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -24,6 +24,8 @@
 */
 
 #include "TripletConnection.h"
+
+using namespace auryn;
 
 void TripletConnection::init(AurynFloat tau_hom, AurynFloat eta, AurynFloat kappa, AurynFloat maxweight)
 {
@@ -102,7 +104,7 @@ TripletConnection::TripletConnection(SpikingGroup * source, NeuronGroup * destin
 		AurynFloat eta, 
 		AurynFloat kappa, AurynFloat maxweight , 
 		TransmitterType transmitter,
-		string name) 
+		std::string name) 
 : DuplexConnection(source, 
 		destination, 
 		weight, 
@@ -129,13 +131,13 @@ void TripletConnection::set_hom_trace(AurynFloat freq)
 }
 
 
-AurynWeight TripletConnection::get_hom(NeuronID i)
+inline AurynWeight TripletConnection::get_hom(NeuronID i)
 {
 	return pow(tr_post_hom->get(i),2);
 }
 
 
-AurynWeight TripletConnection::dw_pre(NeuronID post)
+inline AurynWeight TripletConnection::dw_pre(NeuronID post)
 {
 	// translate post id to local id on rank: translated_spike
 	NeuronID translated_spike = dst->global2rank(post); 
@@ -143,7 +145,7 @@ AurynWeight TripletConnection::dw_pre(NeuronID post)
 	return dw;
 }
 
-AurynWeight TripletConnection::dw_post(NeuronID pre, NeuronID post)
+inline AurynWeight TripletConnection::dw_post(NeuronID pre, NeuronID post)
 {
 	// at this point post was already translated to a local id in 
 	// the propagate_backward function below.

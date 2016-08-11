@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -27,13 +27,14 @@
 #define POPULATIONRATEMONITOR_H_
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "Monitor.h"
 #include "System.h"
 #include "SpikingGroup.h"
 #include <fstream>
 #include <iomanip>
 
-using namespace std;
+namespace auryn {
 
 /*! \brief Monitor class to record population firing rates
  * 
@@ -55,6 +56,7 @@ private:
 protected:
 	/*! The source SpikingGroup */
 	SpikingGroup * src;
+
 	/*! Default init method */
 	void init(SpikingGroup * source, string filename, AurynDouble binsize);
 	
@@ -65,11 +67,15 @@ public:
 	 @param[source] The source spiking group.
 	 @param[filename] The filename to write to (should be different for each rank.)
 	 @param[binsize] The binsize used for counting in seconds.*/
-	PopulationRateMonitor(SpikingGroup * source, string filename, AurynDouble binsize=1e-3);
+	PopulationRateMonitor(SpikingGroup * source, string filename="", AurynDouble binsize=0.1);
+
 	/*! Default Destructor */
 	virtual ~PopulationRateMonitor();
+
 	/*! Implementation of necessary propagate() function. */
 	void propagate();
 };
+
+}
 
 #endif /*POPULATIONRATEMONITOR_H_*/
