@@ -42,6 +42,11 @@
 #include <boost/mpi.hpp>
 #include <boost/progress.hpp>
 
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/variate_generator.hpp>
+#include <boost/random/uniform_int.hpp>
+#include <boost/random/uniform_int_distribution.hpp>
+
 #define PROGRESSBAR_DEFAULT_UPDATE_INTERVAL 1000
 #define LOGGER_MARK_INTERVAL (10000*1000) // 1000s
 
@@ -77,6 +82,10 @@ namespace auryn {
 		std::vector<Checker *> checkers;
 
 		string outputdir;
+
+		boost::mt19937 gen; 
+		boost::random::uniform_int_distribution<> * dist;
+		boost::variate_generator<boost::mt19937&, boost::random::uniform_int_distribution<> > * die;
 
 		double simulation_time_realtime_ratio;
 
@@ -318,6 +327,25 @@ namespace auryn {
 		 * like mpicom->rank(), but also defined when run
 		 * without mpi. */
 		unsigned int mpi_rank();
+
+		/*! \brief Set master seed
+		 *
+		 * Set the master seed from which other seeds are drawn. 
+		 * When the master seed is set to 0 a master seed is generated
+		 * from ctime and will be different at each run.
+		 * */
+		void  set_master_seed( unsigned int seed = 123);
+
+		/*! \brief Returns a random seed which is different on each rank
+		 *
+		 * */
+		unsigned int get_seed();
+
+		/*! \brief Returns a random seed which is the same on each rank 
+		 *
+		 * Can be used to synchronize randomness across ranks StimulusGroup etc
+		 * */
+		unsigned int get_synced_seed();
 
 #ifdef CODE_COLLECT_SYNC_TIMING_STATS
 		AurynDouble deltaT;
