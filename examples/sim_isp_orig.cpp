@@ -294,7 +294,7 @@ int main(int ac, char* av[])
 	sys->save_network_state(netstatfile);
 
 	logger->msg("Freeing ...",PROGRESS,true);
-	delete sys;
+	auryn_free();
 
 	logger->msg("Exiting ...",PROGRESS,true);
 	return errcode;

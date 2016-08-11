@@ -131,20 +131,12 @@ int main(int ac,char *av[]) {
 		std::cerr << "Exception of unknown type!\n";
     }
 
-	// BEGIN Auryn init
-	mpi::environment env(ac, av);
-	mpi::communicator world;
-	mpicommunicator = &world;
+	auryn_init(ac, av);
 
-	oss << dir  << "/brunel." << world.rank() << ".";
+	oss << dir  << "/brunel." << sys->mpi_rank() << ".";
 	std::string outputfile = oss.str();
 
-	std::stringstream logfile;
-	logfile << outputfile << "log";
-	logger = new Logger(logfile.str(),world.rank(),PROGRESS,EVERYTHING);
-
-	sys = new System(&world);
-	// END Auryn init
+	//
 	logger->msg("Setting up neuron groups ...",PROGRESS,true);
 	IafPscDeltaGroup * neurons_e = new IafPscDeltaGroup( ne );
 	neurons_e->set_tau_mem(20.0e-3);
@@ -254,7 +246,7 @@ int main(int ac,char *av[]) {
 	delete sys;
 
 	if (errcode)
-		env.abort(errcode);
+		mpienv->abort(errcode);
 
 	return errcode;
 }

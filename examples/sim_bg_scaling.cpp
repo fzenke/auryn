@@ -251,24 +251,11 @@ int main(int ac, char* av[])
 	double primetime = 3.0*tau_hom;
 
 
-	// BEGIN Global stuff
-	mpi::environment env(ac, av);
-	mpi::communicator world;
-	mpicommunicator = &world;
-
-	sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.log", dir.c_str(), file_prefix, beta_scaling, tau_hom, label.c_str(), world.rank());
-	string logfile = strbuf;
-	logger = new Logger(logfile,world.rank(),PROGRESS,EVERYTHING);
-
-	sys = new System(&world);
-	// boost::filesystem::path p = av[0];
-	// string binaryname = p.stem().string();
-	// sys->set_simulation_name(binaryname);
-	// END Global stuff
+	auryn_init(ac, av);
 
 	if (!infilename.empty()) {
 		std::stringstream iss;
-		iss << infilename << "." << world.rank();
+		iss << infilename << "." << sys->mpi_rank();
 		infilename = iss.str();
 	}
 
@@ -347,15 +334,15 @@ int main(int ac, char* av[])
 	logger->msg(msg,PROGRESS,true);
 
 	if (wmatdump) {
-		sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.weight", dir.c_str(), file_prefix, beta_scaling, tau_hom, label.c_str(), world.rank());
+		sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.weight", dir.c_str(), file_prefix, beta_scaling, tau_hom, label.c_str(), sys->mpi_rank());
 		WeightMatrixMonitor * wmatmon = new WeightMatrixMonitor( con_ee, strbuf , wmat_interval );
 	}
 
 	if ( !fast ) {
-		sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.%c.ras", dir.c_str(), file_prefix, beta_scaling, tau_hom, label.c_str(), world.rank(), 'e');
+		sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.%c.ras", dir.c_str(), file_prefix, beta_scaling, tau_hom, label.c_str(), sys->mpi_rank(), 'e');
 		SpikeMonitor * smon_e = new SpikeMonitor( neurons_e, strbuf , 2500);
 
-		sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.%c.prate", dir.c_str(), file_prefix, beta_scaling, tau_hom, label.c_str(), world.rank(), 'e');
+		sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.%c.prate", dir.c_str(), file_prefix, beta_scaling, tau_hom, label.c_str(), sys->mpi_rank(), 'e');
 		PopulationRateMonitor * pmon_e = new PopulationRateMonitor( neurons_e, strbuf, 50e-3 );
 	}
 
@@ -379,7 +366,7 @@ int main(int ac, char* av[])
 		con_stim->finalize();
 
 		logger->msg("Saving weight matrix ...",PROGRESS,true);
-		sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d_stim.wmat", dir.c_str(), file_prefix, beta_scaling, tau_hom, label.c_str(), world.rank());
+		sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d_stim.wmat", dir.c_str(), file_prefix, beta_scaling, tau_hom, label.c_str(), sys->mpi_rank());
 		con_stim->write_to_file(strbuf);
 	}
 
@@ -415,7 +402,7 @@ int main(int ac, char* av[])
 
 		// set up Weight monitor
 
-		sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.%c.ras", dir.c_str(), file_prefix, beta_scaling, tau_hom, label.c_str(), world.rank(), 'c');
+		sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.%c.ras", dir.c_str(), file_prefix, beta_scaling, tau_hom, label.c_str(), sys->mpi_rank(), 'c');
 		SpikeMonitor * smon_c = new SpikeMonitor( corr_e, strbuf , size );
 	}
 
@@ -430,26 +417,26 @@ int main(int ac, char* av[])
 
 
 	logger->msg("Saving neurons state ...",PROGRESS,true);
-	sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.e.nstate", dir.c_str(), file_prefix, beta_scaling, tau_hom, label.c_str(), world.rank());
+	sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.e.nstate", dir.c_str(), file_prefix, beta_scaling, tau_hom, label.c_str(), sys->mpi_rank());
 	neurons_e->write_to_file(strbuf);
-	sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.i.nstate", dir.c_str(), file_prefix, beta_scaling, tau_hom, label.c_str(), world.rank());
+	sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.i.nstate", dir.c_str(), file_prefix, beta_scaling, tau_hom, label.c_str(), sys->mpi_rank());
 	neurons_i->write_to_file(strbuf);
 
 	logger->msg("Saving weight matrix ...",PROGRESS,true);
-	sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.wmat", dir.c_str(), file_prefix, beta_scaling, tau_hom, label.c_str(), world.rank());
+	sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.wmat", dir.c_str(), file_prefix, beta_scaling, tau_hom, label.c_str(), sys->mpi_rank());
 	con_ee->write_to_file(strbuf);
 
 	// save lifetime
-	sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.lifetime", dir.c_str(), file_prefix, beta_scaling, tau_hom, label.c_str(), world.rank());
+	sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.lifetime", dir.c_str(), file_prefix, beta_scaling, tau_hom, label.c_str(), sys->mpi_rank());
 	std::ofstream killfile;
 	killfile.open(strbuf);
 	killfile << sys->get_time()-primetime << std::endl;
 	killfile.close();
 
-	logger->msg("Freeing ...",PROGRESS,true);
-	delete sys;
-
 	if (errcode)
-		env.abort(errcode);
+		mpienv->abort(errcode);
+
+	logger->msg("Freeing ...",PROGRESS,true);
+	auryn_free();
 	return errcode;
 }

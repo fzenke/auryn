@@ -10,15 +10,18 @@ cd $CURDIR
 make -C $BUILDDIR 
 
 # Benchmark parameters
+echo "Getting revision number"
 SIMTIME=10
 REVISION=`git log --pretty=oneline -1 | cut -d " " -f 1`
 TESTNAME=`basename "$0"`
 
 # Vogels-Abbott benchmark, single core
+echo "Creating temp dir"
 TMPDIR=`mktemp -d`
 WMATLOADSTRING="--fee pynn.ee.wmat --fei pynn.ei.wmat --fie pynn.ie.wmat --fii pynn.ii.wmat"
 # because the order of spikes on file in multicore is not the same as in single core we only 
 # spikes from one rank into our comparison
+echo "Running binary"
 $BUILDDIR/examples/sim_coba_binmon $WMATLOADSTRING --simtime $SIMTIME --dir $TMPDIR 
 echo "Computing checksum ..."
 $TOOLDIR/aube -i $TMPDIR/coba.*.e.spk | awk '{ if ($2%2==0) print }' | md5sum > coba_checksums.txt

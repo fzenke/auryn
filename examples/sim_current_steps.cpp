@@ -82,11 +82,10 @@ int main(int ac, char* av[])
 		sys->run(simtime); 
 	}
 
-	// clean up
-	logger->msg("Freeing ...",PROGRESS,true);
-	delete sys;
-
 	if (errcode)
 		mpienv->abort(errcode);
+
+	logger->msg("Freeing ...",PROGRESS,true);
+	auryn_free();
 	return errcode;
 }
