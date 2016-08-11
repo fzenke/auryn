@@ -114,8 +114,7 @@ int main(int ac,char *av[]) {
     }
 
 
-	string simname = "sim_coba_benchmark";
-	auryn_init( ac, av, dir, simname, simname );
+	auryn_init( ac, av, dir );
 	oss << dir  << "/coba." << sys->mpi_rank() << ".";
 	string outputfile = oss.str();
 	if ( fast ) sys->quiet = true;

@@ -26,6 +26,8 @@
 #ifndef AURYN_GLOBAL_H_
 #define AURYN_GLOBAL_H_
 
+#include <boost/filesystem.hpp>
+
 #include "Logger.h"
 #include "System.h"
 
@@ -52,13 +54,16 @@ namespace auryn {
 		mpienv = new mpi::environment(ac, av); 
 		mpicommunicator = new mpi::communicator(); 
 
-
 		// Init logger environment
 		try 
 		{ 
-			char strbuf_tmp [255]; 
-			string log_prefix_ = av[0];
+			string log_prefix_ = boost::filesystem::basename(av[0]);
+			log_prefix_.erase(std::remove(log_prefix_.begin(),log_prefix_.end(),' '),log_prefix_.end()); // remove spaces
+			std::transform(log_prefix_.begin(), log_prefix_.end(), log_prefix_.begin(), ::tolower); // convert to lower case
+
 			if ( !logfile_prefix.empty() ) log_prefix_ = logfile_prefix;
+
+			char strbuf_tmp [255]; 
 			sprintf(strbuf_tmp, "%s/%s.%d.log", dir.c_str(), log_prefix_.c_str(), mpicommunicator->rank()); 
 			string auryn_simulation_logfile = strbuf_tmp; 
 			logger = new Logger(auryn_simulation_logfile,mpicommunicator->rank(),PROGRESS,EVERYTHING); 
