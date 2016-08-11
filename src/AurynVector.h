@@ -590,6 +590,7 @@ namespace auryn {
 	class AurynVectorFloat : public AurynVector<float,NeuronID> 
 	{
 		private:
+			typedef AurynVector<float,NeuronID> super;
 
 		public:
 			/*! \brief Default constructor */
@@ -601,6 +602,7 @@ namespace auryn {
 			};
 
 
+			void resize(NeuronID new_size);
 			void scale(const float a);
 			void saxpy(const float a, AurynVectorFloat * x);
 			void clip(const float min, const float max);
