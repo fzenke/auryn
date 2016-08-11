@@ -60,6 +60,8 @@ private:
 	boost::uniform_01<> * dist;
 	boost::variate_generator<boost::mt19937&, boost::uniform_01<> > * die;
 
+	unsigned int salt;
+
 	void init(AurynDouble rate);
 
 protected:
@@ -84,7 +86,7 @@ public:
 	/*! Standard getter for the firing rate variable. */
 	AurynDouble get_rate();
 	/*! Use this to seed the random number generator. */
-	void seed(int s);
+	void seed(unsigned int s);
 };
 
 }
