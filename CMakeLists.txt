@@ -17,8 +17,8 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -pedantic")
 FIND_PACKAGE(MPI REQUIRED)
 
 # Required Boost libraries 
-SET(BOOST_MIN_VERSION "1.41.0")
-FIND_PACKAGE(Boost ${BOOST_MIN_VERSION} REQUIRED COMPONENTS mpi serialization program_options date_time unit_test_framework system filesystem)
+SET(BOOST_MIN_VERSION "1.56.0")
+FIND_PACKAGE(Boost ${BOOST_MIN_VERSION} REQUIRED COMPONENTS mpi serialization program_options date_time unit_test_framework system filesystem align)
 
 # Recommended: Doxygen
 FIND_PACKAGE(Doxygen)
