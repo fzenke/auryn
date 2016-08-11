@@ -222,9 +222,10 @@ class AurynBinarySpikeView:
         for t_spike in trigger_times:
             ts = t_spike+time_offset
             spikes = self.get_spikes(ts, ts+time_window)
-            sar = np.array(spikes, dtype=int)[:,1]
-            counts = np.bincount(sar, minlength=max_neuron_id)
-            hist += counts
+            if len(spikes):
+                sar = np.array(spikes, dtype=int)[:,1]
+                counts = np.bincount(sar, minlength=max_neuron_id)
+                hist += counts
         return hist
 
 
