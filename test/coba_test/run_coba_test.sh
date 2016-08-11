@@ -5,7 +5,7 @@ TOOLDIR="$BUILDDIR/tools"
 
 # Compile code
 CURDIR=`pwd`
-cd $BUILDDIR  && ./bootstrap.sh 
+cd $BUILDDIR && ./bootstrap.sh && make
 cd $CURDIR
 make -C $BUILDDIR 
 
