@@ -41,26 +41,7 @@ int main(int ac, char* av[])
 	string tmpstr;
 	AurynWeight w = 1.0;
 
-	// BEGIN Global definitions
-	mpi::environment env(ac, av);
-	mpi::communicator world;
-	mpicommunicator = &world;
-
-	try
-	{
-		sprintf(strbuf, "step_current.%d.log", world.rank());
-		string logfile = strbuf;
-		logger = new Logger(logfile,world.rank(),PROGRESS,EVERYTHING);
-	}
-	catch ( AurynOpenFileException excpt )
-	{
-		std::cerr << "Cannot proceed without log file. Exiting all ranks ..." << '\n';
-		env.abort(1);
-	}
-
-	sys = new System(&world);
-	sys->set_simulation_name(simname);
-	// END Global definitions
+	auryn_init(ac, av);
 
 	// define neuron group
 	IzhikevichGroup * neuron = new IzhikevichGroup(1);
@@ -84,11 +65,12 @@ int main(int ac, char* av[])
 	// simulate 1 second
 	sys->run(0.1);
 
+	if (errcode)
+		mpienv->abort(errcode);
+
 	// clean up
 	logger->msg("Freeing ...",PROGRESS,true);
-	delete sys;
+	auryn_free();
 
-	if (errcode)
-		env.abort(errcode);
 	return errcode;
 }

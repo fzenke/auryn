@@ -343,10 +343,11 @@ int main(int ac, char* av[])
 		sys->save_network_state(outputfile);
 	}
 
-	logger->msg("Freeing ..." ,PROGRESS,true);
-	delete sys;
-
 	if (errcode)
 		mpienv->abort(errcode);
+
+	logger->msg("Freeing ..." ,PROGRESS,true);
+	auryn_free();
+
 	return errcode;
 }

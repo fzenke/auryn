@@ -79,6 +79,15 @@ namespace auryn {
 		sys->set_output_dir(dir);
 		sys->set_simulation_name(simulation_name);
 	}
+
+	/*! Shuts down Auryn simulation environment. */
+	inline void auryn_free()
+	{
+		delete sys;
+		delete logger;
+		delete mpicommunicator;
+		delete mpienv;
+	}
 }
 
 #endif /*AURYN_GLOBAL_H__*/
