@@ -3,7 +3,7 @@ project (Auryn)
 
 # The version number.
 set (Auryn_VERSION_MAJOR 0)
-set (Auryn_VERSION_MINOR 7)
+set (Auryn_VERSION_MINOR 8)
 
 # Important GCC Compiler flags for Auryn's performance
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=native -ffast-math -pipe")
