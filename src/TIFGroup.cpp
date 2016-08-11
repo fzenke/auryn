@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -25,9 +25,11 @@
 
 #include "TIFGroup.h"
 
+using namespace auryn;
+
 TIFGroup::TIFGroup(NeuronID size) : NeuronGroup(size)
 {
-	sys->register_spiking_group(this);
+	auryn::sys->register_spiking_group(this);
 	if ( evolve_locally() ) init();
 }
 
@@ -110,8 +112,10 @@ void TIFGroup::evolve()
 
 	}
 
-    auryn_vector_float_scale(scale_ampa,g_ampa);
-    auryn_vector_float_scale(scale_gaba,g_gaba);
+    // auryn_vector_float_scale(scale_ampa,g_ampa);
+	g_ampa->scale(scale_ampa);
+    // auryn_vector_float_scale(scale_gaba,g_gaba);
+	g_gaba->scale(scale_gaba);
 }
 
 void TIFGroup::set_bg_current(NeuronID i, AurynFloat current) {
@@ -151,12 +155,12 @@ AurynFloat TIFGroup::get_bg_current(NeuronID i) {
 		return 0;
 }
 
-string TIFGroup::get_output_line(NeuronID i)
+std::string TIFGroup::get_output_line(NeuronID i)
 {
-	stringstream oss;
-	oss << get_mem(i) << " " << get_ampa(i) << " " << get_gaba(i) << " " 
-		<< auryn_vector_ushort_get (ref, i) << " " 
-		<< auryn_vector_float_get (bg_current, i) <<"\n";
+	std::stringstream oss;
+	oss << mem->get(i) << " " << g_ampa->get(i) << " " << g_gaba->get(i) << " " 
+		<< ref->get(i) << " " 
+		<< bg_current->get(i) <<"\n";
 	return oss.str();
 }
 
@@ -167,11 +171,11 @@ void TIFGroup::load_input_line(NeuronID i, const char * buf)
 		sscanf (buf,"%f %f %f %u %f",&vmem,&vampa,&vgaba,&vref,&vbgcur);
 		if ( localrank(i) ) {
 			NeuronID trans = global2rank(i);
-			set_mem(trans,vmem);
-			set_ampa(trans,vampa);
-			set_gaba(trans,vgaba);
-			auryn_vector_ushort_set (ref, trans, vref);
-			auryn_vector_float_set (bg_current, trans, vbgcur);
+			mem->set(trans,vmem);
+			g_ampa->set(trans,vampa);
+			g_gaba->set(trans,vgaba);
+			ref->set(trans, vref);
+			bg_current->set(trans, vbgcur);
 		}
 }
 

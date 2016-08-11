@@ -1,5 +1,5 @@
 /*
-* Copyright 2014-2015 Ankur Sinha and Friedemann Zenke
+* Copyright 2014-2016 Ankur Sinha and Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -27,30 +27,46 @@
 #define ADEXGROUP_H_
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "NeuronGroup.h"
 #include "System.h"
 
 
-/*! \brief Conductance based Adaptive Exponential neuron model - Brette and Gerstner (2005). Default values are taken from Table 1 (4a)  of Naud, Marcille, Clopath and Gerstner (2008)
-*/
+namespace auryn {
+
+/*! \brief Conductance based Adaptive Exponential neuron model - Brette and Gerstner (2005). 
+ *
+ * This implements a NeuronGroup of AdEx neurons with default parameters from
+ * Brette, R., and Gerstner, W. (2005). Adaptive Exponential Integrate-and-Fire
+ * Model as an Effective Description of Neuronal Activity. J Neurophysiol 94,
+ * 3637–3642.
+ *
+ * \todo Implement vectorization for the model.
+ *
+ * */
 class AdExGroup : public NeuronGroup
 {
 private:
-    auryn_vector_float * bg_current;
     AurynFloat e_rest, e_reset, e_rev_gaba, e_rev_ampa,e_thr, g_leak, c_mem, deltat;
     AurynFloat tau_ampa, tau_gaba, tau_mem;
-    AurynFloat scale_ampa, scale_gaba, scale_mem, scale_w;
+    AurynFloat scale_ampa, scale_gaba, scale_mem, scale_w, scale_current;
     AurynFloat * t_w;
-    AurynFloat a, tau_w, b;
+    AurynFloat a; //!< subthreshold adaptation variable in S/g_leak
+	AurynFloat b; //!< spike triggered adaptation variable in A/g_leak
+	AurynFloat tau_w; //!< adaptation time constant in s
     unsigned short refractory_time;
     auryn_vector_ushort * ref;
 
     /*! Stores the adaptation current. */
-    auryn_vector_float * w __attribute__((aligned(16)));
+    AurynStateVector * w;
+
+    AurynStateVector * I_exc;
+    AurynStateVector * I_inh;
+    AurynStateVector * I_leak;
+    AurynStateVector * temp;
 
     AurynFloat * t_g_ampa;
     AurynFloat * t_g_gaba;
-    AurynFloat * t_bg_cur;
     AurynFloat * t_mem;
     unsigned short * t_ref;
 
@@ -58,7 +74,7 @@ private:
     void calculate_scale_constants();
     inline void integrate_state();
     inline void check_thresholds();
-    virtual string get_output_line(NeuronID i);
+    virtual std::string get_output_line(NeuronID i);
     virtual void load_input_line(NeuronID i, const char * buf);
 
 	void virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version );
@@ -68,44 +84,70 @@ public:
     AdExGroup(NeuronID size);
     virtual ~AdExGroup();
 
-    /*! Controls the constant current input to neuron i in natural units of g_leak (default 500pA/10ns) */
-    void set_bg_current(NeuronID i, AurynFloat current);
-
     /*! Setter for refractory time [s] */
     void set_refractory_period(AurynDouble t);
-    /*! Set value of slope factor deltat (default 2mV) */
+
+    /*! \brief Set value of slope factor deltat (default 2mV) */
     void set_delta_t(AurynFloat d);
-    /*! Set value of a in natural units of g_leak (default 2nS/10ns) */
-    void set_a(AurynFloat _a);
-    /*! Set value of b in natural units of g_leak (default 0nS/10ns) */
-    void set_b(AurynFloat _b);
-    /*! Set value of V_r (default -70mV) */
-    void set_e_reset(AurynFloat ereset);
-    /*! Set value of E_l (default -70mV) */
-    void set_e_rest(AurynFloat erest);
-    /*! Set value of V_t (default -50mV) */
-    void set_e_thr(AurynFloat ethr);
-    /*! Sets the w time constant (default 30ms) */
-    void set_tau_w(AurynFloat tauw);
-    /*! Gets the current background current value for neuron i */
-    AurynFloat get_bg_current(NeuronID i);
-    /*! Sets the leak conductance (default 10nS) */
+
+    /*! \brief Sets the leak conductance (default 30nS) 
+	 *
+	 * Because these units are used to derive internal numerical values, they need to be set first! */
     void set_g_leak(AurynFloat g);
-    /*! Sets the membrane capacitance (default 200pF) */
+
+    /*! \brief Sets the membrane capacitance (default 281pF) 
+	 *
+	 * Because these units are used to derive internal numerical values, they need to be set first! 
+	 * */
     void set_c_mem(AurynFloat cm);
+
+    /*! \brief Set value of a in units S ( default 4nS )
+	 *
+	 * Internally this is value s converted to natural units of g_leak for numerical stability.
+	 * Thus, make sure you set g_leak first!
+	 * */
+    void set_a(AurynFloat _a);
+
+    /*! \brief Set value of b in units of A ( default 0.0805nA )
+	 *
+	 * Internally this is value s converted to natural units of g_leak for numerical stability.
+	 * Thus, make sure you set g_leak first!
+	 * */
+    void set_b(AurynFloat _b);
+
+    /*! Set value of V_r (default -70.6mV) */
+    void set_e_reset(AurynFloat ereset);
+
+    /*! Set value of E_l (default -70.6mV) */
+    void set_e_rest(AurynFloat erest);
+
+    /*! Set value of V_t (default -50.4mV) */
+    void set_e_thr(AurynFloat ethr);
+
+    /*! Sets the w time constant (default 144ms) */
+    void set_tau_w(AurynFloat tauw);
+
+
     /*! Sets the exponential time constant for the AMPA channel (default 5ms) */
     void set_tau_ampa(AurynFloat tau);
+
     /*! Gets the exponential time constant for the AMPA channel */
     AurynFloat get_tau_ampa();
+
     /*! Sets the exponential time constant for the GABA channel (default 10ms) */
     void set_tau_gaba(AurynFloat tau);
+
     /*! Gets the exponential time constant for the GABA channel */
     AurynFloat get_tau_gaba();
+
     /*! Resets all neurons to defined and identical initial state. */
     void clear();
+
     /*! The evolve method internally used by System. */
     void evolve();
 };
+
+}
 
 #endif /*ADEXGROUP_H_*/
 

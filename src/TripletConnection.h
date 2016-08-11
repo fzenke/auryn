@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -27,6 +27,7 @@
 #define TRIPLETCONNECTION_H_
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "DuplexConnection.h"
 #include "EulerTrace.h"
 #include "LinearTrace.h"
@@ -34,8 +35,8 @@
 
 #define TRACE EulerTrace
 
-using namespace std;
 
+namespace auryn {
 
 /*! \brief Implements triplet STDP as described by Pfister and Gerstner 2006.
  *
@@ -51,13 +52,12 @@ private:
 	void virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version ) 
 	{
 		DuplexConnection::virtual_serialize(ar,version);
-		ar & *w;
 	}
 
 	void virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version ) 
 	{
 		DuplexConnection::virtual_serialize(ar,version);
-		ar & *w;
+		DuplexConnection::compute_reverse_matrix(); // just in case the buffer location has changed 
 	}
 
 	void init(AurynFloat tau_hom, AurynFloat eta, AurynFloat kappa, AurynFloat maxweight);
@@ -169,5 +169,7 @@ public:
 	virtual void evolve();
 
 };
+
+}
 
 #endif /*TRIPLETCONNECTION_H_*/

@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -20,6 +20,8 @@
 
 #include "STDPConnection.h"
 
+using namespace auryn;
+
 void STDPConnection::init(AurynFloat eta, AurynFloat tau_pre, AurynFloat tau_post, AurynFloat maxweight)
 {
 	if ( dst->get_post_size() == 0 ) return;
@@ -27,9 +29,9 @@ void STDPConnection::init(AurynFloat eta, AurynFloat tau_pre, AurynFloat tau_pos
 	A = eta; // post-pre
 	B = eta; // pre-post
 
-	logger->parameter("eta",eta);
-	logger->parameter("A",A);
-	logger->parameter("B",B);
+	auryn::logger->parameter("eta",eta);
+	auryn::logger->parameter("A",A);
+	auryn::logger->parameter("B",B);
 
 	tr_pre  = src->get_pre_trace(tau_pre);
 	tr_post = dst->get_post_trace(tau_post);
@@ -75,7 +77,7 @@ STDPConnection::STDPConnection(SpikingGroup * source, NeuronGroup * destination,
 		AurynFloat tau_post,
 		AurynFloat maxweight, 
 		TransmitterType transmitter,
-		string name) 
+		std::string name) 
 : DuplexConnection(source, 
 		destination, 
 		weight, 

@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -20,7 +20,7 @@
 
 #include "auryn.h"
 
-using namespace std;
+using namespace auryn;
 
 namespace po = boost::program_options;
 namespace mpi = boost::mpi;
@@ -33,7 +33,7 @@ int main(int ac,char *av[]) {
 	string fwmat_ie = "";
 	string fwmat_ii = "";
 
-	stringstream oss;
+	std::stringstream oss;
 	string strbuf ;
 	string msg;
 
@@ -72,7 +72,7 @@ int main(int ac,char *av[]) {
         po::notify(vm);    
 
         if (vm.count("help")) {
-            cout << desc << "\n";
+            std::cout << desc << "\n";
             return 1;
         }
 
@@ -105,28 +105,30 @@ int main(int ac,char *av[]) {
         } 
 
     }
-    catch(exception& e) {
-        cerr << "error: " << e.what() << "\n";
+    catch(std::exception& e) {
+        std::cerr << "error: " << e.what() << "\n";
         return 1;
     }
     catch(...) {
-        cerr << "Exception of unknown type!\n";
+        std::cerr << "Exception of unknown type!\n";
     }
 
 	// BEGIN Global stuff
 	mpi::environment env(ac, av);
 	mpi::communicator world;
-	communicator = &world;
+	mpicommunicator = &world;
 
 	oss << dir  << "/coba." << world.rank() << ".";
 	string outputfile = oss.str();
 
 	char tmp [255];
-	stringstream logfile;
+	std::stringstream logfile;
 	logfile << outputfile << "log";
-	logger = new Logger(logfile.str(),world.rank(),PROGRESS,EVERYTHING);
+	logger = new Logger(logfile.str(),world.rank());
 
 	sys = new System(&world);
+
+	if ( fast ) sys->quiet = true;
 	// END Global stuff
 
 	logger->msg("Setting up neuron groups ...",PROGRESS,true);
@@ -171,7 +173,7 @@ int main(int ac,char *av[]) {
 		msg = "Setting up monitors ...";
 		logger->msg(msg,PROGRESS,true);
 
-		stringstream filename;
+		std::stringstream filename;
 		filename << outputfile << "e.ras";
 		SpikeMonitor * smon_e = new SpikeMonitor( neurons_e, filename.str().c_str() );
 
@@ -188,11 +190,23 @@ int main(int ac,char *av[]) {
 	if (!sys->run(simtime,true)) 
 			errcode = 1;
 
+	if ( world.rank() == 0 ) {
+		logger->msg("Saving elapsed time ..." ,PROGRESS,true);
+		char filenamebuf [255];
+		sprintf(filenamebuf, "%s/elapsed.dat", dir.c_str());
+		std::ofstream timefile;
+		timefile.open(filenamebuf);
+		timefile << sys->get_last_elapsed_time() << std::endl;
+		timefile.close();
+	}
+
 	logger->msg("Freeing ..." ,PROGRESS,true);
 	delete sys;
 
 	if (errcode)
 		env.abort(errcode);
+
+
 
 	return errcode;
 }

@@ -1,5 +1,5 @@
 /*
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 * Contributed by Ankur Sinha
 *
 * This file is part of Auryn, a simulation package for plastic
@@ -28,41 +28,48 @@
 #define BINARYSPIKEMONITOR_H_
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "SpikingGroup.h"
 #include "Monitor.h"
 #include "System.h"
 #include <fstream>
 
-using namespace std;
+namespace auryn {
 
 /*! \brief The standard Monitor object to record spikes from a
- * SpikingGroup and write them to file
+ * SpikingGroup and write them to a binary file
  *
  * BinarySpikeMonitor is specified with a source group of type SpikingGroup
  * and writes all or a specified range of the neurons spikes to a
  * file that has to be given at construction time.
+ * The output files can be read and converted to ascii ras files using the tool
+ * aube (Auryn Binary Extractor) which compiles in the tools folder.
  */
-class BinarySpikeMonitor : Monitor
+class BinarySpikeMonitor : public Monitor
 {
 private:
+	static const std::string default_extension;
     NeuronID n_from;
     NeuronID n_to;
     NeuronID n_every;
 	SpikeContainer::const_iterator it;
 	SpikingGroup * src;
 	NeuronID offset;
-	void init(SpikingGroup * source, string filename, NeuronID from, NeuronID to);
-	virtual void open_output_file(string filename);
+	void init(SpikingGroup * source, std::string filename, NeuronID from, NeuronID to);
+	virtual void open_output_file(std::string filename);
 	void free();
 
 public:
-	BinarySpikeMonitor(SpikingGroup * source, string filename);
-	BinarySpikeMonitor(SpikingGroup * source, string filename, NeuronID to);
-	BinarySpikeMonitor(SpikingGroup * source, string filename, NeuronID from, NeuronID to);
+	BinarySpikeMonitor(SpikingGroup * source, std::string filename="");
+	BinarySpikeMonitor(SpikingGroup * source, std::string filename, NeuronID to);
+	BinarySpikeMonitor(SpikingGroup * source, std::string filename, NeuronID from, NeuronID to);
 	void set_offset(NeuronID of);
 	void set_every(NeuronID every);
 	virtual ~BinarySpikeMonitor();
 	void propagate();
 };
+
+
+}
 
 #endif /*BINARYSPIKEMONITOR_H_*/

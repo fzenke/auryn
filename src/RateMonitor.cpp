@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -25,7 +25,9 @@
 
 #include "RateMonitor.h"
 
-RateMonitor::RateMonitor(SpikingGroup * source, string filename, AurynFloat samplinginterval) : Monitor(filename)
+using namespace auryn;
+
+RateMonitor::RateMonitor(SpikingGroup * source, std::string filename, AurynFloat samplinginterval) : Monitor(filename)
 {
 	init(source,filename,samplinginterval);
 }
@@ -34,9 +36,9 @@ RateMonitor::~RateMonitor()
 {
 }
 
-void RateMonitor::init(SpikingGroup * source, string filename, AurynFloat samplinginterval)
+void RateMonitor::init(SpikingGroup * source, std::string filename, AurynFloat samplinginterval)
 {
-	sys->register_monitor(this);
+	auryn::sys->register_device(this);
 
 	src = source;
 	ssize = samplinginterval/dt;
@@ -46,18 +48,18 @@ void RateMonitor::init(SpikingGroup * source, string filename, AurynFloat sampli
 
 	tr_post = source->get_post_trace(tau_filter);
 
-	stringstream oss;
+	std::stringstream oss;
 	oss << "RateMonitor:: Setting sampling interval " << samplinginterval << "s";
-	logger->msg(oss.str(),NOTIFICATION);
+	auryn::logger->msg(oss.str(),NOTIFICATION);
 
-	outfile << setiosflags(ios::fixed) << setprecision(6);
+	outfile << std::setiosflags(std::ios::fixed) << std::setprecision(6);
 }
 
 void RateMonitor::propagate()
 {
 	if ( src->evolve_locally() ) {
-		if (sys->get_clock()%ssize==0) {
-			outfile << dt*(sys->get_clock()) << " "; 
+		if (auryn::sys->get_clock()%ssize==0) {
+			outfile << dt*(auryn::sys->get_clock()) << " "; 
 			for  (NeuronID i = 0 ; i < src->get_rank_size() ; ++i ) {
 				outfile << tr_post->normalized_get(i)
 					<< " "; 

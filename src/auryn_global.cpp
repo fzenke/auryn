@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -25,6 +25,10 @@
 
 #include "auryn_global.h"
 
-System * sys;
-Logger * logger;
-mpi::communicator * communicator;
+
+namespace auryn {
+	mpi::communicator * mpicommunicator;
+	mpi::environment * mpienv;
+	Logger * logger;
+	System * sys;
+}

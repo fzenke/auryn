@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -25,21 +25,23 @@
 
 #include "FileModulatedPoissonGroup.h"
 
-void FileModulatedPoissonGroup::init ( string filename )
+using namespace auryn;
+
+void FileModulatedPoissonGroup::init ( std::string filename )
 {
 	if ( !evolve_locally() ) return;
 
-	inputfile.open(filename.c_str(),ifstream::in);
+	inputfile.open(filename.c_str(),std::ifstream::in);
 	if (!inputfile) {
-	  cerr << "Can't open input file " << filename << endl;
-	  exit(1);
+	  std::cerr << "Can't open input file " << filename << std::endl;
+	  std::exit(1);
 	}
 
 	ftime = 0;
 }
 
 FileModulatedPoissonGroup::FileModulatedPoissonGroup(NeuronID n, 
-		string filename ) : PoissonGroup( n , 0.0 ) 
+		std::string filename ) : PoissonGroup( n , 0.0 ) 
 {
 	init(filename);
 }
@@ -56,8 +58,8 @@ void FileModulatedPoissonGroup::evolve()
 	AurynDouble r ;
 
 	// if there are datapoints in the rate file update linear interpolation
-	while (ftime < sys->get_clock() && inputfile.getline(buffer, 256) ) {
-		istringstream line ( buffer );
+	while (ftime < auryn::sys->get_clock() && inputfile.getline(buffer, 256) ) {
+		std::stringstream line ( buffer );
 
 		// save first interpolation point
 		ltime = ftime;
@@ -67,7 +69,7 @@ void FileModulatedPoissonGroup::evolve()
 		ftime = (AurynTime) (t/dt+0.5);
 		line >> r;
 
-		if ( ftime < sys->get_clock() || inputfile.eof() ) { // if the recently read point is already in the past -> reinit interpolation
+		if ( ftime < auryn::sys->get_clock() || inputfile.eof() ) { // if the recently read point is already in the past -> reinit interpolation
 			rate_m = 0.0;
 			rate_n = r;
 			set_rate(r);
@@ -76,7 +78,7 @@ void FileModulatedPoissonGroup::evolve()
 		}
 	}
 
-	AurynDouble rate = rate_m*(sys->get_clock()-ltime)+rate_n;
+	AurynDouble rate = rate_m*(auryn::sys->get_clock()-ltime)+rate_n;
 
 	if ( last_rate != rate ) { // only redraw when rate changes
 		set_rate(rate);

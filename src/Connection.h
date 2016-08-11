@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -26,11 +26,15 @@
 #ifndef CONNECTION_H_
 #define CONNECTION_H_
 
+
 #include <string>
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "SpikingGroup.h"
 #include "NeuronGroup.h"
+
+namespace auryn {
 
 class System;
 
@@ -57,7 +61,7 @@ private:
 
 
 	NeuronID m_rows,n_cols;
-	string connection_name;
+	std::string connection_name;
 
 protected:
 	/*! Serialization function for saving the Connection state. Implement in derived classes to save
@@ -76,17 +80,38 @@ protected:
 		ar & m_rows & n_cols & connection_name;
 	}
 
-	SpikingGroup * src;
-	NeuronGroup * dst;
 	TransmitterType trans;
+
+	AurynStateVector * target_state_vector;
+
+	/*! \brief A more direct reference on the first element of the target_state_vector 
+	 *
+	 * The logic of connection is that when the simulation starts *target points to the first element of an array
+	 * with AurynWeight type which has the post_size of the target group. Each presynaptic spike will then trigger 
+	 * addition the values stored as weights in some weight matrix to that group. */
 	AurynFloat * target;
+
+	/*! \brief Number of spike attributes to expect with each spike transmitted through this connection.
+	 *
+	 * Should only be set through methods called during init.
+	 */
+	NeuronID number_of_spike_attributes;
+
+	/*! \brief 	Stores spike attribute offset in attribute array */
+	NeuronID spike_attribute_offset;
 
 	void init(TransmitterType transmitter=GLUT);
 
 public:
+	/*! \brief Pointer to the source group of this connection */
+	SpikingGroup * src;
+
+	/*! \brief Pointer to the destination group of this connection */
+	NeuronGroup * dst;
+
 	Connection();
 	Connection(NeuronID rows, NeuronID cols);
-	Connection(SpikingGroup * source, NeuronGroup * destination, TransmitterType transmitter=GLUT, string name="Connection");
+	Connection(SpikingGroup * source, NeuronGroup * destination, TransmitterType transmitter=GLUT, std::string name="Connection");
 	virtual ~Connection();
 
 	void set_size(NeuronID i, NeuronID j);
@@ -94,10 +119,19 @@ public:
 	/*! \brief Set name of connection
 	 *
 	 * The name will appear in error messages and save files */
-	void set_name(string name);
+	void set_name(std::string name);
 
 	/*! \brief Returns name of connection */
-	string get_name();
+	std::string get_name();
+
+	/*! \brief Extracts the class name of the connection from the file name */
+	std::string get_file_name();
+
+	/*! \brief Returns a string which is the combination of file and connection name for logging. */
+	std::string get_log_name();
+
+	/*! \brief Returns target state vector if one is defined  */
+	AurynStateVector * get_target_vector();
 
 	/*! \brief Get number of rows (presynaptic) in connection.
 	 *
@@ -118,13 +152,31 @@ public:
 	TransmitterType get_transmitter();
 
 	/*! \brief Sets target state of this connection directly via a pointer */
-	void set_transmitter(AurynWeight * ptr);
+	void set_target(AurynWeight * ptr);
 
 	/*! \brief Sets target state of this connection directly via a StateVector */
-	void set_transmitter(auryn_vector_float * ptr);
+	void set_target(AurynStateVector * ptr);
 
-	/*! \brief Sets target state of this connection as one of Auryn's default transmitter types */
+	/*! \brief Same as set_target */
+	void set_receptor(AurynStateVector * ptr);
+
+	/*! \brief Same as set_target */
+	void set_transmitter(AurynStateVector * ptr);
+
+	/*! \brief Sets target state of this connection for a given receptor as one of Auryn's default transmitter types 
+	 *
+	 * The most common transmitter types are GLUT and GABA. The postsynaptic NeuronGroup needs to make use of the g_ampa or g_gaba state 
+	 * vectors (AurynStateVector) for this to work. */
 	void set_transmitter(TransmitterType transmitter);
+
+	/*! \brief Sets target state of this connection directly the name of a state vector */
+	void set_receptor(string state_name);
+
+	/*! \brief Same as set_receptor */
+	void set_target(string state_name);
+
+	/*! \brief Same as set_receptor, but DEPRECATED */
+	void set_transmitter(string state_name);
 
 	/*! \brief Sets source SpikingGroup of this connection. */
 	void set_source(SpikingGroup * source);
@@ -167,41 +219,82 @@ public:
 	 * Calls propagate only if the postsynaptic NeuronGroup exists on the local rank. */
 	void conditional_propagate();
 
-	/*! \brief Computes the sum of all weights in the connection. */
-	virtual AurynDouble sum() = 0;
+
+	/*! \brief Returns a pointer to a presynaptic trace object */
+	DEFAULT_TRACE_MODEL * get_pre_trace(const AurynDouble tau);
+
+	/*! \brief Returns a pointer to a postsynaptic trace object */
+	DEFAULT_TRACE_MODEL * get_post_trace(const AurynDouble tau);
+
+	/*! \brief Returns a pointer to a postsynaptic state trace object */
+	DEFAULT_TRACE_MODEL * get_post_state_trace(const string state_name, const AurynDouble tau, const AurynDouble jump_size=0.0);
 
 	/*! \brief Computes mean synaptic weight and std dev of all weights in this connection. */
-	virtual void stats(AurynFloat &mean, AurynFloat &std) = 0;
+	virtual void stats(AurynDouble &mean, AurynDouble &std, StateID zid = 0) = 0;
 
 	/*! \brief Implements save to file functionality. Also called in save_network_state from System class. */
-	virtual bool write_to_file(string filename) = 0;
+	virtual bool write_to_file(std::string filename) = 0;
 
 	/*! \brief Implements load from file functionality. Also called in save_network_state from System class. */
-	virtual bool load_from_file(string filename) = 0;
+	virtual bool load_from_file(std::string filename) = 0;
 
-	/*! \brief Transmits a spike to a postsynaptic partner
+	/*! \brief Default way to transmit a spike to a postsynaptic partner
 	 *
 	 * The method adds a given amount to the respective element in the target/transmitter array of the postsynaptic
 	 * neuron specifeid by id. This is a new approach which replaces tadd to old method, increments 
 	 * transmitter specific state variables in neuron id. It turned out much faster that way, because the transmit
 	 * function is one of the most often called function in the simulation and it can be efficiently inlined by the 
 	 * compiler. */
-	inline void transmit(NeuronID id, AurynWeight amount);
+	void transmit(const NeuronID id, const AurynWeight amount);
+
+	/*! \brief Transmits a spike to a given target group and state
+	 *
+	 * The method exposes the transmit interface and should not be used unless you know exactly what you are doing. */
+	void targeted_transmit(NeuronGroup * target_group, AurynStateVector * target_state, const NeuronID id, const AurynWeight amount);
 
 	/*! \brief Same as transmit but first checks if the target neuron exists and avoids segfaults that way (but it's also slower). */
 	void safe_transmit(NeuronID id, AurynWeight amount);
 
-	/*! Returns a vector of ConnectionsID of a block specified by the arguments. */
-	virtual vector<neuron_pair>  get_block(NeuronID lo_row, NeuronID lo_col, NeuronID hi_row,  NeuronID hi_col) = 0;
+	/*! \brief Supplies pointer to SpikeContainer of all presynaptic spikes.
+	 *
+	 * This includes spikes from this group from all other nodes. 
+	 * This also means that these spikes have gone through the axonal dealy.
+	 * Equivalent to calling src->get_spikes(). */
+	SpikeContainer * get_pre_spikes();
 
+	/*! \brief Returns pointer to SpikeContainer for postsynaptic spikes on this node. 
+	 *
+	 * This corresponds to calling get_spikes_immediate() from the SpikingGroup. 
+	 * These spikes have been generated postsynaptically in the same timestep and have not 
+	 * been delayed yet. 
+	 * Equivalent to calling dst->get_spikes_immediate(). */
+	SpikeContainer * get_post_spikes();
+
+	/*! \brief Set up spike delay to accomodate x additional spike attributes.
+	 *
+	 * Spike attribute numbers can only be increased. 
+	 * This function can only be run during initialization.
+	 */
+	void add_number_of_spike_attributes(int x);
+
+	/*! \brief Returns spike attribute belonging to the spike at position i in the get_spikes() SpikeContainer. */
+	AurynFloat get_spike_attribute(const NeuronID i, const int attribute_id=0);
 };
 
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(Connection)
 
-inline void Connection::transmit(NeuronID id, AurynWeight amount) 
+
+inline void Connection::targeted_transmit(NeuronGroup * target_group, AurynStateVector * target_state, const NeuronID id, const AurynWeight amount) 
 {
-	NeuronID localid = dst->global2rank(id);
-	target[localid]+=amount;
+	const NeuronID localid = target_group->global2rank(id);
+	target_state->data[localid]+=amount;
+}
+
+inline void Connection::transmit(const NeuronID id, const AurynWeight amount) 
+{
+	targeted_transmit(dst, target_state_vector, id, amount);
+}
+
 }
 
 #endif /*CONNECTION_H_*/

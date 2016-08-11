@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -31,10 +31,11 @@
 #define ABS_VOLTAGE_CURVE_MAX -40e-3
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "DuplexConnection.h"
 #include "EulerTrace.h"
 
-using namespace std;
+namespace auryn {
 
 
 class ABSConnection : public DuplexConnection
@@ -65,7 +66,7 @@ public:
 
 	ABSConnection(SpikingGroup * source, NeuronGroup * destination, 
 			AurynWeight weight, AurynFloat sparseness=0.05,
-			AurynWeight maxweight=1. , TransmitterType transmitter=GLUT, string name="ABSConnection");
+			AurynWeight maxweight=1. , TransmitterType transmitter=GLUT, std::string name="ABSConnection");
 	virtual ~ABSConnection();
 	void init(AurynWeight maxw);
 	void free();
@@ -76,5 +77,7 @@ public:
 	virtual void propagate();
 
 };
+
+}
 
 #endif /*ABSCONNECTION_H_*/

@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -27,13 +27,14 @@
 #define WEIGHTMATRIXMONITOR_H_
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "Monitor.h"
 #include "System.h"
 #include "Connection.h"
 #include <fstream>
 #include <iomanip>
 
-using namespace std;
+namespace auryn {
 
 /*! \brief Saves the weight matrix of a given connection in regular time intervals.
  */
@@ -50,5 +51,7 @@ public:
 	virtual ~WeightMatrixMonitor();
 	void propagate();
 };
+
+}
 
 #endif /*WEIGHTMATRIXMONITOR_H_*/

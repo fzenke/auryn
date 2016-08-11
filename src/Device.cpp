@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -23,31 +23,54 @@
 * Front Neuroinform 8, 76. doi: 10.3389/fninf.2014.00076
 */
 
-#include "NmdaMonitor.h"
+#include "Device.h"
 
-NmdaMonitor::NmdaMonitor(NeuronGroup * source, NeuronID id, string filename, AurynTime stepsize) : Monitor(filename)
+using namespace auryn;
+
+int Device::device_id_count = 0;
+
+void Device::init()
 {
-	init(source,id,filename,stepsize);
+	device_id  = device_id_count++;
+	std::stringstream default_name;
+	default_name << "Device" << get_id();
+	set_name(default_name.str());
+	active = true;
 }
 
-NmdaMonitor::~NmdaMonitor()
+Device::Device( )
+{
+	init();
+}
+
+Device::~Device()
 {
 }
 
-void NmdaMonitor::init(NeuronGroup * source, NeuronID id, string filename, AurynTime stepsize)
+void Device::virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version ) 
 {
-	sys->register_monitor(this);
-
-	src = source;
-	ssize = stepsize;
-	nid = id;
-
-	outfile << setiosflags(ios::fixed) << setprecision(6);
 }
 
-void NmdaMonitor::propagate()
+void Device::virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version ) 
 {
-	if (sys->get_clock()%ssize==0) {
-		outfile << dt*(sys->get_clock()) << " " << src->get_nmda(nid) << "\n";
-	}
 }
+
+void Device::flush()
+{
+}
+
+void Device::set_name( std::string str ) 
+{
+	device_name = str;
+}
+
+std::string Device::get_name()
+{
+	return device_name;
+}
+
+int Device::get_id()
+{
+	return device_id;
+}
+

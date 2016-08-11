@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -27,10 +27,11 @@
 #define STPCONNECTION_H_
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "SparseConnection.h"
 
 
-using namespace std;
+namespace auryn {
 
 
 
@@ -125,5 +126,7 @@ public:
 	void evolve();
 
 };
+
+}
 
 #endif /*STPCONNECTION_H_*/

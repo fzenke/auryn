@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -25,6 +25,8 @@
 
 #include "TripletDecayConnection.h"
 
+using namespace auryn;
+
 void TripletDecayConnection::init(AurynFloat decay, AurynWeight wrest)
 {
 	tau_decay = decay;
@@ -34,11 +36,11 @@ void TripletDecayConnection::init(AurynFloat decay, AurynWeight wrest)
 	decay_timestep = -log(TRIPLETDECAYCONNECTION_EULERUPGRADE_STEP)*tau_decay/dt;
 	decay_count = decay_timestep;
 
-	stringstream oss;
+	std::stringstream oss;
 	oss << "TripletDecayConnection: (" << get_name() << "):"
 		<< " decay_timestep= " << decay_timestep 
 		<< ", mul_decay= " << mul_decay;
-	logger->msg(oss.str(),VERBOSE);
+	auryn::logger->msg(oss.str(),VERBOSE);
 }
 
 void TripletDecayConnection::free()

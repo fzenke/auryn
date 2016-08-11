@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -20,7 +20,7 @@
 
 #include "auryn.h"
 
-using namespace std;
+using namespace auryn;
 
 namespace po = boost::program_options;
 namespace mpi = boost::mpi;
@@ -28,7 +28,7 @@ namespace mpi = boost::mpi;
 int main(int ac,char *av[]) {
 	string dir = ".";
 
-	stringstream oss;
+	std::stringstream oss;
 	string strbuf ;
 	string msg;
 
@@ -84,7 +84,7 @@ int main(int ac,char *av[]) {
         po::notify(vm);    
 
         if (vm.count("help")) {
-            cout << desc << "\n";
+            std::cout << desc << "\n";
             return 1;
         }
 
@@ -132,23 +132,23 @@ int main(int ac,char *av[]) {
 			fwmat_ii = vm["fii"].as<string>();
         } 
     }
-    catch(exception& e) {
-        cerr << "error: " << e.what() << "\n";
+    catch(std::exception& e) {
+        std::cerr << "error: " << e.what() << "\n";
         return 1;
     }
     catch(...) {
-        cerr << "Exception of unknown type!\n";
+        std::cerr << "Exception of unknown type!\n";
     }
 
 	// BEGIN Auryn init
 	mpi::environment env(ac, av);
 	mpi::communicator world;
-	communicator = &world;
+	mpicommunicator = &world;
 
 	oss << dir  << "/brunel." << world.rank() << ".";
 	string outputfile = oss.str();
 
-	stringstream logfile;
+	std::stringstream logfile;
 	logfile << outputfile << "log";
 	logger = new Logger(logfile.str(),world.rank(),PROGRESS,EVERYTHING);
 
@@ -225,7 +225,7 @@ int main(int ac,char *av[]) {
 	msg = "Setting up monitors ...";
 	logger->msg(msg,PROGRESS,true);
 
-	stringstream filename;
+	std::stringstream filename;
 	filename << outputfile << "e.ras";
 	SpikeMonitor * smon_e = new SpikeMonitor( neurons_e, filename.str().c_str(), nrec);
 

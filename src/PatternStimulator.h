@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -27,13 +27,14 @@
 #define PATTERNSTIMULATOR_H_
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "System.h"
 #include "Monitor.h"
 #include "NeuronGroup.h"
 #include <fstream>
 #include <iomanip>
 
-using namespace std;
+namespace auryn {
 
 /*! \brief Stimulator class to inject timeseries of currents to patterns (subpopulations) of neurons 
  * 
@@ -46,13 +47,13 @@ private:
 	/*! Maximum number of patterns to inject to */
 	NeuronID maxpat;
 	/*! Vector storing all the patterns */
-	vector<type_pattern> * patterns;
+	std::vector<type_pattern> * patterns;
 	/*! Vector storing all the current values */
 	AurynState * currents;
 	/*! Vector storing all new current values */
 	AurynState * newcurrents;
 	/*! Input filestream for time series data */
-	ifstream timeseriesfile;
+	std::ifstream timeseriesfile;
 	/*! Target membrane */
 	auryn_vector_float * mem;
 
@@ -91,5 +92,7 @@ public:
 	/*! Loads the 1111 pattern */
 	void load_1_pattern(  );
 };
+
+}
 
 #endif /*PATTERNSTIMULATOR_H_*/

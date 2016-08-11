@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -20,12 +20,27 @@
 
 #include "auryn.h"
 
-#define NE 8000
-#define NI 2000
-#define NP 1000
-#define NSTIM 20
+/*!\file 
+ *
+ * \brief This simulation illustrates inhibitory synaptic plasticity as modeled
+ * in Vogels et al. (2011) 
+ *
+ * This simulation illustrates inhibitory synapitc plasticity as modeled in our
+ * paper: Vogels, T.P., Sprekeler, H., Zenke, F., Clopath, C., and Gerstner, W.
+ * (2011). Inhibitory Plasticity Balances Excitation and Inhibition in Sensory
+ * Pathways and Memory Networks. Science 334, 1569–1573.
+ * 
+ * Note that this is a parallel implementation of this network which requires a
+ * larger axonal delay than in the original paper. In this example the delay is
+ * 0.8ms which corresponds to Auryn's MINDELAY.
+ *
+ * */
 
-using namespace std;
+#define NE 8000 //!< Number of excitatory neurons
+#define NI 2000 //!< Number of inhibitory neurons
+#define NP 1000 //!< Number of Poisson input neurons
+
+using namespace auryn;
 namespace po = boost::program_options;
 
 int main(int ac, char* av[]) 
@@ -89,7 +104,7 @@ int main(int ac, char* av[])
         po::notify(vm);    
 
         if (vm.count("help")) {
-            cout << desc << "\n";
+            std::cout << desc << "\n";
             return 1;
         }
 
@@ -98,104 +113,94 @@ int main(int ac, char* av[])
         } 
 
         if (vm.count("load")) {
-            cout << "input weight matrix " 
+            std::cout << "input weight matrix " 
                  << vm["load"].as<string>() << ".\n";
 			infilename = vm["load"].as<string>();
         } 
 
         if (vm.count("out")) {
-            cout << "output filename " 
+            std::cout << "output filename " 
                  << vm["out"].as<string>() << ".\n";
 			outputfile = vm["out"].as<string>();
         } 
 
         if (vm.count("stimfile")) {
-            cout << "stimfile filename " 
+            std::cout << "stimfile filename " 
                  << vm["stimfile"].as<string>() << ".\n";
 			stimfile = vm["stimfile"].as<string>();
         } 
 
         if (vm.count("eta")) {
-            cout << "eta set to " 
+            std::cout << "eta set to " 
                  << vm["eta"].as<double>() << ".\n";
 			eta = vm["eta"].as<double>();
         } 
 
         if (vm.count("kappa")) {
-            cout << "kappa set to " 
+            std::cout << "kappa set to " 
                  << vm["kappa"].as<double>() << ".\n";
 			kappa = vm["kappa"].as<double>();
         } 
 
         if (vm.count("simtime")) {
-            cout << "simtime set to " 
+            std::cout << "simtime set to " 
                  << vm["simtime"].as<double>() << ".\n";
 			simtime = vm["simtime"].as<double>();
         } 
 
         if (vm.count("active")) {
-            cout << "stdp active : " 
+            std::cout << "stdp active : " 
                  << vm["active"].as<bool>() << ".\n";
 			stdp_active = vm["active"].as<bool>();
         } 
 
         if (vm.count("poisson")) {
-            cout << "poisson active : " 
+            std::cout << "poisson active : " 
                  << vm["poisson"].as<bool>() << ".\n";
 			poisson_stim = vm["poisson"].as<bool>();
         } 
 
 
         if (vm.count("winh")) {
-            cout << "inhib weight multiplier : " 
+            std::cout << "inhib weight multiplier : " 
                  << vm["winh"].as<double>() << ".\n";
 			winh = vm["winh"].as<double>();
         } 
 
         if (vm.count("wei")) {
-            cout << "ei weight multiplier : " 
+            std::cout << "ei weight multiplier : " 
                  << vm["wei"].as<double>() << ".\n";
 			wei = vm["wei"].as<double>();
         } 
 
         if (vm.count("chi")) {
-            cout << "chi multiplier : " 
+            std::cout << "chi multiplier : " 
                  << vm["chi"].as<double>() << ".\n";
 			chi = vm["chi"].as<double>();
         } 
 
         if (vm.count("seed")) {
-            cout << "seed set to " 
+            std::cout << "seed set to " 
                  << vm["seed"].as<int>() << ".\n";
 			seed = vm["seed"].as<int>();
         } 
 
     }
-    catch(exception& e) {
-        cerr << "error: " << e.what() << "\n";
+    catch(std::exception& e) {
+        std::cerr << "error: " << e.what() << "\n";
         return 1;
     }
     catch(...) {
-        cerr << "Exception of unknown type!\n";
+        std::cerr << "Exception of unknown type!\n";
     }
 
 	// BEGIN Global definitions
-	mpi::environment env(ac, av);
-	mpi::communicator world;
-	communicator = &world;
-
-	netstatfile = outputfile;
-	stringstream oss;
-	oss << outputfile << "." << world.rank();
-	string basename = oss.str();
-	oss << ".log";
-	string logfile = oss.str();
-	logger = new Logger(logfile,world.rank());
-
-	sys = new System(&world);
+	auryn_init( ac, av );
 	// END Global definitions
-
-
+	std::stringstream oss;
+    oss << outputfile << "." << sys->mpi_rank();
+    string basename = oss.str();
+	
 
 	logger->msg("Setting up neuron groups ...",PROGRESS,true);
 	TIFGroup * neurons_e = new TIFGroup(NE);
@@ -260,7 +265,7 @@ int main(int ac, char* av[])
 	if (!stimfile.empty()) {
 		char ch;
 		NeuronID counter = 0;
-		ifstream fin(stimfile.c_str());
+		std::ifstream fin(stimfile.c_str());
 		while (!fin.eof() && counter<NE) { 
 			ch = fin.get(); 
 			if (ch == '1') {

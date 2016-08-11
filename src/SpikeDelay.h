@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -27,12 +27,13 @@
 #define SPIKEDELAY_H_
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include <vector>
 
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/split_member.hpp>
 
-using namespace std;
+namespace auryn {
 
 
 /*! \brief Delay object for spikes which is synchronized between
@@ -100,6 +101,11 @@ class SpikeDelay
 		 * This pushes into get_spikes_immediate() */
 		void push_back(NeuronID i); 
 
+		/*! \brief Pushes all elemens from given SpikeContainer into the delay
+		 *
+		 * This pushes into get_spikes_immediate() */
+		void push_back( SpikeContainer * sc ); 
+
 		/*! \brief Returns the number of spike attributes per spike. 
 		 *
 		 * Spike attributes are used to implement short-term plasticity or similar mechanisms efficiently.*/
@@ -124,9 +130,14 @@ class SpikeDelay
 		/*! \brief Like get_spikes_immediate but returns the spike attributes. */
 		AttributeContainer * get_attributes_immediate();
 
+		/*! \brief Print delay contents for debugging . */
+		void print();
+
 		/*! Clears all containers in delay. */
 		void clear();
 };
+
+}
 
 
 #endif /*SPIKEDELAY_H_*/

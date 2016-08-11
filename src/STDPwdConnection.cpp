@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -24,6 +24,8 @@
 */
 
 #include "STDPwdConnection.h"
+
+using namespace auryn;
 
 void STDPwdConnection::init(AurynWeight lambda, AurynWeight maxweight)
 {
@@ -99,7 +101,7 @@ STDPwdConnection::STDPwdConnection(SpikingGroup * source, NeuronGroup * destinat
 		AurynWeight lambda, 
 		AurynWeight maxweight , 
 		TransmitterType transmitter,
-		string name) 
+		std::string name) 
 : DuplexConnection(source, 
 		destination, 
 		weight, 
@@ -171,28 +173,28 @@ void STDPwdConnection::set_alpha(AurynWeight a)
 {
 	param_alpha = a;
 	compute_fudge_factors();
-	logger->parameter("alpha",param_alpha);
+	auryn::logger->parameter("alpha",param_alpha);
 }
 
 void STDPwdConnection::set_lambda(AurynWeight l)
 {
 	param_lambda = l;
 	compute_fudge_factors();
-	logger->parameter("lambda",param_lambda);
+	auryn::logger->parameter("lambda",param_lambda);
 }
 
 void STDPwdConnection::set_mu_plus(AurynWeight m)
 {
 	param_mu_plus = m;
 	compute_fudge_factors();
-	logger->parameter("mu_plus",param_mu_plus);
+	auryn::logger->parameter("mu_plus",param_mu_plus);
 }
 
 void STDPwdConnection::set_mu_minus(AurynWeight m)
 {
 	param_mu_minus = m;
 	compute_fudge_factors();
-	logger->parameter("mu_minus",param_mu_minus);
+	auryn::logger->parameter("mu_minus",param_mu_minus);
 }
 
 void STDPwdConnection::set_max_weight(AurynWeight wmax)

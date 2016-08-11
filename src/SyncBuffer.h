@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -29,70 +29,101 @@
 #define SYNCBUFFER_SIZE_MARGIN_MULTIPLIER 3 //!< Safety margin for receive buffer size -- a value of 3 should make overflows rare in AI state
 #define SYNCBUFFER_SIZE_HIST_LEN 512 //!< Accumulate history over this number of timesteps before updating the sendbuffer size in the absence of overflows
 
+/*! \brief Datatype used for delta computation should be a "long" for large nets with sparse activity otherwise NeuronID 
+ *
+ * To strictly guarnatee flawless function this datatype needs to be larger than max(NeuronID)*MINDELAY to avoid an overflow and undefined
+ * behavior. */
+#define SYNCBUFFER_DELTA_DATATYPE NeuronID 
+
 #include "auryn_definitions.h"
 #include "SpikeDelay.h"
 #include <vector>
+#include <algorithm>
 #include <boost/mpi.hpp>
-#include <boost/progress.hpp>
 #include <mpi.h>
 
-using namespace std;
 
+namespace auryn {
 
 /*! \brief Buffer object to capsulate native MPI_Allgather for SpikingGroups
  *
  * The class stores the recent history of transmission buffer sizes and tries
  * to determine an optimal size on-line.
  * */
+	class SyncBuffer
+	{
+		private:
+			std::vector<NeuronID> send_buf;
+			std::vector<NeuronID> recv_buf;
 
-class SyncBuffer
-{
-	private:
-		vector<NeuronID> send_buf;
-		vector<NeuronID> recv_buf;
 
-		// NeuronID size_history[SYNCBUFFER_SIZE_HIST_LEN];
-		NeuronID maxSendSum;
-		NeuronID maxSendSum2;
-		NeuronID syncCount;
+			NeuronID overflow_value;
 
-		/*! The send buffer size that all ranks agree upon */
-		NeuronID max_send_size;
+			SYNCBUFFER_DELTA_DATATYPE max_delta_size;
+			SYNCBUFFER_DELTA_DATATYPE undefined_delta_size;
 
-		mpi::communicator * mpicom;
 
-		NeuronID overflow_value;
+			// NeuronID size_history[SYNCBUFFER_SIZE_HIST_LEN];
+			NeuronID maxSendSum;
+			NeuronID maxSendSum2;
+			NeuronID syncCount;
 
-		NeuronID groupPushOffset1;
-		NeuronID groupPopOffset;
+			/*! \brief The send buffer size that all ranks agree upon */
+			NeuronID max_send_size;
 
-		NeuronID count[MINDELAY]; // needed to decode attributes
+			mpi::communicator * mpicom;
 
-		/*! vector with offset values to allow to pop more than one delay */
-		vector<NeuronID> pop_offsets;
 
-		void reset_send_buffer();
+			SYNCBUFFER_DELTA_DATATYPE carry_offset;
 
-		void init();
-		void free();
+			SYNCBUFFER_DELTA_DATATYPE * pop_delta_spikes;
+			SYNCBUFFER_DELTA_DATATYPE * last_spike_pos;
 
-	public:
+			/*! \brief vector with offset values to allow to pop more than one delay */
+			NeuronID * pop_offsets;
 
-		SyncBuffer( mpi::communicator * com );
+			void reset_send_buffer();
 
-		void sync();
+			void init();
+			void free();
 
-		void push(SpikeDelay * delay, NeuronID size);
-		void pop(SpikeDelay * delay, NeuronID size);
+			/*! \brief Reads the next spike delta */
+			NeuronID * read_delta_spike_from_buffer(NeuronID * iter, SYNCBUFFER_DELTA_DATATYPE & delta);
+
+			/*! \brief Reads a single spike attribute */
+			NeuronID * read_attribute_from_buffer(NeuronID * iter, AurynFloat & attrib);
+		public:
+
+			/*! \brief The default contructor. */
+			SyncBuffer( mpi::communicator * com );
+
+			/*! \brief The default destructor. */
+			virtual ~SyncBuffer( );
+
+			/*! \brief Synchronize spikes and additional information across ranks. */
+			void sync();
+
+			/*! \brief Pushes a spike delay with all its spikes to the SyncBuffer. */
+			void push(SpikeDelay * delay, const NeuronID size);
+
+			/*! \brief Terminate send buffer. */
+			void null_terminate_send_buffer();
+
+			/*! \brief Rerieves a spike delay with all its spikes from the SyncBuffer. */
+			void pop(SpikeDelay * delay, const NeuronID size);
+
+			/*! \brief Return max_send_size value which determines the size of the MPI AllGather operation. */
+			int get_max_send_buffer_size();	
 
 #ifdef CODE_COLLECT_SYNC_TIMING_STATS
-		AurynDouble deltaT;
-		AurynDouble measurement_start;
-		AurynDouble get_relative_sync_time();
-		AurynDouble get_sync_time();
-		AurynDouble get_elapsed_wall_time();
-		void reset_sync_time();
+			AurynDouble deltaT;
+			AurynDouble measurement_start;
+			AurynDouble get_relative_sync_time();
+			AurynDouble get_sync_time();
+			AurynDouble get_elapsed_wall_time();
+			void reset_sync_time();
 #endif
-};
+	};
+}
 
 #endif /*SYNCBUFFER_H_*/

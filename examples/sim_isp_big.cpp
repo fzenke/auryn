@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -20,10 +20,27 @@
 
 #include "auryn.h"
 
-#define NE 160000
-#define NI 40000
+/*!\file 
+ *
+ * \brief This simulation illustrates inhibitory synaptic plasticity as modeled
+ * in Vogels et al. (2011) in a larger 200k cell network
+ *
+ * This simulation illustrates inhibitory synapitc plasticity as modeled in our
+ * paper: Vogels, T.P., Sprekeler, H., Zenke, F., Clopath, C., and Gerstner, W.
+ * (2011). Inhibitory Plasticity Balances Excitation and Inhibition in Sensory
+ * Pathways and Memory Networks. Science 334, 1569–1573.
+ * 
+ * Note that this is a parallel implementation of this network which requires a
+ * larger axonal delay than in the original paper. In this example the delay is
+ * 0.8ms which corresponds to Auryn's MINDELAY.
+ *
+ * */
 
-using namespace std;
+
+#define NE 160000 //!< Number of excitatory neurons
+#define NI 40000  //!< Number of inhibitory neurons
+
+using namespace auryn;
 namespace po = boost::program_options;
 
 int main(int ac, char* av[]) 
@@ -95,7 +112,7 @@ int main(int ac, char* av[])
         po::notify(vm);    
 
         if (vm.count("help")) {
-            cout << desc << "\n";
+            std::cout << desc << "\n";
             return 1;
         }
 
@@ -169,28 +186,18 @@ int main(int ac, char* av[])
         } 
 
     }
-    catch(exception& e) {
-        cerr << "error: " << e.what() << "\n";
+    catch(std::exception& e) {
+        std::cerr << "error: " << e.what() << "\n";
         return 1;
     }
     catch(...) {
-        cerr << "Exception of unknown type!\n";
+        std::cerr << "Exception of unknown type!\n";
     }
 
-	// BEGIN Global stuff
-	mpi::environment env(ac, av);
-	mpi::communicator world;
-	communicator = &world;
-
-	stringstream oss;
-	oss << dir << "/" << simname << "." << world.rank();
-	outputfile = oss.str();
-	oss << ".log";
-	string logfile = oss.str();
-	logger = new Logger(logfile,world.rank(),PROGRESS,EVERYTHING);
-	sys = new System(&world);
-	// END Global stuff
-
+	// BEGIN Global definitions
+	auryn_init( ac, av );
+	sys->set_simulation_name(simname);
+	// END Global definitions
 
 
 	logger->msg("Setting up neuron groups ...",PROGRESS,true);
@@ -271,11 +278,11 @@ int main(int ac, char* av[])
 
 		strbuf = outputfile;
 		strbuf += ".ampa";
-			AmpaMonitor * amon = new AmpaMonitor( neurons_e, record_neuron, strbuf.c_str() );
+			StateMonitor * amon = new StateMonitor( neurons_e, record_neuron, "g_ampa", strbuf.c_str() );
 
 		strbuf = outputfile;
 		strbuf += ".gaba";
-			GabaMonitor * gmon = new GabaMonitor( neurons_e, record_neuron, strbuf.c_str() );
+			StateMonitor * gmon = new StateMonitor( neurons_e, record_neuron, "g_gaba", strbuf.c_str() );
 	}
 
 	RateChecker * chk = new RateChecker( neurons_e , 0.001 , 1000. , 100e-3);
@@ -293,18 +300,18 @@ int main(int ac, char* av[])
 	if (!stimfile.empty() && poisson_stim==false) {
 		logger->msg("Loading pattern ..." ,PROGRESS,true);
 		char buffer[256];
-		ifstream fin(stimfile.c_str());
+		std::ifstream fin(stimfile.c_str());
 		if (!fin) {
-			cout << "There was a problem opening file "
+			std::cout << "There was a problem opening file "
 			<< stimfile
 			<< " for reading."
-			<< endl;
+			<< std::endl;
 			logger->msg("There was a problem opening file." ,ERROR,true);
 			return 1;
 		}
 
 		while ( fin.getline(buffer,256) ) { 
-			istringstream iss( buffer );
+			std::stringstream iss( buffer );
 			NeuronID id;
 			iss >> id;
 
@@ -340,6 +347,6 @@ int main(int ac, char* av[])
 	delete sys;
 
 	if (errcode)
-		env.abort(errcode);
+		mpienv->abort(errcode);
 	return errcode;
 }

@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -25,85 +25,125 @@
 
 #include "FileInputGroup.h"
 
-void FileInputGroup::init(string filename)
+using namespace auryn;
+
+
+void FileInputGroup::init(std::string filename)
 {
-	sys->register_spiking_group(this);
-
-	ftime = 0;
-	lastspike = 0;
-	therewasalastspike = false;
-
+	auryn::sys->register_spiking_group(this);
 	active = true;
-
-	if ( evolve_locally() ) {
-		spkfile.open(filename.c_str(),ifstream::in);
-		if (!spkfile) {
-		  cerr << "Can't open input file " << filename << endl;
-		  exit(1);
-		}
-	}
+	loop_grid_size = 1;
+	load_spikes(filename);
 }
 
-FileInputGroup::FileInputGroup(NeuronID n, string filename) : SpikingGroup(n, 0.0 ) // last 0 enforces RankLock
+FileInputGroup::FileInputGroup(NeuronID n, std::string filename) : SpikingGroup(n, 0.0 ) // last 0 enforces RankLock
 {
 	playinloop = false;
-	dly = 0;
-	off = 0;
+	time_delay = 0;
+	time_offset = 0;
 	init(filename);
 }
 
-FileInputGroup::FileInputGroup(NeuronID n, string filename, 
+FileInputGroup::FileInputGroup(NeuronID n, std::string filename, 
 		bool loop, AurynFloat delay) 
 : SpikingGroup( n , 0.0 )
 {
 	playinloop = loop;
-	dly = (AurynTime) (delay/dt);
-	off = 0;
+	time_delay = (AurynTime) (delay/dt);
+	time_offset = 0;
 	init(filename);
 }
 
 FileInputGroup::~FileInputGroup()
 {
-	spkfile.close();
 }
 
+bool time_compare (SpikeEvent_type a,SpikeEvent_type b) { return (a.time<b.time); }
+
+void FileInputGroup::load_spikes(std::string filename)
+{
+	std::ifstream spkfile;
+	input_spikes.clear();
+
+	if ( evolve_locally() ) {
+		spkfile.open(filename.c_str(),std::ifstream::in);
+		if (!spkfile) {
+			std::cerr << "Can't open input file " << filename << std::endl;
+			std::exit(1);
+		}
+	}
+
+	char buffer[255];
+	while ( spkfile.getline(buffer, 256) ) {
+		SpikeEvent_type event;
+		std::stringstream line ( buffer ) ;
+		double t_tmp;
+		line >> t_tmp;
+		event.time = t_tmp/dt;
+		line >> event.neuronID;
+		if ( localrank(event.neuronID) ) {
+			input_spikes.push_back(event);
+			// std::cout << event.time << std::endl;
+		}
+	}
+	spkfile.close();
+
+	// TODO check if this is not too slow
+	std::sort (input_spikes.begin(), input_spikes.end(), time_compare);
+
+	std::stringstream oss;
+	oss << get_log_name() << ":: Finished loading " << input_spikes.size() 
+		<< " spike events";
+	logger->info(oss.str());
+
+	spike_iter = input_spikes.begin();
+	reset_time = 0;
+}
+
+
+AurynTime FileInputGroup::get_offset_clock() {
+	return sys->get_clock() - time_offset;
+}
+
+AurynTime FileInputGroup::get_next_grid_point( AurynTime time ) {
+	AurynTime result = time+time_delay;
+	if ( result%loop_grid_size ) { // align to temporal grid
+		result = (result/loop_grid_size+1)*loop_grid_size;
+	}
+	return result;
+}
 
 void FileInputGroup::evolve()
 {
-
-	if (active) {
-		NeuronID i;
-		AurynFloat t;
-
-		if (ftime == sys->get_clock() && therewasalastspike) {
-			if (localrank(lastspike))
-				spikes->push_back(lastspike);
-			therewasalastspike = false;
+	if (active && input_spikes.size()) {
+		// when reset_time is reached reset the spike_iterator to The beginning and update time offset
+		if ( sys->get_clock() == reset_time ) {
+			spike_iter = input_spikes.begin(); 
+			time_offset = sys->get_clock();
+			// std::cout << "set to" << reset_time*dt << " " << time_offset << std::endl;
 		}
 
-		while (ftime <= sys->get_clock() && spkfile.getline(buffer, 256) ) {
-			istringstream line ( buffer ) ;
-			line >> t;
-			ftime = t/dt+off;
-			line >> i;
-			if ( i >= get_rank_size() ) continue; // ignore too large i
-			if (ftime == sys->get_clock()) {
-				if (localrank(lastspike)) 
-					spikes->push_back(i);
-			} else {
-				lastspike = i;
-				therewasalastspike = true;
-			}
+		while ( spike_iter != input_spikes.end() && (*spike_iter).time <= get_offset_clock() ) {
+			spikes->push_back((*spike_iter).neuronID);
+			++spike_iter;
+			// std::cout << "spike " << sys->get_time() << std::endl;
 		}
 
-		if ( playinloop && spkfile.eof() ) {
-			off = ftime+dly;
-			spkfile.clear();
-			spkfile.seekg(0,ios::beg);
+		// TODO Fix the bug which eats the first spike
+		if ( spike_iter==input_spikes.end() && reset_time < sys->get_clock() && playinloop ) { // at last spike on file set new reset time
+			// schedule reset for next grid point after delay
+			reset_time = get_next_grid_point(sys->get_clock());
+			// std::cout << "set rt" << reset_time << std::endl;
 		}
-	}
-	else { // keep track of time
-		off = sys->get_clock();
-		ftime = off;
 	}
 }
+
+
+void FileInputGroup::set_loop_grid(AurynDouble grid_size)
+{
+	if ( grid_size > 0.0 ) {
+		loop_grid_size = 1.0/dt*grid_size;
+		if ( loop_grid_size == 0 ) loop_grid_size = 1;
+	}
+}
+

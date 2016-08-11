@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -27,6 +27,7 @@
 #define LPTRIPLETCONNECTION_H_
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "DuplexConnection.h"
 #include "EulerTrace.h"
 #include "LinearTrace.h"
@@ -34,7 +35,7 @@
 
 #define TRACE EulerTrace
 
-using namespace std;
+namespace auryn {
 
 
 /*! \brief Implements triplet STDP in which weight updates are low-pass filtered.
@@ -157,5 +158,7 @@ public:
 	virtual void evolve();
 
 };
+
+}
 
 #endif /*LPTRIPLETCONNECTION_H_*/

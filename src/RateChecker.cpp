@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -25,13 +25,13 @@
 
 #include "RateChecker.h"
 
-RateChecker::RateChecker(SpikingGroup * source, AurynFloat max) : Checker(source)
-{
-	init(0.,max,1.);
-}
+using namespace auryn;
 
-RateChecker::RateChecker(SpikingGroup * source, AurynFloat min, AurynFloat max, AurynFloat tau) : Checker(source)
+
+
+RateChecker::RateChecker(SpikingGroup * source, AurynFloat min, AurynFloat max, AurynFloat tau) : Checker()
 {
+	src = source;
 	init(min,max,tau);
 }
 
@@ -42,7 +42,7 @@ RateChecker::~RateChecker()
 void RateChecker::init(AurynFloat min, AurynFloat max, AurynFloat tau)
 {
 	if ( src->evolve_locally() )
-		sys->register_checker(this);
+		auryn::sys->register_checker(this);
 	timeconstant = tau;
 	size = src->get_size();
 	popmin = min;

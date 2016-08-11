@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -25,19 +25,21 @@
 
 #include "SpikeMonitor.h"
 
-SpikeMonitor::SpikeMonitor(SpikingGroup * source, string filename, NeuronID from, NeuronID to) 
+using namespace auryn;
+
+SpikeMonitor::SpikeMonitor(SpikingGroup * source, std::string filename, NeuronID from, NeuronID to) 
 	: Monitor(filename)
 {
 	init(source,filename,from,to);
 }
 
-SpikeMonitor::SpikeMonitor(SpikingGroup * source, string filename, NeuronID to)
+SpikeMonitor::SpikeMonitor(SpikingGroup * source, std::string filename, NeuronID to)
 	: Monitor(filename)
 {
 	init(source,filename,0,to);
 }
 
-SpikeMonitor::SpikeMonitor(SpikingGroup * source, string filename)
+SpikeMonitor::SpikeMonitor(SpikingGroup * source, std::string filename)
 	: Monitor(filename)
 {
 	init(source,filename,0,source->get_size());
@@ -48,9 +50,9 @@ SpikeMonitor::~SpikeMonitor()
 	free();
 }
 
-void SpikeMonitor::init(SpikingGroup * source, string filename, NeuronID from, NeuronID to)
+void SpikeMonitor::init(SpikingGroup * source, std::string filename, NeuronID from, NeuronID to)
 {
-	sys->register_monitor(this);
+	auryn::sys->register_device(this);
 
 	// sys = system;
 	active = true;
@@ -58,7 +60,7 @@ void SpikeMonitor::init(SpikingGroup * source, string filename, NeuronID from, N
 	n_to = to;
 	n_every = 1;
 	src = source;
-	outfile.setf(ios::fixed);
+	outfile.setf(std::ios::fixed);
 	outfile.precision(log(dt)/log(10)+1 );
 }
 
@@ -81,7 +83,7 @@ void SpikeMonitor::propagate()
 			if ( *it < n_to && (*it%n_every==0) ) {
 			  // using the good old stdio.h for formatting seems a bit faster 
 			  char buffer[255];
-			  int n = sprintf(buffer,"%f %i\n",sys->get_time(), *it); 
+			  int n = sprintf(buffer,"%f %u\n",auryn::sys->get_time(), *it); 
 			  outfile.write(buffer,n); 
 			}
 		}

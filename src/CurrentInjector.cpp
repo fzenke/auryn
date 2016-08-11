@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -25,16 +25,20 @@
 
 #include "CurrentInjector.h"
 
+using namespace auryn;
 
-CurrentInjector::CurrentInjector(NeuronGroup * target, string neuron_state_name, AurynFloat initial_current ) : Monitor( )
+
+CurrentInjector::CurrentInjector(NeuronGroup * target, std::string neuron_state_name, AurynFloat initial_current ) : Device( )
 {
-	sys->register_monitor(this);
+	auryn::sys->register_device(this);
 	dst = target;
 
 	set_target_state(neuron_state_name);
 	currents = auryn_vector_float_alloc(dst->get_vector_size()); 
 
 	auryn_vector_float_set_all( currents, initial_current );
+
+	alpha = dt;
 }
 
 
@@ -53,7 +57,7 @@ CurrentInjector::~CurrentInjector()
 void CurrentInjector::propagate()
 {
 	if ( dst->evolve_locally() ) {
-		auryn_vector_float_saxpy(dt, currents, target_vector);
+		auryn_vector_float_saxpy(alpha, currents, target_vector);
 	}
 }
 
@@ -61,7 +65,7 @@ void CurrentInjector::set_current(NeuronID i, AurynFloat current) {
 	auryn_vector_float_set(currents, i, current);
 }
 
-void CurrentInjector::set_target_state(string state_name) {
+void CurrentInjector::set_target_state(std::string state_name) {
 	target_vector = dst->get_state_vector(state_name);
 }
 

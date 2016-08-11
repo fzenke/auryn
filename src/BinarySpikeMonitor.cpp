@@ -1,5 +1,5 @@
 /*
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 * Contributed by Ankur Sinha
 *
 * This file is part of Auryn, a simulation package for plastic
@@ -26,21 +26,21 @@
 
 #include "BinarySpikeMonitor.h"
 
+using namespace auryn;
 
-BinarySpikeMonitor::BinarySpikeMonitor(SpikingGroup * source, string filename, NeuronID from, NeuronID to)
-	: Monitor(filename)
+const std::string BinarySpikeMonitor::default_extension = "spk";
+
+BinarySpikeMonitor::BinarySpikeMonitor(SpikingGroup * source, std::string filename, NeuronID from, NeuronID to) : Monitor(filename, default_extension)
 {
 	init(source,filename,from,to);
 }
 
-BinarySpikeMonitor::BinarySpikeMonitor(SpikingGroup * source, string filename, NeuronID to)
-	: Monitor(filename)
+BinarySpikeMonitor::BinarySpikeMonitor(SpikingGroup * source, std::string filename, NeuronID to) : Monitor(filename, default_extension)
 {
 	init(source,filename,0,to);
 }
 
-BinarySpikeMonitor::BinarySpikeMonitor(SpikingGroup * source, string filename)
-	: Monitor(filename )
+BinarySpikeMonitor::BinarySpikeMonitor(SpikingGroup * source, std::string filename) : Monitor(filename, default_extension)
 {
 	init(source,filename,0,source->get_size());
 }
@@ -50,22 +50,10 @@ BinarySpikeMonitor::~BinarySpikeMonitor()
 	free();
 }
 
-void BinarySpikeMonitor::open_output_file(string filename)
-{
-	if ( filename.empty() ) return; // stimulators do not necessary need an outputfile
 
-	outfile.open( filename.c_str(), ios::binary );
-	if (!outfile) {
-	  stringstream oss;
-	  oss << "Can't open binary output file " << filename;
-	  logger->msg(oss.str(),ERROR);
-	  exit(1);
-	}
-}
-
-void BinarySpikeMonitor::init(SpikingGroup * source, string filename, NeuronID from, NeuronID to)
+void BinarySpikeMonitor::init(SpikingGroup * source, std::string filename, NeuronID from, NeuronID to)
 {
-	sys->register_monitor(this);
+	auryn::sys->register_device(this);
 
 	// sys = system;
 	n_from = from;
@@ -78,14 +66,33 @@ void BinarySpikeMonitor::init(SpikingGroup * source, string filename, NeuronID f
 	// the number of timesteps per second
 	// the neuronID field contains a tag 
 	// encoding the version number
-	struct SpikeEvent_type spikeData;
+	SpikeEvent_type spikeData;
 	spikeData.time = (AurynTime)(1.0/dt);
-	spikeData.neuronID = tag_binary_spike_monitor;
+	spikeData.neuronID = sys->build.tag_binary_spike_monitor;
 	outfile.write((char*)&spikeData, sizeof(SpikeEvent_type));
 }
 
 void BinarySpikeMonitor::free()
 {
+	outfile.close();
+}
+
+void BinarySpikeMonitor::open_output_file(std::string filename)
+{
+	if ( filename.empty() ) { // generate a default name
+		auryn::logger->debug("Auto generating filename for BinarySpikeMonitor");
+		filename = generate_filename();
+	}
+
+
+	std::cout << filename << std::endl;
+	outfile.open( filename.c_str(), std::ios::binary );
+	if (!outfile) {
+	  std::stringstream oss;
+	  oss << "Can't open binary output file " << filename;
+	  auryn::logger->msg(oss.str(),ERROR);
+	  exit(1);
+	}
 }
 
 void BinarySpikeMonitor::set_offset(NeuronID of)
@@ -100,8 +107,10 @@ void BinarySpikeMonitor::set_every(NeuronID every)
 
 void BinarySpikeMonitor::propagate()
 {
-	struct SpikeEvent_type spikeData;
-	spikeData.time = sys->get_clock();
+	if ( !active ) return;
+
+	SpikeEvent_type spikeData;
+	spikeData.time = auryn::sys->get_clock();
 	for (it = src->get_spikes_immediate()->begin() ; it < src->get_spikes_immediate()->end() ; ++it ) {
 		if (*it >= n_from ) {
 			if ( *it < n_to && (*it%n_every==0) )

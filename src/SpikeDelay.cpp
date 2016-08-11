@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -24,6 +24,8 @@
 */
 
 #include "SpikeDelay.h"
+
+using namespace auryn;
 
 AurynTime * SpikeDelay::clock_ptr = NULL;
 
@@ -110,6 +112,13 @@ void SpikeDelay::push_back( NeuronID i )
 	get_spikes_immediate()->push_back(i);
 }
 
+void SpikeDelay::push_back( SpikeContainer * sc )
+{
+	for ( NeuronID i = 0 ; i < sc->size() ; ++i ) {
+		push_back(sc->at(i));
+	}
+}
+
 int SpikeDelay::get_num_attributes( )
 {
 	return numSpikeAttributes;
@@ -118,4 +127,19 @@ int SpikeDelay::get_num_attributes( )
 void SpikeDelay::inc_num_attributes( int x )
 {
 	numSpikeAttributes += x;
+}
+
+
+void SpikeDelay::print()
+{
+	for ( int i = 0 ; i < ndelay ; ++i ) {
+		SpikeContainer * spikes = get_spikes(i);
+		if ( spikes->size() ) {
+			std::cout << "slice " << i << ": ";
+			for ( NeuronID k = 0 ; k < spikes->size() ; ++k ) {
+				std::cout << spikes->at(k) << " ";
+			}
+			std::cout << std::endl;
+		}
+	}
 }

@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -27,9 +27,13 @@
 #define CUBAIFGROUP_H_
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "NeuronGroup.h"
 #include "System.h"
 
+
+
+namespace auryn {
 
 /*! \brief Current based neuron model with absolute refractoriness 
  * as used in Vogels and Abbott 2005.
@@ -56,7 +60,7 @@ private:
 	void calculate_scale_constants();
 	inline void integrate_state();
 	inline void check_thresholds();
-	virtual string get_output_line(NeuronID i);
+	virtual std::string get_output_line(NeuronID i);
 	virtual void load_input_line(NeuronID i, const char * buf);
 public:
 	/*! The default constructor of this NeuronGroup */
@@ -81,6 +85,8 @@ public:
 	/*! The evolve method internally used by System. */
 	void evolve();
 };
+
+}
 
 #endif /*CUBAIFGROUP_H_*/
 

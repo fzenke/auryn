@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -25,34 +25,38 @@
 
 #include "WeightStatsMonitor.h"
 
-WeightStatsMonitor::WeightStatsMonitor(Connection * source, string filename, AurynDouble binsize) : Monitor(filename)
+using namespace auryn;
+
+WeightStatsMonitor::WeightStatsMonitor(Connection * source, std::string filename, AurynDouble binsize, NeuronID z) : Monitor(filename)
 {
-	init(source,filename,binsize/dt);
+	init(source,filename,binsize/dt,z);
 }
 
 WeightStatsMonitor::~WeightStatsMonitor()
 {
 }
 
-void WeightStatsMonitor::init(Connection * source, string filename,AurynTime stepsize)
+void WeightStatsMonitor::init(Connection * source, std::string filename,AurynTime stepsize,NeuronID z)
 {
 	if ( !source->get_destination()->evolve_locally() ) return;
 
-	sys->register_monitor(this);
+	auryn::sys->register_device(this);
 
 	src = source;
 	ssize = stepsize;
 	if ( ssize < 1 ) ssize = 1;
 
-	outfile << setiosflags(ios::fixed) << setprecision(6);
+	outfile << std::setiosflags(std::ios::fixed) << std::setprecision(6);
+
+	z_ind = z;
 }
 
 void WeightStatsMonitor::propagate()
 {
-	if (sys->get_clock()%ssize==0) {
-		AurynFloat mean,std;
-		src->stats(mean,std);
-		outfile << (sys->get_time()) << " " << mean << " "  << std << endl;
+	if (auryn::sys->get_clock()%ssize==0) {
+		AurynDouble mean,std;
+		src->stats(mean,std,z_ind);
+		outfile << (auryn::sys->get_time()) << " " << mean << " "  << std << std::endl;
 	}
 
 }

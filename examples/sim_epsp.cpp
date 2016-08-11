@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -22,7 +22,12 @@
 
 #define N 1
 
-using namespace std;
+/*!\file 
+ *
+ * \brief Example simulation which simulates one Poisson input onto a single postsynaptic neuron and records the membrane potential 
+ * */
+
+using namespace auryn;
 
 namespace po = boost::program_options;
 namespace mpi = boost::mpi;
@@ -31,52 +36,32 @@ int main(int ac, char* av[])
 {
 
 	int errcode = 0;
-	char strbuf [255];
-	string outputfile = "out_epsp";
+	string simname = "out_epsp";
+	string logfile = simname;
 	string tmpstr;
 	AurynWeight w = 1.0;
 
 	// BEGIN Global definitions
-	mpi::environment env(ac, av);
-	mpi::communicator world;
-	communicator = &world;
-
-	try
-	{
-		sprintf(strbuf, "out_epsp.%d.log", world.rank());
-		string logfile = strbuf;
-		logger = new Logger(logfile,world.rank(),PROGRESS,EVERYTHING);
-	}
-	catch ( AurynOpenFileException excpt )
-	{
-		std::cerr << "Cannot proceed without log file. Exiting all ranks ..." << '\n';
-		env.abort(1);
-	}
-
-	sys = new System(&world);
+	auryn_init( ac, av );
+	sys->set_simulation_name(simname);
 	// END Global definitions
-	
+
+	// define input group
 	PoissonGroup * poisson = new PoissonGroup(N,1.);
+
+	// define receiving group
 	IFGroup * neuron = new IFGroup(1);
 
+	// define connection
 	IdentityConnection * con = new IdentityConnection(poisson,neuron,w,GLUT);
 
-	tmpstr = outputfile;
-	tmpstr += ".ras";
-	SpikeMonitor * smon = new SpikeMonitor( neuron, tmpstr.c_str() );
+	// define monitors
+	SpikeMonitor * smon = new SpikeMonitor( neuron, sys->fn("ras") );
+	VoltageMonitor * vmon = new VoltageMonitor( neuron, 0, sys->fn("mem"), 1e-3 );
+	StateMonitor * amon = new StateMonitor( neuron, 0, "g_ampa", sys->fn("ampa") );
+	StateMonitor * nmon = new StateMonitor( neuron, 0, "g_nmda", sys->fn("nmda") );
 
-	tmpstr = outputfile;
-	tmpstr += ".mem";
-	VoltageMonitor * vmon = new VoltageMonitor( neuron, 0, tmpstr.c_str() );
-
-	tmpstr = outputfile;
-	tmpstr += ".ampa";
-	AmpaMonitor * amon = new AmpaMonitor( neuron, 0, tmpstr.c_str() );
-
-	tmpstr = outputfile;
-	tmpstr += ".nmda";
-	NmdaMonitor * nmon = new NmdaMonitor( neuron, 0, tmpstr.c_str() );
-
+	// run simulation
 	logger->msg("Running ...",PROGRESS);
 	sys->run(10);
 
@@ -84,6 +69,6 @@ int main(int ac, char* av[])
 	delete sys;
 
 	if (errcode)
-		env.abort(errcode);
+		mpienv->abort(errcode);
 	return errcode;
 }

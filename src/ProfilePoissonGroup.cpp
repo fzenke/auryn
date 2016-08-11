@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -25,27 +25,29 @@
 
 #include "ProfilePoissonGroup.h"
 
+using namespace auryn;
+
 boost::mt19937 ProfilePoissonGroup::gen = boost::mt19937(); 
 
 void ProfilePoissonGroup::init(AurynDouble  rate)
 {
-	sys->register_spiking_group(this);
+	auryn::sys->register_spiking_group(this);
 	if ( evolve_locally() ) {
 		lambda = rate;
 
 		dist = new boost::uniform_01<> ();
 		die  = new boost::variate_generator<boost::mt19937&, boost::uniform_01<> > ( gen, *dist );
-		seed(communicator->rank()); // seeding problem
+		seed(sys->mpi_rank()); // seeding problem
 		x = 0;
 		jumpsize = 0;
 
 		// creates flat profile 
-		profile = new AurynFloat[get_rank_size()];
+		profile = get_state_vector("firing_rate_profile");
 		set_flat_profile();
 
-		stringstream oss;
-		oss << "ProfilePoissonGroup:: Seeding with " << communicator->rank();
-		logger->msg(oss.str(),NOTIFICATION);
+		std::stringstream oss;
+		oss << "ProfilePoissonGroup:: Seeding with " << sys->mpi_rank();
+		auryn::logger->msg(oss.str(),NOTIFICATION);
 	}
 }
 
@@ -59,7 +61,6 @@ ProfilePoissonGroup::~ProfilePoissonGroup()
 	if ( evolve_locally() ) {
 		delete dist;
 		delete die;
-		delete [] profile;
 	}
 }
 
@@ -84,19 +85,19 @@ void ProfilePoissonGroup::normalize_profile()
 {
 	AurynDouble sum = 0.0;
 	for ( NeuronID i = 0 ; i < get_rank_size() ; ++i ) {
-		sum += profile[i];
+		sum += profile->data[i];
 	}
 
 	AurynDouble normalization_factor = get_rank_size()/sum;
 	for ( NeuronID i = 0 ; i < get_rank_size() ; ++i ) {
-		profile[i] *= normalization_factor ;
+		profile->data[i] *= normalization_factor ;
 	}
 }
 
 void ProfilePoissonGroup::set_flat_profile()
 {
 	for ( NeuronID i = 0 ; i < get_rank_size() ; ++i ) {
-		profile[i] = 1.0;
+		profile->data[i] = 1.0;
 	}
 }
 
@@ -104,33 +105,47 @@ void ProfilePoissonGroup::set_profile( AurynFloat * newprofile )
 {
 	for ( NeuronID i = 0 ; i < get_size() ; ++i ) {
 		if ( localrank( i ) ) 
-			profile[global2rank(i)] = newprofile[i];
+			profile->data[global2rank(i)] = newprofile[i];
 	}
 
 	normalize_profile();
 
-	stringstream oss;
+	std::stringstream oss;
 	oss << "ProfilePoissonGroup:: Successfully set external profile." ;
-	logger->msg(oss.str(),NOTIFICATION);
+	auryn::logger->msg(oss.str(),NOTIFICATION);
 }
+
+void ProfilePoissonGroup::set_profile( auryn_vector_float * newprofile ) 
+{
+	for ( NeuronID i = 0 ; i < get_rank_size() ; ++i ) {
+		profile->data[i] = newprofile->data[i];
+	}
+
+	// normalize_profile();
+
+	std::stringstream oss;
+	oss << "ProfilePoissonGroup:: Successfully set external profile." ;
+	auryn::logger->msg(oss.str(),NOTIFICATION);
+}
+
 
 void ProfilePoissonGroup::set_gaussian_profile(AurynDouble  mean, AurynDouble sigma, AurynDouble floor)
 {
 	for ( NeuronID i = 0 ; i < get_size() ; ++i ) {
 		if ( localrank(i) )
-			profile[global2rank(i)] = exp(-pow((i-mean),2)/(2*sigma*sigma))*(1.0-floor)+floor;
+			profile->data[global2rank(i)] = exp(-pow((i-mean),2)/(2*sigma*sigma))*(1.0-floor)+floor;
 	}
 
 	normalize_profile();
 
-	stringstream oss;
-	oss << "ProfilePoissonGroup:: Set gaussian profile with mean=" 
+	std::stringstream oss;
+	oss << "ProfilePoissonGroup:: Setting gaussian profile with mean=" 
 		<< mean
 		<< " and sigma="
 		<< sigma
 		<< " and floor="
 		<< floor;
-	logger->msg(oss.str(),NOTIFICATION);
+	auryn::logger->msg(oss.str(),VERBOSE);
 }
 
 AurynDouble  ProfilePoissonGroup::get_rate()
@@ -142,8 +157,8 @@ AurynDouble  ProfilePoissonGroup::get_rate()
 void ProfilePoissonGroup::evolve()
 {
 	while ( x < get_rank_size() ) {
-		// cout << x << endl;
-		jumpsize -= profile[x];
+		// std::cout << x << std::endl;
+		jumpsize -= profile->data[x];
 		if ( jumpsize < 0 ) { // reached jump target -> spike
 			push_spike ( x );
 			AurynDouble r = -log((*die)()+1e-20)/lambda;

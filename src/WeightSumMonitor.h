@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -27,13 +27,14 @@
 #define WEIGHTSUMMONITOR_H_
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "Monitor.h"
 #include "System.h"
 #include "Connection.h"
 #include <fstream>
 #include <iomanip>
 
-using namespace std;
+namespace auryn {
 
 /*! \brief Records sum of all weights in synaptic weight matrix in predefined
  *         intervals.
@@ -51,5 +52,7 @@ public:
 	virtual ~WeightSumMonitor();
 	void propagate();
 };
+
+}
 
 #endif /*WEIGHTSUMMONITOR_H_*/

@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -27,13 +27,14 @@
 #define WEIGHTSTATSMONITOR_H_
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "Monitor.h"
 #include "System.h"
 #include "Connection.h"
 #include <fstream>
 #include <iomanip>
 
-using namespace std;
+namespace auryn {
 
 /*! \brief Records mean and standard deviation of a weight matrix in predefined
  *         intervals.
@@ -43,13 +44,15 @@ class WeightStatsMonitor : protected Monitor
 protected:
 	Connection * src;
 	AurynTime ssize;
-	NeuronID data_size_limit;
-	void init(Connection * source, string filename, AurynTime stepsize);
+	NeuronID z_ind;
+	void init(Connection * source, string filename, AurynTime stepsize, NeuronID z);
 	
 public:
-	WeightStatsMonitor(Connection * source, string filename, AurynDouble binsize=1.0);
+	WeightStatsMonitor(Connection * source, string filename, AurynDouble binsize=1.0, NeuronID z=0);
 	virtual ~WeightStatsMonitor();
 	void propagate();
 };
+
+}
 
 #endif /*WEIGHTSTATSMONITOR_H_*/

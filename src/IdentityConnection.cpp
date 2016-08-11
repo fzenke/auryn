@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -25,9 +25,11 @@
 
 #include "IdentityConnection.h"
 
+using namespace auryn;
+
 IdentityConnection::IdentityConnection( SpikingGroup * source, NeuronGroup * destination, 
 		AurynWeight weight, 
-		TransmitterType transmitter, string name) 
+		TransmitterType transmitter, std::string name) 
 : Connection(source,destination,transmitter,name)
 {
 	init(weight);
@@ -39,7 +41,7 @@ IdentityConnection::IdentityConnection(SpikingGroup * source, NeuronGroup * dest
 		NeuronID lo_row, NeuronID hi_row, 
 		NeuronID lo_col, NeuronID hi_col, 
 		TransmitterType transmitter, 
-		string name) 
+		std::string name) 
 : Connection(source,destination,transmitter)
 {
 	init(weight);
@@ -57,11 +59,11 @@ IdentityConnection::~IdentityConnection()
 void IdentityConnection::init(AurynWeight weight) 
 {
 	if ( dst->evolve_locally() == true )
-		sys->register_connection(this);
+		auryn::sys->register_connection(this);
 	if ( src == dst ) {
-		stringstream oss;
+		std::stringstream oss;
 		oss << "IdentityConnection: ("<< get_name() <<"): Detected recurrent connection. This seemingly does not make any sense!";
-		logger->msg(oss.str(),WARNING);
+		auryn::logger->msg(oss.str(),WARNING);
 	}
 	connection_weight = weight;
 	offset = 0 ;
@@ -117,10 +119,10 @@ void IdentityConnection::set(NeuronID i, NeuronID j, AurynWeight value)
 
 AurynLong IdentityConnection::get_nonzero()
 {
-	return min(src->get_pre_size(),dst->get_post_size());
+	return std::min(src->get_pre_size(),dst->get_post_size());
 }
 
-void IdentityConnection::stats(AurynFloat &mean, AurynFloat &std)
+void IdentityConnection::stats(AurynDouble &mean, AurynDouble &std, StateID z)
 {
 	mean = connection_weight;
 	std = 0;
@@ -131,20 +133,20 @@ AurynDouble IdentityConnection::sum()
 	return connection_weight*get_nonzero();
 }
 
-bool IdentityConnection::write_to_file(string filename)
+bool IdentityConnection::write_to_file(std::string filename)
 {
 	return true; // TODO fake but what else ? 
 }
 
-bool IdentityConnection::load_from_file(string filename)
+bool IdentityConnection::load_from_file(std::string filename)
 {
 	return true; // TODO fake but what else ? 
 }
 
 
-vector<neuron_pair> IdentityConnection::get_block(NeuronID lo_row, NeuronID lo_col, NeuronID hi_row,  NeuronID hi_col) 
+std::vector<neuron_pair> IdentityConnection::get_block(NeuronID lo_row, NeuronID lo_col, NeuronID hi_row,  NeuronID hi_col) 
 {
-	vector<neuron_pair> clist;
+	std::vector<neuron_pair> clist;
 	for ( NeuronID i = lo_row ; i < hi_row ; ++i ) {
 		for ( NeuronID j =  lo_col ; j < hi_col ; ++j ) {
 			if ( i == j ) {
@@ -160,7 +162,7 @@ vector<neuron_pair> IdentityConnection::get_block(NeuronID lo_row, NeuronID lo_c
 
 AurynFloat IdentityConnection::mean() 
 {
-	AurynFloat m,s;
+	AurynDouble m,s;
 	stats(m,s);
 	return m;
 }
@@ -168,14 +170,14 @@ AurynFloat IdentityConnection::mean()
 void IdentityConnection::set_offset(int off)
 {
 	offset = off;
-	logger->parameter("offset",(int)offset);
+	auryn::logger->parameter("offset",(int)offset);
 }
 
 void IdentityConnection::set_every(NeuronID e)
 {
 	if ( e != 0 ) {
 		every = e;
-		logger->parameter("every",(int)every);
+		auryn::logger->parameter("every",(int)every);
 	}
 }
 

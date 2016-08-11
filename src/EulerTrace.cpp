@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -25,20 +25,22 @@
 
 #include "EulerTrace.h"
 
+using namespace auryn;
+
 void EulerTrace::init(NeuronID n, AurynFloat timeconstant)
 {
 	size = n;
 	set_timeconstant(timeconstant);
-	state = auryn_vector_float_alloc ( calculate_vector_size(size) ); 
-	temp = auryn_vector_float_alloc ( calculate_vector_size(size) ); // temp vector
+	state = new AurynStateVector ( calculate_vector_size(size) ); 
+	temp = new AurynStateVector ( calculate_vector_size(size) ); // temp vector
 	set_all(0.);
 	target_ptr = NULL;
 }
 
 void EulerTrace::free()
 {
-	auryn_vector_float_free (state);
-	auryn_vector_float_free (temp);
+	delete state;
+	delete temp;
 }
 
 EulerTrace::EulerTrace(NeuronID n, AurynFloat timeconstant)
@@ -59,18 +61,17 @@ void EulerTrace::set_timeconstant(AurynFloat timeconstant)
 
 void EulerTrace::set(NeuronID i , AurynFloat value)
 {
-   auryn_vector_float_set (state, i, value);
+	state->set( i, value);
 }
 
 void EulerTrace::set_all(AurynFloat value)
 {
-	for (NeuronID i = 0 ; i < size ; ++i )
-		set(i,value);
+	state->set_all(value);
 }
 
-void EulerTrace::add(auryn_vector_float * values)
+void EulerTrace::add(AurynStateVector * values)
 {
-   auryn_vector_float_add ( state, values );
+   state->add( values );
 }
 
 void EulerTrace::add(NeuronID i, AurynFloat value)
@@ -79,11 +80,12 @@ void EulerTrace::add(NeuronID i, AurynFloat value)
    state->data[i] += value;
 }
 
-void EulerTrace::set_target( auryn_vector_float * target )
+void EulerTrace::set_target( AurynStateVector * target )
 {
 	if ( target != NULL ) {
+		target_ptr = target ;
+		state->copy(target);
 	}
-	target_ptr = target ;
 }
 
 void EulerTrace::set_target( EulerTrace * target )
@@ -93,18 +95,19 @@ void EulerTrace::set_target( EulerTrace * target )
 
 void EulerTrace::evolve()
 {
-    auryn_vector_float_scale(scale_const,state); // seems to be faster
+    // auryn_vector_float_scale(scale_const,state); // seems to be faster
+	state->scale(scale_const);
 	// auryn_vector_float_mul_constant(state,scale_const);
 }
 
 void EulerTrace::follow()
 { 
-	auryn_vector_float_copy( state, temp );
+	temp->copy( state );
 	auryn_vector_float_saxpy( -1., target_ptr, temp );
 	auryn_vector_float_saxpy( -dt/tau, temp, state );
 }
 
-auryn_vector_float * EulerTrace::get_state_ptr()
+AurynStateVector * EulerTrace::get_state_ptr()
 {
 	return state;
 }
@@ -123,11 +126,12 @@ void EulerTrace::inc(NeuronID i)
 
 AurynFloat EulerTrace::normalized_get(NeuronID i)
 {
-	return auryn_vector_float_get (state, i) / tau ;
+	check_size(i);
+	return state->get( i ) / tau ;
 }
 
 
 void EulerTrace::clip(AurynState value)
 {
-	auryn_vector_float_clip( state, 0.0, value);
+	state->clip( 0.0, value);
 }

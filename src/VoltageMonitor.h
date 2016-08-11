@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -29,13 +29,14 @@
 #define VOLTAGEMONITOR_PASTED_SPIKE_HEIGHT 20e-3
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "Monitor.h"
 #include "System.h"
 #include "Connection.h"
 #include <fstream>
 #include <iomanip>
 
-using namespace std;
+namespace auryn {
 
 /*! \brief Records the membrane potential from one unit from the source neuron group to a file. 
  *
@@ -44,12 +45,11 @@ using namespace std;
  * VOLTAGEMONITOR_PASTED_SPIKE_HEIGHT by reading out the the current spikes. For 
  * performance it is adviced to use the StateMonitor which does not do any
  * spike pasting. */
-class VoltageMonitor : protected Monitor
+class VoltageMonitor : public Monitor
 {
 private:
 	/*! Global neuron id to record from */
 	NeuronID gid;
-
 
 protected:
 	/*! The source neuron group to record from */
@@ -86,5 +86,7 @@ public:
 	virtual ~VoltageMonitor();
 	void propagate();
 };
+
+}
 
 #endif /*VOLTAGEMONITOR_H_*/

@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -27,11 +27,14 @@
 #define SYSTEM_H_
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "SpikingGroup.h"
 #include "Connection.h"
-#include "Monitor.h"
+#include "Device.h"
 #include "Checker.h"
 #include "SyncBuffer.h"
+#include "AurynVersion.h"
+
 
 #include <ctime>
 
@@ -39,12 +42,10 @@
 #include <boost/mpi.hpp>
 #include <boost/progress.hpp>
 
-#define PROGRESSBAR_UPDATE_INTERVAL 1000
+#define PROGRESSBAR_DEFAULT_UPDATE_INTERVAL 1000
 #define LOGGER_MARK_INTERVAL (10000*1000) // 1000s
 
-using namespace std;
-namespace mpi = boost::mpi;
-
+namespace auryn {
 
 /*! \brief Class that implements system wide variables and methods to manage and run simulations.
  *
@@ -56,178 +57,278 @@ namespace mpi = boost::mpi;
  * evolve() and propagate() from each object in these vectors are called
  * alternatingly from within the run procedure.
  */
-class System
-{
+	class System
+	{
 
-private:
-	AurynTime clock;
-	mpi::communicator * mpicom;
-	string simulation_name;
+	private:
+		AurynTime clock;
+		mpi::communicator * mpicom;
+		unsigned int mpi_size_;
+		unsigned int mpi_rank_;
 
-	SyncBuffer * syncbuffer;
+		std::string simulation_name;
 
-
-	vector<SpikingGroup *> spiking_groups;
-	vector<Connection *> connections;
-	vector<Monitor *> monitors;
-	vector<Checker *> checkers;
-
-	double simulation_time_realtime_ratio;
-
-	int online_rate_monitor_id;
-	double online_rate_monitor_tau;
-	double online_rate_monitor_mul;
-	double online_rate_monitor_state;
-
-	/*! Evolves the online rate monitor for the status bar. */
-	void evolve_online_rate_monitor();
-
-	/*! Returns string with a human readable time. */
-	string get_nice_time ( AurynTime clk );	
-
-	/*! Draws the progress bar */
-	void progressbar ( double fraction, AurynTime clk );	
-
-	/*! Run simulation with given start and stop times and displays a progress bar. Mainly for internal use in System.
-	 * \param starttime Start time used for display of progress bar.
-	 * \param stoptime Stop time used for the display of the progress bar. The simulation stop when get_clock()>stoptime (this is the relevant one for the simulation)
-	 * \param simulation_time again a time used for the display of the progress bar */
-	bool run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time, bool checking=true);
-
-	/*! Synchronizes SpikingGroups */
-	void sync();
-
-	/*! Evolves all objects that need integration. */
-	void evolve();
-
-	/*! Propagates the spikes and evolves connection objects. */
-	void propagate();
-
-	/*! Performs integration of Connection objects. 
-	 * Since this is independent of the SpikingGroup evolve we 
-	 * can do this while we are waiting for synchronization. */
-	void evolve_independent();
-
-	/*! Calls all monitors. */
-	bool monitor(bool checking);
-
-public:
-	/*! Switch to turn output to quiet mode (no progress bar). */
-	bool quiet;
-
-	System();
-	System(mpi::communicator * communicator);
-	void init();
-	void set_simulation_name(string name);
-	virtual ~System();
-	void free();
-
-	/*! Implements integration and spike propagation of a single integration step. */
-	void step();
-
-	/*! Initialializes the recvs for all the MPI sync */
-	void sync_prepare();
-
-	/*! Sets the SpikingGroup ID used to display the rate estimate in the
-	 * progressbar (this typically is reflected by the order in
-	 * which you define the SpikingGroup and NeuronGroup classes. It starts
-	 * numbering from 0.). */
-	void set_online_rate_monitor_id( int id=0 );
-
-	/*! Sets the timeconstant to compute the online rate average for the status bar. */
-	void set_online_rate_monitor_tau( AurynDouble tau=100e-3 );
-
-	/*! \brief Saves network state to a netstate file
-	 *
-	 * This function saves the network state to one serialized file. The network 
-	 * state includes the internal state variables of all neurons and the synaptic 
-	 * connections. It currently does not save the state of any random number
-	 * generators (v0.5) but this is planned to change in the future. Note that
-	 * netstate files do not contain any parameters either. This was done to
-	 * allow to run a simulation with a certain parameter set for a given amount
-	 * of time. Save the network state and then continue the simulation from
-	 * that point with a changed parameter set (e.g. a new stimulus set or
-	 * similar).
-	 *
-	 * \param Prefix (including directory path) of the netstate file without extension
-	 */
-	void save_network_state(string basename);
-
-	/*! \brief Loads network state from a netstate file
-	 *
-	 * \param Basename (directory and prefix of file) of the netstate file without extension
-	 */
-	void load_network_state(string basename);
-
-	/*! \brief Saves the network state to human readable text files
-	 *
-	 * This deprecated method of saving the network state generates a large number of files 
-	 * because each Connection object or SpikingGroup creates their own respective file. This 
-	 * function might still be useful if you have code in which you analaze these files offline.
-	 * In most cases you will want to use save_network_state and only dump a limited subset (e.g. 
-	 * all the plastic connections) in human-readable text files for analysis.
-	 *
-	 * \param Basename (directory and prefix of file) of the netstate file without extension
-	 */
-	void save_network_state_text(string basename);
+		SyncBuffer * syncbuffer;
 
 
-	/*! Registers an instance of SpikingGroup to the spiking_groups vector. */
-	void register_spiking_group(SpikingGroup * spiking_group);
+		std::vector<SpikingGroup *> spiking_groups;
+		std::vector<Connection *> connections;
+		std::vector<Device *> devices;
+		std::vector<Checker *> checkers;
 
-	/*! Registers an instance of Connection to the connections vector. */
-	void register_connection(Connection * connection);
+		string outputdir;
 
-	/*! Registers an instance of Monitor to the monitors vector. */
-	void register_monitor(Monitor * monitor);
+		double simulation_time_realtime_ratio;
 
-	/*! Registers an instance of Checker to the checkers vector. 
-	 * 
-	 * Note: The first checker that is registered is by default used by System for the rate output in the progress bar.*/
-	void register_checker(Checker * checker);
+		/*! Store elapsed time for last call of run */
+		double last_elapsed_time;
 
+		/*! Store staring time of program */
+		time_t t_sys_start;
 
-	/*! Run simulation for a given time.
-	 * \param simulation_time time to run the simulation 
-	 * \param checking true if checkers can break the run (e.g. if a frequency get's to high and the network explodes) */
-	bool run(AurynFloat simulation_time, bool checking=true);
+		int online_rate_monitor_id;
+		double online_rate_monitor_tau;
+		double online_rate_monitor_mul;
+		double online_rate_monitor_state;
 
-	/*! This and interface to run a single progress bar, but cut it in different chunks to turn on
-	 * and off stuff in the simulation without perturbing the output. interval_start and end define 
-	 * the total duration of the simulation (this is used to build the progress bar, while chung_time 
-	 * is the actual time that is simulated for each call.*/
-	bool run_chunk(AurynFloat chunk_time, AurynFloat interval_start, AurynFloat interval_end, bool checking=true);
+		/*! Evolves the online rate monitor for the status bar. */
+		void evolve_online_rate_monitor();
 
-	/*! Get the current system time in [s] */
-	AurynDouble get_time();
+		/*! Returns string with a human readable time. */
+		std::string get_nice_time ( AurynTime clk );	
 
-	/*! Get the current clock value in AurynTime */
-	AurynTime get_clock();
+		/*! Draws the progress bar */
+		void progressbar ( double fraction, AurynTime clk );	
 
-	/*! Get a pointer to the current clock. */
-	AurynTime * get_clock_ptr();
+		/*! Run simulation with given start and stop times and displays a progress bar. Mainly for internal use in System.
+		 * \param starttime Start time used for display of progress bar.
+		 * \param stoptime Stop time used for the display of the progress bar. The simulation stop when get_clock()>stoptime (this is the relevant one for the simulation)
+		 * \param simulation_time again a time used for the display of the progress bar */
+		bool run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time, bool checking=true);
 
-	/*! Get total number of registered neurons */
-	AurynLong get_total_neurons();
+		/*! Synchronizes SpikingGroups */
+		void sync();
 
-	/*! Get total effective load */
-	AurynDouble get_total_effective_load();
+		/*! Evolves all objects that need integration. */
+		void evolve();
 
-	/*! Get total number of registered synapses */
-	AurynLong get_total_synapses();
+		/*! Propagates the spikes and evolves connection objects. */
+		void propagate();
 
 
-	mpi::communicator * get_com();
+		/*! \brief Performs integration of Connection objects. 
+		 *
+		 * Since this is independent of the SpikingGroup evolve we 
+		 * can do this while we are waiting for synchronization. */
+		void evolve_independent();
+
+		/*! \brief Calls all monitors. */
+		void execute_devices();
+
+		/*! \brief Calls all checkers. */
+		bool execute_checkers();
+
+		/*! Implements integration and spike propagation of a single integration step. */
+		void step();
+
+		/*! Initialializes the recvs for all the MPI sync */
+		void sync_prepare();
+
+		void init();
+		void free();
+
+	public:
+		/*! \brief Switch to turn output to quiet mode (no progress bar). */
+		bool quiet;
+
+		/*! \brief Version info */
+		AurynVersion build;
+
+		/*! \brief The progressbar update interval in timesteps of dt. */
+		unsigned int progressbar_update_interval;
+
+		/*! \brief Switch to turn output to quiet mode (no progress bar). */
+		System();
+		System(mpi::communicator * communicator);
+
+		/*! \brief Sets the simulation name. */
+		void set_simulation_name(std::string name);
+
+		/*! \brief Returns the simulation name. */
+		std::string get_simulation_name();
+
+		/*! \brief Set output dir for fn function */
+		void set_output_dir(std::string path);
+
+		virtual ~System();
+
+		/*! \brief Sets the SpikingGroup ID used to display the rate estimate in the
+		 * progressbar 
+		 *
+		 * This typically is reflected by the order in
+		 * which you define the SpikingGroup and NeuronGroup classes. It starts
+		 * numbering from 0, but you can also get the ID from a SpikingGroup via the get_uid()
+		 * function. */
+		void set_online_rate_monitor_id( unsigned int id=0 );
+
+		/*! \brief Sets the timeconstant to compute the online rate average for the status bar. */
+		void set_online_rate_monitor_tau( AurynDouble tau=100e-3 );
+
+		/*! \brief Returns last elapsed time in seconds. */
+		double get_last_elapsed_time();
+
+		/*! \brief Returns total elapsed time in seconds. */
+		double get_total_elapsed_time();
+
+		/*! \brief Saves network state to a netstate file
+		 *
+		 * This function saves the network state to one serialized file. The network 
+		 * state includes the internal state variables of all neurons and the synaptic 
+		 * connections. It currently does not save the state of any random number
+		 * generators (v0.5) but this is planned to change in the future. Note that
+		 * netstate files do not contain any parameters either. This was done to
+		 * allow to run a simulation with a certain parameter set for a given amount
+		 * of time. Save the network state and then continue the simulation from
+		 * that point with a changed parameter set (e.g. a new stimulus set or
+		 * similar).
+		 *
+		 * \param basename (including directory path) of the netstate file without extension
+		 */
+		void save_network_state(std::string basename);
+
+		/*! \brief Loads network state from a netstate file
+		 *
+		 * \param basename (directory and prefix of file) of the netstate file without extension
+		 */
+		void load_network_state(std::string basename);
+
+		/*! \brief Saves the network state to human readable text files
+		 *
+		 * This deprecated method of saving the network state generates a large number of files 
+		 * because each Connection object or SpikingGroup creates their own respective file. This 
+		 * function might still be useful if you have code in which you analaze these files offline.
+		 * In most cases you will want to use save_network_state and only dump a limited subset (e.g. 
+		 * all the plastic connections) in human-readable text files for analysis.
+		 *
+		 * \param Basename (directory and prefix of file) of the netstate file without extension
+		 */
+		void save_network_state_text(std::string basename);
+
+
+		/*! \brief Flush devices 
+		 *
+		 * Write monitor data buffers to file. */
+		void flush_devices();
+
+
+		/*! \brief Registers an instance of SpikingGroup to the spiking_groups vector. 
+		 *
+		 * Called internally by constructor of SpikingGroup. */
+		void register_spiking_group(SpikingGroup * spiking_group);
+
+		/*! \brief Registers an instance of Connection to the connections vector. 
+		 *
+		 * Called internally by constructor of Connection. */
+		void register_connection(Connection * connection);
+
+		/*! \brief Registers an instance of Device to the devices vector. 
+		 *
+		 * Called internally by constructor of Monitor. */
+		void register_device(Device * device);
+
+		/*! \brief Registers an instance of Checker to the checkers vector. 
+		 * 
+		 * Note: The first checker that is registered is by default used by System for the rate output in the progress bar. 
+		 * Called internally by constructor of Monitor. */
+		void register_checker(Checker * checker);
+
+
+		/*! \brief Runs a simulation for a given amount of time.
+		 *
+		 * \param simulation_time time to run the simulation in seconds.
+		 * \param checking true if checkers can break the run (e.g. if a frequency get's to high and the network explodes) 
+		 * */
+		bool run(AurynFloat simulation_time, bool checking=true);
+
+		/*! \brief Runs simulation for a given amount of time 
+		 *
+		 * Exposes the interface to the progressbar params. Can be used to run a single progress bar,
+		 * but cut it in different chunks to turn on
+		 * and off stuff in the simulation without perturbing the output. interval_start and end define 
+		 * the total duration of the simulation (this is used to build the progress bar, while chung_time 
+		 * is the actual time that is simulated for each call.*/
+		bool run_chunk(AurynFloat chunk_time, AurynFloat interval_start, AurynFloat interval_end, bool checking=true);
+
+		/*! \brief Gets the current system time in [s] */
+		AurynDouble get_time();
+
+		/*! \brief Gets the current clock value in AurynTime */
+		AurynTime get_clock();
+
+		/*! \brief Gets a pointer to the current clock. */
+		AurynTime * get_clock_ptr();
+
+		/*! \brief Get total number of registered neurons */
+		AurynLong get_total_neurons();
+
+		/*! \brief Get total effective load */
+		AurynDouble get_total_effective_load();
+
+		/*! \brief Get total number of registered synapses */
+		AurynLong get_total_synapses();
+
+		/*! \brief Format output file name 
+		 *
+		 * Formats output files according to the following convention:
+		 * <outputdir>/<name>.<rank>.<extension> where <name> is taken 
+		 * from System->get_name()
+		 * and returns it as a c string;
+		 * */
+		string fn(std::string extension);
+
+
+		/*! \brief Format output file name 
+		 *
+		 * Formats output files according to the following convention:
+		 * <outputdir>/<name>.<rank>.<extension>
+		 * and returns it as a c string;
+		 * */
+		string fn(std::string name, std::string extension);
+
+		/*! \brief Format output file name 
+		 *
+		 * Formats output files according to the following convention:
+		 * <outputdir>/<name><index>.<rank>.<extension>
+		 * and returns it as a c string;
+		 * */
+		string fn(std::string name, NeuronID index, std::string extension);
+
+
+		/*! \brief Returns global mpi communicator */
+		mpi::communicator * get_com();
+
+		/*! \brief Returns number of ranks
+		 *
+		 * like mpicom->size(), but also defined when run
+		 * without mpi. */
+		unsigned int mpi_size();
+
+		/*! \brief Returns current rank
+		 *
+		 * like mpicom->rank(), but also defined when run
+		 * without mpi. */
+		unsigned int mpi_rank();
 
 #ifdef CODE_COLLECT_SYNC_TIMING_STATS
-	AurynDouble deltaT;
-	AurynDouble measurement_start;
-	AurynDouble get_relative_sync_time();
-	AurynDouble get_sync_time();
-	AurynDouble get_elapsed_wall_time();
-	void reset_sync_time();
+		AurynDouble deltaT;
+		AurynDouble measurement_start;
+		AurynDouble get_relative_sync_time();
+		AurynDouble get_sync_time();
+		AurynDouble get_elapsed_wall_time();
+		void reset_sync_time();
 #endif
 
-};
+	};
+} // end of namespace brackets
 
 #endif /*SYSTEM_H_*/

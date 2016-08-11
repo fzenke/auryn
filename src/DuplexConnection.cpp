@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -25,6 +25,8 @@
 
 #include "DuplexConnection.h"
 
+using namespace auryn;
+
 void DuplexConnection::init() 
 {
 	fwd = w; // for consistency declared here. fwd can be overwritten later though
@@ -35,14 +37,10 @@ void DuplexConnection::init()
 
 void DuplexConnection::finalize() // finalize at this level is called only for reconnecting or non-Constructor building of the matrix
 {
-	stringstream oss;
+	std::stringstream oss;
 	oss << "DuplexConnection: Finalizing ...";
-	logger->msg(oss.str(),VERBOSE);
+	auryn::logger->msg(oss.str(),VERBOSE);
 
-	bkw->clear();
-	if ( bkw->get_nonzero() > w->get_nonzero() ) {
-		bkw->resize_buffer_and_clear(w->get_nonzero());
-	}
 	compute_reverse_matrix();
 }
 
@@ -82,7 +80,7 @@ DuplexConnection::DuplexConnection(NeuronID rows, NeuronID cols)
 
 DuplexConnection::DuplexConnection( SpikingGroup * source, NeuronGroup * destination, 
 		AurynWeight weight, AurynFloat sparseness, 
-		TransmitterType transmitter, string name) 
+		TransmitterType transmitter, std::string name) 
 : SparseConnection(source,destination,weight,sparseness,transmitter, name)
 {
 	if ( dst->get_post_size() > 0 ) 
@@ -106,15 +104,16 @@ void DuplexConnection::compute_reverse_matrix( int z )
 {
 
 	if ( fwd->get_nonzero() <= bkw->get_datasize() ) {
+		auryn::logger->msg("Clearing reverse matrix..." ,VERBOSE);
 		bkw->clear();
 	} else {
-		logger->msg("Bkw buffer too small reallocating..." ,VERBOSE);
+		auryn::logger->msg("Bkw buffer too small reallocating..." ,VERBOSE);
 		bkw->resize_buffer_and_clear(fwd->get_datasize());
 	}
 
-	stringstream oss;
+	std::stringstream oss;
 	oss << "DuplexConnection: ("<< get_name() << "): Computing transposed matrix view ...";
-	logger->msg(oss.str(),VERBOSE);
+	auryn::logger->msg(oss.str(),VERBOSE);
 
 	NeuronID maxrows = get_m_rows();
 	NeuronID maxcols = get_n_cols();
@@ -143,13 +142,19 @@ void DuplexConnection::compute_reverse_matrix( int z )
 		oss << "DuplexConnection: ("<< get_name() << "): " 
 			<< bkw->get_nonzero() 
 			<< " different number of non-zero elements in bkw and fwd matrix.";
-		logger->msg(oss.str(),ERROR);
+		auryn::logger->msg(oss.str(),ERROR);
 	} else {
 		oss.str("");
 		oss << "DuplexConnection: ("<< get_name() << "): " 
 			<< bkw->get_nonzero() 
 			<< " elements processed.";
-		logger->msg(oss.str(),VERBOSE);
+		auryn::logger->msg(oss.str(),VERBOSE);
 	}
 }
 
+void DuplexConnection::prune(  )
+{
+	auryn::logger->msg("Pruning weight matrix",VERBOSE);
+	fwd->prune();
+	compute_reverse_matrix();
+}

@@ -1,5 +1,6 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+*
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -23,31 +24,48 @@
 * Front Neuroinform 8, 76. doi: 10.3389/fninf.2014.00076
 */
 
-#ifndef AMPAMONITOR_H_
-#define AMPAMONITOR_H_
+#ifndef AURYNVERSION_H_
+#define AURYNVERSION_H_
 
+#include <string>
+#include <iostream>
 #include "auryn_definitions.h"
-#include "Monitor.h"
-#include "System.h"
-#include "Connection.h"
-#include <fstream>
-#include <iomanip>
 
-using namespace std;
+namespace auryn {
 
-/*! \brief Records the AMPA conductance from one specific unit from the source group. */
-class AmpaMonitor : protected Monitor
-{
-protected:
-	NeuronGroup * src;
-	NeuronID nid;
-	AurynTime ssize;
-	void init(NeuronGroup * source, NeuronID id, string filename, AurynTime stepsize);
-	
-public:
-	AmpaMonitor(NeuronGroup * source, NeuronID id, string filename, AurynTime stepsize=1);
-	virtual ~AmpaMonitor();
-	void propagate();
-};
+	/*! \brief Container class providing Auryn version number */
+	class AurynVersion { 
+		public:
+			static int version;
+			static int subversion;
+			static int revision_number;
+			static NeuronID tag_binary_spike_monitor;
+			static AurynState tag_binary_state_monitor;
+			static std::string revision_suffix;
+			static std::string git_describe;
+		
+		AurynVersion() {};
+		virtual ~AurynVersion() {};
 
-#endif /*AMPAMONITOR_H_*/
+		std::string get_version_string()
+		{
+			std::stringstream oss;
+			oss << version
+				<< "."
+				<< subversion;
+
+			if ( revision_number ) {
+				oss << "."
+				<< revision_number;
+			}
+
+			oss << revision_suffix;
+
+			return oss.str();
+		}
+	};
+
+}
+
+
+#endif /*AURYNVERSION_H_*/

@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -25,11 +25,20 @@
 
 #include "Checker.h"
 
-Checker::Checker(SpikingGroup * source)
+using namespace auryn;
+
+Checker::Checker()
 {
-	src = source;
 }
 
 Checker::~Checker()
+{
+}
+
+void Checker::virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version ) 
+{
+}
+
+void Checker::virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version ) 
 {
 }

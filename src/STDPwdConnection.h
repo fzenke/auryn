@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -27,13 +27,14 @@
 #define STDPWDCONNECTION_H_
 
 #include "auryn_definitions.h"
+#include "AurynVector.h"
 #include "DuplexConnection.h"
 #include "EulerTrace.h"
 #include "LinearTrace.h"
 #include "SpikeDelay.h"
 
 
-using namespace std;
+namespace auryn {
 
 
 /*! \brief Doublet STDP All-to-All as implemented in NEST as stdp_synapse_hom 
@@ -118,5 +119,7 @@ public:
 	virtual void evolve();
 
 };
+
+}
 
 #endif /*STDPWDCONNECTION_H_*/

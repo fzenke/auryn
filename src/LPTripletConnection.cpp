@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2015 Friedemann Zenke
+* Copyright 2014-2016 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -24,6 +24,8 @@
 */
 
 #include "LPTripletConnection.h"
+
+using namespace auryn;
 
 void LPTripletConnection::init(AurynFloat tau_hom, AurynFloat eta, AurynFloat kappa, AurynFloat maxweight)
 {
@@ -109,7 +111,7 @@ LPTripletConnection::LPTripletConnection(SpikingGroup * source, NeuronGroup * de
 		AurynFloat eta, 
 		AurynFloat kappa, AurynFloat maxweight , 
 		TransmitterType transmitter,
-		string name) 
+		std::string name) 
 : DuplexConnection(source, 
 		destination, 
 		weight, 
@@ -232,7 +234,7 @@ void LPTripletConnection::propagate()
 
 void LPTripletConnection::evolve()
 {
-	if ( sys->get_clock()%timestep_lp == 0 && stdp_active ) {
+	if ( auryn::sys->get_clock()%timestep_lp == 0 && stdp_active ) {
 		AurynWeight * lpwval = w->get_data_begin(0);
 		AurynWeight * wval   = w->get_data_begin(1);
 		w->state_sub(wval,lpwval,temp_state);
