@@ -475,10 +475,10 @@ int main(int ac, char* av[])
 	double primetime = 3*tau_hom;
 
 
-	sprintf(strbuf, "%s/%s_e%.2et%.2f%s", dir.c_str(), file_prefix, eta, tau_hom, label.c_str());
+	sprintf(strbuf, "%s_e%.2et%.2f%s", file_prefix, eta, tau_hom, label.c_str());
 	std::string logfile_prefix = strbuf;
 
-	auryn_init(ac, av, dir=".", "", logfile_prefix);
+	auryn_init(ac, av, dir, "sim_background", logfile_prefix);
 
 	logger->set_logfile_loglevel( PROGRESS );
 	if ( verbose ) logger->set_logfile_loglevel( EVERYTHING );
