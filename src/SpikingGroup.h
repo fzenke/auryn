@@ -111,6 +111,8 @@ protected:
 	SpikeContainer * spikes;
 	AttributeContainer * attribs;
 
+	unsigned int salt;
+
 	/*! Stores the length of output delay */
 	static AurynTime * clock_ptr;
 
