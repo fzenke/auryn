@@ -55,6 +55,8 @@ WeightMonitor::WeightMonitor(SparseConnection * source, NeuronID i, NeuronID j, 
 		case SINGLE :
 			add_to_list(i,j,z);
 			break;
+		default:
+		break;
 	}
 }
 
@@ -184,7 +186,7 @@ void WeightMonitor::load_data_range( AurynLong i, AurynLong j )
 	outfile << "# Added data range " << i << "-" << j << "." << std::endl;
 }
 
-std::vector<type_pattern> * WeightMonitor::load_patfile( std::string filename, int maxpat )
+std::vector<type_pattern> * WeightMonitor::load_patfile( std::string filename, unsigned int maxpat )
 {
 
 	std::vector<type_pattern> * patterns = new std::vector<type_pattern>;
@@ -251,13 +253,13 @@ std::vector<type_pattern> * WeightMonitor::load_patfile( std::string filename, i
 	return patterns;
 }
 
-void WeightMonitor::load_pattern_connections( std::string filename , int maxcon, int maxpat, PatternMode patmod )
+void WeightMonitor::load_pattern_connections( std::string filename , unsigned int maxcon, unsigned int maxpat, PatternMode patmod )
 {
 	load_pattern_connections( filename, filename, maxcon, maxpat, patmod );
 }
 
 
-void WeightMonitor::load_pattern_connections( std::string filename_pre, std::string filename_post , int maxcon, int maxpat, PatternMode patmod )
+void WeightMonitor::load_pattern_connections( std::string filename_pre, std::string filename_post , unsigned int maxcon, unsigned int maxpat, PatternMode patmod )
 {
 	if ( !src->get_destination()->evolve_locally() ) return ;
 
@@ -269,12 +271,12 @@ void WeightMonitor::load_pattern_connections( std::string filename_pre, std::str
 
 
 
-	for ( int i = 0 ; i < patterns_pre->size() ; ++i ) {
-		for ( int j = 0 ; j < patterns_post->size() ; ++j ) {
+	for ( unsigned int i = 0 ; i < patterns_pre->size() ; ++i ) {
+		for ( unsigned int j = 0 ; j < patterns_post->size() ; ++j ) {
 			if ( patmod==ASSEMBLIES_ONLY && i != j ) continue;
 			std::vector<neuron_pair> list;
-			for ( int k = 0 ; k < patterns_pre->at(i).size() ; ++k ) {
-				for ( int l = 0 ; l < patterns_post->at(j).size() ; ++l ) {
+			for ( unsigned int k = 0 ; k < patterns_pre->at(i).size() ; ++k ) {
+				for ( unsigned int l = 0 ; l < patterns_post->at(j).size() ; ++l ) {
 						neuron_pair p;
 						p.i = patterns_pre->at(i)[k].i;
 						p.j = patterns_post->at(j)[l].i;
@@ -327,11 +329,11 @@ void WeightMonitor::record_single_synapses()
 
 void WeightMonitor::record_synapse_groups()
 {
-	for ( int i = 1 ; i < group_indices.size() ; ++i ) {
+	for ( unsigned int i = 1 ; i < group_indices.size() ; ++i ) {
 		AurynDouble sum = 0;
 		AurynDouble sum2 = 0;
 
-		for ( int k = group_indices[i-1] ; k < group_indices[i] ; ++k ) {
+		for ( unsigned int k = group_indices[i-1] ; k < group_indices[i] ; ++k ) {
 			sum += mat->get_data( element_list->at(k) );
 			sum2 += pow( mat->get_data( element_list->at(k) ), 2);
 		}

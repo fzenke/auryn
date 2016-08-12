@@ -78,7 +78,7 @@ protected:
 	void record_single_synapses();
 	void record_synapse_groups();
 
-	std::vector<type_pattern> * load_patfile( string filename, int maxpat );
+	std::vector<type_pattern> * load_patfile( string filename, unsigned int maxpat );
 	
 public:
 	/*! \brief Default constructor
@@ -168,8 +168,8 @@ public:
 	 * \param patmod ALLTOALL means from all patterns to all patterns. ASSEMBLIES_ONLY
 	 *		only adds connections inside single patterns.
 	 */
-	void load_pattern_connections(string filename, int maxcon = 5, int maxpat = 10, PatternMode patmod = ALLTOALL);
-	void load_pattern_connections(string filename_pre, string filename_post, int maxcon = 5, int maxpat = 10, PatternMode patmod = ALLTOALL);
+	void load_pattern_connections(string filename, unsigned int maxcon = 5, unsigned int maxpat = 10, PatternMode patmod = ALLTOALL);
+	void load_pattern_connections(string filename_pre, string filename_post, unsigned int maxcon = 5, unsigned int maxpat = 10, PatternMode patmod = ALLTOALL);
 
 	/*! \brief Adds connections from a given range in the sparse matrix data array */
 	void load_data_range(AurynLong i, AurynLong j);

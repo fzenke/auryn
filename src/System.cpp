@@ -632,7 +632,7 @@ void System::save_network_state(std::string basename)
 
 	auryn::logger->msg("Saving communicator information ...",VERBOSE);
 	// save communicator information 
-	int tmp_int = mpi_size();
+	unsigned int tmp_int = mpi_size();
 	oa << tmp_int;
 	tmp_int = mpi_rank();
 	oa << tmp_int;
@@ -770,7 +770,7 @@ void System::load_network_state(std::string basename)
 
 	// verify communicator information 
 	bool pass_comm = true;
-	int tmp_int;
+	unsigned int tmp_int;
 	ia >> tmp_int;
 	pass_comm = pass_comm && (tmp_int == mpi_size());
 	ia >> tmp_int;

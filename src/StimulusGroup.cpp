@@ -560,7 +560,7 @@ void StimulusGroup::seed(int rndseed)
 	boost::variate_generator<boost::mt19937&, boost::uniform_int<> > die(order_gen, dist);
 
 	NeuronID rnd = die();
-	for (int i = 0 ; i < sys->mpi_rank() ; ++i ) {
+	for (unsigned int i = 0 ; i < sys->mpi_rank() ; ++i ) {
 		rnd = die();
 	}
 
