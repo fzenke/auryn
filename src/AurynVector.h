@@ -27,6 +27,7 @@
 #define AURYNVECTOR_H_
 
 #include <ctime>
+#include <assert.h>
 #include "auryn_definitions.h"
 
 
@@ -49,6 +50,10 @@ namespace auryn {
 	template <typename T, typename IndexType = NeuronID > 
 	class AurynVector { 
 		private: 
+
+			/*!\brief Pointer to allocated unaligned memory */
+			void * mem;
+
 			friend class boost::serialization::access;
 			template<class Archive>
 			void serialize(Archive & ar, const unsigned int version)
@@ -86,11 +91,16 @@ namespace auryn {
 			/*! \brief Implements aligned memory allocation */
 			void allocate(const NeuronID n) {
 #ifdef CODE_ALIGNED_SIMD_INSTRUCTIONS
-				T * ptr = (T*)aligned_alloc(sizeof(T)*SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS,sizeof(T)*n);
-				if ( ptr == NULL ) {
+				std::size_t mem_alignment = sizeof(T)*SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS;
+				std::size_t mem_size = sizeof(T)*n;
+				mem = malloc(mem_size+mem_alignment-1); // adds padding to allocated memory
+				T * ptr = (T*)mem; 
+				if ( (unsigned long)mem%mem_alignment ) ptr = (T*)(((unsigned long)mem/mem_alignment+1)*mem_alignment);
+				if ( mem == NULL ) {
 					// TODO implement proper exception handling
 					throw AurynMemoryAlignmentException(); 
 				}
+				assert(((unsigned long)ptr % mem_alignment) == 0);
 #else
 				T * ptr = new T[n];
 #endif
@@ -101,7 +111,7 @@ namespace auryn {
 
 			void freebuf() {
 #ifdef CODE_ALIGNED_SIMD_INSTRUCTIONS
-				free(data);
+				free(mem);
 #else
 				delete [] data;
 #endif
