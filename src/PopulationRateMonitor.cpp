@@ -50,7 +50,7 @@ void PopulationRateMonitor::init(SpikingGroup * source, std::string filename, Au
 	oss << "PopulationRateMonitor:: Setting binsize " << binsize << "s";
 	auryn::logger->msg(oss.str(),NOTIFICATION);
 
-	// outfile << setiosflags(ios::fixed) << setprecision(6);
+	// outfile << std::setiosflags(ios::fixed) << setprecision(6);
 }
 
 void PopulationRateMonitor::propagate()

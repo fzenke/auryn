@@ -79,7 +79,7 @@ StateMonitor::StateMonitor(EulerTrace * trace, NeuronID id, std::string filename
 
 void StateMonitor::init(std::string filename, AurynDouble sampling_interval)
 {
-	outfile << setiosflags(std::ios::fixed) << std::setprecision(6);
+	outfile << std::setiosflags(std::ios::fixed) << std::setprecision(6);
 
 	set_stop_time(10.0);
 	ssize = sampling_interval/dt;
