@@ -73,49 +73,23 @@ namespace auryn {
 	 * \param logfile_prefix A file prefix (without path) which Auryn will use to generate
 	 * a log file name.
 	 * */
-	inline void auryn_init(int ac, char* av[], string dir=".", string simulation_name="", string logfile_prefix="" )
-	{
-		// init MPI environment
-		mpienv = new mpi::environment(ac, av); 
-		mpicommunicator = new mpi::communicator(); 
+	void auryn_init(int ac, char* av[], string dir=".", string simulation_name="", string logfile_prefix="" );
 
-		// Init logger environment
-		try 
-		{ 
-			string log_prefix_ = boost::filesystem::basename(av[0]);
-			log_prefix_.erase(std::remove(log_prefix_.begin(),log_prefix_.end(),' '),log_prefix_.end()); // remove spaces
-			std::transform(log_prefix_.begin(), log_prefix_.end(), log_prefix_.begin(), ::tolower); // convert to lower case
-
-			if ( !logfile_prefix.empty() ) log_prefix_ = logfile_prefix;
-
-			char strbuf_tmp [255]; 
-			sprintf(strbuf_tmp, "%s/%s.%d.log", dir.c_str(), log_prefix_.c_str(), mpicommunicator->rank()); 
-			string auryn_simulation_logfile = strbuf_tmp; 
-			logger = new Logger(auryn_simulation_logfile,mpicommunicator->rank(),PROGRESS,EVERYTHING); 
-		} 
-		catch ( AurynOpenFileException excpt ) 
-		{ 
-			std::cerr << "Cannot proceed without log file. Exiting all ranks ..." << std::endl; 
-			mpienv->abort(1); 
-		} 
-
-		// Init Auryn Kernel
-		auryn::sys = new System(mpicommunicator); 
-		sys->set_output_dir(dir);
-		sys->set_simulation_name(simulation_name);
-	}
-
-	/*! \brief Shuts down Auryn simulation environment. 
+	/*! \brief Cleanly shuts down Auryn simulation environment. 
 	 *
 	 * Deletes global variables mpienv, mpicommunicator, sys and logger and ensures 
 	 * that all data is written to disk.*/
-	inline void auryn_free()
-	{
-		delete sys;
-		delete logger;
-		delete mpicommunicator;
-		delete mpienv;
-	}
+	void auryn_free();
+
+	/*! \brief Terminates Auryn simulation abnormally 
+	 *
+	 * This issues a term signal to all MPI processes in case of error, but first closes
+	 * the Auryn kernel and terminates the logger to ensure all information of the issuing
+	 * rank are written to disk.
+	 *
+	 * \param errcode The errorcode to be returned by the MPI processes
+	 * */
+	void auryn_abort(int errcode=0); 
 }
 
 #endif /*AURYN_GLOBAL_H__*/
