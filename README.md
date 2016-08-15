@@ -21,6 +21,15 @@ git clone https://github.com/fzenke/auryn.git && cd auryn/build/release
 ./bootstrap.sh && make
 ```
 
+Then to install the library:
+```
+sudo make install
+```
+which will put it under `/usr/local/` or for a local install
+```
+make DESTDIR=./your/dir/ install
+```
+
 Documentation & Installation/Use
 --------------------------------
 
