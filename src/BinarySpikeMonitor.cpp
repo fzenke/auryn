@@ -121,3 +121,8 @@ void BinarySpikeMonitor::propagate()
 		}
 	}
 }
+
+void BinarySpikeMonitor::flush()
+{
+	outfile.flush();
+}

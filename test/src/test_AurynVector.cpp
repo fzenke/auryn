@@ -22,10 +22,10 @@ BOOST_AUTO_TEST_CASE( resizing ) {
 	for ( int i = n ; i < 2*n ; ++i ) 
 		BOOST_CHECK_EQUAL( v.data[i], 0 );
 
-	v.resize( n/2 );
-	BOOST_CHECK_EQUAL( v.size, n/2 );
+	v.resize( n/5 );
+	BOOST_CHECK_EQUAL( v.size, n/5 );
 
-	for ( int i = 0 ; i < n/2 ; ++i ) 
+	for ( int i = 0 ; i < n/5 ; ++i ) 
 		BOOST_CHECK_EQUAL( v.data[i] , i );
 }
 

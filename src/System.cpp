@@ -105,13 +105,6 @@ void System::init() {
 	auryn::logger->warning(oss.str());
 #endif 
 
-	oss.str("");
-	if(__builtin_cpu_supports("avx2")) {
-		oss << "System supports AVX2";
-	} else {
-		oss << "System does not support AVX2";
-	}
-	auryn::logger->msg(oss.str(),VERBOSE);
 
 }
 
@@ -344,7 +337,7 @@ void System::progressbar ( double fraction, AurynTime clk ) {
 
 	std::string time = get_nice_time(clk);
 
-	std::cout<< percent << "%     "<< setiosflags(std::ios::fixed) << " t=" << time ;
+	std::cout<< percent << "%     "<< std::setiosflags(std::ios::fixed) << " t=" << time ;
 
 	if ( online_rate_monitor_id >= 0 ) {
 		std::cout  << std::setprecision(1) << "  f=" << online_rate_monitor_state << " Hz"
@@ -645,7 +638,7 @@ void System::save_network_state(std::string basename)
 
 	auryn::logger->msg("Saving communicator information ...",VERBOSE);
 	// save communicator information 
-	int tmp_int = mpi_size();
+	unsigned int tmp_int = mpi_size();
 	oa << tmp_int;
 	tmp_int = mpi_rank();
 	oa << tmp_int;
@@ -783,7 +776,7 @@ void System::load_network_state(std::string basename)
 
 	// verify communicator information 
 	bool pass_comm = true;
-	int tmp_int;
+	unsigned int tmp_int;
 	ia >> tmp_int;
 	pass_comm = pass_comm && (tmp_int == mpi_size());
 	ia >> tmp_int;

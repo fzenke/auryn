@@ -101,9 +101,9 @@ int main(int ac, char* av[])
     }
 
 	auryn_init(ac, av);
+	sys->set_master_seed(seed);
 
 	PoissonGroup * poisson = new PoissonGroup(size,kappa);
-	poisson->seed(seed);
 
 	sprintf(strbuf, "%s/%s.%d.ras", dir.c_str(), file_prefix.c_str(), sys->mpi_rank() );
 	SpikeMonitor * smon_e = new SpikeMonitor( poisson, strbuf, size);

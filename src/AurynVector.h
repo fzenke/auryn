@@ -27,7 +27,9 @@
 #define AURYNVECTOR_H_
 
 #include <ctime>
+#include <assert.h>
 #include "auryn_definitions.h"
+#include <boost/align/aligned_alloc.hpp>
 
 
 namespace auryn {
@@ -49,6 +51,10 @@ namespace auryn {
 	template <typename T, typename IndexType = NeuronID > 
 	class AurynVector { 
 		private: 
+
+			/*!\brief Pointer to allocated unaligned memory */
+			void * mem;
+
 			friend class boost::serialization::access;
 			template<class Archive>
 			void serialize(Archive & ar, const unsigned int version)
@@ -86,7 +92,7 @@ namespace auryn {
 			/*! \brief Implements aligned memory allocation */
 			void allocate(const NeuronID n) {
 #ifdef CODE_ALIGNED_SIMD_INSTRUCTIONS
-				T * ptr = (T*)aligned_alloc(sizeof(T)*SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS,sizeof(T)*n);
+				T * ptr = (T*)boost::alignment::aligned_alloc(sizeof(T)*SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS,sizeof(T)*n);
 				if ( ptr == NULL ) {
 					// TODO implement proper exception handling
 					throw AurynMemoryAlignmentException(); 
@@ -101,7 +107,7 @@ namespace auryn {
 
 			void freebuf() {
 #ifdef CODE_ALIGNED_SIMD_INSTRUCTIONS
-				free(data);
+				boost::alignment::aligned_free(data);
 #else
 				delete [] data;
 #endif
@@ -590,6 +596,7 @@ namespace auryn {
 	class AurynVectorFloat : public AurynVector<float,NeuronID> 
 	{
 		private:
+			typedef AurynVector<float,NeuronID> super;
 
 		public:
 			/*! \brief Default constructor */
@@ -601,6 +608,7 @@ namespace auryn {
 			};
 
 
+			void resize(NeuronID new_size);
 			void scale(const float a);
 			void saxpy(const float a, AurynVectorFloat * x);
 			void clip(const float min, const float max);

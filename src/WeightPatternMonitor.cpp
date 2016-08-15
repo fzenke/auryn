@@ -46,7 +46,7 @@ void WeightPatternMonitor::init(Connection * source, std::string filename,AurynT
 	ssize = stepsize;
 	if ( ssize < 1 ) ssize = 1;
 
-	outfile << setiosflags(std::ios::fixed) << std::setprecision(6);
+	outfile << std::setiosflags(std::ios::fixed) << std::setprecision(6);
 
 	max_patterns = 5;
 }

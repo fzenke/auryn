@@ -161,7 +161,7 @@ void STPConnection::propagate()
 		AurynWeight * data = w->get_data_begin(); // first element of data array
 
 		// loop over spikes
-		for (int i = 0 ; i < src->get_spikes()->size() ; ++i ) {
+		for (NeuronID i = 0 ; i < src->get_spikes()->size() ; ++i ) {
 			// get spike at pos i in SpikeContainer
 			NeuronID spike = src->get_spikes()->at(i);
 

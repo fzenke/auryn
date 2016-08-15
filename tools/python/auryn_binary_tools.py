@@ -45,11 +45,8 @@ class AurynBinaryFile:
     def read_frames(self, bufsize):
         return self.datafile.read(bufsize*self.frame_size)
 
-    def open_file(self):
-
-        # TODO add exception handling
-        self.frame_size = struct.calcsize(self.data_format)
-        self.datafile = open(self.filename, "rb")
+    def refresh(self):
+        ''' Reload file internal properties in case the file has changed'''
 
         # Reader spk file header
         data = self.datafile.read(self.frame_size)
@@ -78,6 +75,15 @@ class AurynBinaryFile:
         self.t_min = at*self.timestep
         at,val = self.get_frame(self.last_frame)
         self.t_max = at*self.timestep
+
+    def open_file(self):
+
+        # TODO add exception handling
+        self.frame_size = struct.calcsize(self.data_format)
+        self.datafile = open(self.filename, "rb")
+
+        self.refresh()
+
 
 class AurynBinaryStateFile(AurynBinaryFile):
     '''
@@ -150,6 +156,26 @@ class AurynBinarySpikeFile(AurynBinaryFile):
             if nid<max_id:
                 spikes.append((self.timestep*at, nid))
         return spikes
+
+    def get_spike_counts( self, t_start=0.0, t_stop=1e32, min_size=1 ):
+        idx_start = self.find_frame( t_start, lower=False )
+        idx_stop = self.find_frame( t_stop, lower=True )
+        start_pos = idx_start*self.frame_size
+        num_elements = idx_stop-idx_start
+
+        self.datafile.seek(start_pos,0)
+        data = self.datafile.read(num_elements*self.frame_size)
+
+        counts = np.zeros(min_size)
+        for i in xrange(num_elements):
+            at, nid = struct.unpack_from(self.data_format, data, i*self.frame_size)
+            if nid >= len(counts):
+                counts.resize(nid+1)
+            counts[nid] += 1
+        return counts
+
+    def get_firing_rates( self, t_start=0.0, t_stop=1e32, min_size=1 ):
+        return self.get_spike_counts( t_start, t_stop, min_size )/(t_stop-t_start)
 
     def get_last( self, seconds=1.0 ):
         ''' Returns the last x seconds of spikes'''

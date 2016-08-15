@@ -53,7 +53,8 @@ DuplexConnection::DuplexConnection(const char * filename)
 		init();
 }
 
-DuplexConnection::DuplexConnection(SpikingGroup * source, NeuronGroup * destination, 
+DuplexConnection::DuplexConnection(SpikingGroup * source, 
+		NeuronGroup * destination, 
 		TransmitterType transmitter) 
 : SparseConnection(source, destination, transmitter)
 {

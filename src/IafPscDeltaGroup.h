@@ -23,7 +23,7 @@
 * Front Neuroinform 8, 76. doi: 10.3389/fninf.2014.00076
 */
 
-#ifndef IAFPSCDELTAGROUP
+#ifndef IAFPSCDELTAGROUP_H_
 #define IAFPSCDELTAGROUP_H_
 
 #include "auryn_definitions.h"

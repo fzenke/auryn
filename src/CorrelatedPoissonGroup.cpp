@@ -63,7 +63,7 @@ void CorrelatedPoissonGroup::init(AurynDouble  rate, NeuronID gsize, AurynDouble
 		// delay_o = new AurynDouble [delay*(ngroups-1)];
 		o = 1.0;
 		delay_o = new AurynDouble [delay*ngroups];
-		for ( int i = 0 ; i < delay*ngroups ; ++i )
+		for ( unsigned int i = 0 ; i < delay*ngroups ; ++i )
 			delay_o[i] = 1.0;
 
 		dist = new boost::uniform_01<> ();
@@ -71,7 +71,7 @@ void CorrelatedPoissonGroup::init(AurynDouble  rate, NeuronID gsize, AurynDouble
 		seed(sys->mpi_rank()); // seeding problem
 
 		x = new NeuronID [ngroups];
-		for ( int i = 0 ; i < ngroups ; ++i ) {
+		for ( unsigned int i = 0 ; i < ngroups ; ++i ) {
 			AurynDouble r = log(1-(AurynDouble)(*die)())/(-lambda);
 			x[i] += (NeuronID)(r/dt); 
 		}
@@ -132,7 +132,7 @@ void CorrelatedPoissonGroup::evolve()
 	int len = delay*ngroups;
 	delay_o[auryn::sys->get_clock()%len] = std::max(thr,o*lambda);
 
-	for ( int g = 0 ; g < ngroups ; ++g ) {
+	for ( unsigned int g = 0 ; g < ngroups ; ++g ) {
 		AurynDouble grouprate = delay_o[(auryn::sys->get_clock()-(g+offset)*delay)%len];
 		AurynDouble r = -log(1-(AurynDouble)(*die)())/(dt*grouprate); // think before tempering with this! 
 		// I already broke the corde here once!
