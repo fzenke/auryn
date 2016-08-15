@@ -250,7 +250,7 @@ public:
 	/*! \brief Transmits a spike to a given target group and state
 	 *
 	 * The method exposes the transmit interface and should not be used unless you know exactly what you are doing. */
-	void targeted_transmit(NeuronGroup * target_group, AurynStateVector * target_state, const NeuronID id, const AurynWeight amount);
+	void targeted_transmit(SpikingGroup * target_group, AurynStateVector * target_state, const NeuronID id, const AurynWeight amount);
 
 	/*! \brief Same as transmit but first checks if the target neuron exists and avoids segfaults that way (but it's also slower). */
 	void safe_transmit(NeuronID id, AurynWeight amount);
@@ -284,7 +284,7 @@ public:
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(Connection)
 
 
-inline void Connection::targeted_transmit(NeuronGroup * target_group, AurynStateVector * target_state, const NeuronID id, const AurynWeight amount) 
+inline void Connection::targeted_transmit(SpikingGroup * target_group, AurynStateVector * target_state, const NeuronID id, const AurynWeight amount) 
 {
 	const NeuronID localid = target_group->global2rank(id);
 	target_state->data[localid]+=amount;
