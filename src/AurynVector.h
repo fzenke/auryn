@@ -29,7 +29,6 @@
 #include <ctime>
 #include <assert.h>
 #include "auryn_definitions.h"
-#include <boost/align/aligned_alloc.hpp>
 
 
 namespace auryn {
@@ -92,11 +91,18 @@ namespace auryn {
 			/*! \brief Implements aligned memory allocation */
 			void allocate(const NeuronID n) {
 #ifdef CODE_ALIGNED_SIMD_INSTRUCTIONS
-				T * ptr = (T*)boost::alignment::aligned_alloc(sizeof(T)*SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS,sizeof(T)*n);
-				if ( ptr == NULL ) {
+				std::size_t mem_alignment = sizeof(T)*SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS;
+				std::size_t mem_size = sizeof(T)*n;
+				mem = malloc(mem_size+mem_alignment-1); // adds padding to allocated memory
+				T * ptr = (T*)mem; 
+				if ( (unsigned long)mem%mem_alignment ) ptr = (T*)(((unsigned long)mem/mem_alignment+1)*mem_alignment);
+				//! \todo TODO Replace above alignment code with boost code once boost 1.56 is commonly available with the dists
+				// T * ptr = (T*)boost::alignment::aligned_alloc(sizeof(T)*SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS,sizeof(T)*n);
+				if ( mem == NULL ) {
 					// TODO implement proper exception handling
 					throw AurynMemoryAlignmentException(); 
 				}
+				assert(((unsigned long)ptr % mem_alignment) == 0);
 #else
 				T * ptr = new T[n];
 #endif
@@ -107,7 +113,9 @@ namespace auryn {
 
 			void freebuf() {
 #ifdef CODE_ALIGNED_SIMD_INSTRUCTIONS
-				boost::alignment::aligned_free(data);
+				free(mem);
+				//! \todo TODO Replace above alignment code with boost code once boost 1.56 is commonly available with the dists
+				// boost::alignment::aligned_free(data);
 #else
 				delete [] data;
 #endif
