@@ -20,7 +20,6 @@
 
 
 #include "auryn.h"
-#include "LPTripletConnection.h"
 
 #define N_REC_WEIGHTS 5000
 

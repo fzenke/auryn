@@ -1,7 +1,7 @@
 #define BOOST_TEST_MODULE AurynStateVector test 
 #include <boost/test/unit_test.hpp>
-#include "../../src/AurynVector.h"
-#include "../../src/auryn_definitions.h"
+#include "auryn/AurynVector.h"
+#include "auryn/auryn_definitions.h"
 
 int expected_size( int n ) 
 {

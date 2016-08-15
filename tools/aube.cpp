@@ -23,7 +23,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include "AurynVersion.h"
+#include "auryn/AurynVersion.h"
 
 using namespace auryn;
 
