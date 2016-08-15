@@ -68,7 +68,7 @@ void PatternMonitor::init(SpikingGroup * source, std::string filename, NeuronID 
 	counter = new  NeuronID [src->get_rank_size()];
 	patterns = new std::vector<type_pattern>;
 
-	for ( int i = 0 ; i < src->get_rank_size() ; ++i )
+	for ( NeuronID i = 0 ; i < src->get_rank_size() ; ++i )
 		counter[i] = 0;
 
 	std::stringstream oss;
@@ -103,13 +103,13 @@ void PatternMonitor::propagate()
 			}
 
 			NeuronID act = 0;
-			for ( int i = 0 ; i < src->get_rank_size() ; ++i )
+			for ( NeuronID i = 0 ; i < src->get_rank_size() ; ++i )
 				if (counter[i]) act++;
 
 			outfile << " " << 1.0*act/src->get_rank_size() << "\n"; // total activation
 
 			// reset counter
-			for ( int i = 0 ; i < src->get_rank_size() ; ++i )
+			for ( NeuronID i = 0 ; i < src->get_rank_size() ; ++i )
 				counter[i] = 0;
 		}
 	}

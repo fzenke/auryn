@@ -350,7 +350,7 @@ void SpikingGroup::set_delay( int d )
 
 PRE_TRACE_MODEL * SpikingGroup::get_pre_trace( AurynFloat x ) 
 {
-	for ( int i = 0 ; i < pretraces.size() ; i++ ) {
+	for ( NeuronID i = 0 ; i < pretraces.size() ; i++ ) {
 		if ( pretraces[i]->get_tau() == x ) {
 			std::stringstream oss;
 			oss << get_log_name() << ":: Sharing pre trace with " << x << "s timeconstant." ;
