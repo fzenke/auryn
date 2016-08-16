@@ -40,6 +40,7 @@
 #include "auryn/auryn_global.h"
 #include "auryn/auryn_definitions.h"
 #include "auryn/AurynVector.h"
+#include "auryn/AurynDelayVector.h"
 #include "auryn/System.h"
 #include "auryn/SyncBuffer.h"
 #include "auryn/Logger.h"

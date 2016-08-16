@@ -3,6 +3,7 @@
 BUILDDIR="../build/release"
 $BUILDDIR/test/src/test_AurynVector && \
 $BUILDDIR/test/src/test_AurynStateVector && \
+$BUILDDIR/test/src/test_AurynDelayVector && \
 $BUILDDIR/test/src/test_EulerTrace && \
 $BUILDDIR/test/src/test_LinearTrace && \
 $BUILDDIR/test/src/test_ComplexMatrix && exit 0
