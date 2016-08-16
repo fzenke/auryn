@@ -17,18 +17,26 @@ BOOST_AUTO_TEST_CASE( memory ) {
     auryn::AurynDelayVector v( n, d );
 
 	for ( int t = 0 ; t < d ; ++t ) {
-		std::cout << "t " << t << std::endl;
+		// std::cout << "t " << t << std::endl;
 		for ( int i = 0 ; i < n ; ++i ) v.set(i,linfun(i*t));
-		v.print();
+		//v.print();
 		v.advance();
 	}
 
 	// check delayed by 2
 	int dly = 3;
-	std::cout << "checking delayed by " << dly << std::endl;
-	v.mem_ptr(dly)->print();
+	// std::cout << "checking delayed by " << dly << std::endl;
+	// v.mem_ptr(dly)->print();
 	for ( int i = 0 ; i < n ; ++i ) {
 		BOOST_CHECK_EQUAL( v.mem_ptr(dly)->get(i), linfun(i*(d-dly)) );
+	}
+
+	// check delayed by max delay (should be first element)
+	dly = -1; // the same as dly = d
+	// std::cout << "checking delayed by max " << std::endl;
+	// v.mem_ptr(dly)->print();
+	for ( int i = 0 ; i < n ; ++i ) {
+		BOOST_CHECK_EQUAL( v.mem_ptr(dly)->get(i), linfun(i*0) );
 	}
 }
 
