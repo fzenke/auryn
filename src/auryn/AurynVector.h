@@ -561,6 +561,16 @@ namespace auryn {
 				return sum;
 			}
 
+			/*! \brief Sets all values whose absolute value is smaller than epsilon to zero.
+			 *
+			 */
+			void zero_effective_zeros( const T epsilon = 1e-3)
+			{
+				for ( IndexType i = 0 ; i < size ; ++i ) {
+					if ( std::abs(get(i)) < epsilon ) set(i, 0.0);
+				}
+			}
+
 			void set_random_normal(AurynState mean=0.0, AurynState sigma=1.0, unsigned int seed=8721)
 			{
 				if ( seed == 0 )
