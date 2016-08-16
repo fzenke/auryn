@@ -85,7 +85,12 @@ class SpikeDelay
 		 *
 		 * This allows to set the size of the delay in timesteps. The delay has to be at least of
 		 * size MINDELAY+1. */
-		void set_delay( int delay);
+		void set_delay( int delay );
+
+		/*! \brief Get delay time in AurynTime
+		 *
+		 */
+		int get_delay( );
 
 		/*! \brief Internal function to set clock pointer
 		 *

@@ -54,6 +54,11 @@ void SpikeDelay::set_delay( int delay )
 	}
 }
 
+int SpikeDelay::get_delay( ) 
+{
+	return ndelay;
+}
+
 void SpikeDelay::free()
 {
 	for (int i = 0 ; i < ndelay ; ++i) {
