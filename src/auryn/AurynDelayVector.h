@@ -39,6 +39,15 @@ namespace auryn {
 
 	/*! \brief AurynDelayVector is a AurynVectorFloat which keeps its own history in a ring buffer
 	 *
+	 * Note that AurynDelayVector does not tap into the Auryn clock and the method advance() has to be run to store a
+	 * copy in the vector queue.
+	 *
+	 * Public member methods:
+	 *
+	 * advance(): Stores corrent vector state into a queue
+	 * mem_get(i,d)  : Retrieves element i from the d delayed version
+	 * mem_ptr(d)    : Returns pointer to the d delayed version of the vector.
+	 *
 	 */
 	class AurynDelayVector : public AurynVectorFloat 
 	{
@@ -63,7 +72,7 @@ namespace auryn {
 			 *
 			 * \param delay The delay in timesteps to retrieve. Value needs to be > 0, values smaller than zero will be interpreted as the max delay.
 			 **/
-			AurynFloat get(NeuronID i, int delay=-1);
+			AurynFloat mem_get(NeuronID i, int delay=-1);
 
 			/*! \brief Returns pointer to delayed array element 
 			 *

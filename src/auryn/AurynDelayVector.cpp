@@ -59,7 +59,7 @@ void AurynDelayVector::advance(  )
 	memory_pos_ = (memory_pos_+1)%delay_buffer_size_;
 }
 
-AurynFloat AurynDelayVector::get( NeuronID i, int delay ) 
+AurynFloat AurynDelayVector::mem_get( NeuronID i, int delay ) 
 {
 	int pos = (delay_buffer_size_+memory_pos_-delay)%delay_buffer_size_;
 	if ( delay < 0 ) pos = memory_pos_;
