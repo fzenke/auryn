@@ -101,10 +101,17 @@ public:
 	 * \param value value to add to the trace
 	 */
 	void add(NeuronID i , AurynFloat value);
+
 	/*! Increment given trace by 1.
 	 * \param i index of trace to increment.
 	 */
 	void inc(NeuronID i);
+
+	/*! Increment given traces by 1.
+	 * \param sc SpikeContainer with all neurons to increment.
+	 */
+	void inc(SpikeContainer * sc);
+
 	/*! Perform Euler step. */
 	void evolve();
 

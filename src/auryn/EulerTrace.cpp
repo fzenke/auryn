@@ -95,9 +95,7 @@ void EulerTrace::set_target( EulerTrace * target )
 
 void EulerTrace::evolve()
 {
-    // auryn_vector_float_scale(scale_const,state); // seems to be faster
 	state->scale(scale_const);
-	// auryn_vector_float_mul_constant(state,scale_const);
 }
 
 void EulerTrace::follow()
@@ -119,10 +117,14 @@ AurynFloat EulerTrace::get_tau()
 
 void EulerTrace::inc(NeuronID i)
 {
-   // auryn_vector_float_set (state, i, auryn_vector_float_get (state, i)+1);
    state->data[i]++;
 }
 
+void EulerTrace::inc(SpikeContainer * sc)
+{
+	for ( NeuronID i = 0 ; i < sc->size() ; ++i )
+		inc((*sc)[i]);
+}
 
 AurynFloat EulerTrace::normalized_get(NeuronID i)
 {
