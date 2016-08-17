@@ -71,6 +71,7 @@
 #include "auryn/SpikingGroup.h"
 #include "auryn/NeuronGroup.h"
 #include "auryn/PoissonGroup.h"
+#include "auryn/PoissonSpikeInjector.h"
 #include "auryn/FileInputGroup.h"
 #include "auryn/FileModulatedPoissonGroup.h"
 #include "auryn/StimulusGroup.h"
