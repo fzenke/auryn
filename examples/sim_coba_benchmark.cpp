@@ -18,6 +18,27 @@
 * along with Auryn.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*!\file 
+ *
+ * \brief Simulation code for the Vogels Abbott benchmark following Brette et al. (2007)
+ *
+ * This simulation implements the Vogels Abbott benchmark as suggested by
+ * Brette et al. (2007) Journal of Computational Neuroscience 23: 349-398. 
+ *
+ * The network is based on a network by Vogels and Abbott as described in 
+ * Vogels, T.P., and Abbott, L.F. (2005).  Signal propagation and logic gating
+ * in networks of integrate-and-fire neurons. J Neurosci 25, 10786.
+ *
+ * We used this network for benchmarking Auryn against other simulators in
+ * Zenke, F., and Gerstner, W. (2014). Limits to high-speed simulations of
+ * spiking neural networks using general-purpose computers. Front Neuroinform
+ * 8, 76.
+ *
+ * See build/release/run_benchmark.sh for automatically run benchmarks to
+ * compare the performance of different Auryn builds.
+ *
+ * */
+
 #include "auryn.h"
 
 using namespace auryn;
