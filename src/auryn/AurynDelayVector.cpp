@@ -61,6 +61,7 @@ void AurynDelayVector::advance(  )
 
 AurynFloat AurynDelayVector::mem_get( NeuronID i, int delay ) 
 {
+	if ( delay == 0 ) return get(i);
 	int pos = (delay_buffer_size_+memory_pos_-delay)%delay_buffer_size_;
 	if ( delay < 0 ) pos = memory_pos_;
 	return memory[pos]->get(i);
@@ -68,6 +69,7 @@ AurynFloat AurynDelayVector::mem_get( NeuronID i, int delay )
 
 AurynVectorFloat * AurynDelayVector::mem_ptr( int delay ) 
 {
+	if ( delay == 0 ) return this;
 	int pos = (delay_buffer_size_+memory_pos_-delay)%delay_buffer_size_;
 	if ( delay < 0 ) pos = memory_pos_;
 	return memory[pos];
