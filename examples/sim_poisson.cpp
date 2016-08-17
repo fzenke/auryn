@@ -18,6 +18,12 @@
 * along with Auryn.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+
+/*!\file 
+ *
+ * \brief Example simulation which simulates a group of Poisson neurons
+ */
+
 #include "auryn.h"
 
 using namespace auryn;
