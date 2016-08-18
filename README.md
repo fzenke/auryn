@@ -9,11 +9,13 @@ Auryn is a source package used to create highly specialized and optimized code
 to simulate recurrent spiking neural networks with spike timing dependent
 plasticity (STDP). It comes with the GPLv3 (please see COPYING).
 
+For examples and documentation visit the wiki at http://www.fzenke.net/auryn/
 
 Quick start
 -----------
 
-To download and compile the examples try:
+Note, Auryn needs a C++ compiler, the boost libraries (www.boost.org) with MPI support installed 
+in development versions to compile. To download and compile the examples under Linux try:
 
 ```
 sudo apt-get install cmake git build-essential libboost-all-dev
@@ -30,18 +32,6 @@ which will put it under `/usr/local/` or for a local install
 make DESTDIR=./your/dir/ install
 ```
 
-
-Documentation 
--------------
-
-Please visit the wiki at http://www.fzenke.net/auryn/
-
-
-Requirements
-------------
-
-Auryn needs the boost libraries (www.boost.org) with MPI support installed 
-in development versions to compile.
 
 
 Citing Auryn
