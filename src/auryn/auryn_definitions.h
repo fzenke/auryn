@@ -27,52 +27,71 @@
 #define AURYN_DEFINITIONS_H_
 
 
-/*! Toggle between memory alignment for
- * SIMD code.
+/*! \brief Compiler flag that determines whether Auryn is built using MPI or
+ * not
  */
 #define AURYN_CODE_USE_MPI
 
 
-/*! Toggle between memory alignment for
- * SIMD code.
+/*! \brief Toggles between memory alignment for SIMD code.
  */
 #define CODE_ALIGNED_SIMD_INSTRUCTIONS
 
-/*! Toggle prefetching in spike backpropagation */
+/*! \brief Toggle prefetching in spike backpropagation 
+ *
+ * Enables prefetching for spike backpropagation in some 
+ * plastic connections.*/
 #define CODE_ACTIVATE_PREFETCHING_INTRINSICS
 
-/*! Toggle between using auryns vector 
- * operations using SIMD instructions. If
- * you do not enforce this here the compiler
- * might still choose to use them when
- * mtune settings are set appropriately.
- */
+/*! \brief Toggle between using auryns vector operations using SIMD
+ * instructions. 
+ *
+ * Even if you do not enforce this here the compiler might still choose to use
+ * them when mtune settings are set appropriately.
+ * */
 #define CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY
 
-/*! Use Intel Cilk Plus -- only has an effect when 
- * CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY is enabled. */
+/*! \brief Use Intel Cilk Plus -- only has an effect when 
+ * CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY is enabled. 
+ *
+ * Use this when using an Intel compiler and CPU. This is for instance what you
+ * want when running on Xeon Phi.  */
 // #define CODE_ACTIVATE_CILK_INSTRUCTIONS
 
-#define SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS 4 //!< SSE can process 4 floats in parallel
+/*! \brief Sets the number of floats your CPU can handle in parallel using SIMD
+ *
+ * Since Auryn currently only supports SSE and not the new AVX 512, this is typically 4.
+ * */
+#define SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS 4 
 
+/*! \brief Switches collection of timing stats in some classes like SyncBuffer and system
+ * 
+ * This is for profiling and since it impairs simulation performance, it is disabled by default.
+ * */
 // #define CODE_COLLECT_SYNC_TIMING_STATS //!< toggle  collection of timing data on sync/all_gather
 
 
-/*! System wide minimum delay which determines
- * the sync interval between nodes in units of dt.
+/*! \brief System wide minimum delay which determines the sync interval between
+ * nodes in units of dt.
+ *
+ * Per default this is set to 8 which corresponds to 0.8ms with Auryn standard
+ * dt timestep of 0.1ms.  The resaon for setting it to 8 is that the compiler
+ * can then implement certain operations using MINDELAY with va bitshift
+ * instead of regular division. However, the effect of this is presumably
+ * negligible, but I am keeping this for hystoric reasons.
  */ 
 #define MINDELAY 8
 
-/*! Groups with an effective size smaller than
- *  this will not be distributed. Furthermore 
- *  groups that are distributed will not be 
- *  cut up in chunks that are not smaller than
- *  this. This is done to reduce overhead
+/*! \brief Groups with an effective size smaller than this will not be
+ * distributed. 
+ *
+ *  Furthermore groups that are distributed will not be cut up in chunks that
+ *  are not smaller than this. This is done to reduce overhead
  */
 #define DEFAULT_MINDISTRIBUTEDSIZE 16
 
 
-/*! These precompiler directives control
+/*! \brief These precompiler directives control
  * what type of synaptic traces Auryn
  * implements for STDP models.
  */
@@ -86,8 +105,7 @@
 // #define PRE_TRACE_MODEL LinearTrace
 
 
-
-//* -- Do not modify below -- *//
+//* -- End of precompiler options -- *//
 
 
 #include <iostream>
