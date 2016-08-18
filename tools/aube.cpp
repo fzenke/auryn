@@ -186,7 +186,7 @@ int main(int ac, char* av[])
 		exit(EXIT_FAILURE);
 	}
 
-	for ( int i = 0 ; i < input_filenames.size() ; ++i ) {
+	for ( unsigned int i = 0 ; i < input_filenames.size() ; ++i ) {
 		std::ifstream * tmp = new std::ifstream( input_filenames[i].c_str(), std::ios::binary );
 		inputs.push_back(tmp);
 		if (!(*tmp)) {
@@ -250,7 +250,7 @@ int main(int ac, char* av[])
 
 
 	// set all streams to respetive start frame
-	for ( int i = 0 ; i < inputs.size() ; ++i ) {
+	for ( unsigned int i = 0 ; i < inputs.size() ; ++i ) {
 		// compute start and end frames
 		AurynLong start_frame = find_frame(inputs[i], from_time/dt);
 
@@ -267,7 +267,7 @@ int main(int ac, char* av[])
 
 	// read first frames from all files
 	std::vector<SpikeEvent_type> frames(inputs.size());
-	for ( int i = 0 ; i < frames.size() ; ++i ) {
+	for ( unsigned int i = 0 ; i < frames.size() ; ++i ) {
 		inputs[i]->read((char*)&frames[i], sizeof(SpikeEvent_type));
 	}
 
@@ -289,7 +289,7 @@ int main(int ac, char* av[])
 		int current_stream = 0;
 		AurynLong mintime = std::numeric_limits<AurynLong>::max();
 		bool eofs = true;
-		for ( int i = 0 ; i < frames.size() ; ++i ) {
+		for ( unsigned int i = 0 ; i < frames.size() ; ++i ) {
 			eofs = eofs && inputs[i]->eof();
 			if ( inputs[i]->eof() ) continue;
 			if ( frames[i].time < mintime ) { 
@@ -323,7 +323,7 @@ int main(int ac, char* av[])
  		of.close();
 
 	// close input streams
-	for ( int i = 0 ; i < frames.size() ; ++i ) {
+	for ( unsigned int i = 0 ; i < frames.size() ; ++i ) {
 		inputs[i]->close();
 	}
 
