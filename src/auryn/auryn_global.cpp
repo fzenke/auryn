@@ -27,16 +27,25 @@
 
 
 namespace auryn {
+
+#ifdef AURYN_CODE_USE_MPI
 	mpi::communicator * mpicommunicator;
 	mpi::environment * mpienv;
+#endif // AURYN_CODE_USE_MPI
+
 	Logger * logger;
 	System * sys;
 
 	void auryn_init(int ac, char* av[], string dir, string simulation_name, string logfile_prefix )
 	{
+#ifdef AURYN_CODE_USE_MPI
 		// init MPI environment
 		mpienv = new mpi::environment(ac, av); 
 		mpicommunicator = new mpi::communicator(); 
+		const unsigned int local_rank = mpicommunicator->rank();
+#else
+		const unsigned int local_rank = 0;
+#endif // AURYN_CODE_USE_MPI
 
 		// Init logger environment
 		try 
@@ -48,18 +57,22 @@ namespace auryn {
 			if ( !logfile_prefix.empty() ) log_prefix_ = logfile_prefix;
 
 			char strbuf_tmp [255]; 
-			sprintf(strbuf_tmp, "%s/%s.%d.log", dir.c_str(), log_prefix_.c_str(), mpicommunicator->rank()); 
+			sprintf(strbuf_tmp, "%s/%s.%d.log", dir.c_str(), log_prefix_.c_str(), local_rank); 
 			string auryn_simulation_logfile = strbuf_tmp; 
-			logger = new Logger(auryn_simulation_logfile,mpicommunicator->rank(),PROGRESS,EVERYTHING); 
+			logger = new Logger(auryn_simulation_logfile,local_rank,PROGRESS,EVERYTHING); 
 		} 
 		catch ( AurynOpenFileException excpt ) 
 		{ 
 			std::cerr << "Cannot proceed without log file. Exiting all ranks ..." << std::endl; 
-			mpienv->abort(1); 
+			auryn_abort(10);
 		} 
 
 		// Init Auryn Kernel
+#ifdef AURYN_CODE_USE_MPI
 		auryn::sys = new System(mpicommunicator); 
+#else
+		auryn::sys = new System(); 
+#endif // AURYN_CODE_USE_MPI
 		sys->set_output_dir(dir);
 		sys->set_simulation_name(simulation_name);
 	}
@@ -68,15 +81,19 @@ namespace auryn {
 	{
 		delete sys;
 		delete logger;
+#ifdef AURYN_CODE_USE_MPI
 		delete mpicommunicator;
 		delete mpienv;
+#endif // AURYN_CODE_USE_MPI
 	}
 
 	void auryn_abort(int errcode) {
 		delete sys;
 		delete logger;
+#ifdef AURYN_CODE_USE_MPI
 		mpienv->abort(errcode);
-		// The above line should have killed this process by now, but just in case ..
+#endif // AURYN_CODE_USE_MPI
+		// In the MPI case the above line should have killed this process already ...
 		std::exit(errcode); 
 	}
 }

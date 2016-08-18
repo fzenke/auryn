@@ -42,9 +42,12 @@
 #include "auryn/AurynVector.h"
 #include "auryn/AurynDelayVector.h"
 #include "auryn/System.h"
-#include "auryn/SyncBuffer.h"
 #include "auryn/Logger.h"
 #include "auryn/SpikeDelay.h"
+#ifdef AURYN_CODE_USE_MPI
+#include "auryn/SyncBuffer.h"
+#endif // AURYN_CODE_USE_MPI
+
 
 // Trace definitions
 #include "auryn/LinearTrace.h"

@@ -34,8 +34,10 @@ RealTimeMonitor::RealTimeMonitor(std::string filename, AurynDouble start, AurynD
 	t_start = start/dt;
 	t_stop = stop/dt;
 
+	ptime_offset = boost::posix_time::microsec_clock::local_time();
+
+#ifdef AURYN_CODE_USE_MPI
 	if (auryn::sys->get_com()->rank() == 0) {
-		ptime_offset = boost::posix_time::microsec_clock::local_time();
 		std::string sendstring = boost::posix_time::to_iso_string(ptime_offset);
 		broadcast(*auryn::sys->get_com(), sendstring, 0);
 	} else {
@@ -43,6 +45,7 @@ RealTimeMonitor::RealTimeMonitor(std::string filename, AurynDouble start, AurynD
 		broadcast(*auryn::sys->get_com(), timestring , 0);
 		ptime_offset = boost::posix_time::from_iso_string(timestring);
 	}
+#endif // AURYN_CODE_USE_MPI
 }
 
 RealTimeMonitor::~RealTimeMonitor()

@@ -61,10 +61,11 @@ private:
 	/*! Stores the groupID gid of this group */
 	NeuronID unique_id;
 
+	unsigned int mpi_rank;
+	unsigned int mpi_size;
+
 	/*! Stores the current value of the gid count */
 	static NeuronID unique_id_count;
-
-	static std::vector<mpi::request> reqs;
 
 	/*! Standard initialization of the object. */
 	void init(NeuronID size, double loadmultiplier, NeuronID total );
@@ -356,7 +357,9 @@ BOOST_SERIALIZATION_ASSUME_ABSTRACT(SpikingGroup)
 
 	extern System * sys;
 	extern Logger * logger;
+#ifdef AURYN_CODE_USE_MPI
 	extern mpi::communicator * mpicommunicator;
+#endif // AURYN_CODE_USE_MPI
 
 
 inline NeuronID SpikingGroup::global2rank(NeuronID i) {

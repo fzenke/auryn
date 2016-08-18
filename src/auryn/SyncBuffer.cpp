@@ -23,10 +23,11 @@
 * Front Neuroinform 8, 76. doi: 10.3389/fninf.2014.00076
 */
 
+
 #include "SyncBuffer.h"
 
+#ifdef AURYN_CODE_USE_MPI
 using namespace auryn;
-
 
 SyncBuffer::SyncBuffer( mpi::communicator * com )
 {
@@ -387,3 +388,5 @@ void SyncBuffer::reset_sync_time()
 }
 
 #endif
+
+#endif // AURYN_CODE_USE_MPI

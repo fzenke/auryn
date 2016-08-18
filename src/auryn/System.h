@@ -32,16 +32,18 @@
 #include "Connection.h"
 #include "Device.h"
 #include "Checker.h"
-#include "SyncBuffer.h"
 #include "AurynVersion.h"
 
 
-#include <ctime>
-
-#include <vector>
+#ifdef AURYN_CODE_USE_MPI
 #include <boost/mpi.hpp>
-#include <boost/progress.hpp>
+#include "SyncBuffer.h"
+#endif //AURYN_CODE_USE_MPI
 
+#include <ctime>
+#include <vector>
+
+#include <boost/progress.hpp>
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/variate_generator.hpp>
 #include <boost/random/uniform_int.hpp>
@@ -67,14 +69,15 @@ namespace auryn {
 
 	private:
 		AurynTime clock;
+#ifdef AURYN_CODE_USE_MPI
 		mpi::communicator * mpicom;
+		SyncBuffer * syncbuffer;
+#endif // AURYN_CODE_USE_MPI
+
 		unsigned int mpi_size_;
 		unsigned int mpi_rank_;
 
 		std::string simulation_name;
-
-		SyncBuffer * syncbuffer;
-
 
 		std::vector<SpikingGroup *> spiking_groups;
 		std::vector<Connection *> connections;
@@ -158,7 +161,9 @@ namespace auryn {
 
 		/*! \brief Switch to turn output to quiet mode (no progress bar). */
 		System();
+#ifdef AURYN_CODE_USE_MPI
 		System(mpi::communicator * communicator);
+#endif // AURYN_CODE_USE_MPI
 
 		/*! \brief Sets the simulation name. */
 		void set_simulation_name(std::string name);
@@ -314,7 +319,9 @@ namespace auryn {
 
 
 		/*! \brief Returns global mpi communicator */
+#ifdef AURYN_CODE_USE_MPI
 		mpi::communicator * get_com();
+#endif // AURYN_CODE_USE_MPI
 
 		/*! \brief Returns number of ranks
 		 *

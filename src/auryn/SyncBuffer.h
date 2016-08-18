@@ -23,8 +23,10 @@
 * Front Neuroinform 8, 76. doi: 10.3389/fninf.2014.00076
 */
 
+
 #ifndef SYNCBUFFER_H_
 #define SYNCBUFFER_H_
+
 
 #define SYNCBUFFER_SIZE_MARGIN_MULTIPLIER 3 //!< Safety margin for receive buffer size -- a value of 3 should make overflows rare in AI state
 #define SYNCBUFFER_SIZE_HIST_LEN 512 //!< Accumulate history over this number of timesteps before updating the sendbuffer size in the absence of overflows
@@ -43,6 +45,8 @@
 #include <mpi.h>
 
 
+#ifdef AURYN_CODE_USE_MPI
+
 namespace auryn {
 
 /*! \brief Buffer object to capsulate native MPI_Allgather for SpikingGroups
@@ -55,7 +59,6 @@ namespace auryn {
 		private:
 			std::vector<NeuronID> send_buf;
 			std::vector<NeuronID> recv_buf;
-
 
 			NeuronID overflow_value;
 
@@ -126,4 +129,7 @@ namespace auryn {
 	};
 }
 
+#endif // AURYN_CODE_USE_MPI
+
 #endif /*SYNCBUFFER_H_*/
+

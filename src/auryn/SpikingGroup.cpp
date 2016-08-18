@@ -34,8 +34,6 @@ NeuronID SpikingGroup::unique_id_count = 0;
 
 AurynTime * SpikingGroup::clock_ptr = NULL;
 
-std::vector<mpi::request> SpikingGroup::reqs;
-
 NeuronID SpikingGroup::anticipated_total = 0;
 
 
@@ -68,7 +66,13 @@ void SpikingGroup::init(NeuronID n, double loadmultiplier, NeuronID total )
 	// setting up default values
 	evolve_locally_bool = true;
 	locked_rank = 0;
-	locked_range = auryn::mpicommunicator->size();
+#ifdef AURYN_CODE_USE_MPI
+	locked_range = mpi_size;
+#else
+	mpi_size = 1;
+	mpi_rank = 0;
+	locked_range = mpi_size;
+#endif // AURYN_CODE_USE_MPI
 	rank_size = calculate_rank_size(); // set the rank size
 
 	double fraction = (double)calculate_rank_size(0)*effective_load_multiplier/DEFAULT_MINDISTRIBUTEDSIZE;
@@ -80,7 +84,7 @@ void SpikingGroup::init(NeuronID n, double loadmultiplier, NeuronID total )
 		lock_range( fraction );
 	} else { // ROUNDROBIN which is default
 		locked_rank = 0;
-		locked_range = auryn::mpicommunicator->size();
+		locked_range = mpi_size;
 
 		std::stringstream oss;
 		oss << get_log_name() << ":: Size " << get_rank_size() << " (ROUNDROBIN)";
@@ -115,7 +119,7 @@ void SpikingGroup::init(NeuronID n, double loadmultiplier, NeuronID total )
 
 void SpikingGroup::lock_range( double rank_fraction )
 {
-	locked_rank = last_locked_rank%auryn::mpicommunicator->size(); // TODO might cause a bug with the block lock stuff
+	locked_rank = last_locked_rank%mpi_size; // TODO might cause a bug with the block lock stuff
 
 	// TODO get the loads for the different ranks and try to minimize this
 
@@ -125,9 +129,9 @@ void SpikingGroup::lock_range( double rank_fraction )
 		auryn::logger->msg(oss.str(),NOTIFICATION);
 		locked_range = 1;
 	} else { // this is for multiple rank ranges
-		unsigned int free_ranks = auryn::mpicommunicator->size()-last_locked_rank;
+		unsigned int free_ranks = mpi_size-last_locked_rank;
 
-		locked_range = rank_fraction*auryn::mpicommunicator->size()+0.5;
+		locked_range = rank_fraction*mpi_size+0.5;
 		if ( locked_range == 0 ) { // needs at least one rank
 			locked_range = 1; 
 		}
@@ -138,15 +142,15 @@ void SpikingGroup::lock_range( double rank_fraction )
 			oss << get_log_name() << ":: Not enough free ranks for RANGELOCK. Starting to fill at zero again.";
 			auryn::logger->msg(oss.str(),NOTIFICATION);
 			locked_rank = 0;
-			free_ranks = auryn::mpicommunicator->size();
+			free_ranks = mpi_size;
 			// return;
 		}
 	}
 
-	unsigned int rank = (unsigned int) auryn::mpicommunicator->rank();
+	unsigned int rank = (unsigned int) mpi_rank;
 	evolve_locally_bool = ( rank >= locked_rank && rank < (locked_rank+locked_range) );
 
-	last_locked_rank = (locked_rank+locked_range)%auryn::mpicommunicator->size();
+	last_locked_rank = (locked_rank+locked_range)%mpi_size;
 	rank_size = calculate_rank_size(); // recalculate the rank size
 
 	// logging
@@ -270,7 +274,7 @@ NeuronID SpikingGroup::calculate_rank_size(int rank)
 	if ( rank >= 0 ) 
 		comrank = rank;
 	else
-		comrank = (unsigned int) auryn::mpicommunicator->rank();
+		comrank = (unsigned int) mpi_rank;
 
 	if ( comrank >= locked_rank && comrank < (locked_rank+locked_range) ) {
 		if (comrank-locked_rank >= size%locked_range)
@@ -309,7 +313,7 @@ AurynDouble SpikingGroup::get_effective_load()
 
 
 NeuronID SpikingGroup::rank2global(NeuronID i) {
-	return i*locked_range+(auryn::mpicommunicator->rank()-locked_rank);
+	return i*locked_range+(mpi_rank-locked_rank);
 }
 
 bool SpikingGroup::evolve_locally()
@@ -499,16 +503,16 @@ std::string SpikingGroup::get_log_name()
 bool SpikingGroup::localrank(NeuronID i) {
 
 #ifdef DEBUG
-	std::cout << ( (i%locked_range+locked_rank)==auryn::mpicommunicator->rank() ) << " "
-		<< ( (int) auryn::mpicommunicator->rank() >= locked_rank) << " "
-		<< ( (int) auryn::mpicommunicator->rank() >= locked_rank) << " "
-		<< ( (int) auryn::mpicommunicator->rank() < (locked_rank+locked_range) ) << " "
+	std::cout << ( (i%locked_range+locked_rank)==mpi_rank ) << " "
+		<< ( (int) mpi_rank >= locked_rank) << " "
+		<< ( (int) mpi_rank >= locked_rank) << " "
+		<< ( (int) mpi_rank < (locked_rank+locked_range) ) << " "
 		<< ( i/locked_range < get_rank_size() ) << std::endl; 
 #endif //DEBUG
 
-	bool t = ( (i%locked_range+locked_rank)==auryn::mpicommunicator->rank() )
-		 && (int) auryn::mpicommunicator->rank() >= locked_rank
-		 && (int) auryn::mpicommunicator->rank() < (locked_rank+locked_range)
+	bool t = ( (i%locked_range+locked_rank)==mpi_rank )
+		 && (int) mpi_rank >= locked_rank
+		 && (int) mpi_rank < (locked_rank+locked_range)
 		 && i/locked_range < get_rank_size(); 
 	return t; 
 }
@@ -729,7 +733,7 @@ AurynStateVector * SpikingGroup::find_state_vector(std::string key)
 
 void SpikingGroup::randomize_state_vector_gauss(std::string state_vector_name, AurynState mean, AurynState sigma, int seed)
 {
-	boost::mt19937 ng_gen(seed+auryn::mpicommunicator->rank()); // produces same series every time 
+	boost::mt19937 ng_gen(seed+mpi_rank); // produces same series every time 
 	boost::normal_distribution<> dist((double)mean, (double)sigma);
 	boost::variate_generator<boost::mt19937&, boost::normal_distribution<> > die(ng_gen, dist);
 	AurynState rv;

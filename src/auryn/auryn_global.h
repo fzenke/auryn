@@ -27,7 +27,7 @@
 #define AURYN_GLOBAL_H_
 
 #include <boost/filesystem.hpp>
-
+#include "auryn_definitions.h"
 #include "Logger.h"
 #include "System.h"
 
@@ -41,11 +41,13 @@ namespace auryn {
 	/*! \brief Global pointer to instance of Logger which needs to be initialized in every simulation main program. */
 	extern Logger * logger;
 
+#ifdef AURYN_CODE_USE_MPI
 	/*! \brief Global pointer to instance of mpi::environment which needs to be initialized in every simulation main program. */
 	extern mpi::environment * mpienv;
 
 	/*! \brief Global pointer to instance of mpi::mpicommunicator which needs to be initialized in every simulation main program. */
 	extern mpi::communicator * mpicommunicator;
+#endif // AURYN_CODE_USE_MPI
 
 
 	/*! \brief Initalizes MPI and the Auryn simulation environment. 

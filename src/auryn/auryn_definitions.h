@@ -26,42 +26,11 @@
 #ifndef AURYN_DEFINITIONS_H_
 #define AURYN_DEFINITIONS_H_
 
-#include <iostream>
-#include <iomanip>
-#include <string>
-#include <cmath>
-#include <cstdlib>
-#include <list>
-#include <exception>
-#include <limits>
 
-
-
-#ifndef CODE_ACTIVATE_CILK_INSTRUCTIONS
-#include <x86intrin.h> // SIMD intrinsics (pulls everything you need)
-#else // XMM registers are not supported on the phi platform
-#include <immintrin.h> // AVX only
-#endif /* CODE_ACTIVATE_CILK_INSTRUCTIONS */
-
-#include <boost/mpi.hpp>
-
-#include <boost/archive/text_oarchive.hpp> 
-#include <boost/archive/text_iarchive.hpp> 
-#include <boost/archive/binary_oarchive.hpp> 
-#include <boost/archive/binary_iarchive.hpp> 
-
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/map.hpp>
-
-#include <boost/random/mersenne_twister.hpp>
-#include <boost/random/variate_generator.hpp>
-#include <boost/random/normal_distribution.hpp>
-
-#include "Logger.h"
-
-
-namespace mpi = boost::mpi;
-
+/*! Toggle between memory alignment for
+ * SIMD code.
+ */
+#define AURYN_CODE_USE_MPI
 
 
 /*! Toggle between memory alignment for
@@ -115,6 +84,49 @@ namespace mpi = boost::mpi;
 // #define PRE_TRACE_MODEL_LINTRACE dummy
 // #undef  PRE_TRACE_MODEL
 // #define PRE_TRACE_MODEL LinearTrace
+
+
+
+//* -- Do not modify below -- *//
+
+
+#include <iostream>
+#include <iomanip>
+#include <string>
+#include <cmath>
+#include <cstdlib>
+#include <list>
+#include <exception>
+#include <limits>
+
+
+
+#ifndef CODE_ACTIVATE_CILK_INSTRUCTIONS
+#include <x86intrin.h> // SIMD intrinsics (pulls everything you need)
+#else // XMM registers are not supported on the phi platform
+#include <immintrin.h> // AVX only
+#endif /* CODE_ACTIVATE_CILK_INSTRUCTIONS */
+
+#ifdef  AURYN_CODE_USE_MPI
+#include <boost/mpi.hpp>
+namespace mpi = boost::mpi;
+#endif
+
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/map.hpp>
+
+#include <boost/archive/text_oarchive.hpp> 
+#include <boost/archive/text_iarchive.hpp> 
+#include <boost/archive/binary_oarchive.hpp> 
+#include <boost/archive/binary_iarchive.hpp> 
+
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/variate_generator.hpp>
+#include <boost/random/normal_distribution.hpp>
+
+#include "Logger.h"
+
+
 
 
 namespace auryn {

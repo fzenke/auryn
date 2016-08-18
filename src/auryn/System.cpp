@@ -29,6 +29,22 @@
 using namespace auryn;
 
 void System::init() {
+
+
+	std::stringstream oss;
+	auryn::logger->msg("Starting Auryn Kernel",NOTIFICATION);
+
+	oss << "Auryn version "
+		<< build.get_version_string()
+	    << " ( compiled " << __DATE__ << " " << __TIME__ << " )";
+	auryn::logger->msg(oss.str(),NOTIFICATION);
+
+	oss.str("");
+	oss << "Git repository revision "
+	    << build.git_describe;
+	auryn::logger->msg(oss.str(),NOTIFICATION);
+
+
 	clock = 0;
 	quiet = false;
 	set_simulation_name("default");
@@ -47,23 +63,15 @@ void System::init() {
 
 	mpi_size_ = 1;
 	mpi_rank_ = 0;
+#ifdef AURYN_CODE_USE_MPI
 	syncbuffer = NULL;
 	if ( mpicom ) {
 		syncbuffer = new SyncBuffer(mpicom);
 		mpi_size_ = mpicom->size();
 		mpi_rank_ = mpicom->rank();
 	} 
+#endif // AURYN_CODE_USE_MPI
 
-	std::stringstream oss;
-	oss << "Auryn version "
-		<< build.get_version_string()
-	    << " ( compiled " << __DATE__ << " " << __TIME__ << " )";
-	auryn::logger->msg(oss.str(),NOTIFICATION);
-
-	oss.str("");
-	oss << "Git repository revision "
-	    << build.git_describe;
-	auryn::logger->msg(oss.str(),NOTIFICATION);
 
 	oss.str("");
 	oss << "NeuronID type has size of "
@@ -105,23 +113,31 @@ void System::init() {
 	auryn::logger->warning(oss.str());
 #endif 
 
+#ifdef AURYN_CODE_USE_MPI
+	auryn::logger->msg("Auryn was compiled with MPI support.",NOTIFICATION);
+#else
+	auryn::logger->msg("Auryn was compiled without MPI support.",NOTIFICATION);
+#endif // AURYN_CODE_USE_MPI
 
+	auryn::logger->msg("Auryn Kernel started.",NOTIFICATION);
 }
 
 
 System::System()
 {
-	mpicom = NULL;
 	init();
 }
 
+#ifdef AURYN_CODE_USE_MPI
 System::System(mpi::communicator * communicator)
 {
+
 	mpicom = communicator;
 	init();
 
-	std::stringstream oss;
+	auryn::logger->msg("Logging MPI status of this process...",NOTIFICATION);
 
+	std::stringstream oss;
 	if ( mpi_size() > 1 ) {
 		oss << "MPI run rank "
 			<<  mpi_rank() << " out of "
@@ -137,6 +153,7 @@ System::System(mpi::communicator * communicator)
 		auryn::logger->msg(oss.str(),WARNING,true);
 	}
 }
+#endif // AURYN_CODE_USE_MPI
 
 System::~System()
 {
@@ -159,8 +176,11 @@ void System::free()
 	devices.clear();
 	checkers.clear();
 
-	if ( mpicom )
+
+#ifdef AURYN_CODE_USE_MPI
+	if ( syncbuffer != NULL )
 		delete syncbuffer;
+#endif // AURYN_CODE_USE_MPI
 }
 
 void System::step()
@@ -237,6 +257,8 @@ void System::register_checker(Checker * checker)
 void System::sync()
 {
 
+#ifdef AURYN_CODE_USE_MPI
+
 #ifdef CODE_COLLECT_SYNC_TIMING_STATS
 	double T1, T2;              
     T1 = MPI_Wtime();     /* start time */
@@ -261,6 +283,8 @@ void System::sync()
     T2 = MPI_Wtime();     /* end time */
 	deltaT += (T2-T1);
 #endif
+
+#endif // AURYN_CODE_USE_MPI
 }
 
 void System::evolve()
@@ -385,13 +409,14 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 		<< "runtime=" << runtime << "s ) ...";
 	auryn::logger->msg(oss.str(),NOTIFICATION);
 
-	if ( clock == 0 && mpicom ) { // only show this once for clock==0
+	if ( clock == 0 ) { // only show this once for clock==0
 		oss.str("");
 		oss	<< "On this rank: neurons_total="<< get_total_neurons() 
 			<< ", effective_load=" << get_total_effective_load()
 			<< ", synapses_total=" << get_total_synapses();
 		auryn::logger->msg(oss.str(),SETTINGS);
 
+#ifdef AURYN_CODE_USE_MPI
 		if ( mpi_rank() == 0 ) { 
 			AurynLong all_ranks_total_neurons;
 			reduce(*mpicom, get_total_neurons(), all_ranks_total_neurons, std::plus<AurynLong>(), 0);
@@ -407,11 +432,14 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 			reduce(*mpicom, get_total_neurons(), std::plus<AurynLong>(), 0);
 			reduce(*mpicom, get_total_synapses(), std::plus<AurynLong>(), 0);
 		}
+#endif // AURYN_CODE_USE_MPI
 	}
 
+#ifdef AURYN_CODE_USE_MPI
 #ifdef CODE_COLLECT_SYNC_TIMING_STATS
 	syncbuffer->reset_sync_time();
 #endif
+#endif // AURYN_CODE_USE_MPI
 
 	time_t t_sim_start;
 	time(&t_sim_start);
@@ -470,15 +498,19 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 		
 		step();	
 
+#ifdef AURYN_CODE_USE_MPI
 		if ( mpi_size()>1 && (get_clock())%(MINDELAY) == 0 ) {
 			sync();
 		} 
+#endif // AURYN_CODE_USE_MPI
+
 
 	}
 
 
 
 #ifdef CODE_COLLECT_SYNC_TIMING_STATS
+#ifdef AURYN_CODE_USE_MPI
 	double elapsed  = syncbuffer->get_elapsed_wall_time();
 
 	oss.str("");
@@ -489,6 +521,7 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 		<< " )";
 	auryn::logger->msg(oss.str(),NOTIFICATION);
 
+#endif // AURYN_CODE_USE_MPI
 #else
 	time_t t_now ;
 	time(&t_now);
@@ -509,6 +542,7 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 	auryn::logger->msg(oss.str(),NOTIFICATION);
 
 
+#ifdef AURYN_CODE_USE_MPI
 #ifdef CODE_COLLECT_SYNC_TIMING_STATS
 	if (mpi_rank() == 0) {
 		double minimum;
@@ -533,7 +567,8 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 		reduce(*mpicom, syncbuffer->get_sync_time(), mpi::minimum<double>(), 0);
 		reduce(*mpicom, syncbuffer->get_sync_time(), mpi::maximum<double>(), 0);
 	}
-#endif 
+#endif // CODE_COLLECT_SYNC_TIMING_STATS
+#endif // AURYN_CODE_USE_MPI
 
 
 	return true;
@@ -566,11 +601,12 @@ bool System::run_chunk(AurynFloat chunk_time, AurynFloat interval_start, AurynFl
 	return run(interval_start/dt, stopclock, (interval_end-interval_start), checking);
 }
 
-
+#ifdef AURYN_CODE_USE_MPI
 mpi::communicator * System::get_com()
 {
 	return mpicom;
 }
+#endif // AURYN_CODE_USE_MPI
 
 void System::set_simulation_name(std::string name)
 {
@@ -944,7 +980,9 @@ unsigned int System::get_synced_seed()
 {
 	unsigned int value;
 	if ( mpi_rank() == 0 ) value = get_seed();
+#ifdef AURYN_CODE_USE_MPI
 	broadcast(*mpicom, value, 0);
+#endif // AURYN_CODE_USE_MPI
 	// std::cout << mpi_rank() << " " << value << std::endl;
 	return value;
 }
