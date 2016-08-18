@@ -41,7 +41,6 @@
 using namespace auryn;
 
 namespace po = boost::program_options;
-namespace mpi = boost::mpi;
 
 int main(int ac,char *av[]) {
 	std::string dir = ".";
@@ -264,7 +263,7 @@ int main(int ac,char *av[]) {
 	delete sys;
 
 	if (errcode)
-		mpienv->abort(errcode);
+		auryn_abort(errcode);
 
 	return errcode;
 }

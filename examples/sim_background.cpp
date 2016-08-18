@@ -37,7 +37,6 @@
 
 
 namespace po = boost::program_options;
-namespace mpi = boost::mpi;
 
 using namespace auryn;
 
@@ -870,7 +869,7 @@ if ( patfile != "" ) {
 
 
 	if (errcode) {
-		mpienv->abort(errcode);
+		auryn_abort(errcode);
 	}
 
 	logger->msg("Freeing ...",PROGRESS,true);

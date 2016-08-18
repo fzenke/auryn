@@ -29,7 +29,6 @@
 using namespace auryn;
 
 namespace po = boost::program_options;
-namespace mpi = boost::mpi;
 
 int main(int ac, char* av[]) 
 {
@@ -123,7 +122,7 @@ int main(int ac, char* av[])
 
 
 	if (errcode)
-		mpienv->abort(errcode);
+		auryn_abort(errcode);
 	logger->msg("Freeing ...",PROGRESS,true);
 	auryn_free();
 	return errcode;
