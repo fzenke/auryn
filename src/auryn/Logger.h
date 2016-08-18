@@ -33,7 +33,8 @@
 #include <string>
 #include <time.h>
 
-#define CERRLEVEL WARNING
+#define AURYN_LOGGER_CERRLEVEL WARNING
+
 
 namespace auryn {
 /*! \brief Enum type for significance level of a given message send to the Logger */

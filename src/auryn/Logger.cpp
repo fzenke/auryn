@@ -95,7 +95,7 @@ void Logger::msg( std::string text, LogMessageType type, bool global, int line, 
 
 	if ( type >= console_out && ( !global || (global && local_rank == 0) ) ) {
 		if ( last_message != text ) {
-			if ( type >= CERRLEVEL )
+			if ( type >= AURYN_LOGGER_CERRLEVEL )
 				if ( global ) {
 					std::cerr << "(!!) " << text << std::endl;
 				} else {
