@@ -20,7 +20,30 @@ git clone https://github.com/fzenke/auryn.git && cd auryn/build/release
 ./bootstrap.sh && make
 ```
 
-Then to install the library:
+Run a first network simulation
+------------------------------
+
+```
+cd examples
+./sim_coba_benchmark --dir .
+```
+will run the Vogels Abbott benchmark, a balanced network model with conductance based synapses.
+Spiking activity is written to files with the extension 'ras'. 
+
+If you have gnuplot installed, you can visualize the output of the simulation follows:
+```
+echo "set xlabel 'Time [s]'; plot [1:2] 'coba.0.e.ras' with dots lc rgb 'black'" | gnuplot -p
+```
+
+![Spike raster plot](http://www.fzenke.net/auryn/lib/exe/fetch.php?cache=&media=coba_ras.png "coba ras")
+Here time in seconds is plotted on the x-asis and neuron id on the y-axis.
+
+
+
+Install as a library
+--------------------
+
+To install Auryn as a library run:
 ```
 sudo make install
 ```
@@ -28,7 +51,6 @@ which will put it under `/usr/local/` or for a local install
 ```
 make DESTDIR=./your/dir/ install
 ```
-
 
 
 Citing Auryn
