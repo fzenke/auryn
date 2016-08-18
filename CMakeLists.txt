@@ -13,19 +13,29 @@ SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -pedantic")
 # message("CMAKE_CXX_FLAGS_DEBUG is ${CMAKE_CXX_FLAGS_DEBUG}")
 # message("CMAKE_CXX_FLAGS_RELEASE is ${CMAKE_CXX_FLAGS_RELEASE}")
 
-# Required external MPI libraries 
-FIND_PACKAGE(MPI REQUIRED)
+# Find external MPI libraries 
+# FIND_PACKAGE(MPI REQUIRED)
 
-# Required Boost libraries 
+# Find Boost libraries 
 SET(BOOST_MIN_VERSION "1.41.0")
-FIND_PACKAGE(Boost ${BOOST_MIN_VERSION} REQUIRED COMPONENTS mpi serialization program_options date_time unit_test_framework system filesystem)
+IF(MPI_FOUND)
+	FIND_PACKAGE(Boost ${BOOST_MIN_VERSION} REQUIRED COMPONENTS mpi serialization program_options date_time unit_test_framework system filesystem)
+ELSE()
+	FIND_PACKAGE(Boost ${BOOST_MIN_VERSION} REQUIRED COMPONENTS serialization program_options date_time unit_test_framework system filesystem)
+ENDIF()
 # TODO add align to the components list once AurynVector uses it
 
-# Recommended: Doxygen
-FIND_PACKAGE(Doxygen)
 
-INCLUDE_DIRECTORIES( ${MPI_CXX_INCLUDE_PATH} )
-INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIRS} )
+IF(MPI_FOUND)
+	set(AURYN_EXT_LINKLIBS ${MPI_CXX_LIBRARIES} ${Boost_LIBRARIES} )
+	set(AURYN_EXT_INCLUDEDIRS ${MPI_CXX_INCLUDE_PATH} ${Boost_INCLUDE_DIRS} )
+ELSE()
+	set(AURYN_EXT_LINKLIBS  ${Boost_LIBRARIES} )
+	set(AURYN_EXT_INCLUDEDIRS  ${Boost_INCLUDE_DIRS} )
+ENDIF()
+
+
+INCLUDE_DIRECTORIES( AURYN_EXT_INCLUDEDIRS )
 INCLUDE_DIRECTORIES(src)
 
 ADD_SUBDIRECTORY(src)
