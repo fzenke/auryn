@@ -159,10 +159,12 @@ namespace auryn {
 		/*! \brief The progressbar update interval in timesteps of dt. */
 		unsigned int progressbar_update_interval;
 
-		/*! \brief Switch to turn output to quiet mode (no progress bar). */
-		System();
 #ifdef AURYN_CODE_USE_MPI
+		/*! \brief Default constructor for MPI enabled. */
 		System(mpi::communicator * communicator);
+#else
+		/*! \brief Default constructor for MPI disabled. */
+		System();
 #endif // AURYN_CODE_USE_MPI
 
 		/*! \brief Sets the simulation name. */

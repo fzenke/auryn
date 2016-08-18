@@ -119,14 +119,9 @@ void System::init() {
 	auryn::logger->msg("Auryn was compiled without MPI support.",NOTIFICATION);
 #endif // AURYN_CODE_USE_MPI
 
-	auryn::logger->msg("Auryn Kernel started.",NOTIFICATION);
 }
 
 
-System::System()
-{
-	init();
-}
 
 #ifdef AURYN_CODE_USE_MPI
 System::System(mpi::communicator * communicator)
@@ -135,7 +130,6 @@ System::System(mpi::communicator * communicator)
 	mpicom = communicator;
 	init();
 
-	auryn::logger->msg("Logging MPI status of this process...",NOTIFICATION);
 
 	std::stringstream oss;
 	if ( mpi_size() > 1 ) {
@@ -143,6 +137,8 @@ System::System(mpi::communicator * communicator)
 			<<  mpi_rank() << " out of "
 			<<  mpi_size() << " ranks total.";
 		auryn::logger->msg(oss.str(),NOTIFICATION);
+	} else {
+		auryn::logger->msg("Not running a parallel simulation.",NOTIFICATION);
 	}
 
 	if ( mpi_size() > 0 && (mpi_size() & (mpi_size()-1)) ) {
@@ -152,6 +148,11 @@ System::System(mpi::communicator * communicator)
 			<< "in some MPI implementations.";
 		auryn::logger->msg(oss.str(),WARNING,true);
 	}
+}
+#else
+System::System()
+{
+	init();
 }
 #endif // AURYN_CODE_USE_MPI
 

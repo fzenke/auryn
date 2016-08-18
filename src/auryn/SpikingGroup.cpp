@@ -65,14 +65,19 @@ void SpikingGroup::init(NeuronID n, double loadmultiplier, NeuronID total )
 
 	// setting up default values
 	evolve_locally_bool = true;
-	locked_rank = 0;
+
+	// can't import System in this abstract base class,
+	// so have to define these quantities localy
 #ifdef AURYN_CODE_USE_MPI
-	locked_range = mpi_size;
+	mpi_size = auryn::mpicommunicator->size();
+	mpi_rank = auryn::mpicommunicator->rank();
 #else
 	mpi_size = 1;
 	mpi_rank = 0;
-	locked_range = mpi_size;
 #endif // AURYN_CODE_USE_MPI
+
+	locked_rank = 0;
+	locked_range = mpi_size;
 	rank_size = calculate_rank_size(); // set the rank size
 
 	double fraction = (double)calculate_rank_size(0)*effective_load_multiplier/DEFAULT_MINDISTRIBUTEDSIZE;
