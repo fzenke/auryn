@@ -41,11 +41,11 @@
 #include "SpikeDelay.h"
 #include <vector>
 #include <algorithm>
-#include <boost/mpi.hpp>
-#include <mpi.h>
-
 
 #ifdef AURYN_CODE_USE_MPI
+
+#include <boost/mpi.hpp>
+#include <mpi.h>
 
 namespace auryn {
 

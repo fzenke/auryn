@@ -32,9 +32,12 @@
 #include <string>
 
 #include <boost/program_options.hpp>
+
+#ifdef AURYN_CODE_USE_MPI
 #include <boost/mpi/environment.hpp>
 #include <boost/mpi/communicator.hpp>
 #include <boost/mpi.hpp>
+#endif // AURYN_CODE_USE_MPI
 
 // Core simulator definitions
 #include "auryn/auryn_global.h"
