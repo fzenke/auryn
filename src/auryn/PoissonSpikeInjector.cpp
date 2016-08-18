@@ -30,6 +30,10 @@ using namespace auryn;
 PoissonSpikeInjector::PoissonSpikeInjector(SpikingGroup * target_group, AurynDouble rate ) : PoissonGroup( target_group->get_size(), rate )
 {
 	target = target_group;
+	if ( sys->mpi_size() > 1 ) {
+		logger->warning("PoissonSpikeInjector might not work correctly when run with MPI.");
+		// TODO still need to make sure that rank lock etc does not screw up things if the target is distributed differently
+	}
 }
 
 PoissonSpikeInjector::~PoissonSpikeInjector()
@@ -41,7 +45,7 @@ void PoissonSpikeInjector::evolve()
 	super::evolve();
 
 	// now add Poisson spikes to target group
-	SpikeContainer * a = target->get_spikes();
-	SpikeContainer * b = get_spikes();
+	SpikeContainer * a = target->get_spikes_immediate();
+	SpikeContainer * b = get_spikes_immediate();
 	a->insert(a->end(), b->begin(), b->end());
 }
