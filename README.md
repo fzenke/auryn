@@ -1,19 +1,18 @@
+![Auryn logo](http://www.fzenke.net/uploads/images/logo_trans_small.png "Auryn logo")
+
 Auryn 
 =====
 
-This is the README file that comes with your version of Auryn.
+Auryn is Plastic Spiking Neural Network Simulator to simulate recurrent spiking
+neural networks with synaptic. It comes with the GPLv3 (please see COPYING).
 
-![Auryn logo](http://www.fzenke.net/uploads/images/logo_trans_small.png "Auryn logo")
-
-Auryn is a source package used to create highly specialized and optimized code
-to simulate recurrent spiking neural networks with spike timing dependent
-plasticity (STDP). It comes with the GPLv3 (please see COPYING).
-
+For examples and documentation visit the wiki at http://www.fzenke.net/auryn/
 
 Quick start
 -----------
 
-To download and compile the examples try:
+Note, Auryn needs a C++ compiler, the boost libraries (www.boost.org) with MPI
+support installed. To download and compile the examples under Linux try:
 
 ```
 sudo apt-get install cmake git build-essential libboost-all-dev
@@ -21,17 +20,15 @@ git clone https://github.com/fzenke/auryn.git && cd auryn/build/release
 ./bootstrap.sh && make
 ```
 
-Documentation & Installation/Use
---------------------------------
+Then to install the library:
+```
+sudo make install
+```
+which will put it under `/usr/local/` or for a local install
+```
+make DESTDIR=./your/dir/ install
+```
 
-Please visit the wiki at http://www.fzenke.net/auryn/
-
-
-Requirements
-------------
-
-Auryn needs the boost libraries (www.boost.org) with MPI support installed 
-in development versions to compile.
 
 
 Citing Auryn
@@ -59,6 +56,21 @@ Bibtex:
 ```
 
 
-Copyright 2014-2016 Friedemann Zenke.
-Copying and distribution of this file, with or without modification, are
-permitted provided the copyright notice and this notice are preserved.
+
+License & Copyright 
+-------------------
+
+Copyright 2014-2016 Friedemann Zenke
+
+Auryn is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Auryn is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Auryn.  If not, see <http://www.gnu.org/licenses/>.
