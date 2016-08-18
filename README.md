@@ -1,7 +1,7 @@
+![Auryn logo](http://www.fzenke.net/uploads/images/logo_trans_small.png "Auryn logo")
+
 Auryn 
 =====
-
-![Auryn logo](http://www.fzenke.net/uploads/images/logo_trans_small.png "Auryn logo")
 
 Auryn is a source package used to create highly specialized and optimized code
 to simulate recurrent spiking neural networks with spike timing dependent
