@@ -10,7 +10,8 @@ SIMTIME=100
 STATRUNS="1 2 3 4 5"
 HOSTNAME=`hostname`
 DATE=`date +"%Y-%m-%d"`
-REVISION=`git log --pretty=oneline -1 | cut -d " " -f 1`
+# REVISION=`git log --pretty=oneline -1 | cut -d " " -f 1`
+REVISION=`git describe`
 TMPDIR=`mktemp -d`
 
 # Function declaration
