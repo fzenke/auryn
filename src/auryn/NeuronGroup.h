@@ -35,11 +35,6 @@
 #include <fstream>
 #include <sstream>
 
-
-#include <boost/random/mersenne_twister.hpp>
-#include <boost/random/variate_generator.hpp>
-#include <boost/random/normal_distribution.hpp>
-
 namespace auryn {
 
 /*! \brief Abstract base class for all neuron groups.
@@ -91,9 +86,6 @@ public:
 
 
 	void random_mem(AurynState mean=-60e-3, AurynState sigma=5e-3);
-	void random_uniform_mem(AurynState lo, AurynState hi);
-
-	void random_nmda(AurynState mean, AurynState sigma);
 
 	virtual void init_state();
 

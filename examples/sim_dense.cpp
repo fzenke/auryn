@@ -109,7 +109,7 @@ int main(int ac,char *av[]) {
 	logger->msg("Setting up neuron groups ...",PROGRESS,true);
 	IFGroup * neurons_e = new IFGroup( NE);
 	neurons_e->set_ampa_nmda_ratio(1.0);
-	neurons_e->random_nmda(0.1,1);
+	neurons_e->randomize_state_vector_gauss("g_nmda",0.1,1);
 	IFGroup * neurons_i = new IFGroup( NI);
 	neurons_i->set_ampa_nmda_ratio(1.0);
 	neurons_i->set_tau_mem(10e-3);
