@@ -36,6 +36,7 @@ echo "set xlabel 'Time [s]'; plot [1:2] 'coba.0.e.ras' with dots lc rgb 'black'"
 ```
 
 ![Spike raster plot](http://www.fzenke.net/auryn/lib/exe/fetch.php?cache=&media=coba_ras.png "coba ras")
+
 Here time in seconds is plotted on the x-asis and neuron id on the y-axis.
 
 
