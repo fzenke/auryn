@@ -12,8 +12,8 @@ For examples and documentation visit the wiki at http://www.fzenke.net/auryn/
 Quick start
 -----------
 
-Note, Auryn needs a C++ compiler, the boost libraries (www.boost.org) with MPI support installed 
-in development versions to compile. To download and compile the examples under Linux try:
+Note, Auryn needs a C++ compiler, the boost libraries (www.boost.org) with MPI
+support installed. To download and compile the examples under Linux try:
 
 ```
 sudo apt-get install cmake git build-essential libboost-all-dev
