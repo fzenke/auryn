@@ -107,6 +107,9 @@ void System::init() {
 	die  = new boost::variate_generator<boost::mt19937&, boost::random::uniform_int_distribution<> > ( gen, *dist );
 	set_master_seed(3521);
 
+
+	clk_dt = dt;
+
 #ifndef NDEBUG
 	oss.str("");
 	oss << "Warning Auryn was compiled with debugging features which will impair performance.";

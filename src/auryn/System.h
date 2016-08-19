@@ -153,6 +153,12 @@ namespace auryn {
 		/*! \brief Switch to turn output to quiet mode (no progress bar). */
 		bool quiet;
 
+		/*! \brief Global simulation timestep in seconds. 
+		 *
+		 * \todo Make clk_dt a system member the global timestep. 
+		 * Corrently the timestep is defined as global static variable in auryn_definition.h */
+		AurynFloat clk_dt;
+
 		/*! \brief Version info */
 		AurynVersion build;
 
