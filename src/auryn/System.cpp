@@ -81,10 +81,6 @@ void System::init() {
 		<< sizeof(NeuronID) << " bytes.";
 	auryn::logger->msg(oss.str(),VERBOSE);
 
-	oss << "NeuronID type has size of "
-		<< sizeof(NeuronID) << " bytes.";
-	auryn::logger->msg(oss.str(),VERBOSE);
-
 	oss.str("");
 	oss << "AurynLong type has size of "
 		<< sizeof(AurynLong) << " bytes.";
@@ -94,6 +90,12 @@ void System::init() {
 	oss << "Current NeuronID and sync are good for simulations up to "
 		<< std::numeric_limits<NeuronID>::max()-1 << " cells.";
 	auryn::logger->msg(oss.str(),INFO);
+
+	if ( sizeof(NeuronID) != sizeof(AurynFloat) ) {
+		oss.str("");
+		oss << " NeuronID and AurynFloat have different byte sizes which is not supported by SyncBuffer.";
+		auryn::logger->msg(oss.str(),ERROR);
+	}
 
 	oss.str("");
 	oss << "Simulation timestep is set to "
@@ -107,18 +109,12 @@ void System::init() {
 	auryn::logger->msg(oss.str(),INFO);
 
 
-
-	if ( sizeof(NeuronID) != sizeof(AurynFloat) ) {
-		oss.str("");
-		oss << " NeuronID and AurynFloat have different byte sizes which is not supported by SyncBuffer.";
-		auryn::logger->msg(oss.str(),ERROR);
-	}
-
 	// init random number generator
 	// gen  = boost::mt19937();
 	dist = new boost::random::uniform_int_distribution<> ();
 	die  = new boost::variate_generator<boost::mt19937&, boost::random::uniform_int_distribution<> > ( gen, *dist );
-	set_master_seed(3521);
+	unsigned int hardcoded_seed = 3521;
+	set_master_seed(hardcoded_seed);
 
 
 
@@ -984,7 +980,13 @@ void System::set_master_seed( unsigned int seed )
 	}
 
 	const unsigned int master_seed_multiplier = 257;
-	gen.seed(seed*master_seed_multiplier*mpi_rank());
+	const unsigned int rank_master_seed = seed*master_seed_multiplier*(mpi_rank()+1);
+
+	std::stringstream oss;
+	oss << "Seeding this rank with master seed " << rank_master_seed;
+	auryn::logger->msg(oss.str(),INFO);
+
+	gen.seed(rank_master_seed);
 }
 
 unsigned int System::get_seed()
