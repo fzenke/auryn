@@ -370,8 +370,17 @@ Trace * SpikingGroup::get_pre_trace( AurynFloat x )
 
 	auryn::logger->msg("Initializing pre trace instance",VERBOSE);
 	Trace * tmp = new EulerTrace(get_pre_size(),x);
-	pretraces.push_back(tmp);
+	add_pre_trace(tmp);
 	return tmp;
+}
+
+void SpikingGroup::add_pre_trace( Trace * tr ) 
+{
+	if ( tr->size != get_pre_size() ) {
+		logger->warning("Trying to add as pretrace, but its size does not match the SpikinGroup.");
+		return;
+	}
+	pretraces.push_back(tr);
 }
 
 Trace * SpikingGroup::get_post_trace( AurynFloat x ) 
@@ -388,8 +397,17 @@ Trace * SpikingGroup::get_post_trace( AurynFloat x )
 
 	auryn::logger->msg("Initializing post trace instance",VERBOSE);
 	Trace * tmp = new EulerTrace(get_post_size(),x);
-	posttraces.push_back(tmp);
+	add_post_trace(tmp);
 	return tmp;
+}
+
+void SpikingGroup::add_post_trace( Trace * tr ) 
+{
+	if ( tr->size != get_vector_size() ) {
+		logger->warning("Trying to add as pretrace, but its size does not match the SpikinGroup.");
+		return;
+	}
+	posttraces.push_back(tr);
 }
 
 Trace * SpikingGroup::get_post_state_trace( AurynStateVector * state, AurynFloat tau, AurynFloat b ) 
