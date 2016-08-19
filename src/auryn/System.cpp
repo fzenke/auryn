@@ -81,6 +81,10 @@ void System::init() {
 		<< sizeof(NeuronID) << " bytes.";
 	auryn::logger->msg(oss.str(),VERBOSE);
 
+	oss << "NeuronID type has size of "
+		<< sizeof(NeuronID) << " bytes.";
+	auryn::logger->msg(oss.str(),VERBOSE);
+
 	oss.str("");
 	oss << "AurynLong type has size of "
 		<< sizeof(AurynLong) << " bytes.";
@@ -89,13 +93,19 @@ void System::init() {
 	oss.str("");
 	oss << "Current NeuronID and sync are good for simulations up to "
 		<< std::numeric_limits<NeuronID>::max()-1 << " cells.";
-	auryn::logger->msg(oss.str(),VERBOSE);
+	auryn::logger->msg(oss.str(),INFO);
+
+	oss.str("");
+	oss << "Simulation timestep is set to "
+		<< std::scientific << auryn_timestep << "s  ";
+	auryn::logger->msg(oss.str(),SETTINGS);
 
 	oss.str("");
 	oss << "Current AurynTime good for simulations up to "
 		<< std::numeric_limits<AurynTime>::max()*auryn_timestep << "s  "
 		<< "( " << std::numeric_limits<AurynTime>::max()*auryn_timestep/3600 << "h )";
-	auryn::logger->msg(oss.str(),VERBOSE);
+	auryn::logger->msg(oss.str(),INFO);
+
 
 
 	if ( sizeof(NeuronID) != sizeof(AurynFloat) ) {
@@ -111,7 +121,6 @@ void System::init() {
 	set_master_seed(3521);
 
 
-	clk_dt = dt;
 
 #ifndef NDEBUG
 	oss.str("");
