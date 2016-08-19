@@ -144,9 +144,9 @@ System::System(mpi::communicator * communicator)
 
 	std::stringstream oss;
 	if ( mpi_size() > 1 ) {
-		oss << "MPI run rank "
-			<<  mpi_rank() << " out of "
-			<<  mpi_size() << " ranks total.";
+		oss << "This is an MPI run. I am rank "
+			<<  mpi_rank() << " of a total of "
+			<<  mpi_size() << " ranks.";
 		auryn::logger->msg(oss.str(),NOTIFICATION);
 	} else {
 		auryn::logger->msg("Not running a parallel simulation.",NOTIFICATION);
