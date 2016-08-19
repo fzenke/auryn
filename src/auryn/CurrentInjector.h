@@ -39,7 +39,7 @@ namespace auryn {
 /*! \brief Stimulator class to add values in each timestep to arbitrary neuronal states. 
  *
  * Most commonly used to inject "currents" to arbitraty neuronal states. Maintains an internal vector with
- * numbers which are added (times dt) in each timestep to the neuronal target vector 
+ * numbers which are added (times auryn_timestep) in each timestep to the neuronal target vector 
  * (per default that is the membrane voltage and hence the operation corresponds to injecting a current).
  * 
  */
@@ -59,7 +59,7 @@ private:
 	/*! Returns the lambda parameter of the pmf for Current. */
 	AurynFloat get_lambda();
 
-	/*! Scale factor which should include dt and any respective resistance. */
+	/*! Scale factor which should include auryn_timestep and any respective resistance. */
 	AurynFloat alpha;
 
 protected:

@@ -47,7 +47,7 @@ void RateChecker::init(AurynFloat min, AurynFloat max, AurynFloat tau)
 	size = src->get_size();
 	popmin = min;
 	popmax = max;
-	decay_multiplier = exp(-dt/tau);
+	decay_multiplier = exp(-auryn_timestep/tau);
 	reset();
 }
 

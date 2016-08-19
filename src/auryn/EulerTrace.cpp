@@ -27,23 +27,20 @@
 
 using namespace auryn;
 
-void EulerTrace::init(NeuronID n, AurynFloat timeconstant)
+void EulerTrace::init(NeuronID n, AurynFloat timeconstant) 
 {
-	size = n;
-	set_timeconstant(timeconstant);
-	state = new AurynStateVector ( calculate_vector_size(size) ); 
-	temp = new AurynStateVector ( calculate_vector_size(size) ); // temp vector
 	set_all(0.);
 	target_ptr = NULL;
+	temp = new AurynStateVector ( calculate_vector_size(size) ); // temp vector
+	set_timeconstant(timeconstant);
 }
 
 void EulerTrace::free()
 {
-	delete state;
 	delete temp;
 }
 
-EulerTrace::EulerTrace(NeuronID n, AurynFloat timeconstant)
+EulerTrace::EulerTrace(NeuronID n, AurynFloat timeconstant) : Trace( calculate_vector_size(n), timeconstant )
 {
 	init(n,timeconstant);
 }
@@ -55,85 +52,27 @@ EulerTrace::~EulerTrace()
 
 void EulerTrace::set_timeconstant(AurynFloat timeconstant)
 {
-	tau = timeconstant;
-	scale_const = exp(-dt/tau);
-}
-
-void EulerTrace::set(NeuronID i , AurynFloat value)
-{
-	state->set( i, value);
-}
-
-void EulerTrace::set_all(AurynFloat value)
-{
-	state->set_all(value);
-}
-
-void EulerTrace::add(AurynStateVector * values)
-{
-   state->add( values );
-}
-
-void EulerTrace::add(NeuronID i, AurynFloat value)
-{
-   // auryn_vector_float_set (state, i, auryn_vector_float_get (state, i) + value);
-   state->data[i] += value;
+	super::set_timeconstant(timeconstant);
+	mul_follow = auryn_timestep/tau;
+	scale_const = std::exp(-auryn_timestep/tau);
 }
 
 void EulerTrace::set_target( AurynStateVector * target )
 {
 	if ( target != NULL ) {
 		target_ptr = target ;
-		state->copy(target);
+		copy(target);
 	}
-}
-
-void EulerTrace::set_target( EulerTrace * target )
-{
-	set_target( target->state );
 }
 
 void EulerTrace::evolve()
 {
-	state->scale(scale_const);
+	scale(scale_const);
 }
 
 void EulerTrace::follow()
 { 
-	temp->copy( state );
-	auryn_vector_float_saxpy( -1., target_ptr, temp );
-	auryn_vector_float_saxpy( -dt/tau, temp, state );
+	temp->diff(target_ptr, this);
+	saxpy(mul_follow, temp );
 }
 
-AurynStateVector * EulerTrace::get_state_ptr()
-{
-	return state;
-}
-
-AurynFloat EulerTrace::get_tau()
-{
-	return tau;
-}
-
-void EulerTrace::inc(NeuronID i)
-{
-   state->data[i]++;
-}
-
-void EulerTrace::inc(SpikeContainer * sc)
-{
-	for ( NeuronID i = 0 ; i < sc->size() ; ++i )
-		inc((*sc)[i]);
-}
-
-AurynFloat EulerTrace::normalized_get(NeuronID i)
-{
-	check_size(i);
-	return state->get( i ) / tau ;
-}
-
-
-void EulerTrace::clip(AurynState value)
-{
-	state->clip( 0.0, value);
-}

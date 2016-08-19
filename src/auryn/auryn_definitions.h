@@ -72,10 +72,10 @@
 
 
 /*! \brief System wide minimum delay which determines the sync interval between
- * nodes in units of dt.
+ * nodes in units of auryn_timestep.
  *
  * Per default this is set to 8 which corresponds to 0.8ms with Auryn standard
- * dt timestep of 0.1ms.  The resaon for setting it to 8 is that the compiler
+ * auryn_timestep timestep of 0.1ms.  The resaon for setting it to 8 is that the compiler
  * can then implement certain operations using MINDELAY with va bitshift
  * instead of regular division. However, the effect of this is presumably
  * negligible, but I am keeping this for hystoric reasons.
@@ -92,17 +92,11 @@
 
 
 /*! \brief These precompiler directives control
- * what type of synaptic traces Auryn
- * implements for STDP models.
- */
+* what type of synaptic traces Auryn
+* implements for STDP models.
+*/
 #define DEFAULT_TRACE_MODEL EulerTrace
 #define PRE_TRACE_MODEL EulerTrace
-// To switch to LinearTrace as default 
-// pre_trace model uncomment the following 
-// lines:
-// #define PRE_TRACE_MODEL_LINTRACE dummy
-// #undef  PRE_TRACE_MODEL
-// #define PRE_TRACE_MODEL LinearTrace
 
 
 //* -- End of precompiler options -- *//
@@ -149,8 +143,8 @@ namespace mpi = boost::mpi;
 
 namespace auryn {
 
-	/*! \brief Simulator wide integration time step */
-	const double dt = 1.0e-4;
+	/*! \brief Simulation timestep */
+	extern double auryn_timestep;
 
 	/*! \brief Specifies the different transmitter types 
 	 * that Auryn knows. */

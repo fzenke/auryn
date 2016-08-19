@@ -61,7 +61,7 @@ void SpikeMonitor::init(SpikingGroup * source, std::string filename, NeuronID fr
 	n_every = 1;
 	src = source;
 	outfile.setf(std::ios::fixed);
-	outfile.precision(log(dt)/log(10)+1 );
+	outfile.precision(log(auryn_timestep)/log(10)+1 );
 }
 
 void SpikeMonitor::free()

@@ -29,7 +29,7 @@
 #include "auryn_definitions.h"
 #include "AurynVector.h"
 #include "TripletConnection.h"
-#include "EulerTrace.h"
+#include "Trace.h"
 
 #define TRIPLETDECAYCONNECTION_EULERUPGRADE_STEP 0.999
 

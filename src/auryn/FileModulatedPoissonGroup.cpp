@@ -66,7 +66,7 @@ void FileModulatedPoissonGroup::evolve()
 		rate_n = get_rate();
 
 		line >> t;
-		ftime = (AurynTime) (t/dt+0.5);
+		ftime = (AurynTime) (t/auryn_timestep+0.5);
 		line >> r;
 
 		if ( ftime < auryn::sys->get_clock() || inputfile.eof() ) { // if the recently read point is already in the past -> reinit interpolation

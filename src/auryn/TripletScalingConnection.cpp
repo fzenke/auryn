@@ -253,12 +253,12 @@ void TripletScalingConnection::set_beta(AurynFloat beta)
 	logger->parameter("beta",beta);
 	logger->parameter("scal_beta",scal_beta);
 
-	double tmp = -log(1.0-TRIPLETSCALINGCONNECTION_EULERUPGRADE_STEP)/scal_beta/dt;
+	double tmp = -log(1.0-TRIPLETSCALINGCONNECTION_EULERUPGRADE_STEP)/scal_beta/auryn_timestep;
 	if ( tmp < 1 )
 		scal_timestep = 1;
 	else
 		scal_timestep = tmp;
-	scal_mul = 1.0-exp(-scal_beta*scal_timestep*dt);
+	scal_mul = 1.0-exp(-scal_beta*scal_timestep*auryn_timestep);
 
 	logger->parameter("scaling_timestep",(int)scal_timestep);
 }

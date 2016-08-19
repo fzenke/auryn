@@ -53,7 +53,7 @@ protected:
 	/*! \brief The source neuron id to record from */
 	NeuronID nid;
 
-	/*! \brief The step size (sampling interval) in units of dt */
+	/*! \brief The step size (sampling interval) in units of auryn_timestep */
 	AurynTime ssize;
 
 	/*! \brief Defines the maximum recording time in AurynTime to save space. */
@@ -82,7 +82,7 @@ public:
 	 * \param filename The filename of the file to dump the output to
 	 * \param sampling_interval The sampling interval in seconds
 	 */
-	StateMonitor(SpikingGroup * source, NeuronID id, string statename, string filename, AurynDouble sampling_interval=dt);
+	StateMonitor(SpikingGroup * source, NeuronID id, string statename, string filename, AurynDouble sampling_interval=auryn_timestep);
 
 	/*! \brief Alternative constructor
 	 *
@@ -90,15 +90,15 @@ public:
 	 * \param filename The filename of the file to dump the output to
 	 * \param sampling_interval The sampling interval in seconds
 	 */
-	StateMonitor(auryn_vector_float * state, NeuronID id, string filename, AurynDouble sampling_interval=dt);
+	StateMonitor(auryn_vector_float * state, NeuronID id, string filename, AurynDouble sampling_interval=auryn_timestep);
 
-	/*! \brief EulerTrace constructor
+	/*! \brief Trace constructor
 	 *
 	 * \param trace The source synaptic trace
 	 * \param filename The filename of the file to dump the output to
 	 * \param sampling_interval The sampling interval in seconds
 	 */
-	StateMonitor(EulerTrace * trace, NeuronID id, string filename, AurynDouble sampling_interval=dt);
+	StateMonitor(Trace * trace, NeuronID id, string filename, AurynDouble sampling_interval=auryn_timestep);
 
 	/*! \brief Sets relative time at which to stop recording 
 	 *

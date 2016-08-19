@@ -357,7 +357,7 @@ void SpikingGroup::set_delay( int d )
 	// attribs = delay->get_attributes_immediate();
 }
 
-PRE_TRACE_MODEL * SpikingGroup::get_pre_trace( AurynFloat x ) 
+Trace * SpikingGroup::get_pre_trace( AurynFloat x ) 
 {
 	for ( NeuronID i = 0 ; i < pretraces.size() ; i++ ) {
 		if ( pretraces[i]->get_tau() == x ) {
@@ -369,16 +369,12 @@ PRE_TRACE_MODEL * SpikingGroup::get_pre_trace( AurynFloat x )
 	}
 
 	auryn::logger->msg("Initializing pre trace instance",VERBOSE);
-#ifndef PRE_TRACE_MODEL_LINTRACE
-	DEFAULT_TRACE_MODEL * tmp = new DEFAULT_TRACE_MODEL(get_pre_size(),x);
-#else
-	PRE_TRACE_MODEL * tmp = new PRE_TRACE_MODEL(get_pre_size(),x,clock_ptr);
-#endif
+	Trace * tmp = new EulerTrace(get_pre_size(),x);
 	pretraces.push_back(tmp);
 	return tmp;
 }
 
-DEFAULT_TRACE_MODEL * SpikingGroup::get_post_trace( AurynFloat x ) 
+Trace * SpikingGroup::get_post_trace( AurynFloat x ) 
 {
 	for ( NeuronID i = 0 ; i < posttraces.size() ; i++ ) {
 		if ( posttraces[i]->get_tau() == x ) {
@@ -391,12 +387,12 @@ DEFAULT_TRACE_MODEL * SpikingGroup::get_post_trace( AurynFloat x )
 
 
 	auryn::logger->msg("Initializing post trace instance",VERBOSE);
-	DEFAULT_TRACE_MODEL * tmp = new DEFAULT_TRACE_MODEL(get_post_size(),x);
+	Trace * tmp = new EulerTrace(get_post_size(),x);
 	posttraces.push_back(tmp);
 	return tmp;
 }
 
-EulerTrace * SpikingGroup::get_post_state_trace( AurynStateVector * state, AurynFloat tau, AurynFloat b ) 
+Trace * SpikingGroup::get_post_state_trace( AurynStateVector * state, AurynFloat tau, AurynFloat b ) 
 {
 	// first let's check if a state with that name exists
 	if ( state == NULL ) {
@@ -423,7 +419,7 @@ EulerTrace * SpikingGroup::get_post_state_trace( AurynStateVector * state, Auryn
 	// trace does not exist yet, so we are creating 
 	// it and do the book keeping
 	auryn::logger->msg("Initializing post trace instance",VERBOSE);
-	EulerTrace * tmp = new EulerTrace(get_post_size(),tau);
+	Trace * tmp = new EulerTrace(get_post_size(),tau);
 	tmp->set_target(state);
 	post_state_traces.push_back(tmp);
 	post_state_traces_spike_biases.push_back(b);
@@ -431,7 +427,7 @@ EulerTrace * SpikingGroup::get_post_state_trace( AurynStateVector * state, Auryn
 	return tmp;
 }
 
-EulerTrace * SpikingGroup::get_post_state_trace( std::string state_name, AurynFloat tau, AurynFloat b ) 
+Trace * SpikingGroup::get_post_state_trace( std::string state_name, AurynFloat tau, AurynFloat b ) 
 {
 	AurynStateVector * state = find_state_vector( state_name );
 	return get_post_state_trace(state, tau, b);
@@ -472,7 +468,7 @@ void SpikingGroup::evolve_traces()
 					spike != get_spikes_immediate()->end() ; 
 					++spike ) {
 				NeuronID translated_spike = global2rank(*spike); // only to be used for post traces
-				post_state_traces[i]->add(translated_spike, post_state_traces_spike_biases[i]);
+				post_state_traces[i]->add_specific(translated_spike, post_state_traces_spike_biases[i]);
 			}
 		}
 

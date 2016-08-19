@@ -58,7 +58,7 @@ protected:
 	/*! The source neuron id to record from */
 	NeuronID nid;
 
-	/*! The step size (sampling interval) in units of dt */
+	/*! The step size (sampling interval) in units of auryn_timestep */
 	AurynTime ssize;
 
 	/*! Defines the maximum recording time in AurynTime to save space. */
@@ -82,7 +82,7 @@ public:
 	/*! Same as record for(time) */
 	void set_stop_time(AurynDouble time=10.0);
 
-	VoltageMonitor(NeuronGroup * source, NeuronID id, string filename,  AurynDouble stepsize=dt);
+	VoltageMonitor(NeuronGroup * source, NeuronID id, string filename,  AurynDouble stepsize=auryn_timestep);
 	virtual ~VoltageMonitor();
 	void propagate();
 };

@@ -49,7 +49,7 @@ FileInputGroup::FileInputGroup(NeuronID n, std::string filename,
 : SpikingGroup( n , 0.0 )
 {
 	playinloop = loop;
-	time_delay = (AurynTime) (delay/dt);
+	time_delay = (AurynTime) (delay/auryn_timestep);
 	time_offset = 0;
 	init(filename);
 }
@@ -79,7 +79,7 @@ void FileInputGroup::load_spikes(std::string filename)
 		std::stringstream line ( buffer ) ;
 		double t_tmp;
 		line >> t_tmp;
-		event.time = t_tmp/dt;
+		event.time = t_tmp/auryn_timestep;
 		line >> event.neuronID;
 		if ( localrank(event.neuronID) ) {
 			input_spikes.push_back(event);
@@ -120,7 +120,7 @@ void FileInputGroup::evolve()
 		if ( sys->get_clock() == reset_time ) {
 			spike_iter = input_spikes.begin(); 
 			time_offset = sys->get_clock();
-			// std::cout << "set to" << reset_time*dt << " " << time_offset << std::endl;
+			// std::cout << "set to" << reset_time*auryn_timestep << " " << time_offset << std::endl;
 		}
 
 		while ( spike_iter != input_spikes.end() && (*spike_iter).time <= get_offset_clock() ) {
@@ -142,7 +142,7 @@ void FileInputGroup::evolve()
 void FileInputGroup::set_loop_grid(AurynDouble grid_size)
 {
 	if ( grid_size > 0.0 ) {
-		loop_grid_size = 1.0/dt*grid_size;
+		loop_grid_size = 1.0/auryn_timestep*grid_size;
 		if ( loop_grid_size == 0 ) loop_grid_size = 1;
 	}
 }

@@ -37,7 +37,7 @@ AIF2Group::AIF2Group( NeuronID size, AurynFloat load, NeuronID total ) : AIFGrou
 void AIF2Group::calculate_scale_constants()
 {
 	AIFGroup::calculate_scale_constants();
-	scale_adapt2 = exp(-dt/tau_adapt2);
+	scale_adapt2 = exp(-auryn_timestep/tau_adapt2);
 }
 
 void AIF2Group::init()
@@ -90,14 +90,14 @@ AIF2Group::~AIF2Group()
 
 void AIF2Group::integrate_linear_nmda_synapses()
 {
-	// decay of ampa and gaba channel, i.e. multiply by exp(-dt/tau)
+	// decay of ampa and gaba channel, i.e. multiply by exp(-auryn_timestep/tau)
     auryn_vector_float_scale(scale_ampa,g_ampa);
     auryn_vector_float_scale(scale_gaba,g_gaba);
     auryn_vector_float_scale(scale_adapt1,g_adapt1);
     auryn_vector_float_scale(scale_adapt2,g_adapt2);
 
-    // compute dg_nmda = (g_ampa-g_nmda)*dt/tau_nmda and add to g_nmda
-	AurynFloat mul_nmda = dt/tau_nmda;
+    // compute dg_nmda = (g_ampa-g_nmda)*auryn_timestep/tau_nmda and add to g_nmda
+	AurynFloat mul_nmda = auryn_timestep/tau_nmda;
     auryn_vector_float_saxpy(mul_nmda,g_ampa,g_nmda);
 	auryn_vector_float_saxpy(-mul_nmda,g_nmda,g_nmda);
 

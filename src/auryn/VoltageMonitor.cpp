@@ -29,7 +29,7 @@ using namespace auryn;
 
 VoltageMonitor::VoltageMonitor(NeuronGroup * source, NeuronID id, std::string filename, AurynDouble stepsize) : Monitor(filename)
 {
-	init(source,id,filename,(AurynTime)(stepsize/dt));
+	init(source,id,filename,(AurynTime)(stepsize/auryn_timestep));
 }
 
 VoltageMonitor::~VoltageMonitor()
@@ -90,5 +90,5 @@ void VoltageMonitor::set_stop_time(AurynDouble time)
 	if (time < 0) {
 		auryn::logger->msg("Warning: Negative stop times not supported -- ingoring.",WARNING);
 	} 
-	else tStop = auryn::sys->get_clock() + time/dt;
+	else tStop = auryn::sys->get_clock() + time/auryn_timestep;
 }

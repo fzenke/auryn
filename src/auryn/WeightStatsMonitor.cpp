@@ -29,7 +29,7 @@ using namespace auryn;
 
 WeightStatsMonitor::WeightStatsMonitor(Connection * source, std::string filename, AurynDouble binsize, NeuronID z) : Monitor(filename)
 {
-	init(source,filename,binsize/dt,z);
+	init(source,filename,binsize/auryn_timestep,z);
 }
 
 WeightStatsMonitor::~WeightStatsMonitor()

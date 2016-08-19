@@ -88,7 +88,7 @@ AurynFloat PoissonStimulator::get_rate() {
 }
 
 AurynFloat PoissonStimulator::get_lambda() {
-	return get_rate()*dt;
+	return get_rate()*auryn_timestep;
 }
 
 void PoissonStimulator::set_target_state(std::string state_name) {

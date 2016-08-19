@@ -26,8 +26,8 @@
 #ifndef EULERTRACE_H_
 #define EULERTRACE_H_
 
+#include "Trace.h"
 #include "auryn_definitions.h"
-#include "AurynVector.h"
 
 namespace auryn {
 
@@ -40,31 +40,21 @@ namespace auryn {
  * using the analytic solution. This results in less updates. However - so far
  * it turned out to be inferior in performance to the EulerTrace. 
  */
-class EulerTrace
+class EulerTrace : public Trace
 {
 private:
-	/* Functions necesssary for serialization */
-	friend class boost::serialization::access;
-	template<class Archive>
-	void serialize(Archive & ar, const unsigned int version)
-	{
-		ar & size ;
-		for ( NeuronID i = 0 ; i < size ; ++i )
-			ar & state->data[i];
-	}
-
-	/*! The size of the group. */
-	NeuronID size;
-	/*! The internal state vector. */
-	AurynStateVector * state;
+	typedef Trace super;
 	/*! The target vector for follow operation. */
 	AurynStateVector * target_ptr;
+
 	/*! Temp update vector for follow operation. */
 	AurynStateVector * temp;
+
 	/*! Multiplicative factor to downscale the values in every timestep. */
 	AurynFloat scale_const;
-	/*! Decay time constant in [s]. */
-	AurynFloat tau;
+
+	/*! \brief precomputed euler upgrade step size. */
+	AurynFloat mul_follow;
 
 	void init(NeuronID n, AurynFloat timeconstant);
 	void free();
@@ -86,70 +76,19 @@ public:
 	EulerTrace(NeuronID n, AurynFloat timeconstant);
 	/*! Default destructor */
 	virtual ~EulerTrace();
-	/*! Set value of a single trace.
-	 * \param i Id of value to change.
-	 * \param value The actual value to set the trace to.*/
-	void set(NeuronID i , AurynFloat value);
-	/*! Set all traces to same value */
-	void set_all( AurynFloat value);
-	/*! Add AurynStateVector to state vector
-	 * \param values AurynStateVector to add
-	 */
-	void add(AurynStateVector * values);
-	/*! Add designated value to single trace in the group.
-	 * \param i index of trace to change
-	 * \param value value to add to the trace
-	 */
-	void add(NeuronID i , AurynFloat value);
-
-	/*! Increment given trace by 1.
-	 * \param i index of trace to increment.
-	 */
-	void inc(NeuronID i);
-
-	/*! Increment given traces by 1.
-	 * \param sc SpikeContainer with all neurons to increment.
-	 */
-	void inc(SpikeContainer * sc);
 
 	/*! Perform Euler step. */
 	void evolve();
 
-	/*! Clip trace values (0,val) . */
-	void clip(AurynState val=1.0);
-	
 	/*! Set the time constant of the trace */
 	void set_timeconstant( AurynFloat timeconstant );
 
 	/*! set the target vector for follow operation */
 	void set_target( AurynStateVector * target );
 
-	/*! set the target vector for follow operation */
-	void set_target( EulerTrace * target );
-
 	/*! Perform Euler step but follow target vector instead of zero-decay */
 	void follow();
-	/*! Get decay time constant */
-	AurynFloat get_tau();
-	/*! Get trace value of trace. 
-	 * Since this is functions is called a lot
-	 * we inline it manually.
-	 * \param i index of trace to get
-	 */ 
-	inline AurynFloat get(NeuronID i);
-	/*! Get trace value of trace dived by tau
-	 * \param i index of trace to get
-	 */ 
-	AurynFloat normalized_get(NeuronID i);
-	/*! Get pointer to state AurynStateVector for fast processing within the GSL vector framekwork. */
-	AurynStateVector * get_state_ptr();
 };
-
-inline AurynFloat EulerTrace::get(NeuronID i)
-{
-	check_size(i);
-	return state->data[i];
-}
 
 } // namespace
 

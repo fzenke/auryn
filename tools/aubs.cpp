@@ -107,7 +107,6 @@ int main(int ac, char* av[])
 	double to_time   = -1.0;
 	double seconds_to_extract_from_end = -1.0; // negative means disabled
 	// one more decimal than neede to show values are not rounded
-	int decimal_places = -std::log(dt)/std::log(10)+2; 
 	bool debug_output = false;
 
 	try {
@@ -260,6 +259,7 @@ int main(int ac, char* av[])
 	input->read((char*)&frame, sizeof(StateValue_type));
 
 	AurynTime time_reference = from_time/dt;
+	int decimal_places = -std::log(dt)/std::log(10)+2; 
 
 	// open output filestream if needed
 	std::ofstream of;

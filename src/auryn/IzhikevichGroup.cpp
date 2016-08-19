@@ -83,8 +83,8 @@ void IzhikevichGroup::check_thresholds()
 
 void IzhikevichGroup::calculate_scale_constants()
 {
-	scale_ampa =  exp(-dt/tau_ampa) ;
-	scale_gaba =  exp(-dt/tau_gaba) ;
+	scale_ampa =  exp(-auryn_timestep/tau_ampa) ;
+	scale_gaba =  exp(-auryn_timestep/tau_gaba) ;
 }
 
 
@@ -114,14 +114,14 @@ void IzhikevichGroup::evolve()
 	temp_vector->sub(cur_inh);
 
 	// update membrane voltage
-	mem->saxpy(dt/1e-3,temp_vector); // division by 1e-3 due to rescaling of time from ms -> s
+	mem->saxpy(auryn_timestep/1e-3,temp_vector); // division by 1e-3 due to rescaling of time from ms -> s
 
 	// update adaptation variable
 	temp_vector->copy(mem);
 	temp_vector->scale(bvar);
 	temp_vector->sub(adaptation_vector);
 
-	adaptation_vector->saxpy(avar*dt/1e-3,temp_vector);
+	adaptation_vector->saxpy(avar*auryn_timestep/1e-3,temp_vector);
 
 	check_thresholds();
 

@@ -24,7 +24,7 @@
 #include "auryn_definitions.h"
 #include "AurynVector.h"
 #include "DuplexConnection.h"
-#include "EulerTrace.h"
+#include "Trace.h"
 #include "LinearTrace.h"
 #include "SpikeDelay.h"
 
@@ -47,8 +47,8 @@ protected:
 
 	AurynDouble hom_fudge;
 
-	PRE_TRACE_MODEL * tr_pre;
-	DEFAULT_TRACE_MODEL * tr_post;
+	Trace * tr_pre;
+	Trace * tr_post;
 
 	void propagate_forward();
 	void propagate_backward();

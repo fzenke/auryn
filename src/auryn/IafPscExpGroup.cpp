@@ -35,8 +35,8 @@ IafPscExpGroup::IafPscExpGroup(NeuronID size) : NeuronGroup(size)
 
 void IafPscExpGroup::calculate_scale_constants()
 {
-	scale_mem  = dt/tau_mem;
-	scale_syn  = exp(-dt/tau_syn);
+	scale_mem  = auryn_timestep/tau_mem;
+	scale_syn  = exp(-auryn_timestep/tau_syn);
 }
 
 void IafPscExpGroup::init()
@@ -161,7 +161,7 @@ void IafPscExpGroup::set_tau_syn(AurynFloat tau)
 
 void IafPscExpGroup::set_refractory_period(AurynDouble t)
 {
-	refractory_time = (unsigned short) (t/dt);
+	refractory_time = (unsigned short) (t/auryn_timestep);
 }
 
 void IafPscExpGroup::virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version ) 

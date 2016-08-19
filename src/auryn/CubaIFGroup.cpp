@@ -35,7 +35,7 @@ CubaIFGroup::CubaIFGroup(NeuronID size) : NeuronGroup(size)
 
 void CubaIFGroup::calculate_scale_constants()
 {
-	scale_mem  = dt/tau_mem;
+	scale_mem  = auryn_timestep/tau_mem;
 }
 
 void CubaIFGroup::init()
@@ -147,5 +147,5 @@ void CubaIFGroup::load_input_line(NeuronID i, const char * buf)
 
 void CubaIFGroup::set_refractory_period(AurynDouble t)
 {
-	refractory_time = (unsigned short) (t/dt);
+	refractory_time = (unsigned short) (t/auryn_timestep);
 }

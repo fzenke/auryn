@@ -60,7 +60,7 @@ void PatternMonitor::init(SpikingGroup * source, std::string filename, NeuronID 
 
 	src = source;
 	bsize = binsize;
-	ssize = bsize/dt;
+	ssize = bsize/auryn_timestep;
 	if ( ssize < 1 ) ssize = 1;
 
 	maxpat = maximum_patterns;
@@ -87,7 +87,7 @@ void PatternMonitor::propagate()
 		}
 
 		if (auryn::sys->get_clock()%ssize==0) {
-			outfile << dt*(auryn::sys->get_clock());
+			outfile << auryn_timestep*(auryn::sys->get_clock());
 			for ( std::vector<type_pattern>::iterator pattern = patterns->begin() ; 
 					pattern != patterns->end() ; ++pattern ) { 
 				double sum = 0.;

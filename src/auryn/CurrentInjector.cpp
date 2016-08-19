@@ -38,7 +38,7 @@ CurrentInjector::CurrentInjector(NeuronGroup * target, std::string neuron_state_
 
 	auryn_vector_float_set_all( currents, initial_current );
 
-	alpha = dt;
+	alpha = auryn_timestep;
 }
 
 
