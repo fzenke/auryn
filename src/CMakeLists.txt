@@ -2,8 +2,8 @@
 FILE(GLOB auryn_SRC "*.h" "*.cpp" "auryn/*.cpp" "auryn/*.h" )
 ADD_LIBRARY( auryn STATIC ${auryn_SRC} )
 
-message("AURYN_EXT_LINKLIBS is ${AURYN_EXT_LINKLIBS}")
-message("AURYN_EXT_INCLUDEDIRS is ${AURYN_EXT_INCLUDEDIRS}")
+# message("AURYN_EXT_LINKLIBS is ${AURYN_EXT_LINKLIBS}")
+# message("AURYN_EXT_INCLUDEDIRS is ${AURYN_EXT_INCLUDEDIRS}")
 
 # Dependencies to external libraries
 TARGET_LINK_LIBRARIES( auryn ${AURYN_EXT_LINKLIBS} )
