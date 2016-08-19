@@ -18,6 +18,18 @@
 * along with Auryn.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*!\file 
+ *
+ * \brief Simulation code based on the code used in 
+ * Zenke et al. (2013).
+ *
+ * Simulation code based on the code used in Zenke, F., Hennequin, G., and
+ * Gerstner, W. (2013). Synaptic Plasticity in Neural Networks Needs
+ * Homeostasis with a Fast Rate Detector. PLoS Comput Biol 9, e1003330.  It
+ * simulates a network with 25k integrate and fire neurons and a minimal
+ * homeostatic triplet model with a sliding threshold.
+ *
+ * */
 
 #include "auryn.h"
 
@@ -25,7 +37,6 @@
 
 
 namespace po = boost::program_options;
-namespace mpi = boost::mpi;
 
 using namespace auryn;
 
@@ -858,7 +869,7 @@ if ( patfile != "" ) {
 
 
 	if (errcode) {
-		mpienv->abort(errcode);
+		auryn_abort(errcode);
 	}
 
 	logger->msg("Freeing ...",PROGRESS,true);

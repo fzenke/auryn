@@ -20,14 +20,12 @@
 
 
 #include "auryn.h"
-#include "LPTripletConnection.h"
 
 #define N_REC_WEIGHTS 5000
 
 using namespace auryn;
 
 namespace po = boost::program_options;
-namespace mpi = boost::mpi;
 
 /*! \brief Example program using LPTripletConnection
  * 
@@ -827,7 +825,7 @@ if ( patfile != "" ) {
 	delete sys;
 
 	if (errcode) {
-		mpienv->abort(errcode);
+		auryn_abort(errcode);
 	}
 
 	return errcode;

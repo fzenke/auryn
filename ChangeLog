@@ -1,47 +1,1058 @@
-2015-07-01 Friedemann Zenke <fzenke@stanford.edu>
- * Added PairInteractionConnection to implement arbitrary (pairwise)
- STDP windows
- * Added backend to implement current based synapses with temporal dynamics
- * Added code to stimulate with currents generated from a Wiener process
- (NormalStimulator)
- * Added the AdEx neuron model
- * Added the SIFGroup neuron model
- * Implemented load/save to netstate files of Checkers
- * Changed backend of WeightMonitor to avoid segfaults after loading the
- network state
- * Implementation of moving average for progress bar moved 
- to System class to disambiguate from Checkers
- * Fixed some problems in ComplexMatrix
- * Bug fixes
+Ankur Sinha (Ankur Sinha Gmail) (13):
+      A functional makefile with a Fedora specific flags. Can probably be improved, but it works for the time being.
+      Added WeightStatsMonitor as a copy of WeightSumMonitor
+      Add a BinarySpikeMonitor
+      Change AurynTime to AurynDouble.
+      Updated gitignore to include autotoolised files and so on.
+      Separate R and C in TIF
+      Added aEIF (adaptive exponential) to auryn.
+      Updated AdEx to use natural units.
+      Forgot to add e_thr method body.
+      Bugfix in AdEx
+      Update gitignore to ignore temporary cmake build files.
+      Added a travis file.
+      Added refractory period functionality to AdEx.
 
-2015-02-06 Friedemann Zenke <friedemann.zenke@epfl.ch>
- * SpikingGroups and Connections are now serializeable and as a consequence
- the network state can be saved to a single file per rank.
- * SimpleMatrix has been replaced by ComplexMatrix which creates the
- basis for the implementation of connection models with multiple
- internal synaptic states.
- * Basis for Monitors writing to binary files for increased performance was
- created (e.g. BinarySpikeMonitor).
- * Auryn compiles to a statically linkable library per default now, which
- facilitates to decouple simulation code from simulator code.  * A simplified
- STDPConnection was added along with a tutorial of how to implement own new
- plasticity and synapse models.
- * Adds integrate-and-fire model for exclusive use with current based synapses
- (CubaIFGroup).
- * Adds an example simulation for short-term-plasticity (STPConnection).
- * Improves doxygen strings and comments in various places.
- * Diverse bugfixes.
+Emre Neftci (3):
+      Added PaitInteraction from develop and corrected update transmit bug
+      Adds NormalStimulator (Wiener process)
+      Adds SIFGroup
 
-2014-02-21 Friedemann Zenke <friedemann.zenke@epfl.ch> 
- * Adds new example code for Brunel 2000 balanced network
- * Applies diverse bugfixes
+Friedemann Zenke (1026):
+      Initial commit in prepartion for release
+      Updates README for release
+      Applies diverse bugfixes
+      Changes seed in sim_coba_benchmark
+      Renames sim to examples
+      Minor bugfixes
+      Removes hostfile
+      Adds subdir dev to gitignore
+      Adds the Brunel 2000 network as example
+      Adds main changes
+      Adapts Makefile system to new dev submodule
+      Adds empty directory for doxygen files
+      Increases STDP learning rate in example
+      Merge branch 'master' of github.com:fzenke/auryn
+      Fixes topos in README.md
+      Adds exception handler in SparseConnection
+      Small optimization change to SparseConnection
+      Small reformulation in SimpleMatrix
+      Updates a comment in SpikingGroup
+      Performance optimizations in StimulusGroup
+      Renames extension in RateModulatedConnection
+      Fixes bug in IF2Group
+      Updates test_sync
+      Adds functionality to StimulusGroup
+      Fixes bug in progressbar in System
+      Adds setter set_eta to RateModulatedConnection
+      Changes unit of interval in WeightSumMonitor
+      Exchanges const char * arguments by string
+      Changes algorithm in StimulusGroup
+      Proposes a fix SparseConnection
+      Changes SimpleMatrix and SparseConnection
+      Minor change to SparseConnection
+      Fixes a bug in SparseConnection
+      Fixes bug in SparseConnection
+      Fixes bug in DuplexConnection
+      Updates debug Makefile
+      Changes stimtime format in StimulusGroup
+      Applies a set of improvements to StimulusGroup
+      Reimplements workaround for 0-rate in PoissonGroup
+      Adds first revision of RateMonitor
+      Fixes include guards in RateMonitor
+      Updates doxygen strings in RateMonitor
+      Fixes quiet mode in System class
+      Adapts WeightMatrixMonitor to string conform filename
+      Updates version number
+      Adds functionality to SpikingGroup
+      Fixes a typo in comment
+      Fixes problem in SparseConnection
+      Fixes bug in new scale function
+      Adds logging output
+      Adds a new setter to StimulusGroup
+      Adds new mode to StimulusGroup
+      Minor improvement in SparseConnection
+      Removes debugging output in StimulusGroup.cpp
+      Adds seeding mechanism for StimulusGroup
+      Fixes a problem with the random number generation
+      Fixes a bug in StimulusGroup
+      Initial commit of new WeightPatternMonitor
+      Adds monitoring for asymmetric patterns to WeightPatternMonitor
+      Implements quick and dirty fix for StimulusGroup
+      Adds doxygen string to WeightPatternMonitor
+      Updates doxygen string in SpikingGroup
+      Adds new functionality to WeightPatternMonitor
+      Fixes problem in WeightPatternMonitor
+      Adapts filenames in constructor to be of type string
+      Adds first revision of RealTimeMonitor
+      Merge branch 'master' into devel
+      Improvements to RealTimeMonitor
+      Merge branch 'master' into devel
+      Adds setter for refractory period to TIFGroup
+      Tentative changes to interpolation procedure
+      Adds setter for state vectors in NeuronGroup
+      Bugfix in VoltageMonitor
+      Change to RateChecker
+      Fixes bug in set_state function in SpikingGroup
+      Changes scope of variable in SparseConnection
+      Fixes problem in StateMonitor
+      Fixes a bug in localrank function in SpikingGroup
+      Decreases MINDISTRIBUTEDSIZE to 16
+      Fixes two occasions of mismatched use of use of delete
+      Minor changes to SparseConnection
+      Removes prune functions in sim_brunel2k_pl
+      Minor fix in DuplexConnection
+      Adds units description to sim_coba_benchmark
+      Adds new example sim_bg_static
+      Fixes a conversion problem in sim_bg_static
+      Bugfixes to examples
+      Replaces GSL libraries by internal ones
+      Fixes small cosemtic issue in SIMD code
+      Removes GSL linker directives from Makefile
+      Change time format in progress bar
+      Implements new indexing functions
+      Updates prefetching logic
+      Replaces types in STDPConnection
+      Replaces C datatypes by AurynDatatypes
+      Sets generic AurynTypes
+      Adds debug msgs to SparseConnection and DuplexConnection
+      Changes default sampling interval to dt
+      Advances version number in Doxyfile
+      Removes spurious mother objects
+      Updates doxygen string in StateMonitor
+      Adds first revision of CubaIFGroup
+      Removes -Wall in standard makefile
+      Adds setter for all bg_currents in CubaIFGroup
+      Adds doxygen strings to STPConnection
+      Merge branch 'master' into Cuba
+      Adds example for STPConnection
+      Adds comment strings to sim_epsp_stp
+      Changes stimulation protocol
+      Finalizes STP example
+      Removes GSL requirements
+      Fixes division by zero bug
+      Fixes problem with negative weights
+      Removes unecessary libraries from debug Makefile
+      Adds docstrings to TripletConnection
+      Updates ChangeLog
+      Changes logging output in StimulusGroup
+      Fixes docstrings in SpikingGroup
+      Merge branch 'master' of https://github.com/fzenke/auryn
+      Merge branch 'master' of https://github.com/fzenke/auryn
+      Removes ISPS from EPSP example sim
+      Adds basics for GROUP recording mode
+      Extends functionality of WeightMonitor
+      Fixes a bug in the GROUP implementation
+      Removes ISPS from EPSP example sim
+      Updates Makefile for build/home
+      Merge branch 'master' of https://github.com/fzenke/auryn
+      Fixes problem in WeightPatternMonitor
+      Removes unneeded include statements from examples
+      Adds stopping time to VoltageMonitor
+      Adds new recording mode to WeightMonitor
+      Adds new functionality to StimulusGroup
+      Merge branch 'master' of https://github.com/fzenke/auryn
+      Removes doc/README
+      Adds a dummy file to keep doc dir open
+      Merge pull request #3 from sanjayankur31/weightstatsmonitor
+      Fixes confusion in WeightSumMonitor
+      Implements missing function in IdentityConnection
+      Adds primitive build target lib to create a static linkable library of auryn
+      Merge pull request #2 from sanjayankur31/makefile_change
+      Fixes broken library name
+      Creates auryn.h to simplify includes in simulations
+      Implements first example which uses auryn.h
+      Updates the files in auryn.h
+      Updates all examples to use auryn.h
+      Adds citation to paper reference to file headers
+      Updates README.md
+      Functional modification to StimulusGroup
+      Merge branch 'master' of https://github.com/fzenke/auryn
+      Fixes bug in StimulusGroup
+      Adds exception handler to SparseConnection
+      Adds first revision of ProfilePoissonGroup
+      Changes to AuditoryBeepGroup
+      Changes to ProfilePoissonGroup
+      Adds docstrings to SyncBuffer.h
+      Updates Makefile.include for lib target
+      Fixes problem in AuditoryBeepGroup
+      Adds time estimate to MARK output in logger
+      Cleans up Makefile and fixes #4
+      Implements refractoriness in StimulusGroup
+      Fixes bug in set_distribution(x) in StimulusGroup
+      Merge branch 'master' of https://github.com/fzenke/auryn
+      Adds small logo to README.md
+      Adds first stub of a prototype for ComplexMatrix
+      Fixes bug in Makefile logic
+      Moves SimpleMatrix to header file
+      Adds getter for data
+      Adapts to more humand readable coding style
+      Updates Makefile
+      Adds simple STDPConnection
+      Adds forgotten files to last commit
+      Fixes bug in TIFGroup
+      Changes API of ComplexMatrix
+      Introduces ComplexMatrix into SparseConnection
+      Fixes multiple bugs in ComplexMatrix
+      Redefines API of ComplexMatrix
+      Fixes a bug in ComplexMatrix
+      Adds example application for ComplexMatrix
+      Fixes problem in constructor: LPTripletConnection
+      Implements serialization in ComplexMatrix
+      Updates docstring LPTripletConnection
+      Fixes yet another bug in ComplexMatrix
+      Implements new save/load mechanism in System
+      Refines save/load in SpikeDelay
+      Implements save/load in SpikingGroup
+      Adds finalize to load connections in System
+      Fixes bug in save/load of SpikingGroup
+      Adds refractoriness to TIFGroup save/load
+      Conservative load/save for SpikeDelay
+      Pretty serialize in SpikeDelay
+      Switches to binary archives
+      Updates serialze in SpikeDelay
+      Updates sim_isp_orig with new load/save code
+      Turns off timing stats per default
+      Merge branch 'master' of https://github.com/fzenke/auryn
+      Fixes bug in ComplexMatrix
+      Merge branch 'sanjayankur31-binaryspikemonitor'
+      Adds BinarySpikeMonitor to auryn.h
+      Virtualizes open file mechanism in Monitor class
+      Updates date in copyright note
+      Changes Auryn version
+      Merge pull request #8 from sanjayankur31/spikeEvent-fix
+      Fixes doxygen string in CubaIFGroup
+      Fixes faulty comment in CubaIFGroup
+      Merge branch 'master' of https://github.com/fzenke/auryn
+      Updates version number
+      Adds functionality to AuditoryBeebGroup
+      Updates AUTHORS file
+      Updates README
+      Updates version number in Doxyfile
+      Updates doxystring in auryn_definitions
+      Merge branch 'master' of https://github.com/fzenke/auryn
+      Merge pull request #10 from sanjayankur31/gitignore-update
+      Merge pull request #11 from sanjayankur31/TIF-rc
+      Merge branch 'master' of https://github.com/fzenke/auryn
+      Adds PairInteractionConnection
+      Implements backend for current based synapses
+      Adds memo/comment to PatternStimulator code
+      Minor comment changes to SIFGroup
+      Updates new contributors in AUTHORS
+      Fixes typo bug which prevented compilation
+      Fixes bug in load/save of SIFGroup
+      Merge branch 'AdEx' of https://github.com/sanjayankur31/auryn into sanjayankur31-AdEx
+      Merges asinha's AdEx implementation
+      Merge branch 'develop' into sanjayankur31-AdEx
+      Removes previous version of the AdEx class
+      Merge branch 'sanjayankur31-AdEx' into develop
+      Retabs AdExGroup for conformity
+      Updates copyright notice in AdExGroup and SIFGroup
+      Fixes bug in AdEx spike threshold
+      Adds comment to AdEx on future directions
+      Merge pull request #15 from sanjayankur31/AdEx2
+      Merge pull request #16 from sanjayankur31/AdEx-bugfix
+      Improves error handling in load_netstate in System
+      Merge branch 'master' into develop
+      Merge branch 'develop' of https://github.com/fzenke/auryn into develop
+      Merge branch 'master' of https://github.com/fzenke/auryn
+      Adds docstring to ProfilePoissonGroup
+      Merge branch 'master' into develop
+      Adds variable STDP time constants to STDPConnection
+      Adds docstring to TripletConnection.h
+      Merge branch 'dev_stdp' into develop
+      Implements load/save for Checkers
+      Adaptes TripletConnection to new load/save
+      Merge branch 'hotfix_checker_docs' into develop
+      Implements load/save for Checkers
+      Changes backend of WeightMonitor
+      Reduces number recorded weights in sim_background
+      Implements a moving average for progress bar
+      Merge branch dev_online_rate_monitor into develop
+      Fixes docstring
+      Merge branch 'hotfix_docu_triplet' into develop
+      First implementation for statetraces
+      Fixes docstring
+      Grammer fix in doxystring
+      Merge branch 'master' into develop
+      Removes IF2Group
+      Merge branch 'develop' of https://github.com/fzenke/auryn into develop
+      Updates doc strings in sources
+      Merge branch 'dev-update-triplet-doc' into develop
+      Merge branch 'develop' into dev-state-traces
+      Updates ChangeLog
+      Updates changelog
+      Merge branch 'release-v0.6'
+      Merge branch 'develop' into dev-state-traces
+      Merge branch 'master' into dev-state-traces
+      Adds safety checks to spars_connection function
+      Implements load/save for Monitors
+      Adds Generic Exception
+      Catches a potential problem in WeightMonitor
+      Merge branch 'hotfix-weightmon-bugfix'
+      Adds Generic Exception
+      Implements load/save for Monitors
+      Merge branch 'develop' into dev-state-traces
+      Adds load/save to PopulationRateMonitor
+      De-escalates some logger messages to DEBUG
+      Adds indent for parameters in Logger
+      Changes logger string in SpikingGroup
+      Updates logger string in SparseConnection
+      Merge branch 'dev-monitor-netstate' into develop
+      Merge branch 'develop' into dev-state-traces
+      Updates AurynGeneralException message
+      Merge branch 'develop' into dev-state-traces
+      Reformats logger output in System.cpp
+      Adds DEBUG output to SpikingGroup
+      Fixes bug in NeuronGroup
+      Merge branch 'develop' of https://github.com/fzenke/auryn into develop
+      Removes dependency of IF2Group
+      Fixes unsigned comparison warning
+      Adds CMakeLists and moves test files
+      Fixes problem in CMakeLists
+      Removes autotools files from .gitignore
+      Adds Docstrings to SpikeMonitor
+      Merge branch 'develop' into feature-cmake
+      Updates doxystring in SpikeMonitor
+      Doxystring update SpikeMonitor
+      Doxystring update SpikeMonitor
+      Updates doxystring in SpikeMonitor
+      Adds Docstrings to SpikeMonitor
+      Moves SimpleMatrix to header file
+      Update version number
+      Merge branch 'develop' into feature-cmake
+      Changes to make BinarySpikeMon more style conform
+      Merge branch 'develop' into feature-cmake
+      Updates CMakeLists minimum Boost version
+      Minimizes text output in CMakeLists.txt
+      Updates version number
+      Merge branch 'develop' into feature-cmake
+      Merge branch 'origin/feature-cmake' into develop
+      Undos changes to gitignore and adds email t travis
+      Merge branch 'sanjayankur31-travis' into develop
+      Makes refractory period explicit in example
+      Hotfix: Adds AdExGroup.h to auryn.h
+      Merge branch 'develop' into dev-state-traces
+      Replaces DEBUG logger messages type by VERBOSE
+      Undoes change to AdEx in sim_isp_orig
+      Fixes a bug in the state trace mechanism
+      Bumps version number
+      Bumps subversion number
+      Refines versioning system
+      Adds checks of num ranks and version when loading
+      Adds feature verify-version-on-load
+      Merge branch 'develop' of https://github.com/fzenke/auryn into develop
+      Disables RateChecker in coba_benchmark
+      Adds debugging C flags to cmake conf
+      Removes excessive recording from coba_benchmark
+      Removes initial MPI messaging from runtime measurement
+      Removes variable for ampa reversal potential
+      Adds a warning message to sim_coba_benchmark
+      Start time measurement after logger message
+      Undoes erroneous changes in System run
+      Removes offset and output in SpikeMonitor
+      Replaces output-format by sprintf in StateMonitor
+      Removes sanity check from sim_coba_benchmark
+      Caches current_time in BinarySpikeMonitor
+      Update README.md
+      Adds first revision of Auryn Binary extractor abe
+      Adds small fix
+      Changes SpikeEvent format and adds CMakeLists
+      Adds binary search (still buggy)
+      Merge branch 'feature-tool-abe'
+      Implements binary search ab
+      Merge branch 'feature-tool-abe' of ssh://eggplant.stanford.edu/home/zenke/auryn into feature-tool-abe
+      Fixes bugs
+      Adds maxid command line property
+      Fixes bug and renames end to "to"
+      Adds version checking to abe
+      Adds abe to main CMakeLists file
+      Adds version control to abe and BinarySpikeMonitor
+      Adds title to options
+      Adds version information
+      Implements file merging at abe-tool level.
+      Fixes timing bugs in abe-tool
+      Fixes eof issue in abe which caused hang-ups
+      Merge branch 'feature-tool-abe' into develop
+      Adds example for BinarySpikeMonitor
+      Changes program name to aube
+      Fixes bug in last_time in aube
+      Updates doxystrings in SpikingGroup
+      Fixes bug in aube-tool
+      Fixes a memory free problem in EulerTrace
+      Adds an alternative mode of operation
+      Adds additional debugging output
+      Updates some doxystrings
+      Ensures new statevectors are initialized all 0
+      Changes logger string
+      Fixes severe bug in ComplexMatrix
+      Merge branch 'master' into develop
+      Hotfix. Fixes bug in VoltageMonitor
+      Merge branch 'master' into develop
+      Fixes another bug in aube
+      Merge branch 'develop' of https://github.com/fzenke/auryn into develop
+      Removes unecessary check in VoltageMonitor
+      Implements e_reset voltage parameter
+      Fixes problem in oll tadd function
+      Adds limited complex synapse support to WeightMonitor
+      Merge branch 'develop' of https://github.com/fzenke/auryn into develop
+      Improvements to aube command line parameters
+      Fixes bug in WeightMonitor
+      Merge branch 'develop' of https://github.com/fzenke/auryn into develop
+      Adds stop_time mechanisms to Voltage and StateMonitor
+      Adds set_bg_currents method to TIFGroup
+      Adds default values to random_mem
+      Adds CurrentStimulator
+      Updates doxystrings and changes constructor
+      Changes name to CurrentInjector
+      Resets initial default current
+      Fixes bug and makes current dt invariant
+      Updates doxystring
+      Adds scaling variable alpha
+      Adds z variable to compute_reverse_matrix
+      Renames function name in aube.cpp
+      Bugfix in StateMonitor
+      Merge pull request #22 from sanjayankur31/adex-refractory
+      Bugfix in StateMonitor
+      Fixes stop time mechanism in StateMonitor
+      Adds some more doxystrings to auryn_definitions
+      Merge branch 'develop' of https://github.com/fzenke/auryn into develop
+      Adds record_for x seconds function to two Monitors
+      Adds note to auryn_definitions
+      Moves state traces from NeuronGroup to SpikingGroup
+      Fixes type of error message
+      Merge branch 'feature-move-state-traces' into develop
+      Removes stochasticity from StructPoisson
+      Adds additional seeding mechanism
+      Removes active switch from monitor
+      Fixes problem introduced with last rebase
+      Fixes typos in log messages
+      Adds an add_state_vector function to SpikingGroup
+      Adds new functionality to SpikingGroup
+      Adds doxystrings to SpikeDelay
+      Improvement to FileInputGroup
+      Adds tadd for state vectors to NeuronGroup
+      Adds new set_transmitter function to Connection
+      Adds new auryn vector subtract operation
+      Changes source type for StateMonitor
+      Adds seeding mechanisms to example
+      Fixes bias in generation of sparse matrices
+      Adds missing seed mechanisms to sim_poisson
+      Fixes small bias in firing rate
+      Initializes stop time per default to 10s
+      Merge branch 'develop' of https://github.com/fzenke/auryn into develop
+      Removes accidentally added write_to_file command
+      Adds multiple doxystrings
+      More doxystrings in SparseConnection
+      Adds doxystrings to Connection.h
+      Bumps version number and adds logo to doc
+      Switches to STL support in Doxyfile
+      Introduces and auryn namespace
+      Changes to progressbar in System
+      Fixes to tool/aube
+      Merge branch 'master' of https://github.com/fzenke/auryn
+      Merge branch 'master' into develop
+      Merge branch 'master' into release-v0.7
+      Fixes to tool/aube
+      Adds cflag to CMakeLists
+      Adds novel set_transmitter implementation
+      Adds a remove_state_vector function to SpikingGroup
+      Adds more liberal set_profile function to ProfilePoissonGroup
+      Adds last_stimulus_stime StimulusGroup
+      Small improvement to rand_data in SparseConnection
+      Adds WeichtChecker and closes #9
+      Changes doxystrings in Matrix classes
+      Hotfix for stats function in SparseConnection
+      Hotfix for stats function in SparseConnection
+      Hotfix for stats function in SparseConnection
+      Merge branch 'feature_weightchecker' into develop
+      Merge branch remote 'release-v0.7'
+      Bumps version number to next subversion
+      Merge branch 'develop' into feature-current-injector
+      Bumps version number for doxygen docs
+      Adds clip function for matrix states
+      Adds meaningful exception for open file error
+      Introduces Logger exception handling in examples
+      Adds meaningful exception for open file error
+      Introduces Logger exception handling in examples
+      Merge branch 'master' of https://github.com/fzenke/auryn
+      Merge branch 'release-v0.7'
+      Updates README.md with quick compile instructions
+      Fixes version number to last stable version number
+      Reduces log-level in example sim_poisson
+      Changes warning output text in aube
+      Implements more convenient spike attribg handling
+      Fixes potential bug in localrank in SpikingGroup
+      Changes strategy for registering Connections
+      Changes to register procedure of this group
+      Fixes a problem with spike_attribute buffer
+      Adds brief doxystring to class
+      Changes doxystrings in LinearTrace and EulerTrace
+      Adds doxystring to AIF2Group
+      Adds and updates doxystrings
+      Fixes bug in spike attribute reset in SyncBuffer
+      Adds debug code back in with precompile switch
+      Adds function to read out send buffer size
+      Removes deprecated comment line
+      Remove DEBUG flag
+      Removes uneeded variable in SyncBuffer
+      API change swaps argument order in get_post_state_trace
+      Adds new Trace constructor to StateMonitor
+      Changes to StimulusGroup interace
+      Adds new random initializer to SparseConnection
+      Initial commit of MovingBumpGroup
+      Changes loglevel for a message in ProfilePoissonGroup
+      Bugfixes to MovingBumpGroup
+      Updates logmessage in SpikingGroup
+      Adds some setters to MovingBumpGroup
+      Adds setter for duration to MovingBumpGroup
+      Merge branch 'feature-moving-bump' into develop
+      Changes to SparseConnection
+      Adds setter for tau thr in IFGroup
+      Modifcation to SparseConnection
+      Merge branch 'develop' of origin
+      Improves SparseConnection
+      Undoes earlier commit and reverts to 5 sigma in SparseConnection
+      Adds function to ComplexMatrix
+      Generalizes ComplexMatrix
+      Changes interface for stats in Connection
+      Changes to access rights in StimulusGroup
+      Changes access rights to ttl in StimulusGroup
+      Adds filename formating function to System
+      Adds an "active" member to Monitor
+      Updates new filename function in System
+      Fixes typo
+      Adds a warning to SparseConnection
+      Improves ProfilePoissonGroup
+      Testing new .travis.yml
+      Updates copyright notice year
+      Changes to trusty travis ci build environment
+      Updates .travis.yml to openmpi
+      Merge branch 'master' into testdev
+      Cleans up travis ci config .travis.yml
+      Adds sim_current_stim.cpp example
+      Fixes to current stim example
+      Adds NormalStimulator to auryn.h
+      Merge branch 'develop' of ssh://fzenke.net/var/git/auryn into develop
+      Adds SIFGroup to auryn.h
+      Updates copyright notice dates in examples
+      Updates doxystrings in TIFGroup
+      Merge branch 'master' into tmp
+      Updates doxystring in BinarySpikeMonitor.h
+      Fixes logger output string
+      Extends functions to complex matrix elements
+      Changes logger message
+      Adds TripletScalingConnection and sim_bg_scaling example
+      Removes hardcoded unneeded strings
+      Fixes minimum version number in CMakeLists.txt
+      Fixes minimum version number in CMakeLists.txt
+      Merge branch 'develop' of ssh://fzenke.net/var/git/auryn into develop
+      Changes cmake macro in examples
+      Modifications to VoltageMonitor
+      Adds verbose logger output to save netstate
+      Merge branch 'develop' of ssh://fzenke.net/var/git/auryn into develop
+      Changes bras extension to spk
+      Adds function to StimulusGroup
+      Implements compression feature in StateMonitor
+      Small fixes in StateMonitor
+      Fixes init bug in StateMonitor
+      Adds bootstrap file for build
+      Changes ras extension to spk
+      Merge branch 'master' of github
+      Updates aube command line help
+      Updates aube command line help
+      Adds AurynVector class to replace auryn_vector_float
+      Implements some class functions in AurynVector
+      Fixes bug in AurynVector
+      Includes AurynVector class separately
+      Moves code from AurynVector to auryn_definitions
+      Changes doc strings
+      Swichtes to member methods for scale in IFGroup
+      Switches to member scale
+      Implements template functions in auryn_definitions
+      Adds zero init to AurynVector
+      Changes to AurynVector member functions
+      Fixes bug in AurynVector debug code
+      Fixes small bug in system
+      Fixes small bug in Connection
+      Fixes small bug in Connection
+      Fixes small bug in system
+      Overloads ptr function of AurynVector
+      Adds a example bootstrap file for debugging
+      Adds use of new get_log_name function in Connection
+      Adds new get_log_name function
+      Removes unused variable
+      Implements new get_log_name function
+      Removes CC bug
+      Adds example release bootstrap script
+      Moves example bootstrap files
+      Starts replacing legacy code in SpikingGroup and IFGroup
+      Moves AurynVector template to its own file
+      Merges feature branch for new AurynVector template
+      Updates readme to point to the new bootstrap file
+      Updates doxystring
+      Updates Travis script
+      Merge github branch 'develop'
+      Adds feature to System
+      Adds elapsed time output to sim_coba_benchmark
+      Adds verbose CLI switch to sim_background
+      Fixes acess rights of new function in System
+      Adds benchmarking code
+      Fixes probelm in benchmark extensions
+      Adds feature that saves the hostname in benchmark
+      Adds features to save last benchmark result
+      Adds coba test script
+      Merge branch 'develop'
+      Adds datetime column to benchmark output
+      Manual cherry picking of benchmarking from develop
+      Adds benchmarking code
+      Merge branch 'master'
+      Fixes probelm in benchmark extensions
+      Fixes problem in System
+      Updates doxystrings and aligns data ptr
+      Adds interface for some helper functions in auryn_definitions
+      Implements AurynVectorFloat as class
+      Corrects datatypes in AurynVectorFloat
+      Inlines some intriscs in AurynVector and legacy code
+      Adds comment to auryn_definitions.h
+      Adds optimized vector addition in SIMD to AurynVector.h
+      Adapts IFGroup to new AurynVector member routines
+      Adds comment to AurynVector with TODO
+      Replaces legacy functions in EulerTrace
+      Adds check for AVX2 in System
+      Introduces AurynStateVector as default state vector for float types
+      Gets rid of a bunch of functions in NeuronGroup
+      Removes NMDA Monitor
+      Adds function to AurynVector and fixes a bug
+      Adds unit specific add to AurynVector
+      Removes AmpaMonitor now replaced by StateMonitor
+      Bumps Auryn version number to 0.8
+      Adds new logger message functions
+      Removes state getters and setters from NeuronGroup
+      Removes state getters and setters from NeuronGroup
+      Merge branch 'develop' of
+      Adds note in StateMonitor
+      Bumps version number in Doxyfile
+      Updates doxystring in AurynVector.h
+      Updates doxystring in AurynVector
+      Adds coba test for reproducibility comparison
+      Fixes test routines
+      Updates make call in test routines
+      Adds test routine to travis script
+      Virtualizes multiple member functions of AurynVector
+      Fixes problem in new travis file
+      Forgot to add test script
+      Adds debug output to test script to debug travis
+      Updates hashing code in test routines
+      Merge branch 'develop' of fzenke.net/var/git/auryn
+      Updates test routines to avoid fast-math compiled code
+      Merge branch 'develop' of ssh://fzenke.net/var/git/auryn into develop
+      Removes test routines from travis
+      Adds build code for debug build
+      Merge branch 'develop' of https://github.com/fzenke/auryn into develop
+      Adds the test again
+      Adds plot benchmark script
+      Switches to histogram style in plot_benchmark_results.gnu
+      Adds destructor to AurynVectorFloat
+      Makes destructor virtual in AurynVector
+      Adds flush to file function to Monitor
+      Fixes bug in EulerTrace
+      Adds getter for number of z-states in ComplexMatrix
+      Adds logstrings
+      Small change to load netstate in SpikingGroup
+      Adds debugging output with CLI switch to aube
+      Changes access rights for member of StimulusGroup
+      Changes debugging output
+      Changes function type in AurynVector
+      Adds a very simple CubaIFGroup
+      Adds IafPscExpGroup and restores previous CubaIFGroup
+      Changes src and dst to public in Connection
+      Adds new output function debug to Logger
+      Adds log level info
+      Minor edits to EulerTrace
+      Adds logger output to StateMonitor
+      Adds functionality that to state traces
+      Docstring
+      Adds debugging active warning to log
+      Adds a reference to a target state vector
+      Updates docstring
+      Adds flush to file for monitors to System
+      Changes access rights in SpikeMonitor
+      Adds a function to StimulusGroup which can be used by groups inheriting from it.
+      Preps Connection.h for removal of target pointer
+      Fixes instructions in README.md
+      Updates doxygen strings in System
+      Updates doxystrings in SpikingGroup.h
+      Updates doxystrings in header files
+      Adds doxystring
+      Updates doxystring
+      Removes GabaMonitor because it is superseded by StateMonitor
+      Updates doxystrings
+      Initial commit for spike delta based SyncBuffer
+      Version compiles now, but still introduces spurious spikes
+      Small changes in SyncBuffer
+      Adds print function to SpikeDelay
+      Fixes bug in SyncBuffer implementation
+      Improves print function in SpikeDelay.cpp
+      Changes logger output in System.h
+      Adds overflow managements for very large deltas in SyncBuffer
+      Adds check for bytesize of NeuronID and AurynFloat
+      Fixes bug in SpikeMonitor
+      Adds log messages for size of datatypes to System
+      Adds overflow mechanism to SyncBuffer
+      Adds logger output to System
+      Makes Delta datatype in SyncBuffer configurable
+      Fixes overflow management in SyncBuffer
+      More robust implementation of pop in SyncBuffer
+      Small changes
+      Rollback to original SyncBuffer
+      Solves problems of leaking spikes in SyncBuffer
+      Revert "Rollback to original SyncBuffer"
+      Merge branch 'feature-syncbuffer' into develop
+      Comments out sort function in SyncBuffer
+      Updates test scripts
+      Changes privacy of function in SyncBuffer
+      Experimentall changes delta data type to int
+      Uses non-negative delta values in SyncBuffer now
+      Adds warning about SyncBuffer delta datatype in SpikingGroup
+      Changes order of logger output in System
+      Changes bug in log output System
+      Simplifications to SyncBuffer
+      Fixes spike attribute transmission in new delta SyncBuffer
+      Removes obsolte count array from SyncBuffer
+      Changes variable init in StateMonitor for robustness
+      Changes variable init in EulerTrace
+      Adds TODO comment
+      Adds a pushback function for SpikeContainers
+      Reverts changes to StateMonitor
+      Changes free order in System
+      Adds a get_total_elapsed_time function
+      Adds square function to AurynVector
+      Changes initialization to StateMonitor
+      Merge branch 'develop' of https://github.com/idiot-z/auryn into idiot-z-develop
+      Adds doxystrings and adds TODOs
+      Makes stats virtual pure and adds z to param list
+      Renames overloaded function from WeightMonitor
+      Merges Lorrics additions into develop
+      Merge pull request #26 from idiot-z/develop
+      Makes AurynVector template more general
+      Merge branch 'develop' of https://github.com/fzenke/auryn into develop
+      Adds SIMD size check to AurynVector template
+      Adds statevectors vector to ComplexMatrix.h
+      Completely replaces core of ComplexMatrix
+      Fixes serveral bugs in ComplexMatrix
+      Implements copy function for states
+      Implements ComplexMatrix with AurynStateVectors
+      Merge branch 'feature-complex-matrix' into develop
+      Adds type def for AurynSynStateVector
+      Uses state vector copy function in ComplexMatrix
+      Fixes bug in destructor of ComplexMatrix
+      Adds shorter fn (filename) function to System
+      Adds AllToAllConnection
+      Removes two deprecated virtual pure functions
+      Adapts code to new base class
+      Merge branch 'develop' of ssh://fzenke.net/var/git/auryn into develop
+      API change in Connection
+      Merge branch 'develop' of ssh://fzenke.net/var/git/auryn into develop
+      Adds doxystring
+      Small changes to DuplexConnection
+      Changes access level in StructuredPoissonGroup
+      Adds more arithmetic  instructions to AurynVector
+      Changes access for members of StimulusGroup
+      Adds set_target function to Connection
+      Silences progressbar in "fast" sim_coba_benchmark
+      Performance optimizations
+      Adds profiling build
+      Performance optimizations in AurynVector
+      Performance optimizations in Connection
+      Performance optimizations in SparseConnection
+      Performance optimizations in ComplexMatrix
+      Cleans up code
+      Adds copy constructor
+      Unifies legacy codebase with AurynVector
+      Cleans up code
+      Inlines get_data_ptr functions
+      Adds some comments and TODO tags
+      Cleans up code
+      Adds sum and diff functions to AurynVector
+      Uses diff function in IFGroup now
+      Changes memcpy to std::copy in AurynVector
+      Adds diff function in legacy code
+      Inlines a bunch of functionx
+      Cleans up code IFGroup
+      Adds discretization error correction to variance
+      Removes inlining in template function
+      Changes memory alignment in AurynVector
+      Changes memory alignment in AurynVector
+      Doxystring
+      Removes inlining in template function
+      Merge branch 'develop' of ssh://fzenke.net/var/git/auryn into develop
+      Changes to access rights in ComplexMatrix
+      Adds basic statistics functions to AurynVector
+      Adds get_element function to ComplexMAtrix
+      Adds additional fn (filename) function to System
+      Adds corrections to variance function
+      Adds template function to Logger
+      Corrects data type
+      Adds getters for traces to Connection class
+      Changes Exception string
+      Changes calculate_vector_size implementation in auryn_definitions
+      Changes to allocation function in AurynVector
+      Implements Bessel's approxmation in stats
+      Changes to verbose log strings
+      Adds zero init to  activity vector
+      Adds debug code to EulerTrace
+      Adds range check to EulerTrace for DEBUG
+      Removes cout from SpikingGroup
+      Makes several template functions virtual
+      Adds z parameter to set_all method
+      Changes default binsize in population rate monitor
+      Changes default recording interval in WeightMonitor
+      Adds Logger shortcut function
+      Adds exception to ComplexMatrix
+      Adds experimental support for state variables in SpikingGroup
+      Merge branch 'feature-groupstate' into develop
+      Updates some Doxystrings
+      Update README.md
+      Rename multiple types in AurynVector
+      Merge branch 'develop' of ssh://fzenke.net/var/git/auryn into develop
+      Update README.md
+      Make functions non-virtual
+      Merge branch 'develop' of ssh://fzenke.net/var/git/auryn into develop
+      Change types in AurynVector
+      Adds auryn_version_info.h and script to generate
+      Commits changes
+      Removes global static variables
+      Adds AurynVersion class
+      Updates AurynVersion class and mk_version_info
+      Updates Doxyfile
+      Moves script lines to mk_doxygen
+      Adds Doxystring
+      Improves documentation of WeightMonitor
+      Fixes typo
+      Updates doxystring in SparseConnection
+      Fixes bug in random init function
+      Updates and moves doxygen mainpage
+      Adapts AIFGroup to new AurynVector interface
+      Adds exp() to AurynVector.h
+      Makes a variable const in IFGroup
+      Updates doxystring
+      Fixes bug in TripletConnection netstate functions
+      Moves Doxyfile and starts adding examples to doc
+      Moves Doxyfile and all doc related files to /doc
+      Adds doxystrings to example sims
+      Updates doxystring
+      Adds logger output
+      Fixes mismatched new [] / delete [] in SyncBuffer
+      Fixes datatype in WeightMonitor
+      Fixes bug which affected complex synapses
+      Implements BinaryStateMonitor and the decoder tool/aubs
+      Merge branch 'feature-binary-statemon' into develop
+      Adds doxystring
+      Small bugfix
+      Adds Izhikevich neuron model als IzhikevichGroup
+      Removes unused params
+      Updates doxystrings
+      Removes make from bootstrap file
+      Small changes to synaptic input in IzhikevichGroup
+      Merge branch 'develop' of https://github.com/fzenke/auryn into develop
+      Removes unused state mons from example
+      Fixes doxygen string
+      Adds example simulation
+      Updates transmit() in Connection
+      Hotfix bug in benchmark script
+      Fixes label in plot_benchmark_results.gnu
+      Hotfix default parameters in AdExGroup
+      Adds functionality to Connection
+      Updates example sim
+      Replaces Monitor with abstract base class Device
+      Implements names for Devices and Monitors
+      Implements smart auto names for monitors
+      Removes debug cout
+      Improvements in AurynVector
+      Vectorizes AdEx and makes it about 4x faster
+      Adds forgotten Device files
+      Adds API function to SpikingGroup
+      Modifications to progressbar (System)
+      Fixes progressbar bug
+      Adds mem clipping to AdEx for stability
+      Adds doxystrings
+      Adds unit test files for ComplexMatrix and AurynVector
+      Adds random init and resize func to AurynVector
+      Fixes bug in bisec in SimpleMatrix
+      Fixes two bugs in complex matrix
+      Updates unite test suite for ComplexMatrix
+      Adds random init and resize func to AurynVector
+      Fixes bug in bisec in SimpleMatrix
+      Fixes two bugs in complex matrix
+      Adds unit test files for ComplexMatrix and AurynVector
+      Updates unite test suite for ComplexMatrix
+      Merge AurynVector from develop branch
+      Updates test scripts to run units tests
+      Updates test_Aurynvector
+      Adds abs and new fast_exp to AurynVector
+      Reorders functions in AurynVector
+      Revers back to naive fast_exp256 implementation in AurynVector
+      Adds check to test_ComplexMatrix
+      Adds unit test for EulerTrace
+      Moves tests to test dir
+      Adds test for LinearTrace
+      Corrections to test_EulerTrace
+      Updates run test script
+      Fixes precision problem in LinearTrace
+      Fixes precision problem in LinearTrace
+      Updates test pathname in travis cl yml file
+      Merge branch 'release-v0.8.0' of ssh://fzenke.net/var/git/auryn into release-v0.8.0
+      Adds another check to LinearTrace
+      Removes unused variable
+      Adds initial version of SpikeTimingStimGroup
+      Removes old code fom SpikingGroup
+      Adds mpi rank proxy variables to System
+      Mod to log output System
+      System: cleans up logger output
+      Fixes mk_version_info.sh
+      Fixes mk_version_info.sh
+      Adds a loop grid for easier temporal alignment in FileInputGroup
+      Refactors FileInputGroup to first load all spikes to memory
+      Fixes some of the issues in FileInputGroup
+      Adds todo to Fileinputgroup
+      Moves active switch to SpikingGroup
+      Adds prune function to DuplexConnection
+      Removes active switch
+      Updates mk_version_info
+      Renames a type in EulerTrace
+      Adds an if check to to evolve_traces() in SpikingGroup
+      First code of python based spike extraction tool
+      Makes python tool a class
+      Moves example file
+      Some small changes
+      Faster implementation for RF
+      Adds if main to python spk import lib
+      Adds some doc strings
+      Adds an example
+      Merge branch 'develop' of ssh://fzenke.net/var/git/auryn into develop
+      Moves example file
+      Some small changes
+      Faster implementation for RF
+      Adds if main to python spk import lib
+      Adds some doc strings
+      Adds an example
+      Adds readme to python subdir
+      Moves file
+      Creates new base class for Auryn binary tools
+      Merge branch 'release-v0.8.0' of ssh://fzenke.net/var/git/auryn into release-v0.8.0
+      Imports new version of Python binary tools
+      Adds examples for Auryn Python toolkit
+      Adds examples for Auryn Python toolkit
+      Merge branch 'release-v0.8.0' of https://github.com/fzenke/auryn into release-v0.8.0
+      Updates Auryn binary toolkit README.md
+      Updates Auryn binary toolkit README.md
+      Adds example to read BinaryStateMonitor file with Python toolkit
+      Change header tag for StateMonitor
+      Adds example to read BinaryStateMonitor file with Python toolkit
+      Change header tag for StateMonitor
+      Merge branch 'release-v0.8.0' into develop
+      Adds example to read BinaryStateMonitor file with Python toolkit
+      Change header tag for StateMonitor
+      Fixes typo
+      Fixes typo
+      Renames global variable communicator to mpicommunicator
+      Adds loglevel setters to Logger
+      Adapts examples to new API
+      Updates gitignore
+      Merge branch 'develop' into release-v0.8.0
+      Fixes bug in Python library
+      Merge branch 'master' of https://github.com/fzenke/auryn
+      Merge branch 'release-v0.8.0' for beta release
+      Hotfix of log file path sim_coba_benchmark
+      Removes tests
+      Adds test for fastexp in AurynVector unit test
+      Hotfix binary name detection for logfile name
+      Hotfix logfile output sim_background for benchmark script
+      Fixes bug in Python library
+      Merge branch 'develop' of ssh://fzenke.net/var/git/auryn into develop
+      Hotfix test script
+      Updates travis yml file
+      Adds some more debugging output to test script
+      Shortens .travis yml file
+      Removes network tests from automated tests
+      Adds an auryn_free function for MPI cleanup
+      Merge branch 'master' into develop
+      Hotfix link in README
+      Adds new master seed mechanisms to System
+      Adds salt to PoissonGroup
+      Adds salt
+      Revert "Adds salt"
+      Hotfix link in README
+      Hotfix changes to aligned allocation in AurynVector
+      Changes to aligned allocation in AurynVector
+      Merge branch 'master' of https://github.com/fzenke/auryn
+      Switches to master seed mechanism
+      Merge remote-tracking branch 'github/master'
+      Adds simple unit test script for AurynStateVector
+      Updates unit tests vor AurynVector and derived classes
+      Fixes a bug in resize of AurynStateVector/AurynVectorFloat
+      Updates bootstrap script in debug build dir
+      Adds doxystring to auryn_init and auryn_free
+      Bumps version number in CMakeLists.txt and mk_version_info.sh
+      Fixes issues reported by haffi
+      Fixes signed/unsigned comparison warnings
+      Implements poor man's version of aligned_alloc
+      Merge branch 'bugfix_stdlib_memory_alignment'
+      Fixes some more signed unsigned comparison warns
+      Fixes bug in Python library
+      Adds new master seed mechanisms to System
+      Adds salt to PoissonGroup
+      Adds salt
+      Revert "Adds salt"
+      Adds refresh function for file wrapper in python tools
+      Implements boost alignment
+      Adds new version requirements to CMakeLists.txt
+      Moves Doxygen mainpage to doc
+      Uses master seeding mechanisms in example
+      Merge branch 'develop' of ssh://fzenke.net/var/git/auryn into develop
+      Fixes another signed unsigned warming
+      Merge branch 'master' into develop
+      Implements auryn_abort
+      Merge branch 'master' into develop
+      Implements flush() in BinarySpikeMonitor
+      Updates some copyright notes
+      Merge branch 'master' into develop
+      Changes interface of Connection member function
+      Adds README.md to test/src
+      Updates requirements for boost libs in travis file
+      Reverts new boost based alignment for Travis CI
+      Revert "Updates requirements for boost libs in travis file"
+      Reverst required boost version to 1.41
+      Makes CMakeLists nicer
+      Changes directory structure for clean install
+      Adds quick install instructions
+      Adds zero_effective_zeros function to AurynVector
+      Adds get_delay function to SpikeDelay
+      Adds AurynDelayVector
+      Adds doxystring and renames method
+      Updates test and removes couts
+      Little fix
+      Adds new inc function to EulerTrace
+      Adds doxystrings to some example files
+      Adds doxystring to sim_coba_benchmark
+      Adds PoissonSpikeInjector
+      Adds warning to PoissonSpikeInjector
+      Removes old randomization functions from NeuronGroup
+      Fixes unsigned comparison in aube
+      Removes direct call to mpienv from examples
+      Adds preprocessor option to compile Auryn withgout MPI support
+      Fixes bug introduced by last commit
+      Comments out code for the dynamic library
+      Changes file output in benchmark script
 
-2014-01-20 Friedemann Zenke <friedemann.zenke@epfl.ch> 
- 
- * Added release information version v0.3.
- * Changed custom written MPI code to MPI_Allgather
- with adaptive receive buffer size.
- * Fixes a bug in SyncBuffer that was effecting
- short term plasticity.
- * Several bugfixes.
+Lorric Ziegler (5):
+      added z support to set/scale_data, fixed get_data in ComplexMatrix
+      Merge branch 'develop' of https://github.com/fzenke/auryn into develop
+      merged selected patches from dev_zynapse branch
+      added empty stats method in connection.h
+      fixed a bug in WeightMonitor related to z support
+
+fzenke (1):
+      Rename README to README.md
 

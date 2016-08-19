@@ -23,7 +23,7 @@ BOOST_AUTO_TEST_CASE( LinearTrace_decay ) {
 
 	for ( int i = 0 ; i < 10 ; ++i ) {
 		clk = i*123;
-		float solution  = std::exp(-dt*clk/tau);
+		float solution  = std::exp(-auryn::auryn_timestep*clk/tau);
 		float deviation = std::abs(tr_linear->get(idx)-solution)/solution;
 		// std::cout << solution << " " << tr_linear->get(idx) << std::endl;
 		BOOST_CHECK( deviation < precision );
@@ -48,8 +48,8 @@ BOOST_AUTO_TEST_CASE( LinearTrace_slow_decay ) {
 
 
 	for ( int i = 0 ; i < 10 ; ++i ) {
-		clk = i*123.0/dt;
-		float solution  = std::exp(-dt*clk/tau_long);
+		clk = i*123.0/auryn::auryn_timestep;
+		float solution  = std::exp(-auryn::auryn_timestep*clk/tau_long);
 		float deviation = std::abs(tr_linear->get(idx)-solution)/solution;
 		// std::cout << solution << " " << tr_linear->get(idx) << std::endl;
 		BOOST_CHECK( deviation < precision );
@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE( LinearTrace_pileup ) {
 	LinearTrace * tr_linear = new LinearTrace(4,tau,&clk);
 
 	float maxdev = 0.0;
-	int simsteps = 1.0e-3/dt;
+	int simsteps = 1.0e-3/auryn::auryn_timestep;
 	for ( int k = 0 ; k < 10 ; ++ k ) {
 		tr_euler->inc(idx);
 		tr_linear->inc(idx);

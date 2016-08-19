@@ -18,12 +18,29 @@
 * along with Auryn.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*!\file 
+ *
+ * \brief Implementation of the Brunel (2000) network with added STDP as implemented in NEST 
+ *
+ * This simulates the network from Brunel, N. (2000). Dynamics of sparsely
+ * connected networks of excitatory and inhibitory spiking neurons. J Comput
+ * Neurosci 8, 183–208.
+ * as implemented in the NEST examples 
+ * (https://github.com/nest/nest-simulator/tree/master/examples/nest).
+ *
+ * This file contains the network without plasticity. However, the same network
+ * was implemented with and without weight-dependent STDP for performance
+ * comparison with NEST. The results are published in Zenke, F., and Gerstner,
+ * W. (2014). Limits to high-speed simulations of spiking neural networks using
+ * general-purpose computers. Front Neuroinform 8, 76.
+ *
+ */
+
 #include "auryn.h"
 
 using namespace auryn;
 
 namespace po = boost::program_options;
-namespace mpi = boost::mpi;
 
 int main(int ac,char *av[]) {
 	string dir = ".";
@@ -269,7 +286,7 @@ int main(int ac,char *av[]) {
 	delete sys;
 
 	if (errcode)
-		mpienv->abort(errcode);
+		auryn_abort(errcode);
 
 	return errcode;
 }

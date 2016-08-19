@@ -1,6 +1,6 @@
 #define BOOST_TEST_MODULE AurynVector test 
 #include <boost/test/unit_test.hpp>
-#include "../../src/AurynVector.h"
+#include "auryn/AurynVector.h"
 
 BOOST_AUTO_TEST_CASE( resizing ) {
 

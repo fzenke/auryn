@@ -1,7 +1,7 @@
 #define BOOST_TEST_MODULE ComplexMatrix test 
 #include <boost/test/unit_test.hpp>
 #include <iostream>
-#include "ComplexMatrix.cpp"
+#include "auryn/ComplexMatrix.cpp"
 
 // using namespace auryn;
 

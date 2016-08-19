@@ -18,12 +18,17 @@
 * along with Auryn.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+
+/*!\file 
+ *
+ * \brief Example simulation which simulates a group of Poisson neurons
+ */
+
 #include "auryn.h"
 
 using namespace auryn;
 
 namespace po = boost::program_options;
-namespace mpi = boost::mpi;
 
 int main(int ac, char* av[]) 
 {
@@ -35,7 +40,7 @@ int main(int ac, char* av[])
 	string msg;
 
 	NeuronID size = 1000;
-	NeuronID seed = 1;
+	unsigned int seed = 1;
 	double kappa = 5.;
 	double simtime = 1.;
 
@@ -101,9 +106,9 @@ int main(int ac, char* av[])
     }
 
 	auryn_init(ac, av);
+	sys->set_master_seed(seed);
 
 	PoissonGroup * poisson = new PoissonGroup(size,kappa);
-	poisson->seed(seed);
 
 	sprintf(strbuf, "%s/%s.%d.ras", dir.c_str(), file_prefix.c_str(), sys->mpi_rank() );
 	SpikeMonitor * smon_e = new SpikeMonitor( poisson, strbuf, size);
@@ -117,7 +122,7 @@ int main(int ac, char* av[])
 
 
 	if (errcode)
-		mpienv->abort(errcode);
+		auryn_abort(errcode);
 	logger->msg("Freeing ...",PROGRESS,true);
 	auryn_free();
 	return errcode;

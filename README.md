@@ -24,6 +24,7 @@ git clone https://github.com/fzenke/auryn.git && cd auryn/build/release
 
 Run a first network simulation
 ------------------------------
+<<<<<<< HEAD
 
 ```
 cd examples
