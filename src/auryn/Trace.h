@@ -52,13 +52,13 @@ public:
 	 *
 	 * \param i index of trace to increment.
 	 */
-	void inc(NeuronID i);
+	virtual void inc(NeuronID i);
 
 	/*! \brief Increment given traces by 1.
 	 *
 	 * \param sc SpikeContainer with all neurons to increment.
 	 */
-	void inc(SpikeContainer * sc);
+	virtual void inc(SpikeContainer * sc);
 
 	/*! \brief Perform Euler step. */
 	virtual void evolve() = 0;
@@ -73,10 +73,10 @@ public:
 	 *
 	 * \param i index of trace to get
 	 */ 
-	AurynFloat normalized_get(NeuronID i);
+	virtual AurynFloat normalized_get(NeuronID i);
 
 	/*! \brief Get pointer to state AurynStateVector for fast processing. */
-	AurynStateVector * get_state_ptr();
+	virtual AurynStateVector * get_state_ptr();
 
 	/*! \brief Set the target vector for follow operation */
 	virtual void set_target( AurynStateVector * target ) = 0;
