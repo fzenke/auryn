@@ -32,7 +32,6 @@
 #include "Trace.h"
 #include "EulerTrace.h"
 
-
 #include <vector>
 #include <map>
 
@@ -276,11 +275,23 @@ public:
 	 * otherwise creates a new instance first. */
 	Trace * get_pre_trace( AurynFloat x );
 
+	/*! \brief Adds trace to pretrace stack of a connection
+	 * 
+	 * Mostly for internal use by get_pre_trace()
+	  */
+	void add_pre_trace( Trace * tr );
+
 	/*! \brief Returns a post trace with time constant x 
 	 *
 	 * Checks first if an instance of a trace exists and returns it
 	 * otherwise creates a new instance first. */
 	Trace * get_post_trace( AurynFloat x );
+
+	/*! \brief Adds trace to posttrace stack of a connection
+	 * 
+	 * Mostly for internal use by get_post_trace()
+	  */
+	void add_post_trace( Trace * tr );
 
 	/*! \brief Pushes a spike into the axonal SpikeDelay buffer */
 	void push_spike(NeuronID spike);
