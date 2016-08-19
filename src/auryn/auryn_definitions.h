@@ -143,7 +143,10 @@ namespace mpi = boost::mpi;
 
 namespace auryn {
 
-	/*! \brief Simulation timestep */
+	/*! \brief Simulation timestep in seconds
+	 *
+	 * \todo For consistency the global variable for auryn_timestep should be moved 
+	 * to either auryn_definitions or into the System class */
 	extern double auryn_timestep;
 
 	/*! \brief Specifies the different transmitter types 
