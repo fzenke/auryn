@@ -33,7 +33,6 @@ void LinearTrace::init(NeuronID n, AurynFloat timeconstant)
 	zerointerval = 5*tau_auryntime;
 
 	// clock = auryn::sys->get_clock_ptr();
-	clock = sys->get_clock_ptr();
 	timestamp = new AurynTime[size];
 }
 
@@ -45,6 +44,13 @@ void LinearTrace::free()
 LinearTrace::LinearTrace(NeuronID n, AurynFloat timeconstant) : super(n, timeconstant)
 {
 	init(n,timeconstant);
+	clock = sys->get_clock_ptr();
+}
+
+LinearTrace::LinearTrace(NeuronID n, AurynFloat timeconstant, AurynTime * clk ) : super(n, timeconstant)
+{
+	init(n,timeconstant);
+	clock = clk;
 }
 
 LinearTrace::~LinearTrace()

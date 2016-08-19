@@ -51,7 +51,12 @@ private:
 	void free();
 
 public:
+	/* \brief Default constructor */
 	LinearTrace(NeuronID n, AurynFloat timeconstant);
+	/* \brief Test constructor which allows to init the class without Auryn kernel
+	 *
+	 * This is only used in tests and should not be used in a simulation. */
+	LinearTrace(NeuronID n, AurynFloat timeconstant, AurynTime * clk);
 	virtual ~LinearTrace();
 	void inc(NeuronID i);
 	void add_specific(NeuronID i, AurynState amount);
