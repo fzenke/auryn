@@ -6,7 +6,9 @@ Auryn
 Auryn is Plastic Spiking Neural Network Simulator to simulate recurrent spiking
 neural networks with synaptic. It comes with the GPLv3 (please see COPYING).
 
-For examples and documentation visit the wiki at http://www.fzenke.net/auryn/
+* For examples and documentation visit http://www.fzenke.net/auryn/
+* Please reporte issues here https://github.com/fzenke/auryn/issues
+* For questions and support http://www.fzenke.net/auryn/forum/
 
 Quick start
 -----------
