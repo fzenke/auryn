@@ -35,9 +35,9 @@ TIFGroup::TIFGroup(NeuronID size) : NeuronGroup(size)
 
 void TIFGroup::calculate_scale_constants()
 {
-	scale_mem  = dt/tau_mem;
-	scale_ampa = exp(-dt/tau_ampa);
-	scale_gaba = exp(-dt/tau_gaba);
+	scale_mem  = auryn_timestep/tau_mem;
+	scale_ampa = exp(-auryn_timestep/tau_ampa);
+	scale_gaba = exp(-auryn_timestep/tau_gaba);
 }
 
 void TIFGroup::init()
@@ -203,7 +203,7 @@ AurynFloat TIFGroup::get_tau_gaba()
 
 void TIFGroup::set_refractory_period(AurynDouble t)
 {
-	refractory_time = (unsigned short) (t/dt);
+	refractory_time = (unsigned short) (t/auryn_timestep);
 }
 
 void TIFGroup::virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version ) 

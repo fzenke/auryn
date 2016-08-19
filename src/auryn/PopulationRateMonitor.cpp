@@ -42,7 +42,7 @@ void PopulationRateMonitor::init(SpikingGroup * source, std::string filename, Au
 
 	src = source;
 	invbsize = 1.0/binsize;
-	ssize = (1.0*binsize/dt);
+	ssize = (1.0*binsize/auryn_timestep);
 	if ( ssize < 1 ) ssize = 1;
 	counter = 0;
 

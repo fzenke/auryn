@@ -27,33 +27,24 @@
 
 using namespace auryn;
 
-void LinearTrace::init(NeuronID n, AurynFloat timeconstant, AurynTime * clk)
+void LinearTrace::init(NeuronID n, AurynFloat timeconstant) 
 {
-	size = n;
-	tau = timeconstant;
-	tau_auryntime = (AurynTime) (timeconstant/dt);
+	tau_auryntime = (AurynTime) (timeconstant/auryn_timestep);
 	zerointerval = 5*tau_auryntime;
 
 	// clock = auryn::sys->get_clock_ptr();
-	clock = clk;
-	state = new AurynFloat[size];
+	clock = sys->get_clock_ptr();
 	timestamp = new AurynTime[size];
-	for (NeuronID i = 0 ; i < size ; ++i ) 
-	{
-		state[i] = 0.;
-		timestamp[i] = 0;
-	}
 }
 
 void LinearTrace::free()
 {
-	delete [] state;
 	delete [] timestamp;
 }
 
-LinearTrace::LinearTrace(NeuronID n, AurynFloat timeconstant, AurynTime * clk)
+LinearTrace::LinearTrace(NeuronID n, AurynFloat timeconstant) : super(n, timeconstant)
 {
-	init(n,timeconstant,clk);
+	init(n,timeconstant);
 }
 
 LinearTrace::~LinearTrace()
@@ -61,60 +52,41 @@ LinearTrace::~LinearTrace()
 	free();
 }
 
-void LinearTrace::set(NeuronID i , AurynFloat value)
-{
-	state[i] = value;
-}
 
-void LinearTrace::setall(AurynFloat value)
-{
-	for (NeuronID i = 0 ; i < size ; ++i )
-		set(i,value);
-}
-
-void LinearTrace::add(NeuronID i, AurynFloat value)
-{
-	update(i);
-	state[i] += value;
-}
-
-AurynFloat * LinearTrace::get_state_ptr()
-{
-	return state;
-}
-
-AurynFloat LinearTrace::get_tau()
-{
-	return tau;
-}
-
-inline void LinearTrace::update(NeuronID i)
+void LinearTrace::update(NeuronID i)
 {
 	const int timediff = *clock - timestamp[i];
 	if ( timediff == 0 ) return;
 
 	if ( timediff >= zerointerval ) {
-		state[i] = 0.0;
+		data[i] = 0.0;
 	} else { // as a last resort call exp
-		state[i] *= std::exp( -(dt*timediff)/tau);
+		data[i] *= std::exp( -(auryn_timestep*timediff)/tau);
 	}
 
 	timestamp[i] = *clock;
 }
 
+void LinearTrace::add_specific(NeuronID i, AurynState amount)
+{
+	update(i);
+	super::add_specific(i, amount);
+}
+
 void LinearTrace::inc(NeuronID i)
 {
 	update(i);
-	state[i] += 1.0;
+	data[i] += 1.0;
 }
 
 AurynFloat LinearTrace::get(NeuronID i)
 {
 	update(i);
-	return state[i];
+	return super::get(i);
 }
 
 
 void LinearTrace::evolve() 
 {
+	// lazy on evolve updates on get and inc
 }

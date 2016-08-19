@@ -77,7 +77,7 @@ void DelayedSpikeMonitor::propagate()
 	for (it = src->get_spikes()->begin() ; it != src->get_spikes()->end() ; ++it ) {
 		if (*it >= n_from ) {
 			if ( *it < n_to ) 
-			 outfile << dt*(auryn::sys->get_clock()) << "  " << *it+offset << "\n";
+			 outfile << auryn_timestep*(auryn::sys->get_clock()) << "  " << *it+offset << "\n";
 		}
 	}
 }

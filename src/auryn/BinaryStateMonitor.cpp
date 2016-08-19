@@ -65,7 +65,7 @@ BinaryStateMonitor::BinaryStateMonitor(auryn_vector_float * state, NeuronID id, 
 	lastval = *target_variable;
 }
 
-BinaryStateMonitor::BinaryStateMonitor(EulerTrace * trace, NeuronID id, std::string filename, AurynDouble sampling_interval): Monitor(filename, default_extension)
+BinaryStateMonitor::BinaryStateMonitor(Trace * trace, NeuronID id, std::string filename, AurynDouble sampling_interval): Monitor(filename, default_extension)
 {
 	if ( id >= trace->get_state_ptr()->size ) return; // do not register if neuron is out of vector range
 
@@ -96,7 +96,7 @@ void BinaryStateMonitor::open_output_file(std::string filename)
 void BinaryStateMonitor::init(std::string filename, AurynDouble sampling_interval)
 {
 	set_stop_time(10.0);
-	ssize = sampling_interval/dt;
+	ssize = sampling_interval/auryn_timestep;
 	if ( ssize < 1 ) ssize = 1;
 
 	enable_compression = true;
@@ -109,7 +109,7 @@ void BinaryStateMonitor::init(std::string filename, AurynDouble sampling_interva
 	// the neuronID field contains a tag 
 	// encoding the version number
 	StateValue_type headerFrame;
-	headerFrame.time  = (AurynTime)(1.0/dt);
+	headerFrame.time  = (AurynTime)(1.0/auryn_timestep);
 	headerFrame.value = sys->build.tag_binary_state_monitor;
 	outfile.write((char*)&headerFrame, sizeof(StateValue_type));
 }
@@ -162,8 +162,8 @@ void BinaryStateMonitor::propagate()
 
 void BinaryStateMonitor::set_stop_time(AurynDouble time)
 { 
-	AurynDouble stoptime = std::min( time, std::numeric_limits<AurynTime>::max()*dt );
-	t_stop = stoptime/dt;
+	AurynDouble stoptime = std::min( time, std::numeric_limits<AurynTime>::max()*auryn_timestep );
+	t_stop = stoptime/auryn_timestep;
 }
 
 void BinaryStateMonitor::record_for(AurynDouble time)
@@ -171,6 +171,6 @@ void BinaryStateMonitor::record_for(AurynDouble time)
 	if (time < 0) {
 		auryn::logger->msg("Warning: Negative stop times not supported -- ingoring.",WARNING);
 	} 
-	else t_stop = auryn::sys->get_clock() + time/dt;
+	else t_stop = auryn::sys->get_clock() + time/auryn_timestep;
 	auryn::logger->debug("Set record for times for monitor.");
 }

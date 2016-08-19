@@ -35,7 +35,7 @@ IafPscDeltaGroup::IafPscDeltaGroup(NeuronID size) : NeuronGroup(size)
 
 void IafPscDeltaGroup::calculate_scale_constants()
 {
-	scale_mem  = dt/tau_mem;
+	scale_mem  = auryn_timestep/tau_mem;
 }
 
 void IafPscDeltaGroup::init()
@@ -60,7 +60,7 @@ void IafPscDeltaGroup::init()
 
 void IafPscDeltaGroup::set_tau_ref(AurynFloat tau_ref)
 {
-	refractory_time = (unsigned short) (tau_ref/dt);
+	refractory_time = (unsigned short) (tau_ref/auryn_timestep);
 }
 
 void IafPscDeltaGroup::clear()

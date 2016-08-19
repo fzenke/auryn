@@ -49,7 +49,7 @@ class PatternMonitor : protected Monitor
 private:
 	/*! Array used to count the spike events of the src SpikingGroup */
 	NeuronID * counter;
-	/*! Stepsize = binsize in units of AurynTime (dt) */
+	/*! Stepsize = binsize in units of AurynTime (auryn_timestep) */
 	AurynTime ssize;
 	/*! Binsize used in seconds */
 	AurynDouble bsize;

@@ -41,7 +41,7 @@ void RateMonitor::init(SpikingGroup * source, std::string filename, AurynFloat s
 	auryn::sys->register_device(this);
 
 	src = source;
-	ssize = samplinginterval/dt;
+	ssize = samplinginterval/auryn_timestep;
 	if ( ssize < 1 ) ssize = 1;
 
 	tau_filter = 3*samplinginterval;
@@ -59,7 +59,7 @@ void RateMonitor::propagate()
 {
 	if ( src->evolve_locally() ) {
 		if (auryn::sys->get_clock()%ssize==0) {
-			outfile << dt*(auryn::sys->get_clock()) << " "; 
+			outfile << auryn_timestep*(auryn::sys->get_clock()) << " "; 
 			for  (NeuronID i = 0 ; i < src->get_rank_size() ; ++i ) {
 				outfile << tr_post->normalized_get(i)
 					<< " "; 

@@ -24,7 +24,7 @@
 #include "auryn_definitions.h"
 #include "AurynVector.h"
 #include "DuplexConnection.h"
-#include "EulerTrace.h"
+#include "Trace.h"
 
 #define TRIPLETSCALINGCONNECTION_EULERUPGRADE_STEP 0.001
 
@@ -60,10 +60,10 @@ namespace auryn {
 		AurynDouble hom_fudge;
 		AurynDouble target_rate;
 
-		PRE_TRACE_MODEL * tr_pre;
-		DEFAULT_TRACE_MODEL * tr_post;
-		DEFAULT_TRACE_MODEL * tr_post2;
-		DEFAULT_TRACE_MODEL * tr_post_hom;
+		Trace * tr_pre;
+		Trace * tr_post;
+		Trace * tr_post2;
+		Trace * tr_post_hom;
 
 		void propagate_forward();
 		void propagate_backward();

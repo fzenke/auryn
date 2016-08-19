@@ -31,8 +31,8 @@ RealTimeMonitor::RealTimeMonitor(std::string filename, AurynDouble start, AurynD
 {
 	auryn::sys->register_device(this);
 
-	t_start = start/dt;
-	t_stop = stop/dt;
+	t_start = start/auryn_timestep;
+	t_stop = stop/auryn_timestep;
 
 	ptime_offset = boost::posix_time::microsec_clock::local_time();
 

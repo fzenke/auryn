@@ -70,7 +70,7 @@ void ProfilePoissonGroup::set_rate(AurynDouble  rate)
     if ( evolve_locally() ) {
 		if ( rate > 0.0 ) {
 		  AurynDouble r = -log((*die)())/lambda;
-		  jumpsize = (r/dt);
+		  jumpsize = (r/auryn_timestep);
 		  x = 0;
 		} else {
 			// if the rate is zero this triggers one spike at the end of time/groupsize
@@ -162,7 +162,7 @@ void ProfilePoissonGroup::evolve()
 		if ( jumpsize < 0 ) { // reached jump target -> spike
 			push_spike ( x );
 			AurynDouble r = -log((*die)()+1e-20)/lambda;
-			jumpsize = r/dt; 
+			jumpsize = r/auryn_timestep; 
 		}
 		x++;
 	}

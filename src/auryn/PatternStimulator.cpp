@@ -91,7 +91,7 @@ void PatternStimulator::propagate()
 			std::stringstream iss (line);
 			double time;
 			iss >> time;
-			filetime = time/dt;
+			filetime = time/auryn_timestep;
 
 			for ( unsigned int column = 0 ; column < patterns->size() ; ++column ) {
 				float cur;
@@ -105,7 +105,7 @@ void PatternStimulator::propagate()
 		for ( std::vector<type_pattern>::const_iterator pattern = patterns->begin() ; 
 				pattern != patterns->end() ; ++pattern ) { 
 			for ( type_pattern::const_iterator piter = pattern->begin() ; piter != pattern->end() ; ++piter ) {
-				mem->data[piter->i] += *cur_iter * piter->gamma * scl * dt;
+				mem->data[piter->i] += *cur_iter * piter->gamma * scl * auryn_timestep;
 			}
 			++cur_iter;
 		}

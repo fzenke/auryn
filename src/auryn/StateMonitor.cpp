@@ -64,7 +64,7 @@ StateMonitor::StateMonitor(auryn_vector_float * state, NeuronID id, std::string 
 	lastval = *target_variable;
 }
 
-StateMonitor::StateMonitor(EulerTrace * trace, NeuronID id, std::string filename, AurynDouble sampling_interval): Monitor(filename, "state")
+StateMonitor::StateMonitor(Trace * trace, NeuronID id, std::string filename, AurynDouble sampling_interval): Monitor(filename, "state")
 {
 	if ( id >= trace->get_state_ptr()->size ) return; // do not register if neuron is out of vector range
 
@@ -82,7 +82,7 @@ void StateMonitor::init(std::string filename, AurynDouble sampling_interval)
 	outfile << std::setiosflags(std::ios::fixed) << std::setprecision(6);
 
 	set_stop_time(10.0);
-	ssize = sampling_interval/dt;
+	ssize = sampling_interval/auryn_timestep;
 	if ( ssize < 1 ) ssize = 1;
 
 	enable_compression = true;
@@ -110,7 +110,7 @@ void StateMonitor::propagate()
 			AurynState deriv = value-lastval;
 
 			if ( deriv != lastder ) {
-				int n = sprintf(buffer,"%f %f\n",(auryn::sys->get_clock()-ssize)*dt, lastval); 
+				int n = sprintf(buffer,"%f %f\n",(auryn::sys->get_clock()-ssize)*auryn_timestep, lastval); 
 				outfile.write(buffer,n);
 			}
 
@@ -126,8 +126,8 @@ void StateMonitor::propagate()
 
 void StateMonitor::set_stop_time(AurynDouble time)
 { 
-	AurynDouble stoptime = std::min( time, std::numeric_limits<AurynTime>::max()*dt );
-	t_stop = stoptime/dt;
+	AurynDouble stoptime = std::min( time, std::numeric_limits<AurynTime>::max()*auryn_timestep );
+	t_stop = stoptime/auryn_timestep;
 }
 
 void StateMonitor::record_for(AurynDouble time)
@@ -135,6 +135,6 @@ void StateMonitor::record_for(AurynDouble time)
 	if (time < 0) {
 		auryn::logger->msg("Warning: Negative stop times not supported -- ingoring.",WARNING);
 	} 
-	else t_stop = auryn::sys->get_clock() + time/dt;
+	else t_stop = auryn::sys->get_clock() + time/auryn_timestep;
 	auryn::logger->debug("Set record for times for monitor.");
 }

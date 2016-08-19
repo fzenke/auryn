@@ -29,11 +29,11 @@ using namespace auryn;
 
 void AuditoryBeepGroup::init ( AurynFloat duration, AurynFloat interval, AurynFloat rate )
 {
-	stimulus_duration = duration/dt;
+	stimulus_duration = duration/auryn_timestep;
 	if ( duration < interval )
-		stimulation_period = interval/dt-stimulus_duration;
+		stimulation_period = interval/auryn_timestep-stimulus_duration;
 	else 
-		stimulation_period = interval/dt;
+		stimulation_period = interval/auryn_timestep;
 	stimulus_active = false;
 	next_event = 0;
 

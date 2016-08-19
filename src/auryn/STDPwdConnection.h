@@ -70,8 +70,8 @@ protected:
 	NeuronID * bkw_ind; 
 	AurynWeight ** bkw_data;
 
-	PRE_TRACE_MODEL * tr_pre;
-	DEFAULT_TRACE_MODEL * tr_post;
+	Trace * tr_pre;
+	Trace * tr_post;
 
 
 	AurynWeight fudge_pot;

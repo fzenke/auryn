@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Compile code
-make clean
-./bootstrap.sh && make 
+# make clean
+./bootstrap.sh && make -j 8
 sleep 2
 
 # Benchmark parameters

@@ -28,6 +28,8 @@
 
 namespace auryn {
 
+double auryn_timestep = 1e-4;
+
 int auryn_AlignOffset // copied from ATLAS
 (const int N,       /* max return value */
 const void *vp,    /* pointer to be aligned */

@@ -53,7 +53,7 @@ void WeightChecker::init(Connection * source, AurynFloat min, AurynFloat max, Au
 	if (timestep<0.0) {
 		logger->msg("WeightChecker:: Minimally allowed timestep is 1dt", WARNING);
 		timestep = 1;
-	} else timestep_ = timestep/dt;
+	} else timestep_ = timestep/auryn_timestep;
 
 }
 

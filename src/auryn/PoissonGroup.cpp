@@ -62,11 +62,11 @@ PoissonGroup::~PoissonGroup()
 
 void PoissonGroup::set_rate(AurynDouble  rate)
 {
-	lambda = 1.0/(1.0/rate-dt);
+	lambda = 1.0/(1.0/rate-auryn_timestep);
     if ( evolve_locally() ) {
 		if ( rate > 0.0 ) {
 		  AurynDouble r = -log((*die)()+1e-128)/lambda;
-		  x = (NeuronID)(r/dt+0.5); 
+		  x = (NeuronID)(r/auryn_timestep+0.5); 
 		} else {
 			// if the rate is zero this triggers one spike at the end of time/groupsize
 			// this is the easiest way to take care of the zero rate case, which should 
@@ -89,7 +89,7 @@ void PoissonGroup::evolve()
 		AurynDouble r = -log((*die)()+1e-128)/lambda;
 		// we add 1.5: one to avoid two spikes per bin and 0.5 to 
 		// compensate for rounding effects from casting
-		x += (NeuronID)(r/dt+1.5); 
+		x += (NeuronID)(r/auryn_timestep+1.5); 
 		// beware one induces systematic error that becomes substantial at high rates, but keeps neuron from spiking twice per time-step
 	}
 	x -= get_rank_size();

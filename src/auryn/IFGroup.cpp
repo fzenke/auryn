@@ -35,9 +35,9 @@ IFGroup::IFGroup( NeuronID size, AurynFloat load, NeuronID total ) : NeuronGroup
 
 void IFGroup::calculate_scale_constants()
 {
-	scale_ampa =  exp(-dt/tau_ampa) ;
-	scale_gaba =  exp(-dt/tau_gaba) ;
-	scale_thr = exp(-dt/tau_thr) ;
+	scale_ampa =  exp(-auryn_timestep/tau_ampa) ;
+	scale_gaba =  exp(-auryn_timestep/tau_gaba) ;
+	scale_thr = exp(-auryn_timestep/tau_thr) ;
 }
 
 void IFGroup::init()
@@ -84,12 +84,12 @@ IFGroup::~IFGroup()
 
 void IFGroup::integrate_linear_nmda_synapses()
 {
-	// decay of ampa and gaba channel, i.e. multiply by exp(-dt/tau)
+	// decay of ampa and gaba channel, i.e. multiply by exp(-auryn_timestep/tau)
 	g_ampa->scale(scale_ampa);
 	g_gaba->scale(scale_gaba);
 
-    // compute dg_nmda = (g_ampa-g_nmda)*dt/tau_nmda and add to g_nmda
-	const AurynFloat mul_nmda = dt/tau_nmda;
+    // compute dg_nmda = (g_ampa-g_nmda)*auryn_timestep/tau_nmda and add to g_nmda
+	const AurynFloat mul_nmda = auryn_timestep/tau_nmda;
 	g_nmda->saxpy(mul_nmda, g_ampa);
 	g_nmda->saxpy(-mul_nmda, g_nmda);
 
@@ -117,7 +117,7 @@ void IFGroup::integrate_membrane()
 	t_leak->diff(mem,e_rest);
     
     // membrane dynamics
-	const AurynFloat mul_tau_mem = dt/tau_mem;
+	const AurynFloat mul_tau_mem = auryn_timestep/tau_mem;
     mem->saxpy(mul_tau_mem,t_exc);
     mem->saxpy(-mul_tau_mem,t_inh);
     mem->saxpy(-mul_tau_mem,t_leak);

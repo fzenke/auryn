@@ -27,42 +27,37 @@
 #define LINEARTRACE_H_
 
 #include "auryn_definitions.h"
-#include "AurynVector.h"
+#include "auryn_global.h"
+#include "EulerTrace.h"
 
 namespace auryn {
 
 
-/*! \brief Exponential synaptic trace which exactly solves in an event-based manner.
+/*! \brief Exponential synaptic trace which exactly solves in an event-based manner in non-follow scenarios.
  *
- * Since this trace is normally slower than brut-force computing all traces
+ * Since this trace is normally slower than brute-force computing all traces
  * with forward Euler (EulerTrace), it is disabled by default.
  */
 
-class LinearTrace
+class LinearTrace : public EulerTrace
 {
 private:
-	NeuronID size;
-	AurynFloat * state;
-	AurynFloat tau;
+	typedef EulerTrace super;
 	AurynTime tau_auryntime;
 	AurynTime zerointerval;
 	AurynTime * timestamp;
 	AurynTime * clock;
-	void init(NeuronID n, AurynFloat timeconstant, AurynTime * clk);
+	void init(NeuronID n, AurynFloat timeconstant);
 	void free();
 
 public:
-	LinearTrace(NeuronID n, AurynFloat timeconstant, AurynTime * clk);
+	LinearTrace(NeuronID n, AurynFloat timeconstant);
 	virtual ~LinearTrace();
-	void set(NeuronID i , AurynFloat value);
-	void setall( AurynFloat value);
-	void add(NeuronID i , AurynFloat value);
 	void inc(NeuronID i);
-	inline void update(NeuronID i);
-	void evolve();
-	AurynFloat get_tau();
+	void add_specific(NeuronID i, AurynState amount);
 	AurynFloat get(NeuronID i);
-	AurynFloat * get_state_ptr();
+	void update(NeuronID i);
+	void evolve();
 };
 
 }

@@ -41,7 +41,7 @@ void WeightMatrixMonitor::init(Connection * source, AurynFloat stepsize)
 	auryn::sys->register_device(this);
 
 	src = source;
-	ssize = (AurynTime) (stepsize/dt);
+	ssize = (AurynTime) (stepsize/auryn_timestep);
 	outfile << std::setiosflags(std::ios::fixed) << std::setprecision(6);
 
 	filecount = 0;
@@ -58,7 +58,7 @@ void WeightMatrixMonitor::propagate()
 		src->write_to_file(wmatfilename);
 		filecount++;
 
-		outfile << dt*(auryn::sys->get_clock()) << " " << mean << " "  << std << " " << wmatfilename << std::endl;
+		outfile << auryn_timestep*(auryn::sys->get_clock()) << " " << mean << " "  << std << " " << wmatfilename << std::endl;
 	}
 
 }

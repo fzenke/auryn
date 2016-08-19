@@ -51,7 +51,7 @@ void SpikeTimingStimGroup::init()
 void SpikeTimingStimGroup::redraw()
 {
 	for ( NeuronID i = 0; i < get_rank_size() ; ++i ) {
-		ttl[i] = sys->get_clock() + activity[i]/dt;
+		ttl[i] = sys->get_clock() + activity[i]/auryn_timestep;
 	}
 }
 
@@ -75,7 +75,7 @@ void SpikeTimingStimGroup::evolve()
 			while ( bgx < get_rank_size() ) {
 				push_spike ( bgx );
 				AurynDouble r = die();
-				bgx += 1+(NeuronID)(r/dt); 
+				bgx += 1+(NeuronID)(r/auryn_timestep); 
 			}
 			bgx -= get_rank_size();
 		}
@@ -90,14 +90,14 @@ void SpikeTimingStimGroup::evolve()
 			return;
 		}
 
-		write_stimulus_file(dt*(auryn::sys->get_clock()));
+		write_stimulus_file(auryn_timestep*(auryn::sys->get_clock()));
 
 		if ( stimulus_order == STIMFILE )  {
 			AurynDouble t = 0.0;
 			int a,i;
 			while ( t <= auryn::sys->get_time() ) {
 				read_next_stimulus_from_file(t,a,i);
-				next_action_time = (AurynTime) (t/dt);
+				next_action_time = (AurynTime) (t/auryn_timestep);
 				if (a==0) stimulus_active = true; 
 					else stimulus_active = false;
 				cur_stim_index = i;
@@ -113,9 +113,9 @@ void SpikeTimingStimGroup::evolve()
 				if ( randomintervals ) {
 					boost::exponential_distribution<> dist(1./mean_off_period);
 					boost::variate_generator<boost::mt19937&, boost::exponential_distribution<> > die(order_gen, dist);
-					next_action_time = auryn::sys->get_clock() + (AurynTime)(std::max(0.0,die()+refractory_period)/dt);
+					next_action_time = auryn::sys->get_clock() + (AurynTime)(std::max(0.0,die()+refractory_period)/auryn_timestep);
 				} else {
-					next_action_time = auryn::sys->get_clock() + (AurynTime)((mean_off_period+refractory_period)/dt);
+					next_action_time = auryn::sys->get_clock() + (AurynTime)((mean_off_period+refractory_period)/auryn_timestep);
 				}
 			} else { // stimulus was not active and is going active now
 				if ( active && stimuli.size() ) { // the group is active and there are stimuli in the array
@@ -157,10 +157,10 @@ void SpikeTimingStimGroup::evolve()
 					set_active_pattern( cur_stim_index, 1e20 ); // puts default spikes into the not forseeable future
 					stimulus_active = true;
 
-					next_action_time = auryn::sys->get_clock() + (AurynTime)(mean_on_period/dt);
+					next_action_time = auryn::sys->get_clock() + (AurynTime)(mean_on_period/auryn_timestep);
 				}
 			}
-			write_stimulus_file(dt*(auryn::sys->get_clock()+1));
+			write_stimulus_file(auryn_timestep*(auryn::sys->get_clock()+1));
 		}
 	}
 }

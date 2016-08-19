@@ -23,58 +23,49 @@
 * Front Neuroinform 8, 76. doi: 10.3389/fninf.2014.00076
 */
 
-#include "EulerTrace.h"
+#include "Trace.h"
 
 using namespace auryn;
 
-void EulerTrace::init(NeuronID n, AurynFloat timeconstant) 
+
+
+Trace::Trace(NeuronID n, AurynFloat timeconstant) : AurynStateVector(n)
 {
-	// size = n;
-	// set_timeconstant(timeconstant);
-	// state = new AurynStateVector ( calculate_vector_size(size) ); 
-	temp = new AurynStateVector ( calculate_vector_size(size) ); // temp vector
-	set_all(0.);
-	target_ptr = NULL;
+	set_timeconstant(timeconstant);
 }
 
-void EulerTrace::free()
+Trace::~Trace()
 {
-	delete temp;
 }
 
-EulerTrace::EulerTrace(NeuronID n, AurynFloat timeconstant) : Trace(n, timeconstant)
+void Trace::set_timeconstant(AurynFloat timeconstant)
 {
-	init(n,timeconstant);
+	tau = timeconstant;
 }
 
-EulerTrace::~EulerTrace()
+AurynFloat Trace::get_tau()
 {
-	free();
+	return tau;
 }
 
-void EulerTrace::set_timeconstant(AurynFloat timeconstant)
+AurynStateVector * Trace::get_state_ptr()
 {
-	super::set_timeconstant(timeconstant);
-	mul_follow = auryn_timestep/tau;
-	scale_const = std::exp(-mul_follow);
+	return this;
 }
 
-void EulerTrace::set_target( AurynStateVector * target )
+void Trace::inc(NeuronID i)
 {
-	if ( target != NULL ) {
-		target_ptr = target ;
-		copy(target);
-	}
+   data[i]++;
 }
 
-void EulerTrace::evolve()
+void Trace::inc(SpikeContainer * sc)
 {
-	scale(scale_const);
+	for ( NeuronID i = 0 ; i < sc->size() ; ++i )
+		inc((*sc)[i]);
 }
 
-void EulerTrace::follow()
-{ 
-	temp->diff(this,target_ptr);
-	saxpy(-auryn_timestep/tau, temp );
+AurynFloat Trace::normalized_get(NeuronID i)
+{
+	return get( i ) / tau ;
 }
 
