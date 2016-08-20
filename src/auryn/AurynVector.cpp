@@ -27,8 +27,10 @@
 
 using namespace auryn;
 
+typedef __m128 intrin_t;
+
 // TODO on the long run we should get rid of the unaligned instructions
-inline __m128 sse_load( float * i ) 
+inline intrin_t sse_load( float * i ) 
 {
 #ifdef CODE_ALIGNED_SIMD_INSTRUCTIONS
 	return _mm_load_ps( i );
@@ -37,7 +39,7 @@ inline __m128 sse_load( float * i )
 #endif
 }
 
-inline void sse_store( float * i, __m128 d ) 
+inline void sse_store( float * i, intrin_t d ) 
 {
 #ifdef CODE_ALIGNED_SIMD_INSTRUCTIONS
 	_mm_store_ps( i, d );
@@ -73,11 +75,11 @@ void AurynVectorFloat::scale(float a)
 	#ifdef CODE_ACTIVATE_CILK_INSTRUCTIONS
 	data[0:size:1] = a * data[0:size:1];
 	#else
-	const __m128 scalar = _mm_set1_ps(a);
+	const intrin_t scalar = _mm_set1_ps(a);
 	for ( float * i = data ; i != data+size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )
 	{
-		__m128 chunk = sse_load( i );
-		__m128 result = _mm_mul_ps(chunk, scalar);
+		intrin_t chunk = sse_load( i );
+		intrin_t result = _mm_mul_ps(chunk, scalar);
 		sse_store( i, result );
 	}
 	#endif /* CODE_ACTIVATE_CILK_INSTRUCTIONS */
@@ -97,11 +99,11 @@ void AurynVectorFloat::saxpy(float a, AurynVectorFloat * x)
 	data[0:size:1] = a * x->data[0:x->size:1] + data[0:size:1];
 	#else
 	float * xp = x->data;
-	const __m128 alpha = _mm_set1_ps(a);
+	const intrin_t alpha = _mm_set1_ps(a);
 	for ( float * i = data ; i < data+size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )
 	{
-		__m128 chunk = sse_load( xp ); xp += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS;
-		__m128 result     = _mm_mul_ps( alpha, chunk );
+		intrin_t chunk = sse_load( xp ); xp += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS;
+		intrin_t result     = _mm_mul_ps( alpha, chunk );
 
 		chunk  = sse_load( i );
 		result = _mm_add_ps( result, chunk );
@@ -128,12 +130,12 @@ void AurynVectorFloat::clip(float min, float max)
 				data[i] = max;
 	}
 	#else
-	const __m128 lo = _mm_set1_ps(min);
-	const __m128 hi = _mm_set1_ps(max);
+	const intrin_t lo = _mm_set1_ps(min);
+	const intrin_t hi = _mm_set1_ps(max);
 	for ( float * i = data ; i != data+size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )
 	{
-		__m128 chunk = sse_load( i );
-		__m128 result = _mm_min_ps(chunk, hi);
+		intrin_t chunk = sse_load( i );
+		intrin_t result = _mm_min_ps(chunk, hi);
 		result = _mm_max_ps(result, lo);
 		sse_store( i, result );
 	}
@@ -159,9 +161,9 @@ void AurynVectorFloat::mul(AurynVectorFloat * v)
 	float * bd = v->data;
 	for ( float * i = data ; i != data+size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )
 	{
-		__m128 chunk_a = sse_load( i );
-		__m128 chunk_b = sse_load( bd ); bd+=SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS;
-		__m128 result = _mm_mul_ps(chunk_a, chunk_b);
+		intrin_t chunk_a = sse_load( i );
+		intrin_t chunk_b = sse_load( bd ); bd+=SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS;
+		intrin_t result = _mm_mul_ps(chunk_a, chunk_b);
 		sse_store( i, result );
 	}
 	#endif /* CODE_ACTIVATE_CILK_INSTRUCTIONS */
@@ -179,12 +181,12 @@ void AurynVectorFloat::add(float a)
 	#ifdef CODE_ACTIVATE_CILK_INSTRUCTIONS
 	data[0:size:1] = a + data[0:size:1];
 	#else
-	const __m128 scalar = _mm_set1_ps(a);
+	const intrin_t scalar = _mm_set1_ps(a);
 	for ( float * i = data ; i != data+size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )
 	{
 		// _mm_prefetch((i + SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS),  _MM_HINT_NTA);  
-		__m128 chunk = sse_load( i );
-		__m128 result = _mm_add_ps(chunk, scalar);
+		intrin_t chunk = sse_load( i );
+		intrin_t result = _mm_add_ps(chunk, scalar);
 		sse_store( i, result );
 	}
 	#endif /* CODE_ACTIVATE_CILK_INSTRUCTIONS */
@@ -206,9 +208,9 @@ void AurynVectorFloat::add(AurynVectorFloat * v)
 	float * bd = v->data;
 	for ( float * i = data ; i != data+size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )
 	{
-		__m128 chunk_a = sse_load( i );
-		__m128 chunk_b = sse_load( bd ); bd+=SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS;
-		__m128 result = _mm_add_ps(chunk_a, chunk_b);
+		intrin_t chunk_a = sse_load( i );
+		intrin_t chunk_b = sse_load( bd ); bd+=SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS;
+		intrin_t result = _mm_add_ps(chunk_a, chunk_b);
 		sse_store( i, result );
 	}
 	#endif /* CODE_ACTIVATE_CILK_INSTRUCTIONS */
@@ -228,9 +230,9 @@ void AurynVectorFloat::sum(AurynVectorFloat * a, AurynVectorFloat * b)
 	float * eb = b->data;
 	for ( float * i = data ; i != data+size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )
 	{
-		__m128 chunk_a = sse_load( ea ); ea+=SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS;
-		__m128 chunk_b = sse_load( eb ); eb+=SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS;
-		__m128 result = _mm_add_ps(chunk_a, chunk_b);
+		intrin_t chunk_a = sse_load( ea ); ea+=SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS;
+		intrin_t chunk_b = sse_load( eb ); eb+=SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS;
+		intrin_t result = _mm_add_ps(chunk_a, chunk_b);
 		sse_store( i, result );
 	}
 #else
@@ -243,11 +245,11 @@ void AurynVectorFloat::sum(AurynVectorFloat * a, const float b)
 	check_size(a);
 #ifdef CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY
 	float * ea = a->data;
-	const __m128 scalar = _mm_set1_ps(b);
+	const intrin_t scalar = _mm_set1_ps(b);
 	for ( float * i = data ; i != data+size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )
 	{
-		__m128 chunk_a = sse_load( ea ); ea+=SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS;
-		__m128 result = _mm_add_ps(chunk_a, scalar);
+		intrin_t chunk_a = sse_load( ea ); ea+=SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS;
+		intrin_t result = _mm_add_ps(chunk_a, scalar);
 		sse_store( i, result );
 	}
 #else
@@ -264,9 +266,9 @@ void AurynVectorFloat::diff(AurynVectorFloat * a, AurynVectorFloat * b)
 	float * eb = b->data;
 	for ( float * i = data ; i != data+size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )
 	{
-		__m128 chunk_a = sse_load( ea ); ea+=SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS;
-		__m128 chunk_b = sse_load( eb ); eb+=SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS;
-		__m128 result = _mm_sub_ps(chunk_a, chunk_b);
+		intrin_t chunk_a = sse_load( ea ); ea+=SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS;
+		intrin_t chunk_b = sse_load( eb ); eb+=SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS;
+		intrin_t result = _mm_sub_ps(chunk_a, chunk_b);
 		sse_store( i, result );
 	}
 #else
