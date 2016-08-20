@@ -285,9 +285,8 @@ void SyncBuffer::sync()
 		NeuronID overflow_data [2]; 
 		overflow_data[0] = overflow_value;
 		overflow_data[1] = send_buf.size(); 
-		ierr = MPI_Allgather(overflow_data, 2, MPI_UNSIGNED, 
+		ierr = MPI_Allgather(&overflow_data, 2, MPI_UNSIGNED, 
 				recv_buf.data(), max_send_size, MPI_UNSIGNED, *mpicom);
-		delete overflow_data;
 	}
 
 
