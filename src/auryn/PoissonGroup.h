@@ -57,8 +57,8 @@ private:
 	AurynTime * clk;
 	AurynDouble lambda;
 	static boost::mt19937 gen; 
-	boost::uniform_01<> * dist;
-	boost::variate_generator<boost::mt19937&, boost::uniform_01<> > * die;
+	boost::exponential_distribution<> * dist;
+	boost::variate_generator<boost::mt19937&, boost::exponential_distribution<> > * die;
 
 	unsigned int salt;
 

@@ -34,16 +34,13 @@ void PoissonGroup::init(AurynDouble  rate)
 	auryn::sys->register_spiking_group(this);
 	if ( evolve_locally() ) {
 
-		dist = new boost::uniform_01<> ();
-		die  = new boost::variate_generator<boost::mt19937&, boost::uniform_01<> > ( gen, *dist );
+		dist = new boost::exponential_distribution<>(1.0);;
+		die  = new boost::variate_generator<boost::mt19937&, boost::exponential_distribution<> > ( gen, *dist );
 		salt = sys->get_seed();
 		seed(sys->get_seed());
 		x = 0;
 		set_rate( rate );
 
-		std::stringstream oss;
-		oss << "PoissonGroup:: Seeding with " << sys->mpi_rank();
-		auryn::logger->msg(oss.str(),NOTIFICATION);
 	}
 }
 
@@ -65,8 +62,8 @@ void PoissonGroup::set_rate(AurynDouble  rate)
 	lambda = 1.0/(1.0/rate-dt);
     if ( evolve_locally() ) {
 		if ( rate > 0.0 ) {
-		  AurynDouble r = -log((*die)()+1e-128)/lambda;
-		  x = (NeuronID)(r/dt+0.5); 
+		  AurynDouble r = (*die)()/lambda;
+		  x = (NeuronID)(r/auryn_timestep+0.5); 
 		} else {
 			// if the rate is zero this triggers one spike at the end of time/groupsize
 			// this is the easiest way to take care of the zero rate case, which should 
@@ -86,10 +83,10 @@ void PoissonGroup::evolve()
 {
 	while ( x < get_rank_size() ) {
 		push_spike ( x );
-		AurynDouble r = -log((*die)()+1e-128)/lambda;
+		AurynDouble r = (*die)()/lambda;
 		// we add 1.5: one to avoid two spikes per bin and 0.5 to 
 		// compensate for rounding effects from casting
-		x += (NeuronID)(r/dt+1.5); 
+		x += (NeuronID)(r/auryn_timestep+1.5); 
 		// beware one induces systematic error that becomes substantial at high rates, but keeps neuron from spiking twice per time-step
 	}
 	x -= get_rank_size();
@@ -97,6 +94,11 @@ void PoissonGroup::evolve()
 
 void PoissonGroup::seed(unsigned int s)
 {
+	std::stringstream oss;
+	oss << "PoissonGroup:: Seeding with " << s
+		<< " and " << salt << " salt";
+	auryn::logger->msg(oss.str(),NOTIFICATION);
+
 	gen.seed( s + salt );  
 }
 

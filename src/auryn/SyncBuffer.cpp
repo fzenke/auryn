@@ -51,10 +51,10 @@ void SyncBuffer::init()
 	/* Maximum delta size. We make this one smaller than max to avoid problems 
 	 * if the datatype is the same as NeuronID and then the max corresponds
 	 * to the overflow value in send buffer ... */
-	max_delta_size = std::numeric_limits<SYNCBUFFER_DELTA_DATATYPE>::max()-1; 
+	max_delta_size = overflow_value-1; 
 
 	/* Overflow value for delta value. Should be different from the ones above. */
-	undefined_delta_size = std::numeric_limits<SYNCBUFFER_DELTA_DATATYPE>::max()-2; 
+	undefined_delta_size = overflow_value-2; 
 
 	pop_offsets = new NeuronID[mpicom->size()];
 	pop_delta_spikes = new SYNCBUFFER_DELTA_DATATYPE[ mpicom->size() ];
@@ -70,7 +70,7 @@ void SyncBuffer::init()
 	maxSendSum2 = 0;
 	syncCount = 0;
 
-	max_send_size = 2;
+	max_send_size = 4;
 	recv_buf.resize(mpicom->size()*max_send_size);
 
 	reset_send_buffer();
@@ -132,6 +132,7 @@ void SyncBuffer::push(SpikeDelay * delay, const NeuronID size)
 	// set save carry_offset which is the remaining difference from the present group
 	// plus because there might be more than one group without a spike ...
 	carry_offset += grid_size-unrolled_last_pos;
+
 }
 
 
@@ -255,7 +256,7 @@ void SyncBuffer::sync()
 		NeuronID var_send_size  =  (maxSendSum2-mean_send_size*mean_send_size)/syncCount;
 		NeuronID upper_estimate =  mean_send_size+SYNCBUFFER_SIZE_MARGIN_MULTIPLIER*sqrt(var_send_size);
 
-		if ( max_send_size > upper_estimate && max_send_size > 2 ) { 
+		if ( max_send_size > upper_estimate && max_send_size > 4 ) { 
 			max_send_size = (max_send_size+upper_estimate)/2;
 			recv_buf.resize(mpicom->size()*max_send_size);
 #ifdef DEBUG
@@ -276,18 +277,19 @@ void SyncBuffer::sync()
     T1 = MPI_Wtime();     /* start time */
 #endif
 	if ( send_buf.size() <= max_send_size ) {
-		// std::cout << " sb size " << send_buf.size() << std::endl;
 		ierr = MPI_Allgather(send_buf.data(), send_buf.size(), MPI_UNSIGNED, 
 				recv_buf.data(), max_send_size, MPI_UNSIGNED, *mpicom);
 	} else { 
 		// Create an overflow package 
-		NeuronID * overflow_data  = new NeuronID[2];
+		// std::cout << " overflow " << overflow_value << " " << send_buf.size() << std::endl;
+		NeuronID overflow_data [2]; 
 		overflow_data[0] = overflow_value;
 		overflow_data[1] = send_buf.size(); 
 		ierr = MPI_Allgather(overflow_data, 2, MPI_UNSIGNED, 
 				recv_buf.data(), max_send_size, MPI_UNSIGNED, *mpicom);
 		delete overflow_data;
 	}
+
 
 	// error handling
 	if ( ierr ) {
@@ -323,12 +325,11 @@ void SyncBuffer::sync()
 			<< " total ) " 
 			<< std::endl;
 #endif //DEBUG
-		max_send_size = new_send_size+1;
+		max_send_size = new_send_size+2;
 		recv_buf.resize(mpicom->size()*max_send_size);
-		// sync(); // recursive retry was causing problems
 		// resend full buffer
 		ierr = MPI_Allgather(send_buf.data(), send_buf.size(), MPI_UNSIGNED, 
-				recv_buf.data(), max_send_size, MPI_UNSIGNED, *mpicom);
+		 		recv_buf.data(), max_send_size, MPI_UNSIGNED, *mpicom);
 	} 
 
 	// reset
