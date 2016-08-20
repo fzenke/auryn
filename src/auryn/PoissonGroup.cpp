@@ -59,7 +59,7 @@ PoissonGroup::~PoissonGroup()
 
 void PoissonGroup::set_rate(AurynDouble  rate)
 {
-	lambda = 1.0/(1.0/rate-dt);
+	lambda = 1.0/(1.0/rate-auryn_timestep);
     if ( evolve_locally() ) {
 		if ( rate > 0.0 ) {
 		  AurynDouble r = (*die)()/lambda;

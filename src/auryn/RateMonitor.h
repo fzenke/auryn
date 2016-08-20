@@ -26,13 +26,15 @@
 #ifndef RATEMONITOR_H_
 #define RATEMONITOR_H_
 
+#include <fstream>
+#include <iomanip>
+
 #include "auryn_definitions.h"
 #include "AurynVector.h"
 #include "Monitor.h"
 #include "System.h"
 #include "SpikingGroup.h"
-#include <fstream>
-#include <iomanip>
+#include "Trace.h"
 
 namespace auryn {
 
@@ -47,18 +49,17 @@ namespace auryn {
 class RateMonitor : protected Monitor
 {
 private:
-	/*! The sampling interval in units of AurynTime (dt) */
+	/*! The sampling interval in units of AurynTime (auryn_timestep) */
 	AurynTime ssize;
 
 	/*! Filter time constant in seconds (by default 3x the sampling interval). */
 	AurynDouble tau_filter;
 
+	Trace * tr_post;
+
 protected:
 	/*! The source SpikingGroup */
 	SpikingGroup * src;
-
-	/*! Trace varible used to count the spike events of the src SpikingGroup */
-	DEFAULT_TRACE_MODEL * tr_post;
 
 	/*! Default init method */
 	void init(SpikingGroup * source, string filename, AurynFloat samplinginterval);

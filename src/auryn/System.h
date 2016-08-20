@@ -28,9 +28,9 @@
 
 #include "auryn_definitions.h"
 #include "AurynVector.h"
+#include "Device.h"
 #include "SpikingGroup.h"
 #include "Connection.h"
-#include "Device.h"
 #include "Checker.h"
 #include "AurynVersion.h"
 
@@ -54,6 +54,9 @@
 
 namespace auryn {
 
+// class SpikingGroup; // forward declaration
+// class Connection; // forward declaration
+	
 /*! \brief Class that implements system wide variables and methods to manage and run simulations.
  *
  * This Class contains methods to manage and run sets of classes that make up
@@ -156,7 +159,7 @@ namespace auryn {
 		/*! \brief Version info */
 		AurynVersion build;
 
-		/*! \brief The progressbar update interval in timesteps of dt. */
+		/*! \brief The progressbar update interval in timesteps of auryn_timestep. */
 		unsigned int progressbar_update_interval;
 
 #ifdef AURYN_CODE_USE_MPI

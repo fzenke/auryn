@@ -32,8 +32,8 @@ boost::mt19937 StructuredPoissonGroup::interval_gen = boost::mt19937();
 void StructuredPoissonGroup::init ( AurynFloat duration, AurynFloat mean_interval, NeuronID no, std::string outputfile )
 {
 	no_of_stimuli = no;
-	stimulus_duration = duration/dt;
-	mean_isi = mean_interval/dt;
+	stimulus_duration = duration/auryn_timestep;
+	mean_isi = mean_interval/auryn_timestep;
 	auryn::logger->parameter("duration", (int)duration);
 	auryn::logger->parameter("mean_isi", (int)mean_isi);
 
@@ -61,7 +61,7 @@ void StructuredPoissonGroup::init ( AurynFloat duration, AurynFloat mean_interva
 			exit(1);
 		}
 		tiserfile.setf(std::ios::fixed);
-		tiserfile.precision(log(dt)/log(10)+1 );
+		tiserfile.precision(log(auryn_timestep)/log(10)+1 );
 	}
 
 

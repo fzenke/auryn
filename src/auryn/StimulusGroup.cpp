@@ -129,7 +129,7 @@ void StimulusGroup::redraw()
 	for ( NeuronID i = 0 ; i < get_rank_size() ; ++i )
 	{
 		if (activity[i]>0) 
-			ttl[i] = auryn::sys->get_clock() + (AurynTime)((AurynFloat)die()/(activity[i]*dt));
+			ttl[i] = auryn::sys->get_clock() + (AurynTime)((AurynFloat)die()/(activity[i]*auryn_timestep));
 	}
 }
 
@@ -202,14 +202,14 @@ void StimulusGroup::evolve()
 				if ( fgx < current.size() && current.at(fgx).i < bgx ) {
 					push_spike ( current.at(fgx).i );
 					AurynDouble r = die();
-					fgx += 1+(NeuronID)(r/dt);
+					fgx += 1+(NeuronID)(r/auryn_timestep);
 				} else {
 					push_spike ( bgx );
 
 					boost::exponential_distribution<> bg_dist(background_rate);
 					boost::variate_generator<boost::mt19937&, boost::exponential_distribution<> > bg_die(poisson_gen, bg_dist);
 					AurynDouble r = bg_die();
-					bgx += 1+(NeuronID)(r/dt); 
+					bgx += 1+(NeuronID)(r/auryn_timestep); 
 				}
 			}
 			if ( background_during_stimulus )
@@ -227,7 +227,7 @@ void StimulusGroup::evolve()
 				if ( ttl[i] < auryn::sys->get_clock() && activity[i]>0.0 )
 				{
 					push_spike ( i );
-					ttl[i] = auryn::sys->get_clock() + refractory_period + (AurynTime)((AurynFloat)die()*(1.0/(activity[i]*dt)-refractory_period));
+					ttl[i] = auryn::sys->get_clock() + refractory_period + (AurynTime)((AurynFloat)die()*(1.0/(activity[i]*auryn_timestep)-refractory_period));
 				}
 			}
 		}
@@ -239,7 +239,7 @@ void StimulusGroup::evolve()
 			while ( bgx < get_rank_size() ) {
 				push_spike ( bgx );
 				AurynDouble r = die();
-				bgx += 1+(NeuronID)(r/dt); 
+				bgx += 1+(NeuronID)(r/auryn_timestep); 
 			}
 			bgx -= get_rank_size();
 		}
@@ -254,7 +254,7 @@ void StimulusGroup::evolve()
 			return;
 		}
 
-		write_stimulus_file(dt*(auryn::sys->get_clock()));
+		write_stimulus_file(auryn_timestep*(auryn::sys->get_clock()));
 
 		// if we have variable rate stimuli update curscale otherwise set to scale 
 		// this is only needed for binary stimuli -- otherwise the change is done in
@@ -270,7 +270,7 @@ void StimulusGroup::evolve()
 			int a,i;
 			while ( t <= auryn::sys->get_time() ) {
 				read_next_stimulus_from_file(t,a,i);
-				next_action_time = (AurynTime) (t/dt);
+				next_action_time = (AurynTime) (t/auryn_timestep);
 				if (a==0) stimulus_active = true; 
 					else stimulus_active = false;
 				cur_stim_index = i;
@@ -287,9 +287,9 @@ void StimulusGroup::evolve()
 				if ( randomintervals ) {
 					boost::exponential_distribution<> dist(1./mean_off_period);
 					boost::variate_generator<boost::mt19937&, boost::exponential_distribution<> > die(order_gen, dist);
-					next_action_time = auryn::sys->get_clock() + (AurynTime)(std::max(0.0,die())/dt);
+					next_action_time = auryn::sys->get_clock() + (AurynTime)(std::max(0.0,die())/auryn_timestep);
 				} else {
-					next_action_time = auryn::sys->get_clock() + (AurynTime)(mean_off_period/dt);
+					next_action_time = auryn::sys->get_clock() + (AurynTime)(mean_off_period/auryn_timestep);
 				}
 			} else { // stimulus was not active and is going active now
 				if ( active && stimuli.size() ) { // the group is active and there are stimuli in the array
@@ -334,13 +334,13 @@ void StimulusGroup::evolve()
 					if ( randomintervals && stimulus_order != STIMFILE ) {
 						boost::normal_distribution<> dist(mean_on_period,mean_on_period/3);
 						boost::variate_generator<boost::mt19937&, boost::normal_distribution<> > die(order_gen, dist);
-						next_action_time = auryn::sys->get_clock() + (AurynTime)(std::max(0.0,die())/dt);
+						next_action_time = auryn::sys->get_clock() + (AurynTime)(std::max(0.0,die())/auryn_timestep);
 					} else {
-						next_action_time = auryn::sys->get_clock() + (AurynTime)(mean_on_period/dt);
+						next_action_time = auryn::sys->get_clock() + (AurynTime)(mean_on_period/auryn_timestep);
 					}
 				}
 			}
-			write_stimulus_file(dt*(auryn::sys->get_clock()+1));
+			write_stimulus_file(auryn_timestep*(auryn::sys->get_clock()+1));
 		}
 	}
 }
@@ -545,7 +545,7 @@ std::vector<type_pattern> * StimulusGroup::get_patterns()
 }
 
 void StimulusGroup::set_next_action_time( double time ) {
-	next_action_time = auryn::sys->get_clock() + time/dt;
+	next_action_time = auryn::sys->get_clock() + time/auryn_timestep;
 }
 
 void StimulusGroup::set_stimulation_mode( StimulusGroupModeType mode ) {

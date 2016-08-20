@@ -178,7 +178,7 @@ void PairInteractionConnection::load_window_from_file( const char * filename , d
 	if ( size > 2*WINDOW_MAX_SIZE )
 		auryn::logger->msg("PairInteractionConnection:: STDP window too large ... truncating!",WARNING);
 
-	if ( dt < timebinsize )
+	if ( auryn_timestep < timebinsize )
 		auryn::logger->msg("PairInteractionConnection:: Timebinning of loaded STDP window is different from simulator timestep.",WARNING);
 
 	double sum_pre_post = 0 ;
@@ -188,14 +188,14 @@ void PairInteractionConnection::load_window_from_file( const char * filename , d
 	while ( infile.getline (buffer,256)  )
 	{
 		sscanf (buffer,"%f %f",&time,&value);
-		if ( abs(time) < WINDOW_MAX_SIZE*dt ) {
+		if ( abs(time) < WINDOW_MAX_SIZE*auryn_timestep ) {
 			NeuronID start;
 			if ( time < 0  ) {
-				start = -(time+dt/2)/dt; // plus element is for correct rounding
+				start = -(time+auryn_timestep/2)/auryn_timestep; // plus element is for correct rounding
 				window_post_pre[start] = scale*value;
 				sum_post_pre += scale*value;
 			} else {
-				start = (time+dt/2)/dt; 
+				start = (time+auryn_timestep/2)/auryn_timestep; 
 				window_pre_post[start] = scale*value;
 				sum_pre_post += scale*value;
 			}
@@ -226,11 +226,11 @@ void PairInteractionConnection::load_window_from_file( const char * filename , d
 void PairInteractionConnection::set_exponential_window ( double Aplus, double tau_plus, double Aminus, double tau_minus) 
 {
 	for ( int i = 0 ; i < WINDOW_MAX_SIZE ; ++i ) {
-		window_pre_post[i] = Aplus/tau_plus*exp(-i*dt/tau_plus);
+		window_pre_post[i] = Aplus/tau_plus*exp(-i*auryn_timestep/tau_plus);
 	}
 
 	for ( int i = 0 ; i < WINDOW_MAX_SIZE ; ++i ) {
-		window_post_pre[i] = Aminus/tau_minus*exp(-i*dt/tau_minus);
+		window_post_pre[i] = Aminus/tau_minus*exp(-i*auryn_timestep/tau_minus);
 	}
 
 	// zero floor terms 

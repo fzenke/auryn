@@ -32,7 +32,7 @@ void RateModulatedConnection::init()
 	rate_target = 5;
 	rate_estimate = rate_target;
 	rate_estimate_tau = 1.0;
-	rate_estimate_decay_mul = exp(-dt/rate_estimate_tau);
+	rate_estimate_decay_mul = exp(-auryn_timestep/rate_estimate_tau);
 
 	rate_modulation_exponent = 2;
 	rate_modulation_mul = 1.0;

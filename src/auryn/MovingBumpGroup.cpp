@@ -31,7 +31,7 @@ boost::mt19937 MovingBumpGroup::order_gen = boost::mt19937();
 
 void MovingBumpGroup::init ( AurynFloat duration, NeuronID width, std::string outputfile )
 {
-	stimulus_duration = duration/dt;
+	stimulus_duration = duration/auryn_timestep;
 	set_width(0.1*get_size());
 	set_floor(0.1);
 
@@ -55,7 +55,7 @@ void MovingBumpGroup::init ( AurynFloat duration, NeuronID width, std::string ou
 			exit(1);
 		}
 		tiserfile.setf(std::ios::fixed);
-		tiserfile.precision(log(dt)/log(10)+1 );
+		tiserfile.precision(log(auryn_timestep)/log(10)+1 );
 	}
 
 

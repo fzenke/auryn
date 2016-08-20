@@ -141,12 +141,12 @@ void STPConnection::evolve()
 		// dynamics of x
 		auryn_vector_float_set_all( state_temp, 1);
 		auryn_vector_float_saxpy(-1,state_x,state_temp);
-		auryn_vector_float_saxpy(dt/tau_d,state_temp,state_x);
+		auryn_vector_float_saxpy(auryn_timestep/tau_d,state_temp,state_x);
 
 		// dynamics of u
 		auryn_vector_float_set_all( state_temp, Ujump);
 		auryn_vector_float_saxpy(-1,state_u,state_temp);
-		auryn_vector_float_saxpy(dt/tau_f,state_temp,state_u);
+		auryn_vector_float_saxpy(auryn_timestep/tau_f,state_temp,state_u);
 	}
 }
 

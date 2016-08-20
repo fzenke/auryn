@@ -23,55 +23,49 @@
 * Front Neuroinform 8, 76. doi: 10.3389/fninf.2014.00076
 */
 
-#include "WeightChecker.h"
+#include "Trace.h"
 
 using namespace auryn;
 
-WeightChecker::WeightChecker(Connection * source, AurynFloat max) : Checker()
+
+
+Trace::Trace(NeuronID n, AurynFloat timeconstant) : AurynStateVector(n)
 {
-	init(source,0.,max,10.);
+	set_timeconstant(timeconstant);
 }
 
-WeightChecker::WeightChecker(Connection * source, AurynFloat min, AurynFloat max, AurynFloat timestep) : Checker()
-{
-	init(source,min,max,timestep);
-}
-
-WeightChecker::~WeightChecker()
+Trace::~Trace()
 {
 }
 
-void WeightChecker::init(Connection * source, AurynFloat min, AurynFloat max, AurynFloat timestep)
+void Trace::set_timeconstant(AurynFloat timeconstant)
 {
-	auryn::sys->register_checker(this);
-	logger->msg("WeightChecker:: Initializing", VERBOSE);
-
-	source_ = source;
-	wmin = min;
-	wmax = max;
-
-	if (timestep<0.0) {
-		logger->msg("WeightChecker:: Minimally allowed timestep is 1dt", WARNING);
-		timestep = 1;
-	} else timestep_ = timestep/auryn_timestep;
-
+	tau = timeconstant;
 }
 
-
-bool WeightChecker::propagate()
+AurynFloat Trace::get_tau()
 {
+	return tau;
+}
 
-	if ( (sys->get_clock()%timestep_) == 0 ) {
-		AurynDouble mean, std;
-		source_->stats(mean, std);
-		if ( mean<wmin || mean>wmax ) { 
-			std::stringstream oss;
-			oss << "WeightChecker:: Detected mean weight of " << mean ;
-			logger->msg(oss.str(),WARNING);
-			return false; // break run
-		}
-	}
+AurynStateVector * Trace::get_state_ptr()
+{
+	return this;
+}
 
-	return true; 
+void Trace::inc(NeuronID i)
+{
+   data[i]++;
+}
+
+void Trace::inc(SpikeContainer * sc)
+{
+	for ( NeuronID i = 0 ; i < sc->size() ; ++i )
+		inc((*sc)[i]);
+}
+
+AurynFloat Trace::normalized_get(NeuronID i)
+{
+	return get( i ) / tau ;
 }
 

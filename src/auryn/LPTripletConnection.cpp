@@ -58,8 +58,8 @@ void LPTripletConnection::init(AurynFloat tau_hom, AurynFloat eta, AurynFloat ka
 	stdp_active = true;
 
 	tau_lp = 120;
-	timestep_lp = 1e-3*tau_lp/dt;
-	delta_lp = 1.0*timestep_lp/tau_lp*dt;
+	timestep_lp = 1e-3*tau_lp/auryn_timestep;
+	delta_lp = 1.0*timestep_lp/tau_lp*auryn_timestep;
 
 
 	// Set number of synaptic states

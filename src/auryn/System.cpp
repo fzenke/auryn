@@ -46,6 +46,9 @@ void System::init() {
 
 
 	clock = 0;
+
+	// auryn_timestep = 1e-4;
+
 	quiet = false;
 	set_simulation_name("default");
 	set_output_dir(".");
@@ -86,14 +89,7 @@ void System::init() {
 	oss.str("");
 	oss << "Current NeuronID and sync are good for simulations up to "
 		<< std::numeric_limits<NeuronID>::max()-1 << " cells.";
-	auryn::logger->msg(oss.str(),VERBOSE);
-
-	oss.str("");
-	oss << "Current AurynTime good for simulations up to "
-		<< std::numeric_limits<AurynTime>::max()*dt << "s  "
-		<< "( " << std::numeric_limits<AurynTime>::max()*dt/3600 << "h )";
-	auryn::logger->msg(oss.str(),VERBOSE);
-
+	auryn::logger->msg(oss.str(),INFO);
 
 	if ( sizeof(NeuronID) != sizeof(AurynFloat) ) {
 		oss.str("");
@@ -101,11 +97,26 @@ void System::init() {
 		auryn::logger->msg(oss.str(),ERROR);
 	}
 
+	oss.str("");
+	oss << "Simulation timestep is set to "
+		<< std::scientific << auryn_timestep << "s  ";
+	auryn::logger->msg(oss.str(),SETTINGS);
+
+	oss.str("");
+	oss << "Current AurynTime good for simulations up to "
+		<< std::numeric_limits<AurynTime>::max()*auryn_timestep << "s  "
+		<< "( " << std::numeric_limits<AurynTime>::max()*auryn_timestep/3600 << "h )";
+	auryn::logger->msg(oss.str(),INFO);
+
+
 	// init random number generator
 	// gen  = boost::mt19937();
 	dist = new boost::random::uniform_int_distribution<> ();
 	die  = new boost::variate_generator<boost::mt19937&, boost::random::uniform_int_distribution<> > ( gen, *dist );
-	set_master_seed(3521);
+	unsigned int hardcoded_seed = 3521;
+	set_master_seed(hardcoded_seed);
+
+
 
 #ifndef NDEBUG
 	oss.str("");
@@ -133,9 +144,9 @@ System::System(mpi::communicator * communicator)
 
 	std::stringstream oss;
 	if ( mpi_size() > 1 ) {
-		oss << "MPI run rank "
-			<<  mpi_rank() << " out of "
-			<<  mpi_size() << " ranks total.";
+		oss << "This is an MPI run. I am rank "
+			<<  mpi_rank() << " of a total of "
+			<<  mpi_size() << " ranks.";
 		auryn::logger->msg(oss.str(),NOTIFICATION);
 	} else {
 		auryn::logger->msg("Not running a parallel simulation.",NOTIFICATION);
@@ -191,7 +202,7 @@ void System::step()
 
 AurynDouble System::get_time()
 {
-	return dt * clock;
+	return auryn_timestep * clock;
 }
 
 AurynTime System::get_clock()
@@ -378,7 +389,7 @@ void System::progressbar ( double fraction, AurynTime clk ) {
 
 std::string System::get_nice_time(AurynTime clk)
 {
-	const AurynTime hour = 3600/dt;
+	const AurynTime hour = 3600/auryn_timestep;
 	const AurynTime day  = 24*hour;
 	std::stringstream oss;
 	if ( clk > day ) {
@@ -391,7 +402,7 @@ std::string System::get_nice_time(AurynTime clk)
 		oss << h <<"h ";
 		clk -= h*hour;
 	}
-	oss << std::fixed << std::setprecision(1) << clk*dt << "s";
+	oss << std::fixed << std::setprecision(1) << clk*auryn_timestep << "s";
 	return oss.str();
 }
 
@@ -403,7 +414,7 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 	}
 
 
-	double runtime = (stoptime - get_clock())*dt;
+	double runtime = (stoptime - get_clock())*auryn_timestep;
 
 	std::stringstream oss;
 	oss << "Simulation triggered ( " 
@@ -449,7 +460,7 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 	while ( get_clock() < stoptime ) {
 
 	    if ( (mpi_rank()==0) && (not quiet) && ( (get_clock()%progressbar_update_interval==0) || get_clock()==(stoptime-1) ) ) {
-			double fraction = 1.0*(get_clock()-starttime+1)*dt/total_time;
+			double fraction = 1.0*(get_clock()-starttime+1)*auryn_timestep/total_time;
 			progressbar(fraction,get_clock()); // TODO find neat solution for the rate
 		}
 
@@ -468,11 +479,11 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 			if ( td > 50 ) {
 				oss << "Ran for " << td << "s "
 					<< "with SpeedFactor=" 
-					<< std::scientific << td/(LOGGER_MARK_INTERVAL*dt);
+					<< std::scientific << td/(LOGGER_MARK_INTERVAL*auryn_timestep);
 			}
 
-			AurynTime simtime_left = total_time-dt*(get_clock()-starttime+1);
-			AurynDouble remaining_minutes = simtime_left*td/(LOGGER_MARK_INTERVAL*dt)/60; // in minutes
+			AurynTime simtime_left = total_time-auryn_timestep*(get_clock()-starttime+1);
+			AurynDouble remaining_minutes = simtime_left*td/(LOGGER_MARK_INTERVAL*auryn_timestep)/60; // in minutes
 			if ( remaining_minutes > 5 ) { // only show when more than 5min
 			oss	<< ", approximately "
 				<< std::setprecision(0) << remaining_minutes
@@ -578,28 +589,28 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 bool System::run(AurynFloat simulation_time, bool checking)
 {
 	// throw an exception if the stoptime is post the range of AurynTime
-	if ( get_time() + simulation_time > std::numeric_limits<AurynTime>::max()*dt ) {
+	if ( get_time() + simulation_time > std::numeric_limits<AurynTime>::max()*auryn_timestep ) {
 		auryn::logger->msg("The requested simulation time exceeds the number of possible timesteps limited by AurynTime datatype.",ERROR);
 		throw AurynTimeOverFlowException();
 	}
 
 	AurynTime starttime = get_clock();
-	AurynTime stoptime = get_clock() + (AurynTime) (simulation_time/dt);
+	AurynTime stoptime = get_clock() + (AurynTime) (simulation_time/auryn_timestep);
 
 	return run(starttime, stoptime, simulation_time, checking);
 }
 
 bool System::run_chunk(AurynFloat chunk_time, AurynFloat interval_start, AurynFloat interval_end, bool checking)
 {
-	AurynTime stopclock = get_clock()+chunk_time/dt;
+	AurynTime stopclock = get_clock()+chunk_time/auryn_timestep;
 
 	// throw an exception if the stoptime is post the range of AurynTime
-	if ( interval_end > std::numeric_limits<AurynTime>::max()*dt ) {
+	if ( interval_end > std::numeric_limits<AurynTime>::max()*auryn_timestep ) {
 		auryn::logger->msg("The requested simulation time exceeds the number of possible timesteps limited by AurynTime datatype.",ERROR);
 		throw AurynTimeOverFlowException();
 	}
 
-	return run(interval_start/dt, stopclock, (interval_end-interval_start), checking);
+	return run(interval_start/auryn_timestep, stopclock, (interval_end-interval_start), checking);
 }
 
 #ifdef AURYN_CODE_USE_MPI
@@ -883,7 +894,7 @@ void System::load_network_state(std::string basename)
 void System::set_online_rate_monitor_tau(AurynDouble tau)
 {
 	online_rate_monitor_tau = tau;
-	online_rate_monitor_mul = exp(-dt/tau);
+	online_rate_monitor_mul = exp(-auryn_timestep/tau);
 }
 
 void System::evolve_online_rate_monitor()
@@ -969,7 +980,13 @@ void System::set_master_seed( unsigned int seed )
 	}
 
 	const unsigned int master_seed_multiplier = 257;
-	gen.seed(seed*master_seed_multiplier*mpi_rank());
+	const unsigned int rank_master_seed = seed*master_seed_multiplier*(mpi_rank()+1);
+
+	std::stringstream oss;
+	oss << "Seeding this rank with master seed " << rank_master_seed;
+	auryn::logger->msg(oss.str(),INFO);
+
+	gen.seed(rank_master_seed);
 }
 
 unsigned int System::get_seed()

@@ -253,17 +253,17 @@ AurynFloat Connection::get_spike_attribute(const NeuronID spike_array_pos, const
 	return src->get_attributes()->at(stackpos);
 }
 
-DEFAULT_TRACE_MODEL * Connection::get_pre_trace(const AurynDouble tau)
+Trace * Connection::get_pre_trace(const AurynDouble tau)
 {
 	return src->get_pre_trace(tau);
 }
 
-DEFAULT_TRACE_MODEL * Connection::get_post_trace(const AurynDouble tau)
+Trace * Connection::get_post_trace(const AurynDouble tau)
 {
 	return dst->get_post_trace(tau);
 }
 
-DEFAULT_TRACE_MODEL * Connection::get_post_state_trace(const string state_name, const AurynDouble tau, const AurynDouble jump_size)
+Trace * Connection::get_post_state_trace(const string state_name, const AurynDouble tau, const AurynDouble jump_size)
 {
 	return dst->get_post_state_trace(state_name, tau, jump_size);
 }

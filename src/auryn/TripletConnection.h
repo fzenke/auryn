@@ -29,11 +29,9 @@
 #include "auryn_definitions.h"
 #include "AurynVector.h"
 #include "DuplexConnection.h"
-#include "EulerTrace.h"
+#include "Trace.h"
 #include "LinearTrace.h"
 #include "SpikeDelay.h"
-
-#define TRACE EulerTrace
 
 
 namespace auryn {
@@ -82,12 +80,12 @@ protected:
 	AurynDouble hom_fudge;
 
 	/* Definitions of presynaptic traces */
-	PRE_TRACE_MODEL * tr_pre;
+	Trace * tr_pre;
 
 	/* Definitions of postsynaptic traces */
-	DEFAULT_TRACE_MODEL * tr_post;
-	DEFAULT_TRACE_MODEL * tr_post2;
-	DEFAULT_TRACE_MODEL * tr_post_hom;
+	Trace * tr_post;
+	Trace * tr_post2;
+	Trace * tr_post_hom;
 
 	/*! This function propagates spikes from pre to postsynaptic cells
 	 * and performs plasticity updates upon presynaptic spikes. */

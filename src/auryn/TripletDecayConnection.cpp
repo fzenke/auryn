@@ -33,7 +33,7 @@ void TripletDecayConnection::init(AurynFloat decay, AurynWeight wrest)
 	w_rest = wrest;
 	mul_decay = TRIPLETDECAYCONNECTION_EULERUPGRADE_STEP;
 
-	decay_timestep = -log(TRIPLETDECAYCONNECTION_EULERUPGRADE_STEP)*tau_decay/dt;
+	decay_timestep = -log(TRIPLETDECAYCONNECTION_EULERUPGRADE_STEP)*tau_decay/auryn_timestep;
 	decay_count = decay_timestep;
 
 	std::stringstream oss;

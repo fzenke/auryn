@@ -29,7 +29,7 @@ using namespace auryn;
 
 WeightPatternMonitor::WeightPatternMonitor(Connection * source, std::string filename, AurynDouble binsize) : Monitor(filename)
 {
-	init(source,filename,binsize/dt);
+	init(source,filename,binsize/auryn_timestep);
 }
 
 WeightPatternMonitor::~WeightPatternMonitor()

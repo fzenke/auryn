@@ -29,7 +29,7 @@
 #include "auryn_definitions.h"
 #include "AurynVector.h"
 #include "DuplexConnection.h"
-#include "EulerTrace.h"
+#include "Trace.h"
 #include "LinearTrace.h"
 
 namespace auryn {
@@ -49,8 +49,8 @@ public:
 	AurynFloat target;
 	AurynFloat kappa_fudge;
 
-	PRE_TRACE_MODEL * tr_pre;
-	DEFAULT_TRACE_MODEL * tr_post;
+	Trace * tr_pre;
+	Trace * tr_post;
 
 	inline AurynWeight dw_pre(NeuronID post);
 	inline AurynWeight dw_post(NeuronID pre);

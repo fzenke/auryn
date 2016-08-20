@@ -61,7 +61,7 @@ protected:
 	/*! \brief The source neuron id to record from */
 	NeuronID nid;
 
-	/*! \brief The step size (sampling interval) in units of dt */
+	/*! \brief The step size (sampling interval) in units of auryn_timestep */
 	AurynTime ssize;
 
 	/*! \brief Defines the maximum recording time in AurynTime to save space. */
@@ -90,7 +90,7 @@ public:
 	 * \param filename The filename of the file to dump the output to
 	 * \param sampling_interval The sampling interval in seconds
 	 */
-	BinaryStateMonitor(SpikingGroup * source, NeuronID id, string statename, std::string filename="", AurynDouble sampling_interval=dt);
+	BinaryStateMonitor(SpikingGroup * source, NeuronID id, string statename, std::string filename="", AurynDouble sampling_interval=auryn_timestep);
 
 	/*! \brief Alternative constructor
 	 *
@@ -98,15 +98,15 @@ public:
 	 * \param filename The filename of the file to dump the output to
 	 * \param sampling_interval The sampling interval in seconds
 	 */
-	BinaryStateMonitor(auryn_vector_float * state, NeuronID id, std::string filename="", AurynDouble sampling_interval=dt);
+	BinaryStateMonitor(auryn_vector_float * state, NeuronID id, std::string filename="", AurynDouble sampling_interval=auryn_timestep);
 
-	/*! \brief EulerTrace constructor
+	/*! \brief Trace constructor
 	 *
 	 * \param trace The source synaptic trace
 	 * \param filename The filename of the file to dump the output to
 	 * \param sampling_interval The sampling interval in seconds
 	 */
-	BinaryStateMonitor(EulerTrace * trace, NeuronID id, std::string filename="", AurynDouble sampling_interval=dt);
+	BinaryStateMonitor(Trace * trace, NeuronID id, std::string filename="", AurynDouble sampling_interval=auryn_timestep);
 
 	/*! \brief Sets relative time at which to stop recording 
 	 *

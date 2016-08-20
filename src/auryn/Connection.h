@@ -33,6 +33,7 @@
 #include "AurynVector.h"
 #include "SpikingGroup.h"
 #include "NeuronGroup.h"
+#include "Trace.h"
 
 namespace auryn {
 
@@ -221,13 +222,13 @@ public:
 
 
 	/*! \brief Returns a pointer to a presynaptic trace object */
-	DEFAULT_TRACE_MODEL * get_pre_trace(const AurynDouble tau);
+	Trace * get_pre_trace(const AurynDouble tau);
 
 	/*! \brief Returns a pointer to a postsynaptic trace object */
-	DEFAULT_TRACE_MODEL * get_post_trace(const AurynDouble tau);
+	Trace * get_post_trace(const AurynDouble tau);
 
 	/*! \brief Returns a pointer to a postsynaptic state trace object */
-	DEFAULT_TRACE_MODEL * get_post_state_trace(const string state_name, const AurynDouble tau, const AurynDouble jump_size=0.0);
+	Trace * get_post_state_trace(const string state_name, const AurynDouble tau, const AurynDouble jump_size=0.0);
 
 	/*! \brief Computes mean synaptic weight and std dev of all weights in this connection. */
 	virtual void stats(AurynDouble &mean, AurynDouble &std, StateID zid = 0) = 0;

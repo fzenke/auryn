@@ -28,11 +28,9 @@
 
 #include "auryn_definitions.h"
 #include "AurynVector.h"
-// #include "SpikeContainer.h"
 #include "SpikeDelay.h"
+#include "Trace.h"
 #include "EulerTrace.h"
-#include "LinearTrace.h"
-
 
 #include <vector>
 #include <map>
@@ -40,12 +38,15 @@
 
 namespace auryn {
 
-class System;
 
 /*! \brief Abstract base class of all objects producing spikes
  *
- * This is the abstract/virtual base class from which all spiking objects should be derived. All classes derived from SpikingGroup have in common that they can emit spikes. Furthermore they should implement the method evolve() for carring out internal state changes such as integration of the e.g. Euler Step.
- * Other classes interact with inheritants of SpikingGroup by calling the functions get_spikes() and get_spikes_immediate().
+ * This is the abstract/virtual base class from which all spiking objects
+ * should be derived. All classes derived from SpikingGroup have in common that
+ * they can emit spikes. Furthermore they should implement the method evolve()
+ * for carring out internal state changes such as integration of the e.g. Euler
+ * Step.  Other classes interact with inheritants of SpikingGroup by calling
+ * the functions get_spikes() and get_spikes_immediate().
  */
 class SpikingGroup
 {
@@ -91,13 +92,13 @@ private:
 
 protected:
 	/*! \brief Pretraces */
-	std::vector<PRE_TRACE_MODEL *> pretraces;
+	std::vector<Trace *> pretraces;
 
 	/*! \brief Posttraces */
-	std::vector<DEFAULT_TRACE_MODEL *> posttraces;
+	std::vector<Trace *> posttraces;
 
 	/*! \brief Post state traces */
-	std::vector<EulerTrace *> post_state_traces;
+	std::vector<Trace *> post_state_traces;
 	std::vector<AurynFloat> post_state_traces_spike_biases;
 	std::vector<AurynStateVector *> post_state_traces_states;
 
@@ -272,13 +273,25 @@ public:
 	 * 
 	 * Checks first if an instance of a trace exists and returns it
 	 * otherwise creates a new instance first. */
-	PRE_TRACE_MODEL * get_pre_trace( AurynFloat x );
+	Trace * get_pre_trace( AurynFloat x );
+
+	/*! \brief Adds trace to pretrace stack of a connection
+	 * 
+	 * Mostly for internal use by get_pre_trace()
+	  */
+	void add_pre_trace( Trace * tr );
 
 	/*! \brief Returns a post trace with time constant x 
 	 *
 	 * Checks first if an instance of a trace exists and returns it
 	 * otherwise creates a new instance first. */
-	DEFAULT_TRACE_MODEL * get_post_trace( AurynFloat x );
+	Trace * get_post_trace( AurynFloat x );
+
+	/*! \brief Adds trace to posttrace stack of a connection
+	 * 
+	 * Mostly for internal use by get_post_trace()
+	  */
+	void add_post_trace( Trace * tr );
 
 	/*! \brief Pushes a spike into the axonal SpikeDelay buffer */
 	void push_spike(NeuronID spike);
@@ -297,7 +310,7 @@ public:
 	/*! \brief Returns a post trace of a neuronal state variable e.g. the membrane 
 	 * potential with time constant tau. 
 	 *
-	 * This trace is an cotinuously integrated EulerTrace which uses the follow 
+	 * This trace is an cotinuously integrated Trace which uses the follow 
 	 * function on the mem state vector. 
 	 * @param state_name A string stating the neurons state name
 	 * @param tau The time constant of the trace.
@@ -305,11 +318,11 @@ public:
 	 * which will be added instantaneously to the trace upon each 
 	 * postsynaptic spike.
 	 * */
-	EulerTrace * get_post_state_trace( std::string state_name="mem", AurynFloat tau=10e-3, AurynFloat b=0.0 );
+	Trace * get_post_state_trace( std::string state_name="mem", AurynFloat tau=10e-3, AurynFloat b=0.0 );
 
 	/*! \brief Returns a post trace of a neuronal state variable specified by pointer
 	 *
-	 * This trace is an cotinuously integrated EulerTrace which uses the follow 
+	 * This trace is an cotinuously integrated Trace which uses the follow 
 	 * function on the mem state vector. 
 	 * @param state A pointer to the relevant state vector
 	 * @param tau The time constant of the trace.
@@ -317,7 +330,7 @@ public:
 	 * which will be added instantaneously to the trace upon each 
 	 * postsynaptic spike.
 	 * */
-	EulerTrace * get_post_state_trace( AurynStateVector * state, AurynFloat tau=10e-3, AurynFloat b=0.0 );
+	Trace * get_post_state_trace( AurynStateVector * state, AurynFloat tau=10e-3, AurynFloat b=0.0 );
 
 	/*! \brief Sets axonal delay for this SpikingGroup 
 	 *
@@ -355,10 +368,10 @@ public:
 
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(SpikingGroup)
 
-	extern System * sys;
-	extern Logger * logger;
+// 	extern System * sys;
+extern Logger * logger;
 #ifdef AURYN_CODE_USE_MPI
-	extern mpi::communicator * mpicommunicator;
+ 	extern mpi::communicator * mpicommunicator;
 #endif // AURYN_CODE_USE_MPI
 
 
