@@ -95,10 +95,10 @@ namespace auryn {
 
 		double simulation_time_realtime_ratio;
 
-		/*! Store elapsed time for last call of run */
+		/*! \brief Store elapsed time for last call of run */
 		double last_elapsed_time;
 
-		/*! Store staring time of program */
+		/*! \brief Store staring time of program */
 		time_t t_sys_start;
 
 		int online_rate_monitor_id;
@@ -106,28 +106,28 @@ namespace auryn {
 		double online_rate_monitor_mul;
 		double online_rate_monitor_state;
 
-		/*! Evolves the online rate monitor for the status bar. */
+		/*! \brief Evolves the online rate monitor for the status bar. */
 		void evolve_online_rate_monitor();
 
-		/*! Returns string with a human readable time. */
+		/*! \brief Returns string with a human readable time. */
 		std::string get_nice_time ( AurynTime clk );	
 
-		/*! Draws the progress bar */
+		/*! \brief Draws the progress bar */
 		void progressbar ( double fraction, AurynTime clk );	
 
-		/*! Run simulation with given start and stop times and displays a progress bar. Mainly for internal use in System.
+		/*! \brief Run simulation with given start and stop times and displays a progress bar. Mainly for internal use in System.
 		 * \param starttime Start time used for display of progress bar.
 		 * \param stoptime Stop time used for the display of the progress bar. The simulation stop when get_clock()>stoptime (this is the relevant one for the simulation)
 		 * \param simulation_time again a time used for the display of the progress bar */
 		bool run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time, bool checking=true);
 
-		/*! Synchronizes SpikingGroups */
+		/*! \brief Synchronizes SpikingGroups */
 		void sync();
 
-		/*! Evolves all objects that need integration. */
+		/*! \brief Evolves all objects that need integration. */
 		void evolve();
 
-		/*! Propagates the spikes and evolves connection objects. */
+		/*! \brief Propagates the spikes and evolves connection objects. */
 		void propagate();
 
 
@@ -265,17 +265,20 @@ namespace auryn {
 		/*! \brief Runs a simulation for a given amount of time.
 		 *
 		 * \param simulation_time time to run the simulation in seconds.
-		 * \param checking true if checkers can break the run (e.g. if a frequency get's to high and the network explodes) 
+		 * \param checking true if checkers can break the run (e.g. if a
+		 * frequency get's to high and the network explodes) 
+		 * \return bool true on success
 		 * */
 		bool run(AurynFloat simulation_time, bool checking=true);
 
 		/*! \brief Runs simulation for a given amount of time 
 		 *
-		 * Exposes the interface to the progressbar params. Can be used to run a single progress bar,
-		 * but cut it in different chunks to turn on
-		 * and off stuff in the simulation without perturbing the output. interval_start and end define 
-		 * the total duration of the simulation (this is used to build the progress bar, while chung_time 
-		 * is the actual time that is simulated for each call.*/
+		 * Exposes the interface to the progressbar params. Can be used to run
+		 * a single progress bar, but cut it in different chunks to turn on and
+		 * off stuff in the simulation without perturbing the output.
+		 * interval_start and end define the total duration of the simulation
+		 * (this is used to build the progress bar, while chung_time is the
+		 * actual time that is simulated for each call.*/
 		bool run_chunk(AurynFloat chunk_time, AurynFloat interval_start, AurynFloat interval_end, bool checking=true);
 
 		/*! \brief Gets the current system time in [s] */
