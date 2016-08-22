@@ -28,20 +28,28 @@
 using namespace auryn;
 
 
-void FileInputGroup::init(std::string filename)
+void FileInputGroup::init()
 {
 	auryn::sys->register_spiking_group(this);
 	active = true;
 	loop_grid_size = 1;
-	load_spikes(filename);
 }
 
-FileInputGroup::FileInputGroup(NeuronID n, std::string filename) : SpikingGroup(n, 0.0 ) // last 0 enforces RankLock
+FileInputGroup::FileInputGroup( NeuronID n ) : SpikingGroup(n, 0.0 ) // last 0 enforces RankLock
 {
 	playinloop = false;
 	time_delay = 0;
 	time_offset = 0;
-	init(filename);
+	init();
+}
+
+FileInputGroup::FileInputGroup( NeuronID n, std::string filename ) : SpikingGroup(n, 0.0 ) // last 0 enforces RankLock
+{
+	playinloop = false;
+	time_delay = 0;
+	time_offset = 0;
+	init();
+	load_spikes(filename);
 }
 
 FileInputGroup::FileInputGroup(NeuronID n, std::string filename, 
@@ -51,7 +59,8 @@ FileInputGroup::FileInputGroup(NeuronID n, std::string filename,
 	playinloop = loop;
 	time_delay = (AurynTime) (delay/auryn_timestep);
 	time_offset = 0;
-	init(filename);
+	init();
+	load_spikes(filename);
 }
 
 FileInputGroup::~FileInputGroup()
@@ -141,9 +150,18 @@ void FileInputGroup::evolve()
 
 void FileInputGroup::set_loop_grid(AurynDouble grid_size)
 {
+	playinloop = true;
 	if ( grid_size > 0.0 ) {
 		loop_grid_size = 1.0/auryn_timestep*grid_size;
 		if ( loop_grid_size == 0 ) loop_grid_size = 1;
 	}
+}
+
+void FileInputGroup::add_spike(double spiketime, NeuronID neuron_id)
+{
+		SpikeEvent_type event;
+		event.time = spiketime/auryn_timestep;
+		event.neuronID = neuron_id;
+		input_spikes.push_back(event);
 }
 
