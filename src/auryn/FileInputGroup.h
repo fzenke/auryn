@@ -99,6 +99,12 @@ public:
 	 * \param neuron_id the neuron you want to spike with neuron_id < size of the group
 	 * */
 	void add_spike(double spiketime, NeuronID neuron_id=0);
+
+	/*!\brief Sorts spikes by time
+	 *
+	 * Spikes need to be sorted befure a run otherwise the behavior of this SpikingGroup is undefined
+	 * */
+	void sort_spikes();
 };
 
 }

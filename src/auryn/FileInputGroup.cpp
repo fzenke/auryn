@@ -97,8 +97,7 @@ void FileInputGroup::load_spikes(std::string filename)
 	}
 	spkfile.close();
 
-	// TODO check if this is not too slow
-	std::sort (input_spikes.begin(), input_spikes.end(), time_compare);
+	sort_spikes();
 
 	std::stringstream oss;
 	oss << get_log_name() << ":: Finished loading " << input_spikes.size() 
@@ -109,12 +108,19 @@ void FileInputGroup::load_spikes(std::string filename)
 	reset_time = 0;
 }
 
+void FileInputGroup::sort_spikes()
+{
+	std::sort (input_spikes.begin(), input_spikes.end(), time_compare);
+}
 
-AurynTime FileInputGroup::get_offset_clock() {
+
+AurynTime FileInputGroup::get_offset_clock() 
+{
 	return sys->get_clock() - time_offset;
 }
 
-AurynTime FileInputGroup::get_next_grid_point( AurynTime time ) {
+AurynTime FileInputGroup::get_next_grid_point( AurynTime time ) 
+{
 	AurynTime result = time+time_delay;
 	if ( result%loop_grid_size ) { // align to temporal grid
 		result = (result/loop_grid_size+1)*loop_grid_size;
@@ -163,5 +169,6 @@ void FileInputGroup::add_spike(double spiketime, NeuronID neuron_id)
 		event.time = spiketime/auryn_timestep;
 		event.neuronID = neuron_id;
 		input_spikes.push_back(event);
+		sort_spikes();
 }
 
