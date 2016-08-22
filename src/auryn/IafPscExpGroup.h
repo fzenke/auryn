@@ -52,8 +52,6 @@ private:
 	AurynFloat scale_syn;
 	AurynFloat scale_mem;
 
-	AurynFloat * t_bg_cur; 
-	AurynFloat * t_syn_cur; 
 	AurynFloat * t_mem; 
 	unsigned short * t_ref; 
 
@@ -72,6 +70,9 @@ public:
 
 	/*! \brief Vector holding neuronspecific synaptic currents */
 	AurynStateVector * syn_current;
+
+	/*! \brief Temp vector */
+	AurynStateVector * temp;
 
 	/*! \brief Vector holding neuronspecific state of refractory period */
 	AurynVector<unsigned short> * ref;
