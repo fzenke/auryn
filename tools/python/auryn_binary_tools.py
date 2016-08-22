@@ -247,30 +247,116 @@ class AurynBinarySpikeView:
         hist = np.zeros(max_neuron_id) 
         for t_spike in trigger_times:
             ts = t_spike+time_offset
-            spikes = self.get_spikes(ts, ts+time_window)
+            spikes = self.get_spikes(ts, ts+time_window, max_neuron_id)
             if len(spikes):
                 sar = np.array(spikes, dtype=int)[:,1]
                 counts = np.bincount(sar, minlength=max_neuron_id)
                 hist += counts
         return hist
 
+def isi(spikes):
+    '''
+    Computes the ISI for spikes 
+    '''
+
+    last_spikes = np.zeros(1)
+    ISIs = []
+    for spike in spikes:
+        t,i = spike
+        if i>=len(last_spikes):
+            last_spikes.resize(i+1)
+        if last_spikes[i] > 0:
+            ISIs.append(t-last_spikes[i])
+        last_spikes[i] = t
+    return ISIs
+
+def isi_hist( spikes, *args, **kwargs ):
+    pl.hist(isi(spikes), *args, **kwargs )
+
+def cvisi(spikes):
+    '''
+    Computes the CV ISI for spikes 
+    '''
+
+    last_spikes = np.zeros(1)
+    sum1 = np.zeros(1)
+    sum2 = np.zeros(1)
+    nspikes = np.zeros(1)
+    for spike in spikes:
+        t,i = spike
+        if i>=len(last_spikes):
+            last_spikes.resize(i+1)
+            sum1.resize(i+1)
+            sum2.resize(i+1)
+            nspikes.resize(i+1)
+        if last_spikes[i] > 0:
+            isi = t-last_spikes[i]
+            sum1[i] += isi
+            sum2[i] += isi**2
+            nspikes[i] += 1
+        last_spikes[i] = t
+
+    cvisi_dist = []
+    for i in xrange(len(sum1)):
+        if nspikes[i]<2: continue
+        mean = sum1[i]/nspikes[i]
+        var  = sum2[i]/(nspikes[i]-1)-mean**2
+        cvisi_dist.append(np.sqrt(var)/mean)
+
+    return cvisi_dist
+
+def cvisi_hist( spikes, *args, **kwargs ):
+    pl.hist(cvisi(spikes), *args, **kwargs )
+
+def spike_counts(spikes):
+    '''
+    Compute spike count for each neuron
+    '''
+
+    nspikes = np.zeros(1)
+    for spike in spikes:
+        t,i = spike
+        if i>=len(nspikes):
+            nspikes.resize(i+1)
+        nspikes[i] += 1
+    return nspikes
+
+def rates(spikes):
+    '''
+    Compute firing rates for each neuron
+    '''
+
+    nspikes = spike_counts(spikes)
+    ar = np.array(spikes)
+    t_min = ar[:,0].min()
+    t_max = ar[:,0].max()
+    t_diff = t_max-t_min
+    return 1.0*nspikes/t_diff
+
+def rate_hist( spikes, *args, **kwargs ):
+    pl.hist(rates(spikes), *args, **kwargs )
+
 
 def main():
     # running the example program sim_coba_binmon will
     # generate this file
     filenames = ["/tmp/coba.0.e.spk"]
-
-    t_start = 0.0
-    t_end   = 0.3
-    n_max = 200
-
     spkfile = AurynBinarySpikeView(filenames)
-    spikes = np.array(spkfile.get_spikes(t_start,t_end,max_id=n_max))
+    spikes = spkfile.get_spikes()
 
-    pl.scatter(spikes[:,0], spikes[:,1])
-    pl.xlabel("Time [s]")
-    pl.ylabel("Neuron ID")
+    rate_hist(spikes, bins=50)
     pl.show()
+
+    # t_start = 0.0
+    # t_end   = 0.3
+    # n_max = 200
+
+    # spikes = np.array(spkfile.get_spikes(t_start,t_end,max_id=n_max))
+
+    # pl.scatter(spikes[:,0], spikes[:,1])
+    # pl.xlabel("Time [s]")
+    # pl.ylabel("Neuron ID")
+    # pl.show()
     
 
 if __name__ == "__main__":
