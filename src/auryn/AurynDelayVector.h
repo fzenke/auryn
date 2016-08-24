@@ -83,6 +83,9 @@ namespace auryn {
 			/*! \brief Resizes the vector and the buffer vectors */
 			void resize(NeuronID new_size);
 
+			/*! \brief Returns delay buffer size in units of AurynTime */
+			AurynTime get_delay_size() { return delay_buffer_size_; }
+
 	};
 
 }
