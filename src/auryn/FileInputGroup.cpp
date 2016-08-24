@@ -33,6 +33,7 @@ void FileInputGroup::init()
 	auryn::sys->register_spiking_group(this);
 	active = true;
 	loop_grid_size = 1;
+	reset_time = 0;
 }
 
 FileInputGroup::FileInputGroup( NeuronID n ) : SpikingGroup(n, 0.0 ) // last 0 enforces RankLock
@@ -105,7 +106,6 @@ void FileInputGroup::load_spikes(std::string filename)
 	logger->info(oss.str());
 
 	spike_iter = input_spikes.begin();
-	reset_time = 0;
 }
 
 void FileInputGroup::sort_spikes()
