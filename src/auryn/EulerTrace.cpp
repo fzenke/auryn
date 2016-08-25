@@ -31,13 +31,11 @@ void EulerTrace::init(NeuronID n, AurynFloat timeconstant)
 {
 	set_all(0.);
 	target_ptr = NULL;
-	temp = new AurynStateVector ( calculate_vector_size(size) ); // temp vector
 	set_timeconstant(timeconstant);
 }
 
 void EulerTrace::free()
 {
-	delete temp;
 }
 
 EulerTrace::EulerTrace(NeuronID n, AurynFloat timeconstant) : Trace( calculate_vector_size(n), timeconstant )
@@ -72,7 +70,6 @@ void EulerTrace::evolve()
 
 void EulerTrace::follow()
 { 
-	temp->diff(target_ptr, this);
-	saxpy(mul_follow, temp );
+	super::follow(target_ptr, mul_follow);
 }
 

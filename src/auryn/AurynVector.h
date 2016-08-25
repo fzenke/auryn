@@ -323,8 +323,8 @@ namespace auryn {
 			}
 
 
-			/*! \brief Scales all vector elements by a. TODO */
-			void follow(AurynVector<T,IndexType> * v, const float rate) 
+			/*! \brief Scales all vector elements by a. */
+			void follow(AurynVector<T,IndexType> * v, const T rate) 
 			{
 				for ( IndexType i = 0 ; i < size ; ++i ) {
 					data[i] += rate*(v->data[i]-data[i]);
@@ -639,6 +639,7 @@ namespace auryn {
 			void diff(AurynVectorFloat * a, AurynVectorFloat * b);
 			void diff(AurynVectorFloat * a, const float b);
 			void diff(const float a, AurynVectorFloat * b );
+			void follow(AurynVectorFloat * v, const float rate);
 
 			// TODO add pow function with intrinsics _mm_pow_ps
 
