@@ -95,7 +95,7 @@ void StimulusGroup::init(StimulusGroupModeType stimulusmode, std::string stimfil
 	oss << "StimulusGroup:: " 
 		<< "size " << get_size() << " "  
 		<< "(mode " << stimulus_order << ") ";
-	auryn::logger->msg(oss.str(),NOTIFICATION);
+	auryn::logger->msg(oss.str(),INFO);
 
 	cur_stim_index = 0;
 	next_action_time = 0;
