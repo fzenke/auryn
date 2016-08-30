@@ -212,6 +212,7 @@ class AurynBinarySpikeView:
             self.filenames = filenames
         else:
             if type(filenames) is str:
+# TODO allow the filenames string to contain wildcards
                 self.filenames = [filenames]
             else:
                 print("Parameter filenames must be of type list or str.")
