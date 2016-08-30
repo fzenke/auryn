@@ -264,8 +264,8 @@ void AurynVectorFloat::diff(AurynVectorFloat * a, AurynVectorFloat * b)
 	float * eb = b->data;
 	for ( float * i = data ; i != data+size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )
 	{
-		__m128 chunk_a = sse_load( ea ); ea+=SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS;
-		__m128 chunk_b = sse_load( eb ); eb+=SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS;
+		const __m128 chunk_a = sse_load( ea ); ea+=SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS;
+		const __m128 chunk_b = sse_load( eb ); eb+=SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS;
 		__m128 result = _mm_sub_ps(chunk_a, chunk_b);
 		sse_store( i, result );
 	}
@@ -287,3 +287,20 @@ void AurynVectorFloat::diff(const float a, AurynVectorFloat * b )
 	neg();
 }
 
+void AurynVectorFloat::follow(AurynVectorFloat * v, const float rate)
+{
+#ifdef CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY
+	for ( NeuronID i = 0 ; i < size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )
+	{
+		const __m128 chunk_a = sse_load( v->data ); 
+		const __m128 chunk_b = sse_load( data ); 
+		const __m128 scalar  = _mm_set1_ps(rate);
+		__m128 temp = _mm_sub_ps(chunk_a, chunk_b);
+		temp = _mm_mul_ps( scalar, temp );
+		temp = _mm_add_ps( chunk_b, temp );
+		sse_store( data, temp );
+	}
+#else
+	super::follow(v,rate);
+#endif
+}

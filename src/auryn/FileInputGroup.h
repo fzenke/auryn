@@ -49,12 +49,10 @@ class FileInputGroup : public SpikingGroup
 private:
 	AurynTime next_event_time;
 	NeuronID next_event_spike;
-	bool playinloop;
 
 	/*! \brief Aligns looped file input to a grid of this size */
 	AurynTime loop_grid_size;
 
-	AurynTime time_delay;
 	AurynTime time_offset;
 	AurynTime reset_time;
 
@@ -62,20 +60,31 @@ private:
 	std::vector<SpikeEvent_type> input_spikes;
 	std::vector<SpikeEvent_type>::const_iterator spike_iter; 
 
-	void init(string filename );
+	void init();
 
 	AurynTime get_offset_clock();
 	AurynTime get_next_grid_point( AurynTime time );
 
 public:
 
-	FileInputGroup(NeuronID n, string filename );
-	FileInputGroup(NeuronID n, string filename , bool loop=true, AurynFloat delay=0.0 );
+	/*! \brief Switch that activates the loop mode of FileInputGroup when set to true */
+	bool playinloop;
+
+	/*! \brief Time delay after each replay of the input pattern in loop mode (default 0s) */
+	AurynTime time_delay;
+
+	FileInputGroup( NeuronID n );
+	FileInputGroup( NeuronID n, string filename );
+	FileInputGroup( NeuronID n, string filename , bool loop=true, AurynFloat delay=0.0 );
 	virtual ~FileInputGroup();
 	virtual void evolve();
 
 	/*!\brief Aligned loop blocks to a temporal grid of this size 
 	 *
+	 * The grid is applied after the delay. It's mostly there to facilitate the
+	 * synchronization of certain events or readouts.  If no grid is defined
+	 * the last input spike time will define the end of the loop window (which
+	 * often could be a fractional time). 
 	 * */
 	void set_loop_grid(AurynDouble grid_size);
 
@@ -83,6 +92,19 @@ public:
 	 *
 	 * */
 	void load_spikes(std::string filename);
+
+	/*!\brief Adds a spike to the buffer manually and then temporally sorts the buffer
+	 *
+	 * \param spiketime the spike time 
+	 * \param neuron_id the neuron you want to spike with neuron_id < size of the group
+	 * */
+	void add_spike(double spiketime, NeuronID neuron_id=0);
+
+	/*!\brief Sorts spikes by time
+	 *
+	 * Spikes need to be sorted befure a run otherwise the behavior of this SpikingGroup is undefined
+	 * */
+	void sort_spikes();
 };
 
 }

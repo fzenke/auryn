@@ -46,6 +46,10 @@ class NeuronGroup : public SpikingGroup
 {
 protected:
 
+
+	AurynStateVector * default_exc_target_state;
+	AurynStateVector * default_inh_target_state;
+
 	/*! Init procedure called by default constructor. */
 	void init();
 
@@ -83,6 +87,12 @@ public:
 
 	/*! \brief Conveniently sets a single value of element i in a state vector identified by name in this group */
 	void set_state(std::string name, NeuronID i, AurynState val);
+
+	/*! \brief Returns default exc target input */
+	virtual AurynStateVector * get_default_exc_target();
+
+	/*! \brief Returns default inh target input */
+	virtual AurynStateVector * get_default_inh_target();
 
 
 	void random_mem(AurynState mean=-60e-3, AurynState sigma=5e-3);

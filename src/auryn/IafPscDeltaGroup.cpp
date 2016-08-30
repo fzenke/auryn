@@ -54,6 +54,9 @@ void IafPscDeltaGroup::init()
 	ref = auryn_vector_ushort_alloc (get_vector_size()); 
 	t_ref = auryn_vector_ushort_ptr ( ref , 0 ); 
 
+	default_exc_target_state = mem;
+	default_inh_target_state = mem;
+
 	clear();
 
 }

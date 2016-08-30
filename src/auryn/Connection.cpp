@@ -114,7 +114,7 @@ void Connection::set_transmitter(TransmitterType transmitter)
 	if ( dst->evolve_locally() ) {
 		switch ( transmitter ) {
 			case GABA:
-				set_target(dst->get_state_vector("g_gaba"));
+				set_target(dst->get_default_inh_target());
 				break;
 			case MEM:
 				set_target(dst->get_state_vector("mem"));
@@ -128,7 +128,7 @@ void Connection::set_transmitter(TransmitterType transmitter)
 			case GLUT:
 			case AMPA:
 			default:
-				set_target(dst->get_state_vector("g_ampa"));
+				set_target(dst->get_default_exc_target());
 		}
 	} else set_target((AurynWeight *)NULL);
 }

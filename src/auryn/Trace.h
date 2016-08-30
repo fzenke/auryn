@@ -36,6 +36,7 @@ namespace auryn {
 class Trace : public AurynStateVector
 {
 private:
+	typedef AurynStateVector super;
 
 protected:
 	/*! Decay time constant in [s]. */
@@ -81,8 +82,11 @@ public:
 	/*! \brief Set the target vector for follow operation */
 	virtual void set_target( AurynStateVector * target ) = 0;
 
-	/*! \brief Follow other trace */
+	/*! \brief Follow target state vector */
 	virtual void follow() = 0;
+
+	/*! \brief Follow other vector */
+	virtual void follow(AurynVectorFloat * v, const float rate) { super::follow(v, rate); }
 };
 
 
