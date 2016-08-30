@@ -272,56 +272,6 @@ class AurynBinarySpikeView:
 
 
 
-def isi(spikes):
-    '''
-    Computes the ISI for spikes 
-    '''
-
-    last_spikes = np.zeros(1)
-    ISIs = []
-    for spike in spikes:
-        t,i = spike
-        if i>=len(last_spikes):
-            last_spikes.resize(i+1)
-        if last_spikes[i] > 0:
-            ISIs.append(t-last_spikes[i])
-        last_spikes[i] = t
-    return ISIs
-
-def isi_hist( spikes, *args, **kwargs ):
-    pl.hist(isi(spikes), *args, **kwargs )
-
-def cvisi(spikes):
-    '''
-    Computes the CV ISI for spikes 
-    '''
-
-    last_spikes = np.zeros(1)
-    sum1 = np.zeros(1)
-    sum2 = np.zeros(1)
-    nspikes = np.zeros(1)
-    for spike in spikes:
-        t,i = spike
-        if i>=len(last_spikes):
-            last_spikes.resize(i+1)
-            sum1.resize(i+1)
-            sum2.resize(i+1)
-            nspikes.resize(i+1)
-        if last_spikes[i] > 0:
-            isi = t-last_spikes[i]
-            sum1[i] += isi
-            sum2[i] += isi**2
-            nspikes[i] += 1
-        last_spikes[i] = t
-
-    cvisi_dist = []
-    for i in xrange(len(sum1)):
-        if nspikes[i]<2: continue
-        mean = sum1[i]/nspikes[i]
-        var  = sum2[i]/(nspikes[i]-1)-mean**2
-        cvisi_dist.append(np.sqrt(var)/mean)
-
-    return cvisi_dist
 
 
 def main():
