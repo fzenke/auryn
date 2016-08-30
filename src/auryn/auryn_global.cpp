@@ -59,7 +59,7 @@ namespace auryn {
 			char strbuf_tmp [255]; 
 			sprintf(strbuf_tmp, "%s/%s.%d.log", dir.c_str(), log_prefix_.c_str(), local_rank); 
 			string auryn_simulation_logfile = strbuf_tmp; 
-			logger = new Logger(auryn_simulation_logfile,local_rank,PROGRESS,EVERYTHING); 
+			logger = new Logger(auryn_simulation_logfile,local_rank); 
 		} 
 		catch ( AurynOpenFileException excpt ) 
 		{ 
