@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import numpy as np
 import pylab as pl
-from auryn_binary_tools import *
+from auryntools import *
 
 # This example assumes that you have run the code from
 # https://github.com/fzenke/pub2015orchestrated/
