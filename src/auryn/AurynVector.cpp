@@ -292,13 +292,13 @@ void AurynVectorFloat::follow(AurynVectorFloat * v, const float rate)
 #ifdef CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY
 	for ( NeuronID i = 0 ; i < size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )
 	{
-		const __m128 chunk_a = sse_load( v->data ); 
-		const __m128 chunk_b = sse_load( data ); 
+		const __m128 chunk_a = sse_load( v->data+i ); 
+		const __m128 chunk_b = sse_load( data+i ); 
 		const __m128 scalar  = _mm_set1_ps(rate);
 		__m128 temp = _mm_sub_ps(chunk_a, chunk_b);
 		temp = _mm_mul_ps( scalar, temp );
 		temp = _mm_add_ps( chunk_b, temp );
-		sse_store( data, temp );
+		sse_store( data+i, temp );
 	}
 #else
 	super::follow(v,rate);
