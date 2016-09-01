@@ -73,9 +73,16 @@ public:
 	/*! \brief Time delay after each replay of the input pattern in loop mode (default 0s) */
 	AurynTime time_delay;
 
+	/*! \brief Default constructor */
+	FileInputGroup( NeuronID n, string filename , bool loop=false, AurynFloat delay=0.0 );
+
+	/*! \brief Constructor which does not load spikes.
+	 *
+	 * Use this constructor if you want to init the group without a filename containing spikes.
+	 * Spikes can be added after initialization by calling load_spikes(filename) or by adding
+	 * spikes one by one using add_spike(spiketime, neuron_id). */
 	FileInputGroup( NeuronID n );
-	FileInputGroup( NeuronID n, string filename );
-	FileInputGroup( NeuronID n, string filename , bool loop=true, AurynFloat delay=0.0 );
+
 	virtual ~FileInputGroup();
 	virtual void evolve();
 

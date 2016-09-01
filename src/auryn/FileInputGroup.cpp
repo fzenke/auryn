@@ -44,15 +44,6 @@ FileInputGroup::FileInputGroup( NeuronID n ) : SpikingGroup(n, 0.0 ) // last 0 e
 	init();
 }
 
-FileInputGroup::FileInputGroup( NeuronID n, std::string filename ) : SpikingGroup(n, 0.0 ) // last 0 enforces RankLock
-{
-	playinloop = false;
-	time_delay = 0;
-	time_offset = 0;
-	init();
-	load_spikes(filename);
-}
-
 FileInputGroup::FileInputGroup(NeuronID n, std::string filename, 
 		bool loop, AurynFloat delay) 
 : SpikingGroup( n , 0.0 )
