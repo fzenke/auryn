@@ -20,8 +20,6 @@
 
 #include "auryn.h"
 
-#define N 1
-
 /*!\file 
  *
  * \brief Simulates multiple step currents of increasing amplitude to a neuron
@@ -37,19 +35,12 @@ int main(int ac, char* av[])
 	int errcode = 0;
 	char strbuf [255];
 	string simname = "current_steps";
-	string tmpstr;
-	AurynWeight w = 1.0;
-
-
-	// BEGIN Global definitions
 	auryn_init( ac, av, ".", simname );
-	// END Global definitions
 
 	// define neuron group
-	AdExGroup * neuron = new AdExGroup(1);
+	AdExGroup* neuron = new AdExGroup(1);
 	// alternatively you can also use an
 	// IzhikevichGroup * neuron = new IzhikevichGroup(1);
-
 
 	// define current input 
 	CurrentInjector * curinject = new CurrentInjector(neuron, "mem");
