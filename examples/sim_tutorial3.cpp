@@ -20,9 +20,9 @@
 
 /*!\file 
  *
- * \brief A minimal example for simulating a balanced network model
+ * \brief A minimal example for simulating a plastic balanced network model
  *
- * This is the code for the Tutorial 2. The tutorials can be found at 
+ * This is the code for the Tutorial 3. The tutorials can be found at 
  * http://www.fzenke.net/auryn/doku.php?id=tutorials:start
  *
  * */
@@ -61,10 +61,18 @@ int main(int ac, char* av[])
 
 	// Set up recurrent connections
 	float gamma = 4.0;
-	SparseConnection * con_ee = new SparseConnection(neurons_exc,neurons_exc,weight,sparseness,GLUT);
+
+	// plasticity parameters 
+	float tau_hom = 10.0; // timescale of homeostatic sliding threshold
+	float eta_rel = 0.1; // relative learning rate
+	float kappa = 1.0;   // target rate
+	TripletConnection * con_ee = new TripletConnection(neurons_exc,neurons_exc,weight,sparseness,tau_hom,eta_rel,kappa);
+	con_ee->set_transmitter(GLUT);
+	con_ee->stdp_active = false;
 	SparseConnection * con_ei = new SparseConnection(neurons_exc,neurons_inh,weight,sparseness,GLUT);
 	SparseConnection * con_ie = new SparseConnection(neurons_inh,neurons_exc,gamma*weight,sparseness,GABA);
 	SparseConnection * con_ii = new SparseConnection(neurons_inh,neurons_inh,gamma*weight,sparseness,GABA);
+
 
 	// Initialize monitors which record information to file
 	
@@ -78,14 +86,16 @@ int main(int ac, char* av[])
 	VoltageMonitor * voltage_mon = new VoltageMonitor( neurons_exc, 0, sys->fn("neuron","mem") );
 	voltage_mon->record_for(2); // only record for 2 seconds
 
+	// Add a population rate monitor
+	PopulationRateMonitor * prate_mon_exc = new PopulationRateMonitor(neurons_exc, sys->fn("exc","prate"));
+	PopulationRateMonitor * prate_mon_inh = new PopulationRateMonitor(neurons_inh, sys->fn("inh","prate"));
+
 	// Run the simulation for 10 seconds
 	sys->run(10);
 
-	// let's add a cell assembly 
-	con_ee->set_block(0,500,0,500,5*weight);
-
-	// Run the simulation for another 2 seconds
-	sys->run(2);
+	// Run the simulation for 100 seconds
+	con_ee->stdp_active = true;
+	sys->run(100);
 
 	// Shut down Auryn kernel
 	auryn_free();
