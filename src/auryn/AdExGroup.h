@@ -41,7 +41,6 @@ namespace auryn {
  * Model as an Effective Description of Neuronal Activity. J Neurophysiol 94,
  * 3637–3642.
  *
- * \todo Implement vectorization for the model.
  *
  * */
 class AdExGroup : public NeuronGroup
