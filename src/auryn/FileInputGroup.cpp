@@ -28,20 +28,20 @@
 using namespace auryn;
 
 
-void FileInputGroup::init(std::string filename)
+void FileInputGroup::init()
 {
 	auryn::sys->register_spiking_group(this);
 	active = true;
 	loop_grid_size = 1;
-	load_spikes(filename);
+	reset_time = 0;
 }
 
-FileInputGroup::FileInputGroup(NeuronID n, std::string filename) : SpikingGroup(n, 0.0 ) // last 0 enforces RankLock
+FileInputGroup::FileInputGroup( NeuronID n ) : SpikingGroup(n, 0.0 ) // last 0 enforces RankLock
 {
 	playinloop = false;
 	time_delay = 0;
 	time_offset = 0;
-	init(filename);
+	init();
 }
 
 FileInputGroup::FileInputGroup(NeuronID n, std::string filename, 
@@ -51,7 +51,8 @@ FileInputGroup::FileInputGroup(NeuronID n, std::string filename,
 	playinloop = loop;
 	time_delay = (AurynTime) (delay/auryn_timestep);
 	time_offset = 0;
-	init(filename);
+	init();
+	load_spikes(filename);
 }
 
 FileInputGroup::~FileInputGroup()
@@ -88,8 +89,7 @@ void FileInputGroup::load_spikes(std::string filename)
 	}
 	spkfile.close();
 
-	// TODO check if this is not too slow
-	std::sort (input_spikes.begin(), input_spikes.end(), time_compare);
+	sort_spikes();
 
 	std::stringstream oss;
 	oss << get_log_name() << ":: Finished loading " << input_spikes.size() 
@@ -97,15 +97,21 @@ void FileInputGroup::load_spikes(std::string filename)
 	logger->info(oss.str());
 
 	spike_iter = input_spikes.begin();
-	reset_time = 0;
+}
+
+void FileInputGroup::sort_spikes()
+{
+	std::sort (input_spikes.begin(), input_spikes.end(), time_compare);
 }
 
 
-AurynTime FileInputGroup::get_offset_clock() {
+AurynTime FileInputGroup::get_offset_clock() 
+{
 	return sys->get_clock() - time_offset;
 }
 
-AurynTime FileInputGroup::get_next_grid_point( AurynTime time ) {
+AurynTime FileInputGroup::get_next_grid_point( AurynTime time ) 
+{
 	AurynTime result = time+time_delay;
 	if ( result%loop_grid_size ) { // align to temporal grid
 		result = (result/loop_grid_size+1)*loop_grid_size;
@@ -141,9 +147,19 @@ void FileInputGroup::evolve()
 
 void FileInputGroup::set_loop_grid(AurynDouble grid_size)
 {
+	playinloop = true;
 	if ( grid_size > 0.0 ) {
 		loop_grid_size = 1.0/auryn_timestep*grid_size;
 		if ( loop_grid_size == 0 ) loop_grid_size = 1;
 	}
+}
+
+void FileInputGroup::add_spike(double spiketime, NeuronID neuron_id)
+{
+		SpikeEvent_type event;
+		event.time = spiketime/auryn_timestep;
+		event.neuronID = neuron_id;
+		input_spikes.push_back(event);
+		sort_spikes();
 }
 

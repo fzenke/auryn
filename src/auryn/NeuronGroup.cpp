@@ -45,6 +45,9 @@ void NeuronGroup::init()
 		g_gaba = get_state_vector("g_gaba");
 		g_nmda = get_state_vector("g_nmda");
 
+		default_exc_target_state = g_ampa;
+		default_inh_target_state = g_gaba;
+
 #ifndef CODE_ALIGNED_SSE_INSTRUCTIONS
 		// checking via default if those arrays are aligned
 		if ( auryn_AlignOffset( mem->size, mem->data, sizeof(float), 16) 
@@ -126,3 +129,14 @@ void NeuronGroup::set_state(std::string name, AurynState val)
 	if (tmp) tmp->set_all(val);
 	else { logger->warning("State not found."); }
 }
+
+AurynStateVector * NeuronGroup::get_default_exc_target()
+{
+	return default_exc_target_state;
+}
+
+AurynStateVector * NeuronGroup::get_default_inh_target()
+{
+	return default_inh_target_state;
+}
+

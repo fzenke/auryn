@@ -79,13 +79,6 @@ protected:
 
 	AurynDouble hom_fudge;
 
-	/* Definitions of presynaptic traces */
-	Trace * tr_pre;
-
-	/* Definitions of postsynaptic traces */
-	Trace * tr_post;
-	Trace * tr_post2;
-	Trace * tr_post_hom;
 
 	/*! This function propagates spikes from pre to postsynaptic cells
 	 * and performs plasticity updates upon presynaptic spikes. */
@@ -122,6 +115,13 @@ protected:
 public:
 	AurynFloat A3_plus;
 
+	/* Definitions of presynaptic traces */
+	Trace * tr_pre;
+
+	/* Definitions of postsynaptic traces */
+	Trace * tr_post;
+	Trace * tr_post2;
+	Trace * tr_post_hom;
 
 	/*! Toggle stdp active/inactive. When inactive traces are still updated, but weights are not. */
 	bool stdp_active;

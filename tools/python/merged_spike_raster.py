@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import numpy as np
 import pylab as pl
-from auryn_binary_tools import *
+from auryntools import *
 
 # This code snipped assumes that you have run the example simulation
 # sim_coba_binmon with mpirun and default paramters. 

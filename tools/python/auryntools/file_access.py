@@ -67,8 +67,8 @@ class AurynBinaryFile:
         self.num_data_frames = self.last_frame-1
         self.datafile.seek(self.frame_size,0)
         if self.debug:
-            print "Filesize", self.filesize
-            print "Number of frames", self.num_data_frames
+            print("Filesize %i"%self.filesize)
+            print("Number of frames %i"%self.num_data_frames)
 
         # Determine min and max time
         at,val = self.get_frame(1)
@@ -78,9 +78,12 @@ class AurynBinaryFile:
 
     def open_file(self):
 
-        # TODO add exception handling
         self.frame_size = struct.calcsize(self.data_format)
-        self.datafile = open(self.filename, "rb")
+        try:
+            self.datafile = open(self.filename, "rb")
+        except IOError:
+            print("Oops! Could not open file %s. Invalid file name."%self.filename)
+            raise ValueError
 
         self.refresh()
 
@@ -102,7 +105,8 @@ class AurynBinaryStateFile(AurynBinaryFile):
         self.open_file()
 
     def __del__(self):
-        self.datafile.close()
+        if self.datafile:
+            self.datafile.close()
 
     def get_data(self, t_start=0.0, t_stop=1e32):
         ''' Returns timeseries of state for given temporal interval'''
@@ -127,7 +131,7 @@ class AurynBinarySpikeFile(AurynBinaryFile):
 
     Public methods:
     get_spikes: extracts spikes (tuples of time and neuron id) for a given temporal range.
-    get_spike_times_from_interval: extracts the spike times of a single unit and a given temporal range.
+    get_spike_times: extracts the spike times of a single unit and a given temporal range.
     '''
     def __init__(self, filename, debug_output=False):
         # These params might have to adapted ot different Auryn datatypes and versions
@@ -137,9 +141,6 @@ class AurynBinarySpikeFile(AurynBinaryFile):
         self.debug = debug_output
         self.filename = filename
         self.open_file()
-
-    def __del__(self):
-        self.datafile.close()
 
     def get_spikes( self, t_start=0.0, t_stop=1e32, max_id=1e32 ):
         idx_start = self.find_frame( t_start, lower=False )
@@ -207,13 +208,28 @@ class AurynBinarySpikeView:
     A wrapper class for easy extraction of spikes from multiple spk files from different ranks.
     '''
     def __init__(self, filenames):
-        self.filenames = filenames
+        if type(filenames) is list:
+            self.filenames = filenames
+        else:
+            if type(filenames) is str:
+                self.filenames = [filenames]
+            else:
+                print("Parameter filenames must be of type list or str.")
+                raise TypeError
+
         self.spike_files = []
         for filename in self.filenames:
             self.spike_files.append( AurynBinarySpikeFile(filename) )
 
     def sort_spikes(self, spikes):
         spikes.sort(key=lambda tup: tup[0])
+
+    def get_spike_times( self, neuron_id=0, t_start=0, t_stop=1e32 ):
+        spike_times = []
+        for spk in self.spike_files:
+            spike_times.extend( spk.get_spike_times( neuron_id, t_start, t_stop ) )
+        spike_times.sort()
+        return spike_times
 
     def get_spikes( self, t_start=0.0, t_stop=1e32, max_id=1e32 ):
         spikes = []
@@ -244,10 +260,10 @@ class AurynBinarySpikeView:
         time_offset -- time offset added to each trigger time shift the window (default 0.0)
         max_neuron_id -- the number of neurons
         ''' 
-        hist = np.zeros(max_neuron_id) 
+        hist = np.zeros(max_neuron_id, dtype=int) 
         for t_spike in trigger_times:
             ts = t_spike+time_offset
-            spikes = self.get_spikes(ts, ts+time_window)
+            spikes = self.get_spikes(ts, ts+time_window, max_neuron_id)
             if len(spikes):
                 sar = np.array(spikes, dtype=int)[:,1]
                 counts = np.bincount(sar, minlength=max_neuron_id)
@@ -255,22 +271,29 @@ class AurynBinarySpikeView:
         return hist
 
 
+
+
+
 def main():
     # running the example program sim_coba_binmon will
     # generate this file
     filenames = ["/tmp/coba.0.e.spk"]
-
-    t_start = 0.0
-    t_end   = 0.3
-    n_max = 200
-
     spkfile = AurynBinarySpikeView(filenames)
-    spikes = np.array(spkfile.get_spikes(t_start,t_end,max_id=n_max))
+    spikes = spkfile.get_spikes()
 
-    pl.scatter(spikes[:,0], spikes[:,1])
-    pl.xlabel("Time [s]")
-    pl.ylabel("Neuron ID")
+    rate_hist(spikes, bins=50)
     pl.show()
+
+    # t_start = 0.0
+    # t_end   = 0.3
+    # n_max = 200
+
+    # spikes = np.array(spkfile.get_spikes(t_start,t_end,max_id=n_max))
+
+    # pl.scatter(spikes[:,0], spikes[:,1])
+    # pl.xlabel("Time [s]")
+    # pl.ylabel("Neuron ID")
+    # pl.show()
     
 
 if __name__ == "__main__":

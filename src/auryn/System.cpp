@@ -591,6 +591,11 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 
 bool System::run(AurynFloat simulation_time, bool checking)
 {
+	if ( simulation_time < 0.0 ) {
+		logger->error("Negative run time not allowed.");
+		return false;
+	}
+
 	// throw an exception if the stoptime is post the range of AurynTime
 	if ( get_time() + simulation_time > std::numeric_limits<AurynTime>::max()*auryn_timestep ) {
 		auryn::logger->msg("The requested simulation time exceeds the number of possible timesteps limited by AurynTime datatype.",ERROR);

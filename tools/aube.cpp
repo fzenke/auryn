@@ -52,7 +52,7 @@ AurynLong find_frame( std::ifstream * file, AurynTime target )
 		else hi = pivot;
 	}
 
-	return hi;
+	return lo;
 }
 
 

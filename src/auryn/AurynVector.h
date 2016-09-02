@@ -235,7 +235,7 @@ namespace auryn {
 			}
 
 			/*! \brief Scales all vector elements by a. */
-			virtual void scale(const T a) 
+			void scale(const T a) 
 			{
 				for ( IndexType i = 0 ; i < size ; ++i ) {
 					data[i] *= a;
@@ -244,7 +244,7 @@ namespace auryn {
 
 
 			/*! \brief Adds constant c to each vector element */
-			virtual void add(const T c) 
+			void add(const T c) 
 			{
 				for ( IndexType i = 0 ; i < size ; ++i ) {
 					data[i] += c;
@@ -268,7 +268,7 @@ namespace auryn {
 			/*! \brief Adds a vector v to the vector
 			 *
 			 * No checking of the dimensions match! */
-			virtual void add(AurynVector * v) 
+			void add(AurynVector * v) 
 			{
 				check_size(v);
 				for ( IndexType i = 0 ; i < size ; ++i ) {
@@ -277,13 +277,13 @@ namespace auryn {
 			}
 
 			/*! \brief Subtract constant c to each vector element */
-			virtual void sub(const T c) 
+			void sub(const T c) 
 			{
 				add(-c);
 			}
 
 			/*! \brief Elementwise subtraction */
-			virtual void sub(AurynVector * v) 
+			void sub(AurynVector * v) 
 			{
 				check_size(v);
 				for ( IndexType i = 0 ; i < size ; ++i ) {
@@ -292,7 +292,7 @@ namespace auryn {
 			}
 
 			/*! \brief Multiply all vector elements by constant */
-			virtual void mul(const T a) 
+			void mul(const T a) 
 			{
 				scale(a);
 			}
@@ -300,7 +300,7 @@ namespace auryn {
 			/*! \brief Element-wise vector multiply  
 			 *
 			 * */
-			virtual void mul(AurynVector * v) 
+			void mul(AurynVector * v) 
 			{
 				check_size(v);
 				for ( IndexType i = 0 ; i < size ; ++i ) {
@@ -314,7 +314,7 @@ namespace auryn {
 			 * \param a The scaling factor for the additional vector
 			 * \param x The additional vector to add
 			 * */
-			virtual void saxpy(const T a, AurynVector * x) 
+			void saxpy(const T a, AurynVector * x) 
 			{
 				check_size(x);
 				for ( IndexType i = 0 ; i < size ; ++i ) {
@@ -323,8 +323,8 @@ namespace auryn {
 			}
 
 
-			/*! \brief Scales all vector elements by a. TODO */
-			void follow(AurynVector<T,IndexType> * v, const float rate) 
+			/*! \brief Scales all vector elements by a. */
+			void follow(AurynVector<T,IndexType> * v, const T rate) 
 			{
 				for ( IndexType i = 0 ; i < size ; ++i ) {
 					data[i] += rate*(v->data[i]-data[i]);
@@ -639,6 +639,7 @@ namespace auryn {
 			void diff(AurynVectorFloat * a, AurynVectorFloat * b);
 			void diff(AurynVectorFloat * a, const float b);
 			void diff(const float a, AurynVectorFloat * b );
+			void follow(AurynVectorFloat * v, const float rate);
 
 			// TODO add pow function with intrinsics _mm_pow_ps
 

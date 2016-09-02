@@ -376,8 +376,13 @@ Trace * SpikingGroup::get_pre_trace( AurynFloat x )
 
 void SpikingGroup::add_pre_trace( Trace * tr ) 
 {
-	if ( tr->size != get_pre_size() ) {
-		logger->warning("Trying to add as pretrace, but its size does not match the SpikinGroup.");
+	if ( tr->size != calculate_vector_size(get_pre_size()) ) {
+		std::stringstream oss;
+		oss << "Trying to add as pre trace, but its size does not match the SpikinGroup. "
+			<< "Trace size: " << tr->size
+			<< " Pre size: " << get_pre_size()
+			<< " Expected trace size: " << calculate_vector_size(get_pre_size());
+		logger->warning(oss.str());
 		return;
 	}
 	pretraces.push_back(tr);
@@ -404,7 +409,12 @@ Trace * SpikingGroup::get_post_trace( AurynFloat x )
 void SpikingGroup::add_post_trace( Trace * tr ) 
 {
 	if ( tr->size != get_vector_size() ) {
-		logger->warning("Trying to add as pretrace, but its size does not match the SpikinGroup.");
+		std::stringstream oss;
+		oss << "Trying to add as post trace, but its size does not match the SpikinGroup. "
+			<< "Trace size: " << tr->size
+			<< " Post size: " << get_post_size()
+			<< " Expected trace size: " << get_vector_size();
+		logger->warning(oss.str());
 		return;
 	}
 	posttraces.push_back(tr);

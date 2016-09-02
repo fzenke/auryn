@@ -53,10 +53,12 @@ void IafPscExpGroup::init()
 	
 	bg_current = get_state_vector("bg_current");
 	syn_current = get_state_vector("syn_current");
+	temp = get_state_vector("_temp");
 	ref = new AurynVector< unsigned short > (get_vector_size()); 
 
-	t_bg_cur = bg_current->ptr( ); 
-	t_syn_cur = syn_current->ptr( ); 
+	default_exc_target_state = syn_current;
+	default_inh_target_state = syn_current;
+
 
 	t_mem = mem->ptr( ); 
 	t_ref = ref->ptr( ); 
@@ -69,11 +71,11 @@ void IafPscExpGroup::clear()
 {
 	clear_spikes();
 	for (NeuronID i = 0; i < get_rank_size(); i++) {
-	   auryn_vector_float_set (mem, i, e_rest);
-	   auryn_vector_ushort_set (ref, i, 0);
-	   auryn_vector_float_set (g_ampa, i, 0.);
-	   auryn_vector_float_set (g_gaba, i, 0.);
-	   auryn_vector_float_set (bg_current, i, 0.);
+	   mem->set( i, e_rest);
+	   ref->set( i, 0);
+	   g_ampa->set( i, 0.);
+	   g_gaba->set( i, 0.);
+	   bg_current->set( i, 0.);
 	}
 }
 
@@ -82,18 +84,26 @@ IafPscExpGroup::~IafPscExpGroup()
 {
 	if ( !evolve_locally() ) return;
 
-	auryn_vector_ushort_free (ref);
+	delete ref;
 }
 
 
 void IafPscExpGroup::evolve()
 {
 
+	// integrate membrane
+
+    // compute current
+    temp->diff(e_rest, mem); // leak current
+	temp->add(bg_current); // bg current
+	temp->add(syn_current); // syn_current
+
+    // membrane dynamics
+    mem->saxpy(scale_mem,temp);
+
+	// hard refractory time (clamped to zero)
 	for (NeuronID i = 0 ; i < get_rank_size() ; ++i ) {
     	if (t_ref[i]==0) {
-			const AurynFloat dg_mem = ( (e_rest-t_mem[i]) + t_bg_cur[i] + t_syn_cur[i] );
-			t_mem[i] += dg_mem*scale_mem;
-
 			if (t_mem[i]>thr) {
 				push_spike(i);
 				t_mem[i] = e_rest ;
