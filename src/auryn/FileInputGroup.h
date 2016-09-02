@@ -42,7 +42,6 @@ namespace auryn {
  * without file access. It supports looping over the input spikes by setting the loop argument with the constructor 
  * to true.
  *
- * \todo Somehow this group seems to swallow the first spike -- have to luck into this
  */
 class FileInputGroup : public SpikingGroup
 {
