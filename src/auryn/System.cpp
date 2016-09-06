@@ -193,6 +193,9 @@ void System::free()
 	if ( syncbuffer != NULL )
 		delete syncbuffer;
 #endif // AURYN_CODE_USE_MPI
+
+    delete dist;
+	delete die;
 }
 
 void System::step()
