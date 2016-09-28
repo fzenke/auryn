@@ -173,7 +173,7 @@ namespace auryn {
 			 * If a vector is downsized elements at the end are simply dropped.
 			 * When the vector size is increased the new elements at the end are
 			 * intialized with zeros.*/
-			void resize(IndexType new_size) 
+			virtual void resize(IndexType new_size) 
 			{
 				if ( size != new_size ) {
 					T * old_data = data;
@@ -626,7 +626,7 @@ namespace auryn {
 			};
 
 
-			void resize(NeuronID new_size);
+			virtual void resize(NeuronID new_size);
 			void scale(const float a);
 			void saxpy(const float a, AurynVectorFloat * x);
 			void clip(const float min, const float max);
