@@ -34,7 +34,7 @@ int main(int ac, char* av[])
 
 	int errcode = 0;
 	char strbuf [255];
-	string simname = "test";
+	string simname = "srm0steps";
 	auryn_init( ac, av, ".", simname );
 
 	// define neuron group
