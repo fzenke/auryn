@@ -33,7 +33,13 @@
 
 namespace auryn {
 
-/*! \brief SRM0 neuron model
+/*! \brief Implements SRM0 neuron model with escape noise
+ *
+ *
+ * For a detailed introduction to the SRM and SRM0 neuron models see  Gerstner,
+ * W., Kistler, W.M., Naud, R., and Paninski, L. (2014). Neuronal dynamics:
+ * from single neurons to networks and models of cognition (Cambridge:
+ * Cambridge University Press).
  *
  */
 class SRM0Group : public NeuronGroup
