@@ -49,6 +49,9 @@ void SRM0Group::init()
 	tau_mem = 20e-3;
 	tau_syn = 5e-3;
 
+	rho0 = 100.0;
+	delta_u = 1e-3;
+
 	calculate_scale_constants();
 	syn_current = get_state_vector("syn_current");
 	warped_lifetime = get_state_vector("warped_time");
@@ -108,9 +111,10 @@ void SRM0Group::evolve()
 	// lifetime decrement
 	// compute instantaneous firing rate
 	temp->diff(mem,thr);
-	temp->mul(1.0/1e-3); // TODO make this a parameter
+	temp->mul(1.0/delta_u); 
 	temp->fast_exp();
-	temp->mul(auryn_timestep); // TODO make this a parameter
+	// temp->set_all(1.0); // for testing at fixed voltage values
+	temp->mul(auryn_timestep*rho0); 
 
 
 	// decrease ttls by warped time

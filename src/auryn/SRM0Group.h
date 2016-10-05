@@ -62,6 +62,12 @@ private:
 	inline void integrate_state();
 	inline void check_thresholds();
 public:
+	/*! \brief Mean firing rate rate at threshold */
+	AurynFloat rho0;
+
+	/*! \brief Spike sharpness parameter delta u */
+	AurynFloat delta_u;
+
 	/*! The default constructor of this NeuronGroup */
 	SRM0Group(NeuronID size);
 	virtual ~SRM0Group();
