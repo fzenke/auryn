@@ -59,7 +59,7 @@ int main(int ac, char* av[])
 	// simulate current steps of increasing size
 	for ( int i = 0 ; i < 10 ; ++i ) {
 		// turn current on
-		curinject->set_all_currents(0.2*i); // current is in arbitrary units
+		curinject->set_all_currents(0.1*i); // current is in arbitrary units
 
 		// simulate 
 		sys->run(simtime); 
