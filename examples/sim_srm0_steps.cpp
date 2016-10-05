@@ -22,7 +22,7 @@
 
 /*!\file 
  *
- * \brief Simulates multiple step currents of increasing amplitude to a neuron
+ * \brief Simulates multiple step currents of increasing amplitude to 100 SRM0 neurons
  * */
 
 using namespace auryn;
@@ -34,13 +34,11 @@ int main(int ac, char* av[])
 
 	int errcode = 0;
 	char strbuf [255];
-	string simname = "current_steps";
+	string simname = "srm0steps";
 	auryn_init( ac, av, ".", simname );
 
 	// define neuron group
-	AdExGroup* neuron = new AdExGroup(1);
-	// alternatively you can also use an
-	// IzhikevichGroup * neuron = new IzhikevichGroup(1);
+	SRM0Group* neuron = new SRM0Group(100);
 
 	// define current input 
 	CurrentInjector * curinject = new CurrentInjector(neuron, "mem");
@@ -49,6 +47,7 @@ int main(int ac, char* av[])
 	SpikeMonitor * smon = new SpikeMonitor( neuron, sys->fn("ras") );
 	VoltageMonitor * vmon = new VoltageMonitor( neuron, 0, sys->fn("mem") );
 	StateMonitor * wmon = new StateMonitor( neuron, 0, "w", sys->fn("w") );
+	PopulationRateMonitor * prmon = new PopulationRateMonitor( neuron, sys->fn("prate"), 10e-3 );
 
 	// run simulation
 	logger->msg("Running ...",PROGRESS);
@@ -60,13 +59,13 @@ int main(int ac, char* av[])
 	// simulate current steps of increasing size
 	for ( int i = 0 ; i < 10 ; ++i ) {
 		// turn current on
-		curinject->set_current(0,1.0*i); // current is in arbitrary units
+		curinject->set_all_currents(0.1*i); // current is in arbitrary units
 
 		// simulate 
 		sys->run(simtime); 
 
 		// turn current off
-		curinject->set_current(0,0.0); 
+		curinject->set_all_currents(0.0); 
 
 		// simulate 
 		sys->run(simtime); 

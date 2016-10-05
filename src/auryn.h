@@ -95,6 +95,7 @@
 #include "auryn/AIFGroup.h"
 #include "auryn/AIF2Group.h"
 #include "auryn/AdExGroup.h"
+#include "auryn/SRM0Group.h"
 #include "auryn/IafPscDeltaGroup.h"
 #include "auryn/IafPscExpGroup.h"
 #include "auryn/IzhikevichGroup.h"

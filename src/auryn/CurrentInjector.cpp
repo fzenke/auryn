@@ -62,7 +62,11 @@ void CurrentInjector::propagate()
 }
 
 void CurrentInjector::set_current(NeuronID i, AurynFloat current) {
-	auryn_vector_float_set(currents, i, current);
+	currents->set(i, current);
+}
+
+void CurrentInjector::set_all_currents(AurynFloat current) {
+	currents->set_all(current);
 }
 
 void CurrentInjector::set_target_state(std::string state_name) {
