@@ -31,6 +31,11 @@
 #include "NeuronGroup.h"
 #include "System.h"
 
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/uniform_int.hpp>
+#include <boost/random/variate_generator.hpp>
+#include <boost/random/exponential_distribution.hpp>
+
 namespace auryn {
 
 /*! \brief Implements SRM0 neuron model with escape noise
