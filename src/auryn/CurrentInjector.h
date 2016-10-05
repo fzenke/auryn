@@ -71,7 +71,8 @@ protected:
 public:
 
 	/*! \brief Default Constructor 
-	 * @param[target] Initializes all currents with this value
+	 * @param[target] The target group
+	 * @param[neuron_state_name] The state to manipulate
 	 * @param[initial_current] Initializes all currents with this value
 	 */
 	CurrentInjector(NeuronGroup * target, std::string neuron_state_name="mem", AurynFloat initial_current=0.0 );
@@ -82,14 +83,20 @@ public:
 	/*! \brief Default Destructor */
 	virtual ~CurrentInjector();
 
-
-	/*! \brief Sets the state that is stimulated with Current input.
+	/*! \brief Sets current strengh for neuron i
 	 * 
 	 * This must be a valid state vector name (default = mem) 
 	 * 
 	 * \param i Index of neuron
 	 * \param current Current value to set*/
 	void set_current( NeuronID i, AurynFloat current );
+
+	/*! \brief Sets current strength for all neurons
+	 * 
+	 * This must be a valid state vector name (default = mem) 
+	 * 
+	 * \param current Current value to set*/
+	void set_all_currents( AurynFloat current );
 
 	/*! Implementation of necessary propagate() function. */
 	void propagate();
