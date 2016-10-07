@@ -460,6 +460,10 @@ AurynVector<T,AurynLong> * ComplexMatrix<T>::alloc_synaptic_state_vector()
 template <typename T>
 AurynVector<T,AurynLong> * ComplexMatrix<T>::get_synaptic_state_vector(StateID z)
 {
+	if ( z >= get_num_synaptic_states() ) {
+		logger->error("Trying to access a complex state larger than number of states in the tensor");
+		throw AurynMatrixDimensionalityException();
+	}
 	return statevectors[z];
 }
 
