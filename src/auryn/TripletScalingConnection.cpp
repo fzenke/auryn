@@ -239,12 +239,13 @@ void TripletScalingConnection::evolve_scaling()
 	}
 
 	const NeuronID offset = sys->get_clock()%scal_timestep;
-	for ( NeuronID i = offset ; i < dst->get_size() ; i += scal_timestep  ) {
-		for (NeuronID * j = fwd->get_row_begin(i) ; 
-				j != fwd->get_row_end(i) ; 
-				++j ) { 
-			AurynWeight * tmp = fwd->get_value_ptr(j);
-			const AurynFloat regulator = 1.0-pow(tr_post_hom->normalized_get(i)/target_rate,3);
+	for ( NeuronID pre = offset ; pre < dst->get_size() ; pre += scal_timestep  ) {
+		for (NeuronID * post = fwd->get_row_begin(pre) ; 
+				post != fwd->get_row_end(pre) ; 
+				++post ) { 
+			AurynWeight * tmp = fwd->get_value_ptr(post);
+			const NeuronID translated = dst->global2rank(*post);
+			const AurynFloat regulator = 1.0-pow(tr_post_hom->normalized_get(translated)/target_rate,3);
 			*tmp += scal_mul*regulator*(*tmp);
 		}
 	}
