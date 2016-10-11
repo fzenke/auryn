@@ -50,9 +50,12 @@ class CorrelatedPoissonGroup : public SpikingGroup
 {
 private:
 	AurynTime * clk;
-	static boost::mt19937 gen; 
+	static boost::mt19937 shared_noise_gen; 
+	static boost::mt19937 rank_noise_gen; 
+
 	boost::uniform_01<> * dist;
-	boost::variate_generator<boost::mt19937&, boost::uniform_01<> > * die;
+	boost::variate_generator<boost::mt19937&, boost::uniform_01<> > * shared_noise;
+	boost::variate_generator<boost::mt19937&, boost::exponential_distribution<> > * rank_noise;
 
 	void init(AurynDouble rate, NeuronID gsize, AurynDouble timedelay );
 
@@ -106,7 +109,7 @@ public:
 	void set_threshold(AurynDouble threshold);
 	void set_stoptime(AurynDouble stoptime);
 	AurynDouble get_rate();
-	void seed(int s);
+	void seed();
 };
 
 }
