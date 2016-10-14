@@ -69,6 +69,11 @@ private:
 	
 public:
 
+	/*! \brief Minimal relative position in group for center of bump (default = 0) */
+	double pos_min;
+	/*! \brief Maximum relative position in group for center of bump (default = 1) */
+	double pos_max;
+
 	/*! \brief Default constructor 
 	 * \param n Size of the group
 	 * \param duration Duration of constant stimulation with a given stimulus profile in s

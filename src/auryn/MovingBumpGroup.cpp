@@ -38,6 +38,9 @@ void MovingBumpGroup::init ( AurynFloat duration, NeuronID width, std::string ou
 	auryn::logger->parameter("duration", (int)duration);
 	next_event = 0;
 
+	pos_min = 0.0;
+	pos_max = 0.0;
+
 	std::stringstream oss;
 	oss << "MovingBumpGroup:: Set up with stimulus_duration=" 
 		<< stimulus_duration 
@@ -97,7 +100,7 @@ void MovingBumpGroup::evolve()
 	if ( auryn::sys->get_clock() >= next_event ) {
 		next_event += stimulus_duration;
 
-		boost::uniform_int<> dist(0,get_size());
+		boost::uniform_int<> dist(pos_min*get_size(),pos_max*get_size());
 		boost::variate_generator<boost::mt19937&, boost::uniform_int<> > die(order_gen, dist);
 
 		NeuronID mean = die();
