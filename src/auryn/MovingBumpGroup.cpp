@@ -39,7 +39,7 @@ void MovingBumpGroup::init ( AurynFloat duration, AurynFloat width, std::string 
 	next_event = 0;
 
 	pos_min = 0.0;
-	pos_max = 0.0;
+	pos_max = 1.0;
 
 	std::stringstream oss;
 	oss << "MovingBumpGroup:: Set up with stimulus_duration=" 
