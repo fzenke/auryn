@@ -21,9 +21,7 @@ def rates(spikes):
     Compute firing rates for each neuron
     '''
 
-    nspikes = spike_counts(spikes)
     ar = np.array(spikes)
-
     # Check for properties of correction formated list of spikes
     if len(ar.shape)!=2 or ar.shape[1]!=2:
         print("Invalid input format. Expected a list of spikes.")
@@ -32,6 +30,8 @@ def rates(spikes):
     t_min = ar[:,0].min()
     t_max = ar[:,0].max()
     t_diff = t_max-t_min
+
+    nspikes = spike_counts(spikes)
     return 1.0*nspikes/t_diff
 
 def rate_hist( spikes, *args, **kwargs ):
