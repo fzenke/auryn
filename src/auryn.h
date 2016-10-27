@@ -61,6 +61,7 @@
 #include "auryn/SparseConnection.h"
 #include "auryn/RateModulatedConnection.h"
 #include "auryn/STDPConnection.h"
+#include "auryn/PairInteractionConnection.h"
 #include "auryn/STDPwdConnection.h"
 #include "auryn/SymmetricSTDPConnection.h"
 #include "auryn/STPConnection.h"
@@ -70,6 +71,7 @@
 #include "auryn/LPTripletConnection.h"
 #include "auryn/TripletDecayConnection.h"
 #include "auryn/TripletScalingConnection.h"
+#include "auryn/MinimalTripletConnection.h"
 #include "auryn/IdentityConnection.h"
 #include "auryn/AllToAllConnection.h"
 

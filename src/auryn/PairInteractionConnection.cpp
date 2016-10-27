@@ -24,8 +24,12 @@ using namespace auryn;
 
 void PairInteractionConnection::init(AurynWeight maxw)
 {
-	last_spike_pre = new AurynTime[get_m_rows()];
-	last_spike_post = new AurynTime[get_n_cols()];
+	if ( dst->get_post_size() == 0 ) return; // avoids to run this code on silent nodes with zero post neurons.
+
+	logger->parameter("m",get_m_rows());
+	logger->parameter("n",get_n_cols());
+	last_spike_pre = new AurynTime[src->get_pre_size()];
+	last_spike_post = new AurynTime[dst->get_post_size()];
 
 	for ( unsigned int i = 0 ; i < get_m_rows() ; ++i )
 		last_spike_pre[i] = -1; // set this to end of range (so spike is infinitely in the future -- might cause problems without ffast-math
@@ -81,59 +85,72 @@ PairInteractionConnection::~PairInteractionConnection()
 inline AurynWeight PairInteractionConnection::dw_fwd(NeuronID post)
 {
 	AurynTime diff = auryn::sys->get_clock()-last_spike_post[post];
-	if ( stdp_active ) {
-		if ( diff >= WINDOW_MAX_SIZE ) diff = WINDOW_MAX_SIZE-1;
-		double dw = window_post_pre[diff];
-		return dw;
-	}
-	else return 0.;
+	if ( diff >= WINDOW_MAX_SIZE ) diff = WINDOW_MAX_SIZE-1;
+	double dw = window_post_pre[diff];
+	return dw;
 }
 
 inline AurynWeight PairInteractionConnection::dw_bkw(NeuronID pre)
 {
 	AurynTime diff = auryn::sys->get_clock()-last_spike_pre[pre];
-	if ( stdp_active ) {
-		if ( diff >= WINDOW_MAX_SIZE ) diff = WINDOW_MAX_SIZE-1;
-		double dw = window_pre_post[diff];
-		return dw;
-	}
-	else return 0.;
+	if ( diff >= WINDOW_MAX_SIZE ) diff = WINDOW_MAX_SIZE-1;
+	double dw = window_pre_post[diff];
+	return dw;
 }
 
 inline void PairInteractionConnection::propagate_forward()
 {
-	NeuronID * ind = w->get_row_begin(0); // first element of index array
-	AurynWeight * data = w->get_data_begin();
-	AurynWeight value;
-	SpikeContainer::const_iterator spikes_end = src->get_spikes()->end();
-	// process spikes
+	// Loop over all pre spikes 
 	for (SpikeContainer::const_iterator spike = src->get_spikes()->begin() ; // spike = pre_spike
-			spike != spikes_end ; ++spike ) {
-		for (NeuronID * c = w->get_row_begin(*spike) ; c != w->get_row_end(*spike) ; ++c ) {
-			value = data[c-ind]; 
-			//dst->tadd( *c , value , transmitter );
-            transmit( *c, value );
-            //if (data[c-ind]>0 && data[c-ind]<w_max); //Not sure this is correct: updates only if the given weight is in [0, wmax]. Why?
-			data[c-ind] += dw_fwd(*c);
-        }
-		// update pre_trace
-		last_spike_pre[*spike] = auryn::sys->get_clock();
+			spike != src->get_spikes()->end() ; ++spike ) {
+		// Loop over all postsynaptic partners 
+		for (const NeuronID * c = w->get_row_begin(*spike) ; 
+				c != w->get_row_end(*spike) ; 
+				++c ) { // c = post index
+
+			// determines the weight of connection
+			AurynWeight * weight = w->get_data_ptr(c); 
+
+			// handle plasticity
+			if ( stdp_active ) {
+				// performs weight update upon presynaptic spike
+			    *weight += dw_fwd(*c);
+			    // clips too small weights
+			    if ( *weight < get_min_weight() ) *weight = get_min_weight(); 
+				else if ( *weight > get_max_weight() ) *weight = get_max_weight();
+			}
+
+			// evokes the postsynaptic response 
+			transmit( *c , *weight );
+
+			// update pre "trace"
+			last_spike_pre[*spike] = auryn::sys->get_clock();
+		}
 	}
 }
 
 inline void PairInteractionConnection::propagate_backward()
 {
-	NeuronID * ind = bkw->get_row_begin(0); // first element of index array
-	AurynWeight ** data = bkw->get_data_begin();
-	SpikeContainer::const_iterator spikes_end = dst->get_spikes_immediate()->end();
-	for (SpikeContainer::const_iterator spike = dst->get_spikes_immediate()->begin() ; // spike = post_spike
-			spike != spikes_end ; ++spike ) {
-		for (NeuronID * c = bkw->get_row_begin(*spike) ; c != bkw->get_row_end(*spike) ; ++c ) {
-			if (*data[c-ind]<w_max)
-			  *data[c-ind] += dw_bkw(*c);
+	if (stdp_active) { 
+		SpikeContainer::const_iterator spikes_end = dst->get_spikes_immediate()->end();
+		// loop over all post spikes
+		for (SpikeContainer::const_iterator spike = dst->get_spikes_immediate()->begin() ; // spike = post_spike
+				spike != spikes_end ; 
+				++spike ) {
+			NeuronID translated_spike = dst->global2rank(*spike); 
+
+			// loop over all presynaptic partners
+			for (const NeuronID * c = bkw->get_row_begin(*spike) ; c != bkw->get_row_end(*spike) ; ++c ) {
+				// computes plasticity update
+				AurynWeight * weight = bkw->get_data(c); 
+				*weight += dw_bkw(*c);
+
+				// clips too large weights
+				if (*weight>get_max_weight()) *weight=get_max_weight();
+			}
+			// update post "trace"
+			last_spike_post[translated_spike] = auryn::sys->get_clock();
 		}
-		// update post trace
-		last_spike_post[*spike] = auryn::sys->get_clock();
 	}
 }
 
@@ -146,7 +163,6 @@ void PairInteractionConnection::propagate()
 
 void PairInteractionConnection::load_window_from_file( const char * filename , double scale ) 
 {
-
 	std::stringstream oss;
 	oss << "PairInteractionConnection:: Loading STDP window from " << filename;
 	auryn::logger->msg(oss.str(),NOTIFICATION);
