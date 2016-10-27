@@ -239,7 +239,7 @@ void TripletScalingConnection::evolve_scaling()
 	}
 
 	const NeuronID offset = sys->get_clock()%scal_timestep;
-	for ( NeuronID pre = offset ; pre < dst->get_size() ; pre += scal_timestep  ) {
+	for ( NeuronID pre = offset ; pre < src->get_pre_size() ; pre += scal_timestep  ) {
 		for (NeuronID * post = fwd->get_row_begin(pre) ; 
 				post != fwd->get_row_end(pre) ; 
 				++post ) { 
@@ -257,7 +257,7 @@ void TripletScalingConnection::set_beta(AurynFloat beta)
 	// scal_beta *= A3_plus*tau_plus*tau_long;
 	logger->parameter("beta",beta);
 
-	scal_timestep = 10000;
+	scal_timestep = 1000;
 	scal_mul = scal_timestep*auryn_timestep/scal_beta;
 
 	logger->parameter("scaling_timestep",(int)scal_timestep);
