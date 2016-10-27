@@ -141,6 +141,10 @@ void Connection::set_target(AurynWeight * ptr)
 
 void Connection::set_target(AurynStateVector * ptr)
 {
+	// get_state_vector and other functions return the NULL
+	// vector, for instance, when the corresponding vector
+	// has zero size. We catch that first.
+	if ( ptr == NULL ) return; 
 	target_state_vector = ptr;
 	set_target(ptr->data);
 }
