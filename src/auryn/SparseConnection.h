@@ -147,7 +147,6 @@ public:
 	/*! \brief Constructor for manual filling. */
 	SparseConnection(NeuronID rows, NeuronID cols);
 
-	SparseConnection(SpikingGroup * source, NeuronGroup * destination, TransmitterType transmitter = GLUT);
 	SparseConnection(SpikingGroup * source, NeuronGroup * destination, const char * filename, TransmitterType transmitter=GLUT);
 
 	/*! \brief Default constructor which sets up a random sparse matrix with fixed weight between the source and destination group. 
