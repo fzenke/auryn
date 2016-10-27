@@ -38,7 +38,7 @@ SRM0Group::SRM0Group(NeuronID size) : NeuronGroup(size)
 void SRM0Group::calculate_scale_constants()
 {
 	scale_mem  = auryn_timestep/tau_mem;
-	scale_syn  = auryn_timestep/tau_syn;
+	scale_syn  = std::exp(-auryn_timestep/tau_syn);
 }
 
 void SRM0Group::init()
@@ -46,11 +46,11 @@ void SRM0Group::init()
 	e_rest = -60e-3;
 	e_rev = -80e-3;
 	thr = -50e-3;
-	tau_mem = 20e-3;
+	tau_mem = 10e-3;
 	tau_syn = 5e-3;
 
 	rho0 = 100.0;
-	delta_u = 1e-3;
+	delta_u = 1e-4;
 
 	calculate_scale_constants();
 	syn_current = get_state_vector("syn_current");
