@@ -64,10 +64,10 @@ int main(int ac, char* av[])
 	logger->msg("Running ...",PROGRESS);
 	sys->run(10);
 
-	logger->msg("Freeing ...",PROGRESS,true);
-	delete sys;
-
 	if (errcode)
 		auryn_abort(errcode);
+
+	logger->msg("Freeing ...",PROGRESS,true);
+	auryn_free();
 	return errcode;
 }

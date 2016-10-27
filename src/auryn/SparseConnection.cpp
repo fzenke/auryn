@@ -51,11 +51,6 @@ SparseConnection::SparseConnection(NeuronID rows, NeuronID cols) : Connection(ro
 	init();
 }
 
-SparseConnection::SparseConnection(SpikingGroup * source, NeuronGroup * destination, TransmitterType transmitter) : Connection(source,destination,transmitter)
-{
-	init();
-}
-
 
 SparseConnection::SparseConnection( 
 		SpikingGroup * source, 

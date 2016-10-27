@@ -821,12 +821,12 @@ if ( patfile != "" ) {
 	killfile << sys->get_time()-primetime << std::endl;
 	killfile.close();
 
-	logger->msg("Freeing ...",PROGRESS,true);
-	delete sys;
-
 	if (errcode) {
 		auryn_abort(errcode);
 	}
+
+	logger->msg("Freeing ...",PROGRESS,true);
+	auryn_free();
 
 	return errcode;
 }
