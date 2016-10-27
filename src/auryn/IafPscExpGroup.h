@@ -47,7 +47,7 @@ private:
 
 	unsigned short refractory_time;
 
-	AurynFloat e_rest,thr,tau_mem, r_mem, c_mem;
+	AurynFloat tau_mem, r_mem, c_mem;
 	AurynFloat tau_syn;
 	AurynFloat scale_syn;
 	AurynFloat scale_mem;
@@ -65,6 +65,8 @@ private:
 	void virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version );
 	void virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version );
 public:
+	AurynFloat e_rest,thr;
+
 	/*! \brief Vector holding neuronspecific background currents */
 	AurynStateVector * bg_current;
 
