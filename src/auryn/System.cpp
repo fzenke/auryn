@@ -180,13 +180,13 @@ void System::free()
 		delete devices[i];
 	for ( unsigned int i = 0 ; i < connections.size() ; ++i ) {
 		std::stringstream oss;
-		oss << "System:: Freeing Connection:" << connections[i]->get_name();
+		oss << "System:: Freeing Connection: " << connections[i]->get_name();
 		logger->debug(oss.str());
 		delete connections[i];
 	}
 	for ( unsigned int i = 0 ; i < spiking_groups.size() ; ++i ) {
 		std::stringstream oss;
-		oss << "System:: Freeing SpikingGroup:" << spiking_groups[i]->get_name();
+		oss << "System:: Freeing SpikingGroup: " << spiking_groups[i]->get_name();
 		logger->debug(oss.str());
 		delete spiking_groups[i];
 	}

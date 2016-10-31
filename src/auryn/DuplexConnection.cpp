@@ -29,7 +29,10 @@ using namespace auryn;
 
 void DuplexConnection::init() 
 {
-	if ( dst->get_post_size() == 0 ) return; // TODO Test this recent addition of init guard
+	if ( dst->get_post_size() == 0 ) {
+		logger->debug("DuplexConnection:: Skipping init of bkw backward (transposed) matrix because post size is zero.");
+		return; // TODO Test this recent addition of init guard
+	}
 	logger->debug("DuplexConnection:: Init of bkw backward (transposed) matrix");
 	fwd = w; // for consistency declared here. fwd can be overwritten later though
 	bkw = new BackwardMatrix ( get_n_cols(), get_m_rows(), w->get_nonzero() );
@@ -51,8 +54,9 @@ DuplexConnection::DuplexConnection(const char * filename)
 : SparseConnection(filename)
 {
 	allocated_bkw=false;
-	if ( dst->get_post_size() > 0 ) 
+	if ( dst->get_post_size() > 0 ) {
 		init();
+	} 
 }
 
 DuplexConnection::DuplexConnection(SpikingGroup * source, 
@@ -99,7 +103,10 @@ void DuplexConnection::free()
 
 DuplexConnection::~DuplexConnection()
 {
-	if ( dst->get_post_size() != 0 && allocated_bkw )  free();
+	if ( dst->get_post_size() != 0 && allocated_bkw ) free();
+	else {  
+		logger->debug("DuplexConnection:: Nothing to free.");
+	}
 }
 
 
