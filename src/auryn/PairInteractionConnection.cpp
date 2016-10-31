@@ -25,10 +25,10 @@ using namespace auryn;
 void PairInteractionConnection::init(AurynWeight maxw)
 {
 	if ( dst->get_post_size() == 0 ) return; // avoids to run this code on silent nodes with zero post neurons.
-	logger->debug("init PairInteractionConnection");
-
+	logger->debug("PairInteractionConnection:: Init connection");
 	logger->parameter("m",get_m_rows());
 	logger->parameter("n",get_n_cols());
+
 	last_spike_pre = new AurynTime[src->get_pre_size()];
 	last_spike_post = new AurynTime[dst->get_post_size()];
 
@@ -55,11 +55,15 @@ void PairInteractionConnection::init(AurynWeight maxw)
 
 void PairInteractionConnection::free()
 {
-	delete last_spike_pre;
-	delete last_spike_post;
+	if ( dst->get_post_size() == 0 ) return; // only free if it was also initialized
 
-	delete window_pre_post;
-	delete window_post_pre;
+	logger->debug("PairInteractionConnection:: Freeing dynamic arrays");
+
+	delete [] last_spike_pre;
+	delete [] last_spike_post;
+
+	delete [] window_pre_post;
+	delete [] window_post_pre;
 }
 
 PairInteractionConnection::PairInteractionConnection(SpikingGroup * source, NeuronGroup * destination, 
@@ -251,7 +255,7 @@ void PairInteractionConnection::set_exponential_window ( double Aplus, double ta
 	}
 
 	// zero floor terms 
-	set_floor_terms();
+	set_floor_terms(0.0, 0.0);
 }
 
 void PairInteractionConnection::set_floor_terms( double pre_post, double post_pre ) 
