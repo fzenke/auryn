@@ -25,25 +25,26 @@ using namespace auryn;
 void PairInteractionConnection::init(AurynWeight maxw)
 {
 	if ( dst->get_post_size() == 0 ) return; // avoids to run this code on silent nodes with zero post neurons.
+	logger->debug("init PairInteractionConnection");
 
 	logger->parameter("m",get_m_rows());
 	logger->parameter("n",get_n_cols());
 	last_spike_pre = new AurynTime[src->get_pre_size()];
 	last_spike_post = new AurynTime[dst->get_post_size()];
 
-	for ( unsigned int i = 0 ; i < get_m_rows() ; ++i )
+	logger->debug("PairInteractionConnection:: Init last spike arrays");
+	for ( unsigned int i = 0 ; i < src->get_pre_size() ; ++i )
 		last_spike_pre[i] = -1; // set this to end of range (so spike is infinitely in the future -- might cause problems without ffast-math
 
-	for ( unsigned int i = 0 ; i < get_n_cols() ; ++i )
+	for ( unsigned int i = 0 ; i < dst->get_post_size() ; ++i )
 		last_spike_post[i] = -1;
 
+	logger->debug("PairInteractionConnection:: Init STDP window arrays");
 	window_pre_post = new AurynFloat[WINDOW_MAX_SIZE];
 	window_post_pre = new AurynFloat[WINDOW_MAX_SIZE];
 
-	// initialize window with standard exponential 20ms time constant
-	
+	logger->debug("PairInteractionConnection:: Init STDP window with standard exponential 20ms time constant");
 	set_exponential_window();
-
 
 	// TODO write proper init for these variables
 	stdp_active = true;
