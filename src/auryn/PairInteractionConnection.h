@@ -21,7 +21,7 @@
 #ifndef PAIRINTERACTIONCONNECTION_H_
 #define PAIRINTERACTIONCONNECTION_H_
 
-#define WINDOW_MAX_SIZE 60000
+#define PAIRINTERACTIONCON_WINDOW_MAX_SIZE 10000 //< Maximum STDP window size in auryn_timestep
 
 #include "auryn_definitions.h"
 #include "AurynVector.h"
