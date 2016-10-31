@@ -29,6 +29,8 @@ using namespace auryn;
 
 void DuplexConnection::init() 
 {
+	if ( dst->get_post_size() == 0 ) return; // TODO Test this recent addition of init guard
+	logger->debug("DuplexConnection:: Init of bkw backward (transposed) matrix");
 	fwd = w; // for consistency declared here. fwd can be overwritten later though
 	bkw = new BackwardMatrix ( get_n_cols(), get_m_rows(), w->get_nonzero() );
 	allocated_bkw=true;
@@ -90,14 +92,14 @@ DuplexConnection::DuplexConnection( SpikingGroup * source, NeuronGroup * destina
 
 void DuplexConnection::free()
 {
+	logger->debug("DuplexConnection:: Freeing bkw backward/reverse/transposed matrix");
 	delete bkw;
 }
 
 
 DuplexConnection::~DuplexConnection()
 {
-	if ( allocated_bkw ) 
-		free();
+	if ( dst->get_post_size() != 0 && allocated_bkw )  free();
 }
 
 
@@ -113,7 +115,7 @@ void DuplexConnection::compute_reverse_matrix( int z )
 	}
 
 	std::stringstream oss;
-	oss << "DuplexConnection: ("<< get_name() << "): Computing transposed matrix view ...";
+	oss << "DuplexConnection: ("<< get_name() << "): Computing transposed (reverse) matrix view ...";
 	auryn::logger->msg(oss.str(),VERBOSE);
 
 	NeuronID maxrows = get_m_rows();
@@ -159,3 +161,4 @@ void DuplexConnection::prune(  )
 	fwd->prune();
 	compute_reverse_matrix();
 }
+

@@ -69,6 +69,7 @@ public:
 	DuplexConnection(SpikingGroup * source, NeuronGroup * destination, const char * filename , TransmitterType transmitter=GLUT);
 	DuplexConnection(SpikingGroup * source, NeuronGroup * destination, AurynWeight weight, AurynFloat sparseness=0.05, TransmitterType transmitter=GLUT, std::string name="DuplexConnection");
 
+
 	virtual ~DuplexConnection();
 	virtual void finalize();
 
