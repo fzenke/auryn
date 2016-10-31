@@ -82,10 +82,23 @@ public:
 
 	virtual void clear() = 0;
 
-	/*! \brief Conveniently sets all values in a state vector identified by name in this group */
+	/*! \brief Conveniently sets all values in a state vector identified by name in this group 
+	 *
+	 * This sets all values in a state vector identified by its string name.
+	 * All string identified operations are slow, so do not use them in evolve or propagate functions, 
+	 * but only for initialization.
+	 *
+	 * \param name The state name to address
+	 * \param val The value to set all entries to 
+	 * */
 	void set_state(std::string name, AurynState val);
 
-	/*! \brief Conveniently sets a single value of element i in a state vector identified by name in this group */
+	/*! \brief Conveniently sets a single value of element i in a state vector identified by name in this group 
+	 *
+	 * \param name The state name to address
+	 * \param i The local neuron id to set (this needs to be a translated value for MPI simulations)
+	 * \param val The value to set all entries to. 
+	 * */
 	void set_state(std::string name, NeuronID i, AurynState val);
 
 	/*! \brief Returns default exc target input */
