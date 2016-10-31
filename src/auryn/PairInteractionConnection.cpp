@@ -24,7 +24,10 @@ using namespace auryn;
 
 void PairInteractionConnection::init(AurynWeight maxw)
 {
-	if ( dst->get_post_size() == 0 ) return; // avoids to run this code on silent nodes with zero post neurons.
+	if ( dst->get_post_size() == 0 ) { 
+		logger->debug("PairInteractionConnection:: Init bypass because post has no neurons");
+		return; // avoids to run this code on silent nodes with zero post neurons.
+	}
 	logger->debug("PairInteractionConnection:: Init connection");
 	logger->parameter("m",get_m_rows());
 	logger->parameter("n",get_n_cols());
