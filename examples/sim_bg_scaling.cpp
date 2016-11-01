@@ -342,10 +342,14 @@ int main(int ac, char* av[])
 		SpikeMonitor * smon_e = new SpikeMonitor( neurons_e, strbuf , 2500);
 
 		sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.%c.prate", dir.c_str(), file_prefix, beta_scaling, tau_hom, label.c_str(), sys->mpi_rank(), 'e');
-		PopulationRateMonitor * pmon_e = new PopulationRateMonitor( neurons_e, strbuf, 50e-3 );
+		PopulationRateMonitor * pmon_e = new PopulationRateMonitor( neurons_e, strbuf, 1.0 );
 	}
 
-	RateChecker * chk = new RateChecker( neurons_e , 0.1 , 20.*kappa , 100e-3);
+	sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.syn", dir.c_str(), file_prefix, beta_scaling, tau_hom, label.c_str(), sys->mpi_rank());
+	WeightMonitor * wmon = new WeightMonitor( con_ee, strbuf, 0.1 ); 
+	wmon->add_equally_spaced(20);
+
+	RateChecker * chk = new RateChecker( neurons_e , -0.1 , 20.*kappa , 100e-3);
 
 
 
@@ -403,6 +407,7 @@ int main(int ac, char* av[])
 
 		sprintf(strbuf, "%s/%s_e%.2et%.2f%s.%d.%c.ras", dir.c_str(), file_prefix, beta_scaling, tau_hom, label.c_str(), sys->mpi_rank(), 'c');
 		SpikeMonitor * smon_c = new SpikeMonitor( corr_e, strbuf , size );
+
 	}
 
 	logger->msg("Simulating ...",PROGRESS,true);

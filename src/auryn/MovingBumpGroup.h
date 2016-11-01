@@ -65,20 +65,25 @@ private:
 	AurynTime next_event;
 
 
-	void init ( AurynFloat duration, NeuronID width, string outputfile );
+	void init ( AurynFloat duration, AurynFloat width, string outputfile );
 	
 public:
+
+	/*! \brief Minimal relative position in group for center of bump (default = 0) */
+	double pos_min;
+	/*! \brief Maximum relative position in group for center of bump (default = 1) */
+	double pos_max;
 
 	/*! \brief Default constructor 
 	 * \param n Size of the group
 	 * \param duration Duration of constant stimulation with a given stimulus profile in s
-	 * \param width Width of stimulus in units of neurons
+	 * \param width The relative width of the bump
 	 * \param rate Base firing rate
 	 * \param tiserfile Timeseries file for logging of bump position
 	 */
 	MovingBumpGroup(NeuronID n, 
 			AurynFloat duration, 
-			NeuronID width, 
+			AurynFloat width, 
 			AurynDouble rate=5.0,
 			string tiserfile = "stimulus.dat" );
 

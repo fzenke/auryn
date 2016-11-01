@@ -46,33 +46,33 @@ namespace auryn {
 class PopulationRateMonitor : protected Monitor
 {
 private:
-	/*! Varible used to count the spike events of the src SpikingGroup */
+	/*! \brief Varible used to count the spike events of the src SpikingGroup */
 	NeuronID counter;
-	/*! Stepsize = binsize in units of AurynTime (auryn_timestep) */
+	/*! \brief Stepsize = binsize in units of AurynTime (auryn_timestep) */
 	AurynTime ssize;
-	/*! Binsize used in seconds */
+	/*! \brief Binsize used in seconds */
 	AurynDouble invbsize;
 
 protected:
-	/*! The source SpikingGroup */
+	/*! \brief The source SpikingGroup */
 	SpikingGroup * src;
 
-	/*! Default init method */
+	/*! \brief Default init method */
 	void init(SpikingGroup * source, string filename, AurynDouble binsize);
 	
 	virtual void virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version );
 	virtual void virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version );
 public:
-	/*! Default Constructor 
+	/*! \brief Default Constructor 
 	 @param[source] The source spiking group.
 	 @param[filename] The filename to write to (should be different for each rank.)
 	 @param[binsize] The binsize used for counting in seconds.*/
 	PopulationRateMonitor(SpikingGroup * source, string filename="", AurynDouble binsize=0.1);
 
-	/*! Default Destructor */
+	/*! \brief Default Destructor */
 	virtual ~PopulationRateMonitor();
 
-	/*! Implementation of necessary propagate() function. */
+	/*! \brief Implementation of necessary propagate() function. */
 	void propagate();
 };
 

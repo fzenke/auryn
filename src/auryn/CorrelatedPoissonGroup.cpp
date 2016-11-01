@@ -27,7 +27,8 @@
 
 using namespace auryn;
 
-boost::mt19937 CorrelatedPoissonGroup::gen = boost::mt19937(); 
+boost::mt19937 CorrelatedPoissonGroup::shared_noise_gen = boost::mt19937(); 
+boost::mt19937 CorrelatedPoissonGroup::rank_noise_gen   = boost::mt19937(); 
 
 void CorrelatedPoissonGroup::init(AurynDouble  rate, NeuronID gsize, AurynDouble timedelay )
 {
@@ -66,13 +67,15 @@ void CorrelatedPoissonGroup::init(AurynDouble  rate, NeuronID gsize, AurynDouble
 		for ( unsigned int i = 0 ; i < delay*ngroups ; ++i )
 			delay_o[i] = 1.0;
 
-		dist = new boost::uniform_01<> ();
-		die  = new boost::variate_generator<boost::mt19937&, boost::uniform_01<> > ( gen, *dist );
-		seed(sys->mpi_rank()); // seeding problem
+		seed(); // seed the generators
+		// TODO fix problem with copy constructor of uniform_01
+		// See http://www.bnikolic.co.uk/blog/cpp-boost-uniform01.html
+		shared_noise = new boost::variate_generator<boost::mt19937&, boost::uniform_01<> > ( shared_noise_gen, boost::uniform_01<> () ); // should have the same state on all ranks
+		rank_noise = new boost::variate_generator<boost::mt19937&, boost::exponential_distribution<> > ( rank_noise_gen, boost::exponential_distribution<>(1.0) ); // should have a different state on each rank
 
 		x = new NeuronID [ngroups];
 		for ( unsigned int i = 0 ; i < ngroups ; ++i ) {
-			AurynDouble r = log(1-(AurynDouble)(*die)())/(-lambda);
+			AurynDouble r = (*rank_noise)()/lambda;
 			x[i] += (NeuronID)(r/auryn_timestep); 
 		}
 
@@ -94,7 +97,8 @@ CorrelatedPoissonGroup::~CorrelatedPoissonGroup()
 {
 	if ( evolve_locally() ) {
 		delete dist;
-		delete die;
+		delete shared_noise;
+		delete rank_noise;
 		delete delay_o;
 	}
 }
@@ -127,27 +131,33 @@ void CorrelatedPoissonGroup::evolve()
 	o += ( mean - o )*auryn_timestep/timescale;
 
 	// noise increment
-	o += 2.0*((AurynDouble)(*die)()-0.5)*sqrt(auryn_timestep/timescale)*amplitude;
+	o += 2.0*((AurynDouble)(*shared_noise)()-0.5)*sqrt(auryn_timestep/timescale)*amplitude;
+
+
+	// if ( sys->get_clock() % 10000  == 0 ) {
+	// 	std::cout << sys->mpi_rank() << " " << o << std::endl;
+	// }
 
 	int len = delay*ngroups;
 	delay_o[auryn::sys->get_clock()%len] = std::max(thr,o*lambda);
 
 	for ( unsigned int g = 0 ; g < ngroups ; ++g ) {
 		AurynDouble grouprate = delay_o[(auryn::sys->get_clock()-(g+offset)*delay)%len];
-		AurynDouble r = -log(1-(AurynDouble)(*die)())/(auryn_timestep*grouprate); // think before tempering with this! 
+		AurynDouble r = (*rank_noise)()/(auryn_timestep*grouprate); // think before tempering with this! 
 		// I already broke the corde here once!
 		x[g] = (NeuronID)(r); 
 		while ( x[g] < groupsize ) {
 			push_spike ( g*groupsize + x[g] );
-			AurynDouble r = -log(1-(AurynDouble)(*die)())/(auryn_timestep*grouprate);
+			r = (*rank_noise)()/(auryn_timestep*grouprate);
 			x[g] += (NeuronID)(r); 
 		}
 	}
 }
 
-void CorrelatedPoissonGroup::seed(int s)
+void CorrelatedPoissonGroup::seed()
 {
-		gen.seed(s); 
+		shared_noise_gen.seed(sys->get_synced_seed()); 
+		rank_noise_gen.seed(sys->get_seed()); 
 }
 
 void CorrelatedPoissonGroup::set_amplitude(AurynDouble amp)

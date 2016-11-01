@@ -52,10 +52,10 @@ void IafPscExpGroup::init()
 	calculate_scale_constants();
 	
 	bg_current = get_state_vector("bg_current");
-	syn_current = get_state_vector("syn_current");
 	temp = get_state_vector("_temp");
 	ref = new AurynVector< unsigned short > (get_vector_size()); 
 
+	syn_current = get_state_vector("syn_current");
 	default_exc_target_state = syn_current;
 	default_inh_target_state = syn_current;
 

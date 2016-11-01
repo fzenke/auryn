@@ -29,14 +29,17 @@ using namespace auryn;
 
 boost::mt19937 MovingBumpGroup::order_gen = boost::mt19937(); 
 
-void MovingBumpGroup::init ( AurynFloat duration, NeuronID width, std::string outputfile )
+void MovingBumpGroup::init ( AurynFloat duration, AurynFloat width, std::string outputfile )
 {
 	stimulus_duration = duration/auryn_timestep;
-	set_width(0.1*get_size());
+	set_width(width*get_size());
 	set_floor(0.1);
 
 	auryn::logger->parameter("duration", (int)duration);
 	next_event = 0;
+
+	pos_min = 0.0;
+	pos_max = 1.0;
 
 	std::stringstream oss;
 	oss << "MovingBumpGroup:: Set up with stimulus_duration=" 
@@ -64,7 +67,7 @@ void MovingBumpGroup::init ( AurynFloat duration, NeuronID width, std::string ou
 MovingBumpGroup::MovingBumpGroup(
 		NeuronID n, 
 		AurynFloat duration, 
-		NeuronID width, 
+		AurynFloat width, 
 		AurynDouble rate, 
 		std::string tiserfile
 		) : ProfilePoissonGroup( n , rate ) 
@@ -97,7 +100,7 @@ void MovingBumpGroup::evolve()
 	if ( auryn::sys->get_clock() >= next_event ) {
 		next_event += stimulus_duration;
 
-		boost::uniform_int<> dist(0,get_size());
+		boost::uniform_int<> dist(pos_min*get_size(),pos_max*get_size());
 		boost::variate_generator<boost::mt19937&, boost::uniform_int<> > die(order_gen, dist);
 
 		NeuronID mean = die();

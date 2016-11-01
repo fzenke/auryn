@@ -175,7 +175,7 @@ void TripletScalingConnection::propagate_backward()
 	for (SpikeContainer::const_iterator spike = dst->get_spikes_immediate()->begin() ; // spike = post_spike
 			spike != spikes_end ; ++spike ) {
 		NeuronID translated_spike = dst->global2rank(*spike); // only to be used for post traces
-		if (stdp_active) {
+		if ( stdp_active ) {
 			for (NeuronID * c = bkw->get_row_begin(*spike) ; c != bkw->get_row_end(*spike) ; ++c ) {
 				*bkw_data[c-bkw_ind] = *bkw_data[c-bkw_ind] + dw_post(*c,translated_spike);
 				if (*bkw_data[c-bkw_ind]>w_max) *bkw_data[c-bkw_ind]=w_max;
@@ -213,15 +213,15 @@ AurynWeight TripletScalingConnection::get_wmin()
 void TripletScalingConnection::evolve_scaling() 
 {
 	// if ( !stdp_active ) return;
-	NeuronID i = sys->get_clock()%scal_timestep;
-	while ( i < dst->get_rank_size() ) {
-		AurynFloat diff = 1.0-pow(tr_post_hom->normalized_get(i)/target_rate,3);
-		NeuronID neuron = dst->rank2global(i);
-		for (NeuronID * c = bkw->get_row_begin(neuron) ; c != bkw->get_row_end(neuron) ; ++c ) {
-			*bkw_data[c-bkw_ind] += scal_mul*diff*(*bkw_data[c-bkw_ind]);
-		}
-		i += scal_timestep;
-	}
+	// NeuronID i = sys->get_clock()%scal_timestep;
+	// while ( i < dst->get_rank_size() ) {
+	// 	const AurynFloat regulator = 1.0-pow(tr_post_hom->normalized_get(i)/target_rate,3);
+	// 	NeuronID neuron = dst->rank2global(i);
+	// 	for (NeuronID * c = bkw->get_row_begin(neuron) ; c != bkw->get_row_end(neuron) ; ++c ) {
+	// 		*bkw_data[c-bkw_ind] += scal_mul*regulator*(*bkw_data[c-bkw_ind]);
+	// 	}
+	// 	i += scal_timestep;
+	// }
 	// NeuronID i = sys->get_clock()%scal_timestep;
 	// while ( i < dst->get_size() ) {
 	// 	for (NeuronID * j = fwd->get_row_begin(i) ; 
@@ -233,32 +233,33 @@ void TripletScalingConnection::evolve_scaling()
 	// 	}
 	// 	i += scal_timestep;
 	// }
-	// if ( sys->get_clock()%scal_timestep == 0 ) {
-	// 	for ( NeuronID i = 0 ; i < dst->get_size() ; ++i  ) {
-	// 		for (NeuronID * j = fwd->get_row_begin(i) ; 
-	// 				j != fwd->get_row_end(i) ; 
-	// 				++j ) { 
-	// 			AurynWeight * cor = fwd->get_value_ptr(j);
-	// 			AurynFloat diff = target_rate-tr_post_hom->normalized_get(dst->global2rank(*j));
-	// 			*cor += (TRIPLETSCALINGCONNECTION_EULERUPGRADE_STEP)*diff*(*cor);
-	// 		}
-	// 	}
-	// }
+	
+	if ( !stdp_active ) {
+		return;
+	}
+
+	const NeuronID offset = sys->get_clock()%scal_timestep;
+	for ( NeuronID pre = offset ; pre < src->get_pre_size() ; pre += scal_timestep  ) {
+		for (NeuronID * post = fwd->get_row_begin(pre) ; 
+				post != fwd->get_row_end(pre) ; 
+				++post ) { 
+			AurynWeight * tmp = fwd->get_value_ptr(post);
+			const NeuronID translated = dst->global2rank(*post);
+			const AurynFloat regulator = 1.0-pow(tr_post_hom->normalized_get(translated)/target_rate,3);
+			*tmp += scal_mul*regulator*(*tmp);
+		}
+	}
 }
 
 void TripletScalingConnection::set_beta(AurynFloat beta)
 {
 	scal_beta = beta;
-	scal_beta *= A3_plus*tau_plus*tau_long;
+	// scal_beta *= A3_plus*tau_plus*tau_long;
 	logger->parameter("beta",beta);
-	logger->parameter("scal_beta",scal_beta);
 
-	double tmp = -log(1.0-TRIPLETSCALINGCONNECTION_EULERUPGRADE_STEP)/scal_beta/auryn_timestep;
-	if ( tmp < 1 )
-		scal_timestep = 1;
-	else
-		scal_timestep = tmp;
-	scal_mul = 1.0-exp(-scal_beta*scal_timestep*auryn_timestep);
+	scal_timestep = 1000;
+	scal_mul = scal_timestep*auryn_timestep/scal_beta;
 
 	logger->parameter("scaling_timestep",(int)scal_timestep);
+	logger->parameter("scal_mul",scal_mul);
 }

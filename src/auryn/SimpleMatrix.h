@@ -261,12 +261,12 @@ void SimpleMatrix<T>::resize_buffer(AurynLong newsize)
 	AurynLong oldsize = datasize;
 	AurynLong copysize = std::min(oldsize,newsize);
 
-	std::cout << " copy colinds " << std::endl;
+	// std::cout << " copy colinds " << std::endl;
 
 	NeuronID * new_colinds = new NeuronID [newsize];
 	std::copy(colinds, colinds+copysize, new_colinds);
 
-	std::cout << " update rowptrs " << std::endl;
+	// std::cout << " update rowptrs " << std::endl;
 
 	// update rowpointers
 	ptrdiff_t offset = new_colinds-colinds;
@@ -274,22 +274,22 @@ void SimpleMatrix<T>::resize_buffer(AurynLong newsize)
 		rowptrs[i] += offset;
 	}
 	
-	std::cout << " delete old colinds " << std::endl;
+	// std::cout << " delete old colinds " << std::endl;
 	// FIXME I get regular crashes in this line:
 	//  invalid pointer: 0x0000000001d954c0 ***
 	delete [] colinds;
 
-	std::cout << " replace colinds " << std::endl;
+	// std::cout << " replace colinds " << std::endl;
 	colinds = new_colinds;
 
-	std::cout << " create new data array " << std::endl;
+	// std::cout << " create new data array " << std::endl;
 	T * new_coldata = new T [newsize];
 	std::copy(coldata, coldata+copysize, new_coldata);
 	delete [] coldata;
 	coldata = new_coldata;
 
 	datasize = newsize;
-	std::cout << " done " << std::endl;
+	// std::cout << " done " << std::endl;
 }
 
 template <typename T>

@@ -68,8 +68,15 @@ namespace auryn {
 			/*! \brief Advances memory buffer by one step */
 			void advance();
 
+			/*! \brief Returns delayed state vector
+			 *
+			 * \param delay The delay in timesteps to retrieve. Value needs to be > 0, values smaller than zero will be interpreted as the max delay.
+			 **/
+			AurynVectorFloat * mem_get_vector(int delay=-1);
+
 			/*! \brief Returns delayed element
 			 *
+			 * \param i The element to get
 			 * \param delay The delay in timesteps to retrieve. Value needs to be > 0, values smaller than zero will be interpreted as the max delay.
 			 **/
 			AurynFloat mem_get(NeuronID i, int delay=-1);

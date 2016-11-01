@@ -753,6 +753,9 @@ AurynStateVector * SpikingGroup::get_new_state_vector(std::string key) {
 
 AurynStateVector * SpikingGroup::find_state_vector(std::string key)
 {
+	std::stringstream oss;
+	oss << "SpikingGroup:: Running find_state_vector for " << key;
+	auryn::logger->msg(oss.str(),VERBOSE);
 	if ( state_vectors.find(key) == state_vectors.end() ) {
 		return NULL;
 	} else {

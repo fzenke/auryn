@@ -269,7 +269,10 @@ public:
 	T * get_ptr(const NeuronID i, const NeuronID j, const StateID z=0);
 
 	/*! \brief Same as get_data_ptr. Returns the pointer to a particular element given 
-	 * its position in the data array. */
+	 * its position in the data array. 
+	 *
+	 * \todo TODO For two args this function is ambiguous with the above get_ptr def -- need to find a better way for that
+	 * */
 	T * get_ptr(const AurynLong data_index, const StateID z=0);
 
 	/*! \brief Returns a particular element given 
@@ -457,6 +460,10 @@ AurynVector<T,AurynLong> * ComplexMatrix<T>::alloc_synaptic_state_vector()
 template <typename T>
 AurynVector<T,AurynLong> * ComplexMatrix<T>::get_synaptic_state_vector(StateID z)
 {
+	if ( z >= get_num_synaptic_states() ) {
+		logger->error("Trying to access a complex state larger than number of states in the tensor");
+		throw AurynMatrixDimensionalityException();
+	}
 	return statevectors[z];
 }
 
@@ -787,7 +794,7 @@ T ComplexMatrix<T>::get(NeuronID i, NeuronID j, StateID z)
 		return 0;
 }
 
-template <typename T>
+template <typename T> 
 T * ComplexMatrix<T>::get_ptr(const AurynLong data_index, const StateID z)
 {
 	return get_data_ptr(data_index, z);

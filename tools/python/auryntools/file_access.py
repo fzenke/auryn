@@ -222,6 +222,24 @@ class AurynBinarySpikeView:
         for filename in self.filenames:
             self.spike_files.append( AurynBinarySpikeFile(filename) )
 
+        self.load_stats()
+
+    def load_stats(self):
+        tmp = []
+        for sf in self.spike_files:
+            tmp.append(sf.t_min)
+        self.t_min = np.array(tmp).min()
+
+        del tmp[:]
+        for sf in self.spike_files:
+            tmp.append(sf.t_max)
+        self.t_max = np.array(tmp).max()
+
+    def refresh(self):
+        for sf in self.spike_files:
+            sf.refresh()
+        self.load_stats()
+
     def sort_spikes(self, spikes):
         spikes.sort(key=lambda tup: tup[0])
 
@@ -272,6 +290,23 @@ class AurynBinarySpikeView:
         return hist
 
 
+    def time_binned_spike_counts(self, start_time=0.0, stop_time=1e32, bin_size=100e-3, max_neuron_id=1024):
+        '''
+        Bins neuroanl spikes over time and returns the time series as an 2D array in which the first coordinate
+        corresponds to the bin index and the second to the neuron.
+        '''
+
+        timeseries = []
+        trigger_times = np.arange(start_time, stop_time, bin_size)
+        for ts in trigger_times:
+            spikes = self.get_spikes(ts, ts+bin_size, max_neuron_id)
+            counts = np.zeros(max_neuron_id)
+            if len(spikes):
+                sar = np.array(spikes, dtype=int)[:,1]
+                bc = np.bincount(sar, minlength=max_neuron_id)
+                counts += bc[:max_neuron_id]
+            timeseries.append(counts)
+        return np.array(timeseries)
 
 
 

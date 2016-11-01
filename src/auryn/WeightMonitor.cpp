@@ -152,8 +152,8 @@ void WeightMonitor::add_equally_spaced(NeuronID number, NeuronID z)
 	}
 
 	if ( number > src->get_nonzero() ) {
-		auryn::logger->msg("WeightMonitor:: add_equally_spaced: \
-				Not enough elements in this Connection object",WARNING);
+		auryn::logger->msg("WeightMonitor:: add_equally_spaced: "
+        "Not enough elements in this Connection object",WARNING);
 		number = src->get_nonzero();
 	}
 
