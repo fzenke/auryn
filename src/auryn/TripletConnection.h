@@ -36,12 +36,14 @@
 
 namespace auryn {
 
-/*! \brief Implements triplet STDP as described by Pfister and Gerstner 2006.
+/*! \brief Implements triplet STDP with metaplasticity as described by Pfister and Gerstner 2006.
  *
  * This is the connection used for most simulations in Zenke et al. 2013 to 
  * simulate large plastic recurrent networks with homeostatic triplet STDP.
  * Time timescale of the moving average used for the homeostatic change of the
  * LTD rate is given by tau.
+ *
+ * \see sim_background.cpp
  */
 class TripletConnection : public DuplexConnection
 {
@@ -79,35 +81,59 @@ protected:
 
 	AurynDouble hom_fudge;
 
+	/*! \brief Clips weight to allowed range
+	 *
+	 * \param weight a pointer to the weight value to be clipped 
+	 *
+	 * This clips a weight referenced by pointer to the ranke get_min_weight() < weight < get_max_weight().
+	 * \see get_min_weight, get_max_weight
+	 *
+	 *
+	 * */
+	void clip_weight( AurynWeight * weight );
 
-	/*! This function propagates spikes from pre to postsynaptic cells
+	/*! \brief Propagates spikes from pre to post
+	 *
+	 *
+	 * This function propagates spikes from pre to postsynaptic cells
 	 * and performs plasticity updates upon presynaptic spikes. */
 	void propagate_forward();
 
-	/*! This performs plasticity updates following postsynaptic spikes. To that end the postsynaptic spikes 
+	/*! \brief Back-propagates spikes from post to pre 
+	 *
+	 * This performs plasticity updates following postsynaptic spikes. To that end the postsynaptic spikes 
 	 * have to be communicated backward to the corresponding synapses connecting to presynaptic neurons. This
 	 * is why this function is called propagate_backward ... it is remeniscent of a back-propagating action 
 	 * potential. */
 	void propagate_backward();
 
 
-	/*! This function implements the plastic update to each 
-	 *  synapse at the time of a presynaptic spike.
+	/*! \brief Basic event-based weight update upon presynaptic spike
+	 *
 	 *
 	 *  \param post the parameter specifies the postsynaptic partner for which we 
 	 *  are computing the update. 
+	 *  \returns weight update
+	 *
+	 * This function implements the plastic update to each 
+	 *  synapse at the time of a presynaptic spike.
+	 *
 	 *  */
 	AurynWeight dw_pre(NeuronID post);
 
-	/*! This function implements the plastic update to each 
-	 *  synapse at the time of a postsynaptic spike. Since LTP in the minimal triplet model
-	 *  depends on the timing of the last pre and postsynaptic spike we are passing both NeuronID 
-	 *  as arguments.
+	/*! \brief Event-based weight update upon postsynaptic spike time.
 	 *
 	 *  \param pre The parameter specifies the presynaptic partner for which we 
 	 *  are computing the update. 
 	 *  \param post the parameter specifies the postsynaptic partner for which we 
 	 *  are computing the update. 
+	 *  \returns weight update
+	 *
+	 * This function implements the plastic update to each 
+	 *  synapse at the time of a postsynaptic spike. Since LTP in the minimal triplet model
+	 *  depends on the timing of the last pre and postsynaptic spike we are passing both NeuronID 
+	 *  as arguments.
+	 *
 	 *  */
 	AurynWeight dw_post(NeuronID pre, NeuronID post);
 
@@ -123,13 +149,18 @@ public:
 	Trace * tr_post2;
 	Trace * tr_post_hom;
 
-	/*! Toggle stdp active/inactive. When inactive traces are still updated, but weights are not. */
+	/*! \brief Toggles stdp active/inactive. When inactive traces are still updated, but weights are not. */
 	bool stdp_active;
 
+	/*! \brief Empty connection constructor.
+	 *
+	 * Does not initialize connection with random sparse connectivity.
+	 * \see SparseConnection::connect_random 
+	 */
 	TripletConnection(SpikingGroup * source, NeuronGroup * destination, 
 			TransmitterType transmitter=GLUT);
 
-	/*! Deprecated constructor.
+	/*! \brief \deprecated Deprecated constructor.
 	 */
 	TripletConnection(SpikingGroup * source, NeuronGroup * destination, 
 			const char * filename, 
@@ -138,16 +169,16 @@ public:
 			AurynFloat kappa=3., AurynFloat maxweight=1. , 
 			TransmitterType transmitter=GLUT);
 
-	/*! Default constructor. Sets up a random sparse connection and plasticity parameters
+	/*! \brief Default constructor. Sets up a random sparse connection and plasticity parameters
 	 *
-	 * @param source the presynaptic neurons.
-	 * @param destinatino the postsynaptic neurons.
-	 * @param weight the initial synaptic weight.
-	 * @param sparseness the sparseness of the connection (probability of connection).
-	 * @param tau_hom the timescale of the homeostatic rate estimate (moving average).
-	 * @param eta the relaive learning rate (default=1).
-	 * @param transmitter the TransmitterType (default is GLUT, glutamatergic).
-	 * @param name a sensible identifier for the connection used in debug output.
+	 * \param source the presynaptic neurons.
+	 * \param destinatino the postsynaptic neurons.
+	 * \param weight the initial synaptic weight.
+	 * \param sparseness the sparseness of the connection (probability of connection).
+	 * \param tau_hom the timescale of the homeostatic rate estimate (moving average).
+	 * \param eta the relaive learning rate (default=1).
+	 * \param transmitter the TransmitterType (default is GLUT, glutamatergic).
+	 * \param name a sensible identifier for the connection used in debug output.
 	 */
 	TripletConnection(SpikingGroup * source, NeuronGroup * destination, 
 			AurynWeight weight, AurynFloat sparseness=0.05, 

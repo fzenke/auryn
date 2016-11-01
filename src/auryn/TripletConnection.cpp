@@ -154,32 +154,34 @@ inline AurynWeight TripletConnection::dw_post(NeuronID pre, NeuronID post)
 }
 
 
+inline void TripletConnection::clip_weight( AurynWeight * weight ) 
+{
+	if (*weight<get_min_weight()) *weight = get_min_weight();
+	else if (*weight>get_max_weight()) *weight=get_max_weight();
+}
+
+
 void TripletConnection::propagate_forward()
 {
-	// loop over all spikes (yields presynaptic cell ids of cells that spiked)
+	// loop over all pre spikes 
 	for (SpikeContainer::const_iterator spike = src->get_spikes()->begin() ; // spike = pre_spike
 			spike != src->get_spikes()->end() ; ++spike ) {
-		// loop over all postsynaptic partners the cells 
-		// that are targeted by that presynaptic cell
+		// loop over all postsynaptic target cells 
 		for (const NeuronID * c = w->get_row_begin(*spike) ; 
 				c != w->get_row_end(*spike) ; 
 				++c ) { // c = post index
 
 			// determines the weight of connection
 			AurynWeight * weight = w->get_data_ptr(c); 
-			// evokes the postsynaptic response 
-			transmit( *c , *weight );
 
 			// handles plasticity
 			if ( stdp_active ) {
-
-				// performs weight update upon presynaptic spike
 			    *weight += dw_pre(*c);
-
-			    // clips too small weights
-			    if ( *weight < get_min_weight() ) 
-					*weight = get_min_weight();
+				clip_weight(weight);
 			}
+
+			// evokes the postsynaptic response 
+			transmit( *c , *weight );
 		}
 	}
 }
@@ -187,29 +189,24 @@ void TripletConnection::propagate_forward()
 void TripletConnection::propagate_backward()
 {
 	if (stdp_active) { 
-		SpikeContainer::const_iterator spikes_end = dst->get_spikes_immediate()->end();
-		// loop over all spikes
+		// loop over all post spikes
 		for (SpikeContainer::const_iterator spike = dst->get_spikes_immediate()->begin() ; // spike = post_spike
-				spike != spikes_end ; 
+				spike != dst->get_spikes_immediate()->end() ; 
 				++spike ) {
-			// Since we need the local id of the postsynaptic neuron that spiked 
-			// multiple times, we translate it here:
+			// translate the global post id to the neuron index on this rank
 			NeuronID translated_spike = dst->global2rank(*spike); 
 
 			// loop over all presynaptic partners
 			for (const NeuronID * c = bkw->get_row_begin(*spike) ; c != bkw->get_row_end(*spike) ; ++c ) {
 
-				#ifdef CODE_ACTIVATE_PREFETCHING_INTRINSICS
 				// prefetches next memory cells to reduce number of last-level cache misses
+				#ifdef CODE_ACTIVATE_PREFETCHING_INTRINSICS
 				_mm_prefetch((const char *)bkw_data[c-bkw_ind+2],  _MM_HINT_NTA);
 				#endif
 
 				// computes plasticity update
-				AurynWeight * weight = bkw->get_data(c); 
+				AurynWeight * weight = bkw->get_data(c); // for bkw data is already a pointer
 				*weight += dw_post(*c,translated_spike);
-
-				// clips too large weights
-				if (*weight>get_max_weight()) *weight=get_max_weight();
 			}
 		}
 	}

@@ -262,29 +262,39 @@ public:
 
 	void set_clock_ptr(AurynTime * clock);
 
-	/*! \brief Returns true if this group is hosted at a single CPU. */
+	/*! \brief Returns true if the calling instance has units which are integrated on the current rank. */
 	bool evolve_locally();
 
 
-	/*! \brief Get the unique ID of the class */
+	/*! \brief Get the unique ID of the class 
+	 *
+	 * \returns a unique numerical identifier of the present SpikingGroup instance. */
 	NeuronID get_uid();
 
 	/*! \brief Returns a pre trace with time constant x 
 	 * 
 	 * Checks first if an instance of a trace exists and returns it
-	 * otherwise creates a new instance first. */
+	 * otherwise creates a new instance first. 
+	 *
+	 * \param x The timeconstant for the presynaptic trace
+	 * \returns a pointer to a pre trace instance */
 	Trace * get_pre_trace( AurynFloat x );
 
 	/*! \brief Adds trace to pretrace stack of a connection
 	 * 
 	 * Mostly for internal use by get_pre_trace()
-	  */
+	 *
+	 * \param tr A pointer to a presynaptic trace instance to be added to the present SpikingGroup
+	 * */
 	void add_pre_trace( Trace * tr );
 
 	/*! \brief Returns a post trace with time constant x 
 	 *
 	 * Checks first if an instance of a trace exists and returns it
-	 * otherwise creates a new instance first. */
+	 * otherwise creates a new instance first. 
+	 *
+	 * \param x The timeconstant for the postsynaptic trace.
+	 * \returns a pointer to a postsynaptic trace instance. */
 	Trace * get_post_trace( AurynFloat x );
 
 	/*! \brief Adds trace to posttrace stack of a connection
@@ -293,7 +303,13 @@ public:
 	  */
 	void add_post_trace( Trace * tr );
 
-	/*! \brief Pushes a spike into the axonal SpikeDelay buffer */
+	/*! \brief Pushes a local NeuronID as spike into the axonal SpikeDelay buffer 
+	 *
+	 * This function expectes the local NeuronID and translates the argument to a global argument.
+	 * \see rank2global, global2rank
+	 *
+	 * \param spike The NeuronID of the units which spiked in the current timestep 
+	 * */
 	void push_spike(NeuronID spike);
 
 	/*! \brief Pushes a spike attribute into the axonal SpikeDelay buffer 
@@ -346,20 +362,37 @@ public:
 	/*! \brief Returns size (num of neurons) on the current rank */
 	NeuronID ranksize();
 
-	/*! \brief Converts global NeuronID within the SpikingGroup to the local NeuronID on this rank. */
+	/*! \brief Converts global NeuronID within the SpikingGroup to the local NeuronID on this rank. 
+	 *
+	 * The return value of global2rank is only defined if the SpikingGroup has units on the present rank.
+	 * \see evolve_locally
+	 *
+	 * \param i The global NeuronID to convert 
+	 * \returns The NeuronID of the referenced neuron on the current rankDoes not */
 	NeuronID global2rank(NeuronID i); 
 
-	/*! \brief Converts local NeuronID within on this rank to global NeuronID . */
+	/*! \brief Converts local NeuronID from the local rank to a global NeuronID. 
+	 *
+	 * \param i The local neuron id.
+	 * \returns The global neuron id.
+	 * \see global2rank
+	 *
+	 * This function performs id translation for parallel simulations from a local rank id to a global NeuronID.
+	 *
+	 * */
 	NeuronID rank2global(NeuronID i);
 
-	/*! \brief Checks if the global NeuronID i is housed on this rank. */
+	/*! \brief Checks if the global NeuronID i is integrated on this MPI rank. 
+	 *
+	 * \param i the NeuronID to check.
+	 * \returns true if the neuron with global id i is integrated on the present rank. */
 	bool localrank(NeuronID i);
 
 	/*! \brief Rank size but rounded up to multiples of 4 (or potentially some other and larger number in future versions) for SSE compatibility */
 	NeuronID get_vector_size();
 
 #ifdef CODE_GATHER_STATS_WAITALL_TIME
-	/*! Variables to collect stats if enabled */
+	/*! \brief Variables to collect stats if enabled */
 	boost::timer waitall_timer;
 	static double waitall_time;
 	static double waitall_time2;
