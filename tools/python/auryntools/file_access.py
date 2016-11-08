@@ -3,6 +3,9 @@ import numpy as np
 import pylab as pl
 import struct
 
+from scipy.sparse import *
+from scipy.io import mmread, mmwrite
+
 
 current_version = (0,8,0)
 
@@ -310,15 +313,45 @@ class AurynBinarySpikeView:
 
 
 
+def write_wmat_file(wmat, filename):
+    ''' Writes wmat file from sparse or dense matrix object.
+
+    Overwrites the output file if it already exists.
+
+    Parameters: 
+    wmat The matrix instance to be written to file
+    filenames The filename to write to 
+    '''
+
+    f = open(filename, 'w')
+    M = csr_matrix(wmat) # ensures row major format in COO output
+    mmwrite(f,M)
+    f.close()
+
+
+def read_wmat_file(filename):
+    ''' Reads single Auryn wmat file and returns sparse matrix instance
+
+    Parameter:
+    filename The filename to read
+
+    Returns:
+    A sparse matrix instance
+    '''
+
+    return mmread(filename)
+
+
+
 def main():
     # running the example program sim_coba_binmon will
     # generate this file
-    filenames = ["/tmp/coba.0.e.spk"]
-    spkfile = AurynBinarySpikeView(filenames)
-    spikes = spkfile.get_spikes()
+    # filenames = ["/tmp/coba.0.e.spk"]
+    # spkfile = AurynBinarySpikeView(filenames)
+    # pikes = spkfile.get_spikes()
 
-    rate_hist(spikes, bins=50)
-    pl.show()
+    # rate_hist(spikes, bins=50)
+    # pl.show()
 
     # t_start = 0.0
     # t_end   = 0.3
@@ -330,6 +363,12 @@ def main():
     # pl.xlabel("Time [s]")
     # pl.ylabel("Neuron ID")
     # pl.show()
+    
+    # Run example for wmat code
+    A = np.random.rand(10,10)
+    write_wmat_file(A,'test.wmat')
+    B = read_wmat_file('test.wmat')
+    print(B)
     
 
 if __name__ == "__main__":
