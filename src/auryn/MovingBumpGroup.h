@@ -50,19 +50,26 @@ class MovingBumpGroup : public ProfilePoissonGroup
 private:
 	static boost::mt19937 order_gen;
 
-	/*! Stimulus duration after which the bump switches to a new random location. */
+	/*! \brief Stimulus duration after which the bump switches to a new random location. */
 	AurynTime stimulus_duration;
 
-	/*! Width of the Gaussian in number of neurons */
+	/*! \brief Inter ctimulus interval in s. */
+	AurynTime stimulus_interval;
+
+	/*! \brief Width of the Gaussian in number of neurons */
 	NeuronID profile_width;
 
-	/*! Floor firing rate relative to max */
+	/*! \brief Floor firing rate relative to max */
 	AurynFloat floor_;
 
-	/*! File stream handle for output file of stimulation time series */
+	/*! \brief File stream handle for output file of stimulation time series */
 	std::ofstream tiserfile;
 
+	/*! \brief Next event time */
 	AurynTime next_event;
+
+	/*! \brief True when stimulus bump is on */
+	bool stimulus_active;
 
 
 	void init ( AurynFloat duration, AurynFloat width, string outputfile );
@@ -102,8 +109,16 @@ public:
 	/*! \brief Sets stimulus duration
 	 *
 	 * duration is given in units of s
+	 *
+	 * \param duration the new stimulus duration in s 
 	 */
 	void set_duration(AurynFloat duration);
+
+	/*! \brief Sets inter-stimulus interval
+	 *
+	 * \param interval given in units of s
+	 */
+	void set_interval(AurynFloat interval);
 
 	virtual ~MovingBumpGroup();
 	virtual void evolve();

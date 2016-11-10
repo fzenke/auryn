@@ -31,12 +31,15 @@ boost::mt19937 MovingBumpGroup::order_gen = boost::mt19937();
 
 void MovingBumpGroup::init ( AurynFloat duration, AurynFloat width, std::string outputfile )
 {
-	stimulus_duration = duration/auryn_timestep;
+	set_duration(duration);
+	set_interval(0.0);
+
 	set_width(width*get_size());
 	set_floor(0.1);
 
 	auryn::logger->parameter("duration", (int)duration);
 	next_event = 0;
+	stimulus_active = true;
 
 	pos_min = 0.0;
 	pos_max = 1.0;
@@ -92,22 +95,35 @@ void MovingBumpGroup::set_width( NeuronID width )
 
 void MovingBumpGroup::set_duration( AurynFloat duration ) 
 {
-	stimulus_duration = duration;
+	stimulus_duration = duration/auryn_timestep;
 }
+
+void MovingBumpGroup::set_interval( AurynFloat interval ) 
+{
+	stimulus_interval = interval/auryn_timestep;
+}
+
 
 void MovingBumpGroup::evolve()
 {
 	if ( auryn::sys->get_clock() >= next_event ) {
-		next_event += stimulus_duration;
+		if ( stimulus_active && stimulus_interval>0 ) {
+			next_event += stimulus_interval;
+			stimulus_active = false;
+			set_flat_profile();
+		} else {
+			next_event += stimulus_duration;
+			stimulus_active = true;
 
-		boost::uniform_int<> dist(pos_min*get_size(),pos_max*get_size());
-		boost::variate_generator<boost::mt19937&, boost::uniform_int<> > die(order_gen, dist);
+			boost::uniform_int<> dist(pos_min*get_size(),pos_max*get_size());
+			boost::variate_generator<boost::mt19937&, boost::uniform_int<> > die(order_gen, dist);
 
-		NeuronID mean = die();
+			NeuronID mean = die();
 
-		tiserfile << auryn::sys->get_time() << " " << mean << std::endl;
+			tiserfile << auryn::sys->get_time() << " " << mean << std::endl;
 
-		set_gaussian_profile(mean, profile_width, floor_);
+			set_gaussian_profile(mean, profile_width, floor_);
+		} 
 	}
 	ProfilePoissonGroup::evolve();
 }
