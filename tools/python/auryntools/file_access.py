@@ -2,6 +2,7 @@
 import numpy as np
 import pylab as pl
 import struct
+import glob
 
 from scipy.sparse import *
 from scipy.io import mmread, mmwrite
@@ -207,16 +208,21 @@ class AurynBinarySpikeFile(AurynBinaryFile):
         return spike_times
 
 class AurynBinarySpikeView:
-    '''
-    A wrapper class for easy extraction of spikes from multiple spk files from different ranks.
+    '''A wrapper class for easy extraction of spikes from multiple spk files from different ranks.
+
     '''
     def __init__(self, filenames):
+        ''' Default constructor
+
+
+        Args: 
+            filenames a list of filenames or a string filename with wildcards.
+        '''
         if type(filenames) is list:
             self.filenames = filenames
         else:
             if type(filenames) is str:
-# TODO allow the filenames string to contain wildcards
-                self.filenames = [filenames]
+                self.filenames = glob.glob(filenames)
             else:
                 print("Parameter filenames must be of type list or str.")
                 raise TypeError
