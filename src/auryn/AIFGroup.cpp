@@ -72,14 +72,12 @@ void AIFGroup::init()
 void AIFGroup::clear()
 {
 	clear_spikes();
-	for (NeuronID i = 0; i < get_rank_size(); i++) {
-	   auryn_vector_float_set (mem, i, e_rest);
-	   auryn_vector_float_set (thr, i, 0.);
-	   auryn_vector_float_set (g_ampa, i, 0.);
-	   auryn_vector_float_set (g_gaba, i, 0.);
-	   auryn_vector_float_set (g_nmda, i, 0.);
-	   auryn_vector_float_set (g_adapt1, i, 0.);
-	 }
+	mem->set_all(e_rest);
+	thr->set_all(0.);
+	g_ampa->set_all(0.);
+	g_gaba->set_all(0.);
+	g_nmda->set_all(0.);
+	g_adapt1->set_all(0.);
 
 }
 

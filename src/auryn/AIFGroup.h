@@ -40,11 +40,11 @@ private:
 	void free();
 
 protected:
-	auryn_vector_float * dmem;
-	auryn_vector_float * t_leak;
-	auryn_vector_float * t_exc;
-	auryn_vector_float * t_inh;
-	auryn_vector_float * g_adapt1;
+	AurynStateVector * dmem;
+	AurynStateVector * t_leak;
+	AurynStateVector * t_exc;
+	AurynStateVector * t_inh;
+	AurynStateVector * g_adapt1;
 
 	AurynFloat scale_ampa,scale_gaba, scale_thr;
 	AurynFloat scale_adapt1;
