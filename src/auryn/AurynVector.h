@@ -384,6 +384,14 @@ namespace auryn {
 				}
 			}
 
+			/*! \brief Computes 1./x of each element. */
+			void inv()
+			{
+				for ( IndexType i = 0 ; i < size ; ++i ) {
+					data[i] = 1.0/data[i];
+				}
+			}
+
 			/*! \brief Computes the sum a+b and stores the result in this instance 
 			 *
 			 * */
@@ -545,6 +553,19 @@ namespace auryn {
 					sum += get(i);
 				}
 				return sum;
+			}
+
+			/*! \brief Returns the max of the vector elements
+			 *
+			 */
+			double max()
+			{
+				double max = -1e64; // TODO use numeric limits for this
+				for ( IndexType i = 0 ; i < size ; ++i ) {
+					double el = get(i);
+					if ( el > max ) max = el;
+				}
+				return max;
 			}
 
 			/*! \brief Computes number of nonzero elements on this rank
