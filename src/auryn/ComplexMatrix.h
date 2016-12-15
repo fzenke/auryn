@@ -279,10 +279,12 @@ public:
 	 * its position in the data array. */
 	T get_element(const AurynLong data_index, const StateID z);
 
-	/*! Returns data index to a particular element specifed by i and j */
-	AurynLong get_data_index(const NeuronID i, const NeuronID j);
+	/*! \brief Returns data index to a particular element specifed by an index pointer */
+	AurynLong ind_ptr_to_didx(const NeuronID * ind_ptr);
 	/*! \brief Returns data index to a particular element specifed by an index pointer */
 	AurynLong get_data_index(const NeuronID * ind_ptr);
+	/*! Returns data index to a particular element specifed by i and j */
+	AurynLong get_data_index(const NeuronID i, const NeuronID j);
 	/*! \brief Returns data index to a particular element specifed by a data pointer */
 	AurynLong get_data_index(const T * ptr);
 
@@ -762,10 +764,17 @@ AurynLong ComplexMatrix<T>::get_data_index(NeuronID i, NeuronID j)
 }
 
 
+
+template <typename T>
+AurynLong ComplexMatrix<T>::ind_ptr_to_didx(const NeuronID * ind_ptr)
+{
+	return ind_ptr - get_ind_begin();
+}
+
 template <typename T>
 AurynLong ComplexMatrix<T>::get_data_index(const NeuronID * ind_ptr)
 {
-	return ind_ptr - get_ind_begin();
+	return ind_ptr_to_didx(ind_ptr);
 }
 
 template <typename T>
