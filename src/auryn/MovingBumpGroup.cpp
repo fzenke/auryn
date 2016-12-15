@@ -119,11 +119,10 @@ void MovingBumpGroup::evolve()
 			boost::variate_generator<boost::mt19937&, boost::uniform_int<> > die(order_gen, dist);
 
 			NeuronID mean = die();
-
 			tiserfile << auryn::sys->get_time() << " " << mean << std::endl;
-
 			set_gaussian_profile(mean, profile_width, floor_);
 		} 
 	}
+	
 	ProfilePoissonGroup::evolve();
 }
