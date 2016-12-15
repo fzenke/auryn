@@ -555,6 +555,19 @@ namespace auryn {
 				return sum;
 			}
 
+			/*! \brief Computes the l2 norm of the vector
+			 *
+			 */
+			double l2norm()
+			{
+				double sum = 0.0;
+				for ( IndexType i = 0 ; i < size ; ++i ) {
+					double e = get(i);
+					sum += e*e;
+				}
+				return std::sqrt(sum);
+			}
+
 			/*! \brief Returns the max of the vector elements
 			 *
 			 */
@@ -566,6 +579,19 @@ namespace auryn {
 					if ( el > max ) max = el;
 				}
 				return max;
+			}
+
+			/*! \brief Returns the min of the vector elements
+			 *
+			 */
+			double min()
+			{
+				double min = 1e64; // TODO use numeric limits for this
+				for ( IndexType i = 0 ; i < size ; ++i ) {
+					double el = get(i);
+					if ( el < min ) min = el;
+				}
+				return min;
 			}
 
 			/*! \brief Computes number of nonzero elements on this rank
