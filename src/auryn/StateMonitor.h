@@ -90,7 +90,15 @@ public:
 	 * \param filename The filename of the file to dump the output to
 	 * \param sampling_interval The sampling interval in seconds
 	 */
-	StateMonitor(auryn_vector_float * state, NeuronID id, string filename, AurynDouble sampling_interval=auryn_timestep);
+	StateMonitor(AurynStateVector * state, NeuronID id, string filename, AurynDouble sampling_interval=auryn_timestep);
+
+	/*! \brief Alternative constructor for synaptic states
+	 *
+	 * \param state The source state vector
+	 * \param filename The filename of the file to dump the output to
+	 * \param sampling_interval The sampling interval in seconds
+	 */
+	StateMonitor(AurynSynStateVector * state, NeuronID id, string filename, AurynDouble sampling_interval=auryn_timestep);
 
 	/*! \brief Trace constructor
 	 *

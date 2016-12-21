@@ -51,7 +51,20 @@ StateMonitor::StateMonitor(SpikingGroup * source, NeuronID id, std::string state
 	}
 }
 
-StateMonitor::StateMonitor(auryn_vector_float * state, NeuronID id, std::string filename, AurynDouble sampling_interval): Monitor(filename, "state")
+StateMonitor::StateMonitor(AurynStateVector * state, NeuronID id, std::string filename, AurynDouble sampling_interval): Monitor(filename, "state")
+{
+	if ( id >= state->size ) return; // do not register if neuron is out of vector range
+
+	init(filename, sampling_interval);
+
+	auryn::sys->register_device(this);
+	src = NULL;
+	nid = id;
+	target_variable = state->data+nid;
+	lastval = *target_variable;
+}
+
+StateMonitor::StateMonitor(AurynSynStateVector * state, NeuronID id, std::string filename, AurynDouble sampling_interval): Monitor(filename, "state")
 {
 	if ( id >= state->size ) return; // do not register if neuron is out of vector range
 
