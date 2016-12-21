@@ -555,6 +555,20 @@ namespace auryn {
 				return sum;
 			}
 
+			/*! \brief Computes the l1 norm of the vector
+			 *
+			 */
+			double l1norm()
+			{
+				double sum = 0.0;
+				for ( IndexType i = 0 ; i < size ; ++i ) {
+					double e = get(i);
+					sum += std::abs(e);
+				}
+				return sum;
+			}
+
+
 			/*! \brief Computes the l2 norm of the vector
 			 *
 			 */
