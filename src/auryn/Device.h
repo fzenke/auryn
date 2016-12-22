@@ -92,8 +92,11 @@ namespace auryn {
 		/*! \brief Standard destructor  */
 		virtual ~Device();
 
+		/*! Virtual evolve function to be called in central simulation loop in System */
+		virtual void evolve() { };
+
 		/*! Virtual propagate function to be called in central simulation loop in System */
-		virtual void propagate() = 0;
+		virtual void propagate() { };
 	};
 
 	BOOST_SERIALIZATION_ASSUME_ABSTRACT(Device)

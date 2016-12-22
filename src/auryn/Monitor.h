@@ -90,9 +90,6 @@ namespace auryn {
 
 		/*! \brief Standard destructor  */
 		virtual ~Monitor();
-
-		/*! Virtual propagate function to be called in central simulation loop in System */
-		virtual void propagate() = 0;
 	};
 
 	extern System * sys;

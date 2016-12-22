@@ -312,10 +312,17 @@ void System::sync()
 
 void System::evolve()
 {
-	std::vector<SpikingGroup *>::const_iterator iter;
+	{ // evolve spiking groups
+		std::vector<SpikingGroup *>::const_iterator iter;
+		for ( iter = spiking_groups.begin() ; iter != spiking_groups.end() ; ++iter ) 
+			(*iter)->conditional_evolve(); // evolve only if existing on rank
+	}
 
-	for ( iter = spiking_groups.begin() ; iter != spiking_groups.end() ; ++iter ) 
-		(*iter)->conditional_evolve(); // evolve only if existing on rank
+	{ 	// evolve devices
+		std::vector<Device *>::const_iterator iter;
+		for ( iter = devices.begin() ; iter != devices.end() ; ++iter ) 
+			(*iter)->evolve(); 
+	}
 
 	// update the online rate estimate
 	evolve_online_rate_monitor();
