@@ -468,11 +468,6 @@ void StimulusGroup::set_pattern_activity(unsigned int i, AurynFloat setrate)
 }
 
 
-void StimulusGroup::set_active_pattern(unsigned int i)
-{
-	set_active_pattern(i, background_rate);
-}
-
 void StimulusGroup::set_active_pattern(unsigned int i, AurynFloat default_value)
 {
 	std::stringstream oss;
@@ -485,6 +480,12 @@ void StimulusGroup::set_active_pattern(unsigned int i, AurynFloat default_value)
 	}
 	redraw();
 }
+
+void StimulusGroup::set_active_pattern(unsigned int i)
+{
+	set_active_pattern(i, background_rate);
+}
+
 
 void StimulusGroup::set_distribution( std::vector<double> probs )
 {

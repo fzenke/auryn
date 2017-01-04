@@ -48,7 +48,6 @@ private:
 	void init();
 
 protected:
-
 	virtual void redraw();
 	
 public:

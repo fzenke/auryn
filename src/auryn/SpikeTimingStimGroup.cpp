@@ -62,6 +62,9 @@ void SpikeTimingStimGroup::evolve()
 	if ( stimulus_active  ) { // during active stimulation
 
 		for ( NeuronID i = 0; i < get_rank_size() ; ++i ) {
+			// if ( ttl[i] ) { // DEBUG
+			// 	std::cout << ttl[i] << " " << sys->get_clock() << std::endl;
+			// }
 			if ( ttl[i] == sys->get_clock() ) {
 				push_spike(i);
 			}
