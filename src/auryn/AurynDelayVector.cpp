@@ -56,6 +56,8 @@ void AurynDelayVector::resize( NeuronID new_size )
 
 void AurynDelayVector::advance(  ) 
 {
+	// TODO could improve performance of the whole class if instead of copying we just
+	// juggle the data pointers ...
 	memory[memory_pos_]->copy(this);
 	memory_pos_ = (memory_pos_+1)%delay_buffer_size_;
 }
