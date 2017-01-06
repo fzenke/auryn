@@ -286,7 +286,10 @@ public:
 	/*! Returns data index to a particular element specifed by i and j */
 	AurynLong get_data_index(const NeuronID i, const NeuronID j);
 	/*! \brief Returns data index to a particular element specifed by a data pointer */
-	AurynLong get_data_index(const T * ptr);
+	AurynLong data_ptr_to_didx(const T * ptr);
+	/*! \brief Returns data index to a particular element specifed by a data pointer */
+	AurynLong get_data_index(const T * ptr) { data_ptr_to_didx(ptr); };
+
 
 	/* Methods concerning synaptic state vectors. */
 
@@ -778,7 +781,7 @@ AurynLong ComplexMatrix<T>::get_data_index(const NeuronID * ind_ptr)
 }
 
 template <typename T>
-AurynLong ComplexMatrix<T>::get_data_index(const T * ptr)
+AurynLong ComplexMatrix<T>::data_ptr_to_didx(const T * ptr)
 {
 	return ptr - get_data_begin();
 }
