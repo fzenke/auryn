@@ -288,7 +288,7 @@ public:
 	/*! \brief Returns data index to a particular element specifed by a data pointer */
 	AurynLong data_ptr_to_didx(const T * ptr);
 	/*! \brief Returns data index to a particular element specifed by a data pointer */
-	AurynLong get_data_index(const T * ptr) { data_ptr_to_didx(ptr); };
+	AurynLong get_data_index(const T * ptr) { return data_ptr_to_didx(ptr); };
 
 
 	/* Methods concerning synaptic state vectors. */
