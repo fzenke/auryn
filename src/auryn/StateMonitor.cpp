@@ -114,7 +114,7 @@ StateMonitor::~StateMonitor()
 	}
 }
 
-void StateMonitor::propagate()
+void StateMonitor::execute()
 {
 	if ( auryn::sys->get_clock() < t_stop && auryn::sys->get_clock()%ssize==0  ) {
 		char buffer[255];

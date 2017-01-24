@@ -84,7 +84,7 @@ public:
 
 	VoltageMonitor(NeuronGroup * source, NeuronID id, string filename,  AurynDouble stepsize=auryn_timestep);
 	virtual ~VoltageMonitor();
-	void propagate();
+	void execute();
 };
 
 }

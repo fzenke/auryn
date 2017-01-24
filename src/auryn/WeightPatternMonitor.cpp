@@ -73,7 +73,7 @@ AurynWeight WeightPatternMonitor::compute_pattern_mean(const NeuronID i, const N
 	return mean;
 }
 
-void WeightPatternMonitor::propagate()
+void WeightPatternMonitor::execute()
 {
 	if (auryn::sys->get_clock()%ssize==0) {
 		outfile << std::fixed << (auryn::sys->get_time()) << " ";

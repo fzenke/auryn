@@ -50,7 +50,7 @@ protected:
 public:
 	WeightStatsMonitor(Connection * source, string filename, AurynDouble binsize=1.0, NeuronID z=0);
 	virtual ~WeightStatsMonitor();
-	void propagate();
+	void execute();
 };
 
 }

@@ -41,7 +41,7 @@ namespace auryn {
 	/*! \brief Abstract base class for all Monitor objects.
 	 * 
 	 * This Class constitutes the base class for all Monitors in Auryn. Per default it openes a single text file for writing (outfile) named by the name supplied in the constructor.
-	 * Classes inheriting from Monitor have to implement the method propagate. Unlike Checker objects propagate returns void. Use Checker if you need the Monitor to be able to interrupt a run. 
+	 * Classes inheriting from Monitor have to implement the method execute. Unlike Checker objects execute returns void. Use Checker if you need the Monitor to be able to interrupt a run. 
 	 */
 
 	class Monitor : public Device

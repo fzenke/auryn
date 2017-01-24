@@ -55,7 +55,7 @@ void RateMonitor::init(SpikingGroup * source, std::string filename, AurynFloat s
 	outfile << std::setiosflags(std::ios::fixed) << std::setprecision(6);
 }
 
-void RateMonitor::propagate()
+void RateMonitor::execute()
 {
 	if ( src->evolve_locally() ) {
 		if (auryn::sys->get_clock()%ssize==0) {

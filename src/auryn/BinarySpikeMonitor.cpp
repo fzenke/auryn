@@ -105,7 +105,7 @@ void BinarySpikeMonitor::set_every(NeuronID every)
 	n_every = every;
 }
 
-void BinarySpikeMonitor::propagate()
+void BinarySpikeMonitor::execute()
 {
 	if ( !active ) return;
 

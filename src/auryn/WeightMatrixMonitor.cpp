@@ -47,7 +47,7 @@ void WeightMatrixMonitor::init(Connection * source, AurynFloat stepsize)
 	filecount = 0;
 }
 
-void WeightMatrixMonitor::propagate()
+void WeightMatrixMonitor::execute()
 {
 	if (auryn::sys->get_clock()%ssize==0) {
 		AurynDouble mean,std;

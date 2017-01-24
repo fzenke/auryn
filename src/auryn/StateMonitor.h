@@ -120,7 +120,7 @@ public:
 	void set_stop_time(AurynDouble time=10.0);
 
 	virtual ~StateMonitor();
-	void propagate();
+	void execute();
 };
 
 }

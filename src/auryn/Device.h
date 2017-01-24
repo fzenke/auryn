@@ -95,8 +95,8 @@ namespace auryn {
 		/*! Virtual evolve function to be called in central simulation loop in System */
 		virtual void evolve() { };
 
-		/*! Virtual propagate function to be called in central simulation loop in System */
-		virtual void propagate() { };
+		/*! Virtual execute function to be called at the end of central simulation loop in System */
+		virtual void execute() { };
 	};
 
 	BOOST_SERIALIZATION_ASSUME_ABSTRACT(Device)

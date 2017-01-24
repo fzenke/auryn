@@ -74,7 +74,7 @@ void SpikeMonitor::set_every(NeuronID every)
 	n_every = every;
 }
 
-void SpikeMonitor::propagate()
+void SpikeMonitor::execute()
 {
 	if ( !active ) return;
 

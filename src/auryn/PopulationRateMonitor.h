@@ -72,8 +72,8 @@ public:
 	/*! \brief Default Destructor */
 	virtual ~PopulationRateMonitor();
 
-	/*! \brief Implementation of necessary propagate() function. */
-	void propagate();
+	/*! \brief Implementation of necessary execute() function. */
+	void execute();
 };
 
 }
