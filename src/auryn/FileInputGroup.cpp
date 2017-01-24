@@ -36,7 +36,7 @@ void FileInputGroup::init()
 	reset_time = 0;
 }
 
-FileInputGroup::FileInputGroup( NeuronID n ) : SpikingGroup(n, 0.0 ) // last 0 enforces RankLock
+FileInputGroup::FileInputGroup( NeuronID n ) : SpikingGroup(n, RANKLOCK ) 
 {
 	playinloop = false;
 	time_delay = 0;
@@ -46,7 +46,7 @@ FileInputGroup::FileInputGroup( NeuronID n ) : SpikingGroup(n, 0.0 ) // last 0 e
 
 FileInputGroup::FileInputGroup(NeuronID n, std::string filename, 
 		bool loop, AurynFloat delay) 
-: SpikingGroup( n , 0.0 )
+: SpikingGroup( n , RANKLOCK )
 {
 	playinloop = loop;
 	time_delay = (AurynTime) (delay/auryn_timestep);

@@ -236,16 +236,6 @@ AurynLong System::get_total_neurons()
 	return sum;
 }
 
-AurynDouble System::get_total_effective_load()
-{
-	AurynDouble sum = 0.;
-	std::vector<SpikingGroup *>::const_iterator iter;
-	for ( iter = spiking_groups.begin() ; iter != spiking_groups.end() ; ++iter ) {
-		sum += (*iter)->get_effective_load(); 
-	}
-	return sum;
-}
-
 AurynLong System::get_total_synapses()
 {
 	AurynLong sum = 0;
@@ -442,7 +432,6 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 	if ( clock == 0 ) { // only show this once for clock==0
 		oss.str("");
 		oss	<< "On this rank: neurons_total="<< get_total_neurons() 
-			<< ", effective_load=" << get_total_effective_load()
 			<< ", synapses_total=" << get_total_synapses();
 		auryn::logger->msg(oss.str(),SETTINGS);
 

@@ -27,7 +27,7 @@
 
 using namespace auryn;
 
-NeuronGroup::NeuronGroup(NeuronID n, double loadmultiplier, NeuronID total ) : SpikingGroup(n, loadmultiplier, total )
+NeuronGroup::NeuronGroup(NeuronID n, double loadmultiplier, NeuronID total ) : SpikingGroup( n )
 {
 	if ( evolve_locally() ) init();
 }

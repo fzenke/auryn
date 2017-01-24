@@ -88,7 +88,7 @@ void CorrelatedPoissonGroup::init(AurynDouble  rate, NeuronID gsize, AurynDouble
 CorrelatedPoissonGroup::CorrelatedPoissonGroup(NeuronID n, 
 		AurynDouble  rate, 
 		NeuronID gsize, 
-		AurynDouble timedelay ) : SpikingGroup( n , CORRELATEDPOISSON_LOAD_MULTIPLIER*rate ) 
+		AurynDouble timedelay ) : SpikingGroup( n ) 
 {
 	init(rate, gsize,  timedelay);
 }

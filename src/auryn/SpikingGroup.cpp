@@ -34,13 +34,10 @@ NeuronID SpikingGroup::unique_id_count = 0;
 
 AurynTime * SpikingGroup::clock_ptr = NULL;
 
-NeuronID SpikingGroup::anticipated_total = 0;
 
-
-
-SpikingGroup::SpikingGroup(NeuronID n, double loadmultiplier, NeuronID total ) 
+SpikingGroup::SpikingGroup( NeuronID n, NodeDistributionMode mode ) 
 {
-	init( n, loadmultiplier, total );
+	init( n, mode );
 }
 
 SpikingGroup::~SpikingGroup()
@@ -48,20 +45,12 @@ SpikingGroup::~SpikingGroup()
 	free();
 }
 
-void SpikingGroup::init(NeuronID n, double loadmultiplier, NeuronID total )
+void SpikingGroup::init( NeuronID n, NodeDistributionMode mode )
 {
 	group_name = "SpikingGroup";
 	unique_id  = unique_id_count++;
 	size = n;
 	active = true;
-	effective_load_multiplier = loadmultiplier;
-
-	if ( total > 0 ) {
-		anticipated_total = total;
-		std::stringstream oss;
-		oss << get_log_name() << ":: Anticipating " << anticipated_total << " units in total." ;
-		auryn::logger->msg(oss.str(),NOTIFICATION);
-	}
 
 	// setting up default values
 	evolve_locally_bool = true;
@@ -80,22 +69,40 @@ void SpikingGroup::init(NeuronID n, double loadmultiplier, NeuronID total )
 	locked_range = mpi_size;
 	rank_size = calculate_rank_size(); // set the rank size
 
-	double fraction = (double)calculate_rank_size(0)*effective_load_multiplier/DEFAULT_MINDISTRIBUTEDSIZE;
-
-	if ( anticipated_total > 0 )
-		fraction = (1.*size*effective_load_multiplier)/anticipated_total;
-
-	if ( fraction >= 0 && fraction < 1. ) { 
-		lock_range( fraction );
-	} else { // ROUNDROBIN which is default
-		locked_rank = 0;
-		locked_range = mpi_size;
-
-		std::stringstream oss;
-		oss << get_log_name() << ":: Size " << get_rank_size() << " (ROUNDROBIN)";
-		auryn::logger->msg(oss.str(),NOTIFICATION);
+	// if this is a non-parallel sim we don't need to worry about node distribution
+	// -> default mode
+	if ( mpi_size == 1 ) { 
+		mode = ROUNDROBIN; 
 	}
 
+	double fraction = (double)calculate_rank_size(0)/DEFAULT_MINDISTRIBUTEDSIZE;
+	if ( mode == AUTO ) {
+		if ( fraction >= 0 && fraction < 1. ) { 
+			mode = BLOCKLOCK;
+		} else { 
+			mode = ROUNDROBIN;
+		}
+	}
+
+	switch ( mode ) { // AUTO case should have already been changed into something definite at this point
+		case BLOCKLOCK:
+			lock_range( fraction );
+			break;
+		case RANKLOCK:
+			lock_range( 0.0 );
+			break;
+		case ROUNDROBIN: // also serves as default
+		default:
+			locked_rank = 0;
+			locked_range = mpi_size;
+
+			std::stringstream oss;
+			oss << get_log_name() << ":: Size " << get_rank_size() ;
+			if ( mpi_size > 1 ) oss << " (ROUNDROBIN)";
+			auryn::logger->msg(oss.str(),NOTIFICATION);
+	}
+
+	// register spike delay
 	std::stringstream oss;
 	oss << get_log_name() 
 		<< ":: Registering SpikeDelay (MINDELAY=" 
@@ -107,7 +114,7 @@ void SpikingGroup::init(NeuronID n, double loadmultiplier, NeuronID total )
 
 	evolve_locally_bool = evolve_locally_bool && ( get_rank_size() > 0 );
 
-	// some safety checks
+	// do some some safety checks
 	
 	// Issue a warning for large neuron groups to check SyncBuffer delta datatype
 	if ( 1.0*size*MINDELAY > 0.8*std::numeric_limits<NeuronID>::max() ) {
@@ -126,11 +133,9 @@ void SpikingGroup::lock_range( double rank_fraction )
 {
 	locked_rank = last_locked_rank%mpi_size; // TODO might cause a bug with the block lock stuff
 
-	// TODO get the loads for the different ranks and try to minimize this
-
-	if ( rank_fraction == 0 ) { // this is the classical rank lock to one single rank
+	if ( rank_fraction == 0.0 ) { // this is the classical rank lock to one single rank
 		std::stringstream oss;
-		oss << get_log_name() << ":: Groups demands to run on single rank only (RANKLOCK).";
+		oss << get_log_name() << ":: Group will run on single rank only (RANKLOCK).";
 		auryn::logger->msg(oss.str(),NOTIFICATION);
 		locked_range = 1;
 	} else { // this is for multiple rank ranges
@@ -310,12 +315,6 @@ NeuronID SpikingGroup::get_post_size()
 {
 	return get_rank_size();
 } 
-
-AurynDouble SpikingGroup::get_effective_load()
-{
-	return get_rank_size()*effective_load_multiplier;
-}
-
 
 NeuronID SpikingGroup::rank2global(NeuronID i) {
 	return i*locked_range+(mpi_rank-locked_rank);

@@ -51,7 +51,7 @@ void ProfilePoissonGroup::init(AurynDouble  rate)
 	}
 }
 
-ProfilePoissonGroup::ProfilePoissonGroup(NeuronID n, AurynDouble  rate ) : SpikingGroup( n , PROFILEPOISSON_LOAD_MULTIPLIER*rate ) 
+ProfilePoissonGroup::ProfilePoissonGroup(NeuronID n, AurynDouble  rate ) : SpikingGroup( n ) 
 {
 	init(rate);
 }

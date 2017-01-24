@@ -105,13 +105,13 @@ void StimulusGroup::init(StimulusGroupModeType stimulusmode, std::string stimfil
 
 }
 
-StimulusGroup::StimulusGroup(NeuronID n, std::string filename, std::string stimfile, StimulusGroupModeType stimulusmode, AurynFloat baserate) : SpikingGroup( n, STIMULUSGROUP_LOAD_MULTIPLIER ) // Load multiplier is an empirical value
+StimulusGroup::StimulusGroup(NeuronID n, std::string filename, std::string stimfile, StimulusGroupModeType stimulusmode, AurynFloat baserate) : SpikingGroup( n ) 
 {
 	init(stimulusmode, stimfile, baserate);
 	load_patterns(filename);
 }
 
-StimulusGroup::StimulusGroup(NeuronID n, std::string stimfile, StimulusGroupModeType stimulusmode, AurynFloat baserate) : SpikingGroup( n, STIMULUSGROUP_LOAD_MULTIPLIER ) // Load multiplier is an empirical value
+StimulusGroup::StimulusGroup(NeuronID n, std::string stimfile, StimulusGroupModeType stimulusmode, AurynFloat baserate) : SpikingGroup( n ) // Load multiplier is an empirical value
 {
 	init(stimulusmode, stimfile, baserate);
 }

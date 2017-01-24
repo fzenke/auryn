@@ -38,6 +38,14 @@
 
 namespace auryn {
 
+/*! \brief Specifies howto distribute different neurons across ranks when simulation is run in parallel. */
+enum NodeDistributionMode { 
+	AUTO, //!< Tries to make a smart choice
+	ROUNDROBIN, //!< Default mode of distribution
+	BLOCKLOCK, //!< Tries to implement block lock 
+	RANKLOCK //!< Locks to single rank (this is a special case of BLOCKLOCK
+};
+
 
 /*! \brief Abstract base class of all objects producing spikes
  *
@@ -69,10 +77,7 @@ private:
 	static NeuronID unique_id_count;
 
 	/*! Standard initialization of the object. */
-	void init(NeuronID size, double loadmultiplier, NeuronID total );
-
-	/*! Stores the number of anticipated units to optimize loadbalancing */
-	static NeuronID anticipated_total;
+	void init( NeuronID size, NodeDistributionMode mode );
 
 	void lock_range( double rank_fraction );
 	/*! If not distributed the first rank to lock it to. */
@@ -83,9 +88,6 @@ private:
 	static int last_locked_rank;
 
 	bool evolve_locally_bool;
-
-	/*! Parameter that characterizes the computational load the SpikingGroup causes with respect to IFGroup. It's used vor load balancing*/
-	double effective_load_multiplier;
 
 	/*! Stores axonal delay value - by default MINDELAY */
 	int axonaldelay;
@@ -173,7 +175,7 @@ public:
 	void randomize_state_vector_gauss(std::string state_vector_name, AurynState mean, AurynState sigma, int seed=12239);
 
 	/*! \brief Default constructor */
-	SpikingGroup(NeuronID size, double loadmultiplier = 1., NeuronID total = 0 );
+	SpikingGroup( NeuronID size, NodeDistributionMode mode=AUTO );
 
 	/*! \brief Default destructor */
 	virtual ~SpikingGroup();
@@ -256,9 +258,6 @@ public:
 	 *
 	 * It's the size that should be used when a postsynaptic trace is defined on this group, hence the name. */
 	NeuronID get_post_size();
-
-	/*! \brief Returns the effective load of the group. */
-	AurynDouble get_effective_load();
 
 	void set_clock_ptr(AurynTime * clock);
 

@@ -41,7 +41,6 @@
 #include <boost/random/variate_generator.hpp>
 
 #define SOFTSTARTTIME 0.1
-#define STIMULUSGROUP_LOAD_MULTIPLIER 0.1
 
 namespace auryn {
 
@@ -59,7 +58,6 @@ private:
 	AurynFloat base_rate;
 
 	int off_pattern;
-
 
 
 protected:
