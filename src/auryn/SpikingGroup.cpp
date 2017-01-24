@@ -631,10 +631,14 @@ bool SpikingGroup::load_from_file(const char * filename)
 
 void SpikingGroup::virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version ) 
 {
+	std::stringstream oss;
+	oss << get_log_name() << " serializing delay";
+	auryn::logger->msg(oss.str(),VERBOSE);
+
 	ar & size & axonaldelay;
 	ar & *delay;
 
-	std::stringstream oss;
+	oss.str("");
 	oss << get_log_name() << " serializing " << state_vectors.size() << " state vectors";
 	auryn::logger->msg(oss.str(),VERBOSE);
 	for ( std::map<std::string,AurynStateVector *>::const_iterator iter = state_vectors.begin() ; 
@@ -666,14 +670,22 @@ void SpikingGroup::virtual_serialize(boost::archive::binary_oarchive & ar, const
 	auryn::logger->msg(oss.str(),VERBOSE);
 	for ( NeuronID i = 0 ; i < post_state_traces.size() ; ++i )
 		ar & *(post_state_traces[i]);
+
+	oss.str("");
+	oss << get_log_name() << " serialize finished for group ";
+	auryn::logger->msg(oss.str(),VERBOSE);
 }
 
 void SpikingGroup::virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version ) 
 {
+	std::stringstream oss;
+	oss << get_log_name() << " reading delay";
+	auryn::logger->msg(oss.str(),VERBOSE);
+
 	ar & size & axonaldelay ; 
 	ar & *delay;
 
-	std::stringstream oss;
+	oss.str("");
 	oss << get_log_name() << " reading " << state_vectors.size() << " state vectors";
 	auryn::logger->msg(oss.str(),VERBOSE);
 	for ( std::map<std::string,AurynStateVector *>::const_iterator iter = state_vectors.begin() ; 
@@ -707,6 +719,10 @@ void SpikingGroup::virtual_serialize(boost::archive::binary_iarchive & ar, const
 	auryn::logger->msg(oss.str(),VERBOSE);
 	for ( NeuronID i = 0 ; i < post_state_traces.size() ; ++i )
 		ar & *(post_state_traces[i]);
+
+	oss.str("");
+	oss << get_log_name() << " serialize finished for group ";
+	auryn::logger->msg(oss.str(),VERBOSE);
 }
 
 
