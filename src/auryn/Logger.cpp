@@ -65,6 +65,12 @@ void Logger::set_logfile_loglevel(LogMessageType level)
 	file_out = level;
 }
 
+void Logger::set_debugging_mode()
+{
+	set_console_loglevel(EVERYTHING);
+	set_logfile_loglevel(EVERYTHING);
+}
+
 void Logger::msg( std::string text, LogMessageType type, bool global, int line, std::string srcfile )
 {
 	time_t rawtime;
