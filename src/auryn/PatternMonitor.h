@@ -90,8 +90,8 @@ public:
 			AurynFloat binsize=1e-1);
 	/*! Default Destructor */
 	virtual ~PatternMonitor();
-	/*! Implementation of necessary propagate() function. */
-	void propagate();
+	/*! Implementation of necessary execute() function. */
+	void execute();
 	/*! Load patterns from file */
 	void load_patterns( string filename );
 };

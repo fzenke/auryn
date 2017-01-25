@@ -36,8 +36,6 @@
 #include <boost/random/variate_generator.hpp>
 #include <boost/random/exponential_distribution.hpp>
 
-#define PROFILEPOISSON_LOAD_MULTIPLIER 0.01
-
 namespace auryn {
 
 /*! \brief A SpikingGroup that creates poissonian spikes with a given rate

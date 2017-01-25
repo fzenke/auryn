@@ -69,7 +69,7 @@ class SpikeDelay
 
 		static AurynTime * clock_ptr;
 
-		int ndelay;
+		unsigned int ndelay;
 		void free();
 
 	public:

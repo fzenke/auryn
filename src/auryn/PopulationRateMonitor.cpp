@@ -53,7 +53,7 @@ void PopulationRateMonitor::init(SpikingGroup * source, std::string filename, Au
 	// outfile << std::setiosflags(ios::fixed) << setprecision(6);
 }
 
-void PopulationRateMonitor::propagate()
+void PopulationRateMonitor::execute()
 {
 	if ( src->evolve_locally() ) {
 		counter += src->get_spikes_immediate()->size();

@@ -36,8 +36,6 @@
 #include <boost/random/variate_generator.hpp>
 #include <boost/random/exponential_distribution.hpp>
 
-#define CORRELATEDPOISSON_LOAD_MULTIPLIER 0.01
-
 namespace auryn {
 
 /*! \brief A PoissonGroup with multiple subpopulations that co-modulate their firing

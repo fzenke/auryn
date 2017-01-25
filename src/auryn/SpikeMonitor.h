@@ -100,7 +100,7 @@ public:
 	virtual ~SpikeMonitor();
 
 	/*! \brief  Propagate function for internal use. */
-	void propagate();
+	void execute();
 };
 
 }

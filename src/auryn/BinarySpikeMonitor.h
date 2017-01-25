@@ -66,7 +66,7 @@ public:
 	void set_offset(NeuronID of);
 	void set_every(NeuronID every);
 	virtual ~BinarySpikeMonitor();
-	virtual void propagate();
+	virtual void execute();
 	virtual void flush();
 };
 

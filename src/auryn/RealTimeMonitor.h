@@ -66,8 +66,8 @@ public:
 	/*! Default Destructor */
 	virtual ~RealTimeMonitor();
 
-	/*! Implementation of necessary propagate() function. */
-	void propagate();
+	/*! Implementation of necessary execute() function. */
+	void execute();
 };
 
 }

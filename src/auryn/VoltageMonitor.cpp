@@ -56,7 +56,7 @@ void VoltageMonitor::init(NeuronGroup * source, NeuronID id, std::string filenam
 	}
 }
 
-void VoltageMonitor::propagate()
+void VoltageMonitor::execute()
 {
 	if ( auryn::sys->get_clock() < tStop ) {
 		// we output spikes irrespectively of the sampling interval, because 

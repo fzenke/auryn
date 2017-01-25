@@ -78,7 +78,7 @@ void PatternMonitor::init(SpikingGroup * source, std::string filename, NeuronID 
 	outfile << std::setiosflags(std::ios::fixed) << std::setprecision(6);
 }
 
-void PatternMonitor::propagate()
+void PatternMonitor::execute()
 {
 	if ( src->evolve_locally() ) {
 		for ( SpikeContainer::const_iterator iter = src->get_spikes_immediate()->begin() ;

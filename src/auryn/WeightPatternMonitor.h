@@ -74,7 +74,7 @@ size_t max_patterns;
 	void load_patterns(string filename );
 
 	virtual ~WeightPatternMonitor();
-	void propagate();
+	void execute();
 };
 
 }

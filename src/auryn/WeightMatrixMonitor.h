@@ -49,7 +49,7 @@ protected:
 public:
 	WeightMatrixMonitor(Connection * source, string filename, AurynFloat stepsize=600.);
 	virtual ~WeightMatrixMonitor();
-	void propagate();
+	void execute();
 };
 
 }

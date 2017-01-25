@@ -72,7 +72,7 @@ void DelayedSpikeMonitor::set_offset(NeuronID of)
 	offset = of;
 }
 
-void DelayedSpikeMonitor::propagate()
+void DelayedSpikeMonitor::execute()
 {
 	for (it = src->get_spikes()->begin() ; it != src->get_spikes()->end() ; ++it ) {
 		if (*it >= n_from ) {

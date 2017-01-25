@@ -61,7 +61,7 @@ int SpikeDelay::get_delay( )
 
 void SpikeDelay::free()
 {
-	for (int i = 0 ; i < ndelay ; ++i) {
+	for (unsigned int i = 0 ; i < ndelay ; ++i) {
 		delete delaybuf[i];
 		delete attribbuf[i];
 	}
@@ -71,7 +71,7 @@ void SpikeDelay::free()
 
 void SpikeDelay::clear()
 {
-	for (int i = 0 ; i < ndelay ; ++i) {
+	for (unsigned int i = 0 ; i < ndelay ; ++i) {
 		delaybuf[i]->clear();
 		attribbuf[i]->clear();
 	}
@@ -137,7 +137,7 @@ void SpikeDelay::inc_num_attributes( int x )
 
 void SpikeDelay::print()
 {
-	for ( int i = 0 ; i < ndelay ; ++i ) {
+	for ( unsigned int i = 0 ; i < ndelay ; ++i ) {
 		SpikeContainer * spikes = get_spikes(i);
 		if ( spikes->size() ) {
 			std::cout << "slice " << i << ": ";

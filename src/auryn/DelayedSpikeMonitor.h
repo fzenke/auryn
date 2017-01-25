@@ -63,7 +63,7 @@ public:
 	DelayedSpikeMonitor(SpikingGroup * source, std::string filename, NeuronID from, NeuronID to);
 	void set_offset(NeuronID of);
 	virtual ~DelayedSpikeMonitor();
-	void propagate();
+	void execute();
 };
 
 }

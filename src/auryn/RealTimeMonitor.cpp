@@ -52,7 +52,7 @@ RealTimeMonitor::~RealTimeMonitor()
 {
 }
 
-void RealTimeMonitor::propagate()
+void RealTimeMonitor::execute()
 {
 	if ( t_stop > auryn::sys->get_clock() && t_start < auryn::sys->get_clock() ) {
 		boost::posix_time::ptime now = boost::posix_time::microsec_clock::local_time();

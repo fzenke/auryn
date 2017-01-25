@@ -76,8 +76,8 @@ public:
 	/*! Default Destructor */
 	virtual ~RateMonitor();
 
-	/*! Implementation of necessary propagate() function. */
-	void propagate();
+	/*! Implementation of necessary execute() function. */
+	void execute();
 };
 
 }

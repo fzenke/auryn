@@ -50,7 +50,7 @@ protected:
 public:
 	WeightSumMonitor(Connection * source, string filename, AurynDouble binsize=1.0);
 	virtual ~WeightSumMonitor();
-	void propagate();
+	void execute();
 };
 
 }

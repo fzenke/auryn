@@ -49,7 +49,7 @@ void WeightSumMonitor::init(Connection * source, std::string filename,AurynTime 
 	outfile << std::setiosflags(std::ios::fixed) << std::setprecision(6);
 }
 
-void WeightSumMonitor::propagate()
+void WeightSumMonitor::execute()
 {
 	if (auryn::sys->get_clock()%ssize==0) {
 		AurynDouble weightsum;

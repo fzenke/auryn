@@ -137,7 +137,7 @@ void BinaryStateMonitor::write_frame(const AurynTime time, const AurynState valu
 	outfile.write((char*)&frame, sizeof(StateValue_type));
 }
 
-void BinaryStateMonitor::propagate()
+void BinaryStateMonitor::execute()
 {
 	if ( auryn::sys->get_clock() < t_stop && auryn::sys->get_clock()%ssize==0  ) {
 		char buffer[255];

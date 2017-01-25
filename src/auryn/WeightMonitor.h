@@ -125,7 +125,7 @@ public:
 	virtual ~WeightMonitor();
 
 	/*! \brief propagate function used by System class internally */
-	void propagate();
+	void execute();
 
 	/*! \brief Sets target matrix to read from. */
 	void set_mat(ForwardMatrix * m);

@@ -345,7 +345,7 @@ void WeightMonitor::record_synapse_groups()
 }
 
 
-void WeightMonitor::propagate()
+void WeightMonitor::execute()
 {
 	if ( src->get_destination()->evolve_locally() ) {
 		if (auryn::sys->get_clock()%ssize==0) {

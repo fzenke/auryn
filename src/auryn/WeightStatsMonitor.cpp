@@ -51,7 +51,7 @@ void WeightStatsMonitor::init(Connection * source, std::string filename,AurynTim
 	z_ind = z;
 }
 
-void WeightStatsMonitor::propagate()
+void WeightStatsMonitor::execute()
 {
 	if (auryn::sys->get_clock()%ssize==0) {
 		AurynDouble mean,std;

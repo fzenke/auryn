@@ -135,7 +135,7 @@ namespace auryn {
 		 *
 		 * Since this is independent of the SpikingGroup evolve we 
 		 * can do this while we are waiting for synchronization. */
-		void evolve_independent();
+		void evolve_connections();
 
 		/*! \brief Calls all monitors. */
 		void execute_devices();
