@@ -97,14 +97,14 @@ STDPConnection::~STDPConnection()
 }
 
 
-AurynWeight STDPConnection::dw_pre(NeuronID post)
+AurynWeight STDPConnection::on_pre(NeuronID post)
 {
 	NeuronID translated_spike = dst->global2rank(post); // only to be used for post traces
 	AurynDouble dw = A*tr_post->get(translated_spike);
 	return dw;
 }
 
-AurynWeight STDPConnection::dw_post(NeuronID pre)
+AurynWeight STDPConnection::on_post(NeuronID pre)
 {
 	AurynDouble dw = B*tr_pre->get(pre);
 	return dw;
@@ -128,7 +128,7 @@ void STDPConnection::propagate_forward()
 			// handle plasticity
 			if ( stdp_active ) {
 				// performs weight update
-			    *weight += dw_pre(*c);
+			    *weight += on_pre(*c);
 
 				// clips weights
 				if ( *weight > get_max_weight() ) *weight = get_max_weight(); 
@@ -158,7 +158,7 @@ void STDPConnection::propagate_backward()
 
 				// computes plasticity update
 				AurynWeight * weight = bkw->get_data(c); 
-				*weight += dw_post(*c);
+				*weight += on_post(*c);
 
 				// clips weights
 				if ( *weight > get_max_weight() ) *weight = get_max_weight(); 

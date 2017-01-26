@@ -53,8 +53,8 @@ protected:
 	void propagate_forward();
 	void propagate_backward();
 
-	AurynWeight dw_pre(NeuronID post);
-	AurynWeight dw_post(NeuronID pre);
+	AurynWeight on_pre(NeuronID post);
+	AurynWeight on_post(NeuronID pre);
 
 public:
 	AurynFloat A; /*!< Amplitude of post-pre part of the STDP window */
