@@ -71,6 +71,9 @@ public:
 	void notification    ( std::string text );
 	void set_rank(int rank);
 
+	/*! \brief Turns on verbosity on all channels */ 
+	void set_debugging_mode();
+
 	/*!\brief Sets loglevel for console output 
 	 *
 	 * \param level The log level
