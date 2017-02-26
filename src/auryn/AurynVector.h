@@ -331,6 +331,22 @@ namespace auryn {
 				}
 			}
 
+			/*! \brief Elementwise max operation. */
+			void elementwise_max(AurynVector * v1, AurynVector * v2) 
+			{
+				check_size(v1);
+				check_size(v2);
+				for ( IndexType i = 0 ; i < size ; ++i ) {
+					data[i] = std::max(v1->data[i],v2->data[i]);
+				}
+			}
+
+			/*! \brief Elementwise max operation with another vector. */
+			void elementwise_max(AurynVector * v1) 
+			{
+				elementwise_max(this,v1);
+			}
+
 			/*! \brief Takes each element to the n-th power. 
 			 *
 			 * \param n the exponent */
