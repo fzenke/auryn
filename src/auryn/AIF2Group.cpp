@@ -28,7 +28,7 @@
 using namespace auryn;
 
 
-AIF2Group::AIF2Group( NeuronID size, AurynFloat load, NeuronID total ) : AIFGroup(size,load,total)
+AIF2Group::AIF2Group( NeuronID size, NodeDistributionMode distmode ) : AIFGroup(size, distmode)
 {
 	// auryn::sys->register_spiking_group(this); // already registered in AIFGroup
 	if ( evolve_locally() ) init();

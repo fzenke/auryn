@@ -53,7 +53,7 @@ protected:
 	void check_thresholds();
 
 public:
-	AIF2Group( NeuronID size, AurynFloat load = 1.0, NeuronID total = 0 );
+	AIF2Group( NeuronID size, NodeDistributionMode distmode = AUTO);
 	virtual ~AIF2Group();
 
 	void random_adapt(AurynState mean, AurynState sigma);
