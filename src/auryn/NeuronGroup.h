@@ -74,8 +74,12 @@ public:
 	 * TODO Remove and move to downstream. */
 	AurynStateVector * thr ;
 
-	/*! Default constructor */
-	NeuronGroup(NeuronID n, double loadmultiplier = 1. , NeuronID total = 0 );
+	/*! \brief Default constructor */
+	NeuronGroup( NeuronID n, NodeDistributionMode mode=AUTO );
+
+	/*! \brief Old default constructor 
+	 * \deprecated */
+	NeuronGroup( NeuronID n, double loadmultiplier, NeuronID total );
 
 	/*! Default destructor */
 	virtual ~NeuronGroup();

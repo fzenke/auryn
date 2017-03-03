@@ -27,7 +27,13 @@
 
 using namespace auryn;
 
-NeuronGroup::NeuronGroup(NeuronID n, double loadmultiplier, NeuronID total ) : SpikingGroup( n )
+NeuronGroup::NeuronGroup(NeuronID n, double loadmultiplier, NeuronID total) : SpikingGroup( n )
+{
+	logger->warning("Using deprecated constructor of NeuronGroup. This constructor will be removed in future versions.");
+	if ( evolve_locally() ) init();
+}
+
+NeuronGroup::NeuronGroup(NeuronID n, NodeDistributionMode mode ) : SpikingGroup( n, mode )
 {
 	if ( evolve_locally() ) init();
 }
