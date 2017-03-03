@@ -63,7 +63,7 @@ protected:
 public:
 	AurynFloat dg_adapt1;
 
-	AIFGroup( NeuronID size, NodeDistributionMode distmode);
+	AIFGroup( NeuronID size, NodeDistributionMode distmode=AUTO);
 	virtual ~AIFGroup();
 	void set_tau_mem(AurynFloat taum);
 	AurynFloat get_tau_mem();
