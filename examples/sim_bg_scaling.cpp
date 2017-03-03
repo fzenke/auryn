@@ -265,7 +265,7 @@ int main(int ac, char* av[])
 	if ( adapt )
 		neurons_e = new AIFGroup(20000);
 	else
-		neurons_e = new IFGroup(20000,25000);
+		neurons_e = new IFGroup(20000);
 	IFGroup * neurons_i = new IFGroup(5000);
 
 	// initialize membranes

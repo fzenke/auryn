@@ -511,7 +511,7 @@ int main(int ac, char* av[])
 		((AIFGroup*)neurons_e)->dg_adapt1=1.0;
 	} else {
 		if ( loadbalance ) 
-			neurons_e = new IFGroup(ne,1.2,(1.2*ne+ni));
+			neurons_e = new IFGroup(ne);
 		else
 			neurons_e = new IFGroup(ne);
 		((IFGroup*)neurons_e)->set_ampa_nmda_ratio(ampa_nmda_ratio);
