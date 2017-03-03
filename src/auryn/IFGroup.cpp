@@ -27,7 +27,7 @@
 
 using namespace auryn;
 
-IFGroup::IFGroup( NeuronID size, AurynFloat load, NeuronID total ) : NeuronGroup(size,load,total)
+IFGroup::IFGroup( NeuronID size, NodeDistributionMode distmode ) : NeuronGroup(size, distmode)
 {
 	sys->register_spiking_group(this);
 	if ( evolve_locally() ) init();

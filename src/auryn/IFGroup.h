@@ -64,14 +64,10 @@ namespace auryn {
 		AurynFloat e_reset;
 		/*! \brief Default constructor.
 		 *
-		 * @param size the size of the group.  @param load a load specifier that
-		 * can in principle help to assign the right amount of neurons to a single
-		 * node. However this feature is experimental.  
-		 * @param total the total number of neurons that are going to be assigned
-		 * in this simulation. This is also part of the exerimental load balancing
-		 * mechanism.
+		 * @param size the size of the group.  
+		 * @param distmode Node distribution mode  
 		 */
-		IFGroup( NeuronID size, AurynFloat load = 1.0, NeuronID total = 0 );
+		IFGroup( NeuronID size, NodeDistributionMode distmode=AUTO );
 		virtual ~IFGroup();
 		/*! \brief Sets the membrane time constant */
 		void set_tau_mem(AurynFloat taum);
