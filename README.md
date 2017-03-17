@@ -1,4 +1,4 @@
-![Auryn logo](http://www.fzenke.net/uploads/images/logo_trans_small.png "Auryn logo")
+![Auryn logo](https://github.com/fzenke/auryn/blob/master/doc/auryn_logo_small.png "Auryn logo")
 
 Auryn 
 =====
