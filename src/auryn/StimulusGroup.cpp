@@ -555,9 +555,16 @@ void StimulusGroup::set_stimulation_mode( StimulusGroupModeType mode ) {
 
 void StimulusGroup::seed(int rndseed)
 {
-	order_gen.seed(sys->get_synced_seed()); // has to be seeded identically on all ranks!
+	unsigned int rnd = rndseed + sys->get_synced_seed(); // most be same on all ranks
+	order_gen.seed(rnd); 
 
-	unsigned int rnd = rndseed + sys->get_seed(); // adds salt to make it different across ranks
+	// this is here because the seeding above alone does not seem to do anything
+	// also need to overwrite the dist operator because it makes of copy of the
+	// generator
+	// see http://www.bnikolic.co.uk/blog/cpp-boost-uniform01.html
+	order_die = boost::uniform_01<boost::mt19937> (order_gen);
+
+	rnd = rndseed + sys->get_seed(); // adds salt to make it different across ranks
 	std::stringstream oss;
 	oss << "StimulusGroup:: " 
 		<< "seeding Poisson generator with " 
