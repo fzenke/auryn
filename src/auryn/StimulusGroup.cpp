@@ -283,6 +283,7 @@ void StimulusGroup::evolve()
 				if ( !binary_patterns )
 					set_all( 0.0 ); // turns off currently active stimulus 
 				stimulus_active = false ;
+				last_stim_offset_time = sys->get_clock();
 
 				if ( randomintervals ) {
 					boost::exponential_distribution<> dist(1./mean_off_period);
@@ -330,6 +331,7 @@ void StimulusGroup::evolve()
 					if ( !binary_patterns )
 						set_active_pattern( cur_stim_index );
 					stimulus_active = true;
+					last_stim_onset_time = sys->get_clock();
 
 					if ( randomintervals && stimulus_order != STIMFILE ) {
 						boost::normal_distribution<> dist(mean_on_period,mean_on_period/3);
@@ -582,6 +584,16 @@ AurynTime StimulusGroup::get_last_action_time()
 AurynTime StimulusGroup::get_next_action_time()
 {
 	return next_action_time;
+}
+
+AurynTime StimulusGroup::get_last_onset_time()
+{
+	return last_stim_onset_time;
+}
+
+AurynTime StimulusGroup::get_last_offset_time()
+{
+	return last_stim_offset_time;
 }
 
 bool StimulusGroup::get_stim_active()

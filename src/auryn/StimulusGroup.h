@@ -92,6 +92,12 @@ protected:
 	/*! \brief last stimulus time requiring change in rates */
 	AurynTime last_action_time ;
 
+	/*! \brief last stimulus onset time */
+	AurynTime last_stim_onset_time ;
+
+	/*! \brief last stimulus offset time */
+	AurynTime last_stim_offset_time ;
+
 	/*! Standard initialization */
 	void init(StimulusGroupModeType stimulusmode, string stimfile, AurynFloat baserate);
 
@@ -217,6 +223,12 @@ public:
 
 	/*! \brief returns the last action (stim on/off) time in units of AurynTime */
 	AurynTime get_last_action_time();
+
+	/*! \brief returns the last stimulus onset time in units of AurynTime */
+	AurynTime get_last_onset_time();
+
+	/*! \brief returns the last stimulus offset time in units of AurynTime */
+	AurynTime get_last_offset_time();
 
 	/*! \brief returns the next action (stim on/off) time in units of AurynTime */
 	AurynTime get_next_action_time();
