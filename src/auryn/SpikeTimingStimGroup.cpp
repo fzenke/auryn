@@ -112,6 +112,7 @@ void SpikeTimingStimGroup::evolve()
 
 				set_all( 0.0 ); // turns off currently active stimulus 
 				stimulus_active = false ;
+				last_stim_offset_time = sys->get_clock();
 
 				if ( randomintervals ) {
 					boost::exponential_distribution<> dist(1./mean_off_period);
@@ -159,6 +160,7 @@ void SpikeTimingStimGroup::evolve()
 					// sets the activity
 					set_active_pattern( cur_stim_index, 1e20 ); // puts default spikes into the not forseeable future
 					stimulus_active = true;
+					last_stim_onset_time = sys->get_clock();
 
 					next_action_time = auryn::sys->get_clock() + (AurynTime)(mean_on_period/auryn_timestep);
 				}
