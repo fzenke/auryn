@@ -98,13 +98,28 @@ class SpikeDelay
 		 * by the System class */
 		void set_clock_ptr(AurynTime * clock);
 
-		/*! \brief Allows to insert spikes so many time steps ahead with less than max delay. */
+		/*! \brief Allows to insert spikes so many time steps ahead with less than max delay. 
+		 *
+		 * \param i Neuron id of the spike 
+		 * \param ahead Time steps in AurynTime in the future where to insert the spike in the delay */
 		void insert_spike(NeuronID i, AurynTime ahead); 
+
+		/*! \brief Allows to insert spikes with a single attribute so many time steps ahead with less than max delay. 
+		 *
+		 * \param i Neuron id of the spike 
+		 * \param attr The spike attribute to insert
+		 * \param ahead Time steps in AurynTime in the future where to insert the spike in the delay */
+		void insert_spike_and_attrib(NeuronID i, AurynState attr, AurynTime ahead); 
 
 		/*! \brief Allows to use SpikeDelay like a queue. 
 		 *
 		 * This pushes into get_spikes_immediate() */
 		void push_back(NeuronID i); 
+
+		/*! \brief Like push_back, but also allows to add an attribute
+		 *
+		 * This pushes into get_spikes_immediate() */
+		void push_back(NeuronID i, AurynState attr); 
 
 		/*! \brief Pushes all elemens from given SpikeContainer into the delay
 		 *

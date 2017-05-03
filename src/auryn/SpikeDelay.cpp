@@ -109,12 +109,24 @@ void SpikeDelay::set_clock_ptr(AurynTime * clock)
 
 void SpikeDelay::insert_spike( NeuronID i, AurynTime ahead )
 {
-	get_spikes((*clock_ptr)+(1+ahead+ndelay))->push_back(i);
+	get_spikes(1+ahead+ndelay)->push_back(i);
+}
+
+void SpikeDelay::insert_spike_and_attrib( NeuronID i, AurynState s, AurynTime ahead )
+{
+	get_spikes(1+ahead+ndelay)->push_back(i);
+	get_attributes(1+ahead+ndelay)->push_back(s);
 }
 
 void SpikeDelay::push_back( NeuronID i )
 {
 	get_spikes_immediate()->push_back(i);
+}
+
+void SpikeDelay::push_back( NeuronID i, AurynState attr )
+{
+	get_spikes_immediate()->push_back(i);
+	get_attributes_immediate()->push_back(attr);
 }
 
 void SpikeDelay::push_back( SpikeContainer * sc )
