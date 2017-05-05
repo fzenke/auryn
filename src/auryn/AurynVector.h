@@ -669,6 +669,21 @@ namespace auryn {
 				set_random_normal(0.0,1.0,seed);
 			}
 
+			/*! \brief Returns true if any element is nonzero */
+			bool any() {
+				for ( IndexType i = 0 ; i < size ; ++i ) {
+					if ( get(i) ) return true;
+				}
+				return false;
+			}
+
+			/*! \brief Returns true if any element is nonzero */
+			bool any(T eps) {
+				for ( IndexType i = 0 ; i < size ; ++i ) {
+					if ( std::abs(get(i))>eps ) return true;
+				}
+				return false;
+			}
 
 			/*! \brief Print vector elements jo std out for debugging */
 			void print() {
