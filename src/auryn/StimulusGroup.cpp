@@ -249,7 +249,7 @@ void StimulusGroup::evolve()
 	if ( auryn::sys->get_clock() >= next_action_time ) { // action required
 		last_action_time = next_action_time; // store last time before updating next_action_time
 
-		if ( stimuli.size() == 0 ) {
+		if ( get_num_stimuli() == 0 ) {
 			set_next_action_time(10); // TODO make this a bit smarter at some point -- i.e. could send this to the end of time 
 			return;
 		}
@@ -293,7 +293,7 @@ void StimulusGroup::evolve()
 					next_action_time = auryn::sys->get_clock() + (AurynTime)(mean_off_period/auryn_timestep);
 				}
 			} else { // stimulus was not active and is going active now
-				if ( active && stimuli.size() ) { // the group is active and there are stimuli in the array
+				if ( active && get_num_stimuli() ) { // the group is active and there are stimuli in the array
 
 					// chooses stimulus according to schema specified in stimulusmode
 					double draw, cummulative;
@@ -316,12 +316,12 @@ void StimulusGroup::evolve()
 							}
 						break;
 						case SEQUENTIAL:
-							cur_stim_index = (cur_stim_index+1)%stimuli.size();
+							cur_stim_index = (cur_stim_index+1)%get_num_stimuli();
 						break;
 						case SEQUENTIAL_REV:
 							--cur_stim_index;
 							if ( cur_stim_index <= 0 ) 
-								cur_stim_index = stimuli.size() - 1 ;
+								cur_stim_index = get_num_stimuli() - 1 ;
 						break;
 						case MANUAL:
 						default:
@@ -398,7 +398,7 @@ void StimulusGroup::load_patterns( std::string filename )
 			if ( total_pattern_size > 0 ) {
 				std::stringstream oss;
 				oss << "StimulusGroup:: Read pattern " 
-					<< stimuli.size() 
+					<< get_num_stimuli() 
 					<< " with pattern size "
 					<< total_pattern_size
 					<< " ( "
@@ -432,7 +432,7 @@ void StimulusGroup::load_patterns( std::string filename )
 	flat_distribution();
 
 	std::stringstream oss;
-	oss << "StimulusGroup:: Finished loading " << stimuli.size() << " patterns";
+	oss << "StimulusGroup:: Finished loading " << get_num_stimuli() << " patterns";
 	auryn::logger->msg(oss.str(),NOTIFICATION);
 }
 
@@ -477,7 +477,7 @@ void StimulusGroup::set_active_pattern(unsigned int i, AurynFloat default_value)
 	auryn::logger->msg(oss.str(),VERBOSE);
 
 	set_all( default_value );
-	if ( i < stimuli.size() ) {
+	if ( i < get_num_stimuli() ) {
 		set_pattern_activity(i);
 	}
 	redraw();
@@ -491,7 +491,7 @@ void StimulusGroup::set_active_pattern(unsigned int i)
 
 void StimulusGroup::set_distribution( std::vector<double> probs )
 {
-	for ( unsigned int i = 0 ; i < stimuli.size() ; ++i ) {
+	for ( unsigned int i = 0 ; i < get_num_stimuli() ; ++i ) {
 		probabilities[i] = probs[i];
 	}
 
@@ -499,7 +499,7 @@ void StimulusGroup::set_distribution( std::vector<double> probs )
 
 	std::stringstream oss;
 	oss << "StimulusGroup: Set distribution [";
-	for ( unsigned int i = 0 ; i < stimuli.size() ; ++i ) {
+	for ( unsigned int i = 0 ; i < get_num_stimuli() ; ++i ) {
 		oss << " " << probabilities[i];
 	}
 	oss << " ]";
@@ -518,8 +518,8 @@ double StimulusGroup::get_distribution( int i )
 
 void StimulusGroup::flat_distribution( ) 
 {
-	for ( unsigned int i = 0 ; i < stimuli.size() ; ++i ) {
-		probabilities.push_back(1./((double)stimuli.size()));
+	for ( unsigned int i = 0 ; i < get_num_stimuli() ; ++i ) {
+		probabilities.push_back(1./((double)get_num_stimuli()));
 	}
 }
 
@@ -528,12 +528,12 @@ void StimulusGroup::normalize_distribution()
 	std::stringstream oss;
 	oss << "StimulusGroup: Normalizing distribution [";
 	double sum = 0 ;
-	for ( unsigned int i = 0 ; i < stimuli.size() ; ++i ) {
+	for ( unsigned int i = 0 ; i < get_num_stimuli() ; ++i ) {
 		sum += probabilities[i];
 	}
 
 	// normalize vector 
-	for ( unsigned int i = 0 ; i < stimuli.size() ; ++i ) {
+	for ( unsigned int i = 0 ; i < get_num_stimuli() ; ++i ) {
 		probabilities[i] /= sum;
 		oss << " " << probabilities[i];
 	}
@@ -604,4 +604,9 @@ bool StimulusGroup::get_stim_active()
 unsigned int StimulusGroup::get_cur_stim()
 {
 	return cur_stim_index;
+}
+
+unsigned int StimulusGroup::get_num_stimuli()
+{
+	return stimuli.size();
 }

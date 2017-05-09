@@ -136,6 +136,9 @@ public:
 	/*! \brief Vector containing all the stimuli. */
 	std::vector<type_pattern> stimuli;
 
+	/*! \brief Returns number of stimuli */
+	virtual unsigned int get_num_stimuli();
+
 	/*! \brief This is by how much the pattern gamma value is multiplied. The resulting value gives the x-times baseline activation */
 	AurynFloat scale;
 
@@ -184,7 +187,7 @@ public:
 	AurynFloat get_activity(NeuronID i);
 
 	/*! \brief Loads stimulus patterns from a designated file given */
-	void load_patterns( string filename );
+	virtual void load_patterns( string filename );
 
 	/*! \brief Set mean quiet interval between consecutive stimuli */
 	void set_mean_off_period(AurynFloat period);
@@ -202,7 +205,7 @@ public:
 	 *
 	 * @param i the index of the pattern to set the activity to
 	 */
-	void set_active_pattern( unsigned int i );
+	virtual void set_active_pattern( unsigned int i );
 
 	/*! \brief This function is called internally and sets the activity level to a given active stimulus
 	 *
