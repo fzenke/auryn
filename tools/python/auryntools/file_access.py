@@ -1,6 +1,6 @@
 #!/usr/bin/python
 import numpy as np
-import pylab as pl
+import matplotlib as pl
 import struct
 import glob
 
@@ -34,7 +34,7 @@ class AurynBinaryFile:
         idx_lo = 1
         idx_hi = self.last_frame
         while idx_lo+1<idx_hi:
-            pivot = (idx_lo+idx_hi)/2
+            pivot = (idx_lo+idx_hi)//2
             at, nid = self.get_frame(pivot)
             ft = at*self.timestep
             if ft>time:
@@ -58,7 +58,7 @@ class AurynBinaryFile:
         self.timestep = 1.0/self.header[0]
         version_code = int(self.header[1])%1000
         # TODO add header signature checks
-        self.file_version = (version_code%10, (version_code%100)/10, (version_code%1000)/100)
+        self.file_version = (version_code%10, (version_code%100)//10, (version_code%1000)//100)
         if self.class_version != self.file_version:
             print("Warning! Version mismatch between the decoding tool and the file version.")
             print("AurynBinarySpikeFile %s"%str(self.class_version))
@@ -67,7 +67,7 @@ class AurynBinaryFile:
         # Determine size of file
         self.datafile.seek(0,2)
         self.filesize = self.datafile.tell()
-        self.last_frame = self.filesize/self.frame_size-1
+        self.last_frame = self.filesize//self.frame_size-1
         self.num_data_frames = self.last_frame-1
         self.datafile.seek(self.frame_size,0)
         if self.debug:
@@ -123,7 +123,7 @@ class AurynBinaryStateFile(AurynBinaryFile):
         raw_data = self.datafile.read(num_elements*self.frame_size)
 
         data = []
-        for i in xrange(num_elements):
+        for i in range(num_elements):
             at, val = struct.unpack_from(self.data_format, raw_data, i*self.frame_size)
             data.append((self.timestep*at, val))
         return data
@@ -156,7 +156,7 @@ class AurynBinarySpikeFile(AurynBinaryFile):
         data = self.datafile.read(num_elements*self.frame_size)
 
         spikes = []
-        for i in xrange(num_elements):
+        for i in range(num_elements):
             at, nid = struct.unpack_from(self.data_format, data, i*self.frame_size)
             if nid<max_id:
                 spikes.append((self.timestep*at, nid))
@@ -172,7 +172,7 @@ class AurynBinarySpikeFile(AurynBinaryFile):
         data = self.datafile.read(num_elements*self.frame_size)
 
         counts = np.zeros(min_size)
-        for i in xrange(num_elements):
+        for i in range(num_elements):
             at, nid = struct.unpack_from(self.data_format, data, i*self.frame_size)
             if nid >= len(counts):
                 counts.resize(nid+1)
@@ -201,7 +201,7 @@ class AurynBinarySpikeFile(AurynBinaryFile):
                 bufsize = idx_stop-idx_cur
             idx_cur = idx_cur+bufsize
             data = self.read_frames(bufsize)
-            for i in xrange(bufsize):
+            for i in range(bufsize):
                 at, nid = struct.unpack_from(self.data_format, data, i*self.frame_size)
                 if nid==neuron_id:
                     spike_times.append(self.timestep*at)
