@@ -58,7 +58,7 @@ class AurynBinaryFile:
         self.timestep = 1.0/self.header[0]
         version_code = int(self.header[1])%1000
         # TODO add header signature checks
-        self.file_version = (version_code%10, (version_code%100)//10, (version_code%1000)//100)
+        self.file_version = ((version_code%1000)//100, (version_code%100)//10, version_code%10 )
         if self.class_version != self.file_version:
             print("Warning! Version mismatch between the decoding tool and the file version.")
             print("AurynBinarySpikeFile %s"%str(self.class_version))
