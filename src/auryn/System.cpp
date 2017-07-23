@@ -308,11 +308,6 @@ void System::evolve()
 			(*iter)->conditional_evolve(); // evolve only if existing on rank
 	}
 
-	evolve_connections(); // used to run in parallel to the sync (and could still in principle)
-	// what is important for event based integration such as done in LinearTrace that this stays
-	// on the same side of step() otherwise the results will be wrong (or evolve in LinearTrace has
-	// to be adapted.
-	
 	{ 	// evolve devices
 		std::vector<Device *>::const_iterator iter;
 		for ( iter = devices.begin() ; iter != devices.end() ; ++iter ) 
@@ -506,16 +501,19 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 		}
 
 		// Auryn duty cycle
-		evolve();
-		propagate();
-		execute_devices();
+		evolve(); // Evolve state of NeuronGroups
+		propagate(); // Propagate spikes through connections and implement plasticity
+		execute_devices(); // Calls Monitors for recording or other devices to interfere with sim
 
-		if ( checking ) {
+		if ( checking ) { // run checkers to break run if needed
 			if (!execute_checkers()) {
 				return false;
 			}
 		}
 
+		// Updates the internal state of connection instances 
+		// (eg update synaptic traces etc)
+		evolve_connections(); 
 		
 		step();	
 
