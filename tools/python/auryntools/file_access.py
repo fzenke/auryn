@@ -8,7 +8,7 @@ from scipy.sparse import *
 from scipy.io import mmread, mmwrite
 
 
-current_version = (0,8,0)
+current_version = (0,8,1)
 
 class AurynBinaryFile:
     '''
@@ -151,6 +151,7 @@ class AurynBinarySpikeFile(AurynBinaryFile):
         idx_stop = self.find_frame( t_stop, lower=True )
         start_pos = idx_start*self.frame_size
         num_elements = idx_stop-idx_start
+        if num_elements==-1: return []
 
         self.datafile.seek(start_pos,0)
         data = self.datafile.read(num_elements*self.frame_size)
