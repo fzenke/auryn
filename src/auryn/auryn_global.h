@@ -77,11 +77,41 @@ namespace auryn {
 	 * */
 	void auryn_init(int ac, char* av[], string dir=".", string simulation_name="", string logfile_prefix="" );
 
+	/*! \brief Initalizes MPI (used internally)
+	 *
+	 * This function is called as port of auryn_init and is typically called internally.
+	 */
+	void auryn_mpi_init(int ac, char* av[], string dir=".", string logfile_prefix="");
+
+	/*! \brief Initalizes the Auryn kernel (used internally)
+	 *
+	 * This function is called as port of auryn_init and is typically called internally.
+	 * However, it can be used if several simulations are to be run from a single simulation binary.
+	 * Then manual calles of auryn_kernel_init and auryn_kernel_free can be used to reinitalize the kernel
+	 * without closing down the MPI environment.
+	 */
+	void auryn_kernel_init(string dir=".", string simulation_name="");
+
 	/*! \brief Cleanly shuts down Auryn simulation environment. 
 	 *
 	 * Deletes global variables mpienv, mpicommunicator, sys and logger and ensures 
 	 * that all data is written to disk.*/
 	void auryn_free();
+
+	/*! \brief Frees logger and MPI 
+	 *
+	 * This function frees the MPI modules and logger. It is usually called by auryn_free()
+	 * \see auryn_kernel_init
+	 */
+	void auryn_mpi_free();
+
+	/*! \brief Frees the current auryn kernel (used interally)
+	 *
+	 * This function frees the current auryn kernel. It is usually called by auryn_free(), 
+	 * but in some cases it may make sense to use this independently.
+	 * \see auryn_kernel_init
+	 */
+	void auryn_kernel_free();
 
 	/*! \brief Terminates Auryn simulation abnormally 
 	 *

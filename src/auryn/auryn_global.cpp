@@ -36,7 +36,8 @@ namespace auryn {
 	Logger * logger;
 	System * sys;
 
-	void auryn_init(int ac, char* av[], string dir, string simulation_name, string logfile_prefix )
+
+	void auryn_mpi_init(int ac, char* av[], string dir, string logfile_prefix)
 	{
 #ifdef AURYN_CODE_USE_MPI
 		// init MPI environment
@@ -67,7 +68,10 @@ namespace auryn {
 			auryn_abort(10);
 		} 
 
-		// Init Auryn Kernel
+	}
+
+	void auryn_kernel_init(string dir, string simulation_name)
+	{
 #ifdef AURYN_CODE_USE_MPI
 		auryn::sys = new System(mpicommunicator); 
 #else
@@ -77,14 +81,33 @@ namespace auryn {
 		sys->set_simulation_name(simulation_name);
 	}
 
-	void auryn_free()
+	void auryn_init(int ac, char* av[], string dir, string simulation_name, string logfile_prefix )
+	{
+		// Init MPI and Logger
+		auryn_mpi_init(ac, av, dir, logfile_prefix);
+		// Init Auryn Kernel
+		auryn_kernel_init(dir, simulation_name);
+	}
+
+
+	void auryn_kernel_free()
 	{
 		delete sys;
+	}
+
+	void auryn_mpi_free()
+	{
 		delete logger;
 #ifdef AURYN_CODE_USE_MPI
 		delete mpicommunicator;
 		delete mpienv;
 #endif // AURYN_CODE_USE_MPI
+	}
+
+	void auryn_free()
+	{
+		auryn_kernel_free();
+		auryn_mpi_free();
 	}
 
 	void auryn_abort(int errcode) {
