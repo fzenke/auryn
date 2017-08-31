@@ -177,7 +177,8 @@ void TripletConnection::propagate_forward()
 			// handles plasticity
 			if ( stdp_active ) {
 			    *weight += dw_pre(*c);
-				clip_weight(weight);
+				// clip weight
+				if ( *weight < get_min_weight() ) *weight = get_min_weight();
 			}
 
 			// evokes the postsynaptic response 
@@ -207,6 +208,8 @@ void TripletConnection::propagate_backward()
 				// computes plasticity update
 				AurynWeight * weight = bkw->get_data(c); // for bkw data is already a pointer
 				*weight += dw_post(*c,translated_spike);
+				// clip weight
+				if ( *weight > get_max_weight() ) *weight = get_max_weight();
 			}
 		}
 	}
