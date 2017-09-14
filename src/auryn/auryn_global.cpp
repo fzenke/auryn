@@ -37,7 +37,7 @@ namespace auryn {
 	System * sys;
 
 
-	void auryn_mpi_init(int ac, char* av[], string dir, string logfile_prefix)
+	void auryn_env_init(int ac, char* av[], string dir, string logfile_prefix, LogMessageType filelog_level, LogMessageType consolelog_level)
 	{
 #ifdef AURYN_CODE_USE_MPI
 		// init MPI environment
@@ -60,7 +60,7 @@ namespace auryn {
 			char strbuf_tmp [255]; 
 			sprintf(strbuf_tmp, "%s/%s.%d.log", dir.c_str(), log_prefix_.c_str(), local_rank); 
 			string auryn_simulation_logfile = strbuf_tmp; 
-			logger = new Logger(auryn_simulation_logfile,local_rank); 
+			logger = new Logger(auryn_simulation_logfile, local_rank, consolelog_level, filelog_level); 
 		} 
 		catch ( AurynOpenFileException excpt ) 
 		{ 
@@ -81,10 +81,10 @@ namespace auryn {
 		sys->set_simulation_name(simulation_name);
 	}
 
-	void auryn_init(int ac, char* av[], string dir, string simulation_name, string logfile_prefix )
+	void auryn_init(int ac, char* av[], string dir, string simulation_name, string logfile_prefix, LogMessageType filelog_level, LogMessageType consolelog_level )
 	{
 		// Init MPI and Logger
-		auryn_mpi_init(ac, av, dir, logfile_prefix);
+		auryn_env_init(ac, av, dir, logfile_prefix, filelog_level, consolelog_level);
 		// Init Auryn Kernel
 		auryn_kernel_init(dir, simulation_name);
 	}
@@ -95,7 +95,7 @@ namespace auryn {
 		delete sys;
 	}
 
-	void auryn_mpi_free()
+	void auryn_env_free()
 	{
 		delete logger;
 #ifdef AURYN_CODE_USE_MPI
@@ -107,7 +107,7 @@ namespace auryn {
 	void auryn_free()
 	{
 		auryn_kernel_free();
-		auryn_mpi_free();
+		auryn_env_free();
 	}
 
 	void auryn_abort(int errcode) {
