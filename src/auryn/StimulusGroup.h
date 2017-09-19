@@ -59,7 +59,6 @@ private:
 
 	int off_pattern;
 
-	unsigned int stimulation_count;
 
 
 protected:
@@ -69,6 +68,10 @@ protected:
 
 	/*! Stimulus order */
 	StimulusGroupModeType stimulus_order ;
+
+
+	/*! \brief Counter variable for number of stimuli shown */
+	unsigned int stimulation_count;
 
 	/*! Foreground Poisson field pointer */
 	NeuronID fgx;
