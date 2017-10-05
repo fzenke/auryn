@@ -116,8 +116,8 @@ public:
 	 * This must be a valid state vector name (default = mem). */
 	void set_target_state( string state_name = "mem" );
 
-	/*! \brief Implementation of necessary propagate() function. */
-	void propagate();
+	/*! \brief Implementation of necessary execute() function. */
+	void execute();
 
 };
 
