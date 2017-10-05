@@ -67,7 +67,7 @@ PoissonStimulator::~PoissonStimulator()
 	free();
 }
 
-void PoissonStimulator::propagate()
+void PoissonStimulator::execute()
 {
 	if ( dst->evolve_locally() ) {
 		for ( NeuronID i = 0 ; i < dst->get_post_size() ; ++i ) {
