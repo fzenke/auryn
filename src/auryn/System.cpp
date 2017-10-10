@@ -365,7 +365,7 @@ bool System::execute_checkers()
 void System::progressbar ( double fraction, AurynTime clk ) {
 	std::string bar;
 	int percent = 100*fraction;
-	const int division = 4;
+	const int division = 5;
 	for(int i = 0; i < 100/division; i++) {
 		if( i < (percent/division)){
 			bar.replace(i,1,"=");
