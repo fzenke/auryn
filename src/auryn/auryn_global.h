@@ -75,7 +75,7 @@ namespace auryn {
 	 * \param logfile_prefix A file prefix (without path) which Auryn will use to generate
 	 * a log file name.
 	 * */
-	void auryn_init(int ac, char* av[], string dir=".", string simulation_name="", string logfile_prefix="", LogMessageType filelog_level=NOTIFICATION, LogMessageType consolelog_level=PROGRESS);
+	void auryn_init(int ac, char* av[], string dir=".", string simulation_name="default", string logfile_prefix="", LogMessageType filelog_level=NOTIFICATION, LogMessageType consolelog_level=PROGRESS);
 
 	/*! \brief Initalizes Auryn base environment (used internally)
 	 *
@@ -91,7 +91,7 @@ namespace auryn {
 	 * Then manual calles of auryn_kernel_init and auryn_kernel_free can be used to reinitalize the kernel
 	 * without closing down the MPI environment.
 	 */
-	void auryn_kernel_init(string dir=".", string simulation_name="");
+	void auryn_kernel_init(string dir=".", string simulation_name="default");
 
 	/*! \brief Cleanly shuts down Auryn simulation environment. 
 	 *
