@@ -25,12 +25,12 @@
  *
  * The default parameters are set such that postsynaptic firing rates stabilize.
  * 
- *
  * Output files:
- *
- * sim_stdp.*.prate : Population firing rate of postsynaptic neurons
- * sim_stdp.*.msyn : Evolution of mean synaptic weights 
- * sim_stdp.*.syn : Evolution of 100 individual synaptic weights
+ * <ul>
+ *   <li>sim_stdp.*.prate : Population firing rate of postsynaptic neurons</li>
+ *   <li>sim_stdp.*.msyn : Evolution of mean synaptic weights </li>
+ *   <li>sim_stdp.*.syn : Evolution of 100 individual synaptic weights </li>
+ * </ul>
  */
 
 #include "auryn.h"
