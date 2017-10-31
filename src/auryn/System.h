@@ -102,6 +102,7 @@ namespace auryn {
 		time_t t_sys_start;
 
 		int online_rate_monitor_id;
+		SpikingGroup * online_rate_monitor_target;
 		double online_rate_monitor_tau;
 		double online_rate_monitor_mul;
 		double online_rate_monitor_state;
@@ -181,13 +182,19 @@ namespace auryn {
 
 		virtual ~System();
 
-		/*! \brief Sets the SpikingGroup ID used to display the rate estimate in the
+
+		/*! \brief Sets the target group for online rate estimate */
+		void set_online_rate_monitor_target( SpikingGroup * group = NULL );
+
+		/*! \brief Sets the SpikingGroup used to display the rate estimate in the
 		 * progressbar 
+		 *
+		 * \deprecated This function should not be used any more. Use
+		 * set_online_rate_monitor_target instead.
 		 *
 		 * This typically is reflected by the order in
 		 * which you define the SpikingGroup and NeuronGroup classes. It starts
-		 * numbering from 0, but you can also get the ID from a SpikingGroup via the get_uid()
-		 * function. */
+		 * numbering from 0. */
 		void set_online_rate_monitor_id( unsigned int id=0 );
 
 		/*! \brief Sets the timeconstant to compute the online rate average for the status bar. */
