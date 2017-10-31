@@ -49,10 +49,10 @@ class CurrentInjector : protected Device
 private:
 
 	/*! Vector storing all the current values */
-	auryn_vector_float * currents;
+	AurynVectorFloat * currents;
 
 	/*! Target membrane */
-	auryn_vector_float * target_vector;
+	AurynVectorFloat * target_vector;
 
 	void free();
 

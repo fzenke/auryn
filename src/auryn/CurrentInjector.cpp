@@ -34,9 +34,9 @@ CurrentInjector::CurrentInjector(NeuronGroup * target, std::string neuron_state_
 	dst = target;
 
 	set_target_state(neuron_state_name);
-	currents = auryn_vector_float_alloc(dst->get_vector_size()); 
+	currents = new AurynVectorFloat(dst->get_vector_size()); 
 
-	auryn_vector_float_set_all( currents, initial_current );
+	currents->set_all(initial_current );
 
 	alpha = auryn_timestep;
 }
@@ -57,7 +57,7 @@ CurrentInjector::~CurrentInjector()
 void CurrentInjector::propagate()
 {
 	if ( dst->evolve_locally() ) {
-		auryn_vector_float_saxpy(alpha, currents, target_vector);
+		currents->saxpy(alpha, target_vector);
 	}
 }
 
