@@ -49,9 +49,11 @@ namespace auryn {
 	private:
 		AurynStateVector * state_soma; /*!< somatic voltage */
 		AurynStateVector * state_dend; /*!< dendritic voltage */
-		AurynStateVector * state_m; /*!< activation level of putative Ca current */
-		AurynStateVector * state_x; /*!< activation level of putative Ca-activated potassium current */
-		AurynStateVector * state_Vt; /*!< firing threshold */
+		AurynStateVector * state_wsoma; /*!< adaptation variable */
+		AurynStateVector * state_wdend; /*!< activation level of putative Ca-activated potassium current */
+
+		AurynVector<unsigned int> * post_spike_countdown;
+		unsigned int post_spike_reset;
 
 		/* auxiliary state vectors used to compute synaptic currents */
 		AurynStateVector * t_leak;
@@ -59,29 +61,26 @@ namespace auryn {
 		AurynStateVector * t_inh;
 		AurynStateVector * temp;
 
-		Trace * state_w;
 
-
-		AurynFloat tau_ampa, tau_gaba, tau_nmda, tau_thr, tau_m, tau_ws, tau_wd;
+		AurynFloat tau_ampa, tau_gaba, tau_nmda, tau_thr, tau_m, tau_wsoma, tau_wdend;
 		AurynFloat A_ampa, A_nmda;
-		AurynFloat e_rest, e_inh, e_thr, e_dend;
-		AurynFloat Cs, gs, Cd, gd, alpha, beta, gamma, g1, g2, Dt; 
+		AurynFloat e_rest, e_inh, e_thr, e_dend, e_spk_thr;
+		AurynFloat e_reset;
+		AurynFloat Cs, gs, Cd, gd, alpha, beta, box_height, xi; 
+		AurynFloat a_wdend, b_wsoma, aux_a_wdend;
 
-		AurynFloat jump_w;
-
-		AurynFloat mul_soma, mul_dend, mul_nmda, mul_m, mul_x, mul_g1, mul_g2, mul_alpha, mul_beta, mul_ws, mul_wd;
-		AurynFloat scale_ampa, scale_gaba, scale_thr; 
+		AurynFloat mul_soma, mul_wsoma, mul_dend, mul_nmda, mul_alpha, mul_beta, mul_wdend;
+		AurynFloat scale_ampa, scale_gaba, mul_thr; 
+		AurynFloat scale_wsoma, scale_wdend; 
 
 		void init();
 		void free();
 		void precalculate_constants();
 		void integrate_membrane();
-		void integrate_active_dendritic_currents();
 		void integrate_linear_nmda_synapses();
 		void check_thresholds();
 
 	public:
-		AurynFloat e_reset, e_rest;
 		/*! \brief Default constructor.
 		 *
 		 * @param size the size of the group.  

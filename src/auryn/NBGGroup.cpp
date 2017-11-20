@@ -38,21 +38,24 @@ NBGGroup::NBGGroup( NeuronID size, NodeDistributionMode distmode ) : NeuronGroup
 
 void NBGGroup::precalculate_constants()
 {
-	scale_ampa  =  std::exp(-auryn_timestep/tau_ampa) ;
-	scale_gaba  =  std::exp(-auryn_timestep/tau_gaba) ;
-	scale_thr   = std::exp(-auryn_timestep/tau_thr) ;
+	scale_ampa  =  std::exp(-auryn_timestep/tau_ampa);
+	scale_gaba  =  std::exp(-auryn_timestep/tau_gaba);
 	mul_nmda    = 1.0-std::exp(-auryn_timestep/tau_nmda);
 
+	mul_thr     = auryn_timestep/tau_thr;
 	mul_soma    = auryn_timestep*(gs/Cs);
+	mul_wsoma   = auryn_timestep*(b_wsoma/Cs);
 	mul_dend    = auryn_timestep*(gd/Cd);
+	mul_wdend   = auryn_timestep*(1.0/Cd);
 
-	mul_ws = std::exp(-auryn_timestep/tau_ws);
-	mul_wd = std::exp(-auryn_timestep/tau_wd);
+	mul_alpha = auryn_timestep*(alpha/Cs); 
+	mul_beta = auryn_timestep*(beta/Cd);
 
-	mul_alpha = auryn_timestep*(alpha/Cs);
-	mul_beta = auryn_timestep*(beta/Cs);
+	// mul_wsoma = std::exp(-auryn_timestep/tau_wsoma);
 
-	mul_adapt = auryn_timestep*(jump_w/Cs);
+	scale_wsoma = std::exp(-auryn_timestep/tau_wsoma); 
+	scale_wdend = std::exp(-auryn_timestep/tau_wdend); 
+	aux_a_wdend = auryn_timestep*(a_wdend/tau_wdend);
 }
 
 void NBGGroup::init()
@@ -63,7 +66,8 @@ void NBGGroup::init()
 	e_thr = -50e-3;
 
 	// threshold
-	tau_thr  = 27e-3;
+	tau_thr   = 5e-3;
+	e_spk_thr = 1e-3; // TODO find good value here
 
 	// soma 
 	Cs = 370e-12;
@@ -73,24 +77,26 @@ void NBGGroup::init()
 	Cd = 170e-12;
     gd = 24e-9;
 
-	tau_ws = 100e-3;
-	tau_wd = 30e-3;
 
-	alpha = 567e-12;
-	beta  = -207e-12;
-	gamma = -207e-12;
+	alpha = 1300e-12; // dendritic coupling strength to soma
+	beta  = 1200e-12; // somatic coupling strength to dendrite
+	box_height = auryn_timestep*2600e-12/Cd;
 
 	e_dend = -38e-3;
-	Dt = 6e-3;
+	const AurynFloat Dthresh = 6e-3;
+	xi = 1.0/Dthresh;
+	
 
-	jump_w = -200e-12; // adaptation current amplitude
+
+	tau_wsoma = 100e-3;
+	tau_wdend = 30e-3;
+	b_wsoma = -200e-12; // adaptation current amplitude
+	a_wdend = -13e-9;
 
 	// synaptic time constants
 	tau_ampa = 5e-3;
 	tau_gaba = 10e-3;
 	tau_nmda = 100e-3;
-
-	tau_w = 100e-3;
 
 
 	set_ampa_nmda_ratio(1.0);
@@ -100,12 +106,13 @@ void NBGGroup::init()
 	// declare state vectors
 	state_soma = mem; // convention to use mem declared in NeuronGroup
 	state_dend = get_state_vector("Vd");
-	state_m  = get_state_vector("m");
-	state_x  = get_state_vector("x");
-	state_Vt = thr; // convention to use thr declared in NeuronGroup
+	state_wsoma = get_state_vector("wsoma");
+	state_wdend = get_state_vector("wdend");
 
-	// mods (this deviates from the original kernel-based model
-	state_w  = get_post_trace(tau_w);
+	// counter to implement BAP box kernel
+	post_spike_countdown = new AurynVector<unsigned int>(get_vector_size());
+	const AurynFloat box_kernel_length = 3e-3;
+	post_spike_reset = int(box_kernel_length/auryn_timestep);  
 
 	// declare tmp vectos
 	temp = get_state_vector("_temp");
@@ -122,6 +129,8 @@ void NBGGroup::clear()
 	mem->set_all(e_rest);
 	thr->set_all(e_thr);
 	state_dend->set_all(e_rest);
+	state_wsoma->set_all(0.0);
+	state_wdend->set_all(0.0);
 
 	// zero synaptic input
 	g_ampa->set_zero();
@@ -130,6 +139,7 @@ void NBGGroup::clear()
 }
 
 void NBGGroup::free() {
+	delete post_spike_countdown;
 }
 
 NBGGroup::~NBGGroup()
@@ -161,48 +171,53 @@ void NBGGroup::integrate_linear_nmda_synapses()
 /*! \brief This method applies the Euler integration step to the membrane dynamics. */
 void NBGGroup::integrate_membrane()
 {
-	// decay moving threshold
-	state_Vt->follow_scalar(e_thr, scale_thr);
-    
     // somatic dynamics 
-	temp->sigmoid(state_dend, e_dend, 1.0f/Dt); // sigmoid activation
-
-	t_leak->diff(e_rest, state_soma); // leak current
-    state_soma->saxpy(mul_soma,t_leak);
-	state_soma->saxpy(mul_alpha, state_m);
-	state_soma->saxpy(mul_adapt, state_w);
-	state_soma->saxpy(gs, state_w);
-	// TODO add epsilon filtered current
-	
-	// dendritic dynamics
-	t_leak->diff(e_rest, state_dend); 
-    state_dend->saxpy(mul_dend,t_leak); // leak current
-    state_dend->saxpy(mul_dend,t_exc);  // exc synaptic input
-    state_dend->saxpy(-mul_dend,t_inh); // inh synaptic input
-	state_dend->saxpy(mul_g1,state_m);
-	state_dend->saxpy(mul_g2,state_x);
-	// TODO add BAP
-	// TODO add epsilonsd filtered somatic current
-}
-
-/*! Integrates equations (3) and (4) of model description */
-void NBGGroup::integrate_active_dendritic_currents()
-{
-	// compute sigmoidal nonlinearity for Ca current (m-dynamics)
-	// temp->diff(e_dend,state_dend);
-	// temp->div(Dt);
+	temp->sigmoid(state_dend, xi, e_dend ); // sigmoid activation
+	// temp->diff(state_dend, e_dend );
+	// temp->mul(-xi);
 	// temp->exp();
 	// temp->add(1.0);
 	// temp->inv();
-	state_m->follow(temp, mul_m);
+	// temp->print();
 
-	// compute update for dx/dt
-	state_x->follow(state_m, mul_x);
+	t_leak->diff(e_rest, state_soma); // leak current
+    state_soma->saxpy(mul_soma, t_leak);
+	state_soma->saxpy(mul_wsoma, state_wsoma);
+	state_soma->saxpy(mul_alpha, temp); // nonlinear activation from dendrite
+
+	state_wsoma->scale(scale_wsoma);
+	
+	// dendritic dynamics
+	t_leak->diff(e_rest, state_dend);  // dendritic leak
+    state_dend->saxpy(mul_dend, t_leak); 
+	state_dend->saxpy(mul_wdend, state_wdend);
+	state_dend->saxpy(mul_beta, temp); // nonlinear activation from dendrite
+
+	// box kernel for BAP
+	for ( NeuronID i = 0 ; i < get_post_size() ; ++i ) {
+		if ( post_spike_countdown->get(i) ) {
+			state_dend->add_specific(i, box_height); 
+
+			// decrease post spike counter
+			post_spike_countdown->add_specific(i,-1);
+		} }
+
+	// synaptic input 
+    state_dend->saxpy(mul_dend, t_exc);  // exc synaptic input in units of leak
+    state_dend->saxpy(-mul_dend,t_inh); // inh synaptic input 
+
+	state_wdend->scale(scale_wdend);
+	temp->diff(state_dend,e_rest);  // dendritic leak
+	state_wdend->saxpy(aux_a_wdend,temp);
+
+	// decay moving threshold
+	thr->follow_scalar(e_thr, mul_thr);
+
 }
 
 void NBGGroup::check_thresholds()
 {
-	mem->clip( e_inh, 0.0 );
+	// mem->clip( e_inh, 0.0 );
 
 	AurynState * thr_ptr = thr->data;
 	for ( AurynState * i = mem->data ; i != mem->data+get_rank_size() ; ++i ) { // it's important to use rank_size here otherwise there might be spikes from units that do not exist
@@ -210,8 +225,9 @@ void NBGGroup::check_thresholds()
 			NeuronID unit = i-mem->data;
 			push_spike(unit);
 		    mem->set( unit, e_reset); // reset
-	        thr->set( unit, Dt); // increase dynamic threshold (refractory)
-
+	        thr->set( unit, e_spk_thr); // increase dynamic threshold (refractory)
+			state_wsoma->add_specific(unit,1.0); // increments somatic adaptation variable
+			post_spike_countdown->set(unit,post_spike_reset);
 		} 
 		thr_ptr++;
 	}
@@ -222,7 +238,6 @@ void NBGGroup::evolve()
 {
 	integrate_linear_nmda_synapses();
 	integrate_membrane();
-	integrate_active_dendritic_currents();
 	check_thresholds();
 }
 
