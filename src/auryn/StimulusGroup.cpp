@@ -44,8 +44,10 @@ void StimulusGroup::init(StimulusGroupModeType stimulusmode, std::string stimfil
 
 	seed(2351301);
 
+
 	set_stimulation_mode(stimulusmode);
 
+	stimulation_count = 0;
 	stimulus_active = false ;
 	set_all( 0.0 ); 
 
@@ -331,6 +333,7 @@ void StimulusGroup::evolve()
 					if ( !binary_patterns )
 						set_active_pattern( cur_stim_index );
 					stimulus_active = true;
+					stimulation_count++;
 					last_stim_onset_time = sys->get_clock();
 
 					if ( randomintervals && stimulus_order != STIMFILE ) {
@@ -609,4 +612,9 @@ unsigned int StimulusGroup::get_cur_stim()
 unsigned int StimulusGroup::get_num_stimuli()
 {
 	return stimuli.size();
+}
+
+unsigned int StimulusGroup::get_stim_count()
+{
+	return stimulation_count;
 }

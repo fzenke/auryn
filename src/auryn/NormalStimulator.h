@@ -100,8 +100,8 @@ public:
 	 * This must be a valid state vector name (default = mem) */
 	void set_target_state( string state_name = "inj_current" );
 
-	/*! Implementation of necessary propagate() function. */
-	void propagate();
+	/*! Implementation of necessary execute() function. */
+	void execute();
 
 };
 

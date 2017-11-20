@@ -132,6 +132,7 @@ void SpikeTimingStimGroup::evolve()
 							// and do not compute this every draw
 							draw = order_die();
 							cummulative = 0; 
+							stimulation_count++;
 							cur_stim_index = 0;
 							// std::cout.precision(5);
 							// std::cout << " draw " << draw <<  std::endl;

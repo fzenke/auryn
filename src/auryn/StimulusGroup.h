@@ -60,6 +60,7 @@ private:
 	int off_pattern;
 
 
+
 protected:
 	AurynTime * ttl;
 
@@ -67,6 +68,10 @@ protected:
 
 	/*! Stimulus order */
 	StimulusGroupModeType stimulus_order ;
+
+
+	/*! \brief Counter variable for number of stimuli shown */
+	unsigned int stimulation_count;
 
 	/*! Foreground Poisson field pointer */
 	NeuronID fgx;
@@ -223,6 +228,9 @@ public:
 	std::vector<double> get_distribution ( );
 	/*! \brief Getter for pattern i of the probability distribution */
 	double get_distribution ( int i );
+	/*! \brief Returns number of stimuli shown */
+	unsigned int get_stim_count();
+
 
 	/*! \brief returns the last action (stim on/off) time in units of AurynTime */
 	AurynTime get_last_action_time();

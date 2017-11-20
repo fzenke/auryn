@@ -57,6 +57,7 @@ void System::init() {
 	// assumes that we have at least one spiking group in the sim
 	online_rate_monitor_id = 0; 
 	online_rate_monitor_state = 0.0;
+	online_rate_monitor_target = NULL; 
 
 	last_elapsed_time = -1.0;
 	// remember starting time
@@ -365,7 +366,7 @@ bool System::execute_checkers()
 void System::progressbar ( double fraction, AurynTime clk ) {
 	std::string bar;
 	int percent = 100*fraction;
-	const int division = 4;
+	const int division = 5;
 	for(int i = 0; i < 100/division; i++) {
 		if( i < (percent/division)){
 			bar.replace(i,1,"=");
@@ -383,7 +384,7 @@ void System::progressbar ( double fraction, AurynTime clk ) {
 
 	std::cout<< percent << "%     "<< std::setiosflags(std::ios::fixed) << " t=" << time ;
 
-	if ( online_rate_monitor_id >= 0 ) {
+	if ( online_rate_monitor_target ) {
 		std::cout  << std::setprecision(1) << "  f=" << online_rate_monitor_state << " Hz"
 			<< " in " << spiking_groups.at(online_rate_monitor_id)->get_name() << "   ";
 
@@ -911,20 +912,27 @@ void System::set_online_rate_monitor_tau(AurynDouble tau)
 
 void System::evolve_online_rate_monitor()
 {
-	if ( online_rate_monitor_id >= 0 ) {
+	if ( online_rate_monitor_target != NULL ) {
 		online_rate_monitor_state *= online_rate_monitor_mul;
-		SpikingGroup * src = spiking_groups[online_rate_monitor_id];
-		online_rate_monitor_state += 1.0*src->get_spikes()->size()/online_rate_monitor_tau/src->get_size();
+		online_rate_monitor_state += 1.0*online_rate_monitor_target->get_spikes()->size()/online_rate_monitor_tau/online_rate_monitor_target->get_size();
 	}
 }
 
 void System::set_online_rate_monitor_id( unsigned int id )
 {
-	online_rate_monitor_state = 0.0;
-	if ( id < spiking_groups.size() ) 
+	if ( id < spiking_groups.size() ) {
 		online_rate_monitor_id = id;
-	else
+		set_online_rate_monitor_target(spiking_groups[online_rate_monitor_id]);
+	} else {
 		online_rate_monitor_id = -1;
+		set_online_rate_monitor_target(NULL);
+	}
+}
+
+void System::set_online_rate_monitor_target( SpikingGroup * group ) 
+{
+	online_rate_monitor_state = 0.0;
+	online_rate_monitor_target = group;
 }
 
 AurynDouble System::get_last_elapsed_time()

@@ -41,6 +41,8 @@ namespace auryn {
  * Most commonly used to inject "currents" to arbitraty neuronal states. Maintains an internal vector with
  * numbers which are added (times auryn_timestep) in each timestep to the neuronal target vector 
  * (per default that is the membrane voltage and hence the operation corresponds to injecting a current).
+ * Note that because of this current units of CurrentInjector are in a sense arbitrary because they depend 
+ * on the neuron model.
  * 
  */
 
@@ -99,7 +101,7 @@ public:
 	void set_all_currents( AurynFloat current );
 
 	/*! Implementation of necessary propagate() function. */
-	void propagate();
+	void execute();
 
 };
 
