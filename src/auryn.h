@@ -101,6 +101,7 @@
 #include "auryn/IafPscDeltaGroup.h"
 #include "auryn/IafPscExpGroup.h"
 #include "auryn/IzhikevichGroup.h"
+#include "auryn/NBGGroup.h"
 
 // SynapseModel
 #include "auryn/SynapseModel.h"
