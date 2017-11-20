@@ -48,10 +48,11 @@ FileInputGroup::FileInputGroup(NeuronID n, std::string filename,
 		bool loop, AurynFloat delay) 
 : SpikingGroup( n , RANKLOCK )
 {
+	init();
 	playinloop = loop;
+	if ( playinloop ) set_loop_grid(auryn_timestep);
 	time_delay = (AurynTime) (delay/auryn_timestep);
 	time_offset = 0;
-	init();
 	load_spikes(filename);
 }
 
