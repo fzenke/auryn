@@ -40,35 +40,48 @@ int main(int ac, char* av[])
 	NBGGroup* neuron = new NBGGroup(1);
 
 	// define current input 
-	CurrentInjector * curr_inject1 = new CurrentInjector(neuron, "Vd");
+	CurrentInjector * curr_inject1 = new CurrentInjector(neuron, "mem");
+	CurrentInjector * curr_inject2 = new CurrentInjector(neuron, "Vd");
 
 	// define monitors
 	SpikeMonitor * smon = new SpikeMonitor( neuron, sys->fn("ras") );
-	VoltageMonitor * vmon = new VoltageMonitor( neuron, 0, sys->fn("mem") );
-	StateMonitor * smon_vd = new StateMonitor( neuron, 0, "Vd", sys->fn("Vd") );
-	StateMonitor * smon_m  = new StateMonitor( neuron, 0, "m", sys->fn("m") );
-	StateMonitor * smon_x  = new StateMonitor( neuron, 0, "x", sys->fn("x") );
+	VoltageMonitor * vmon   = new VoltageMonitor( neuron, 0, sys->fn("mem") );
+	StateMonitor * smon_vd  = new StateMonitor( neuron, 0, "Vd", sys->fn("Vd") );
+	StateMonitor * smon_m   = new StateMonitor( neuron, 0, "thr", sys->fn("thr") );
+	StateMonitor * smon_ws  = new StateMonitor( neuron, 0, "wsoma", sys->fn("wsoma") );
 
 	// run simulation
 	logger->msg("Running ...",PROGRESS);
 
-	const double simtime = 0.2;
+	const double simtime = 50e-3;
 	// simulate
 	sys->run(simtime);
 
 	// simulate current steps of increasing size
-	for ( int i = 0 ; i < 10 ; ++i ) {
+	for ( int i = 0 ; i < 16 ; ++i ) {
 		// turn current on
-		curr_inject1->set_current(0,1.0*i); // current is in arbitrary units
+		if ( i%3 == 0 ) {
+			curr_inject1->set_current(0,0.5); // current is in arbitrary units
+		}
+
+		if ( i%3 == 1 ) {
+			curr_inject2->set_current(0,3.0); // current is in arbitrary units
+		}
+
+		if ( i%3 == 2 ) {
+			curr_inject1->set_current(0,0.5); // current is in arbitrary units
+			curr_inject2->set_current(0,3.0); // current is in arbitrary units
+		}
 
 		// simulate 
 		sys->run(simtime); 
 
 		// turn current off
 		curr_inject1->set_current(0,0.0); 
+		curr_inject2->set_current(0,0.0); 
 
 		// simulate 
-		sys->run(simtime); 
+		sys->run(2*simtime); 
 	}
 
 	if (errcode)
