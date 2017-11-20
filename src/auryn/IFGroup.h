@@ -54,6 +54,7 @@ namespace auryn {
 		AurynFloat tau_ampa,tau_gaba,tau_nmda;
 		AurynFloat A_ampa,A_nmda;
 		AurynFloat e_rest,e_rev,thr_rest,tau_mem,tau_thr,dthr;
+		AurynFloat mul_nmda;
 		void init();
 		void free();
 		void calculate_scale_constants();
@@ -99,9 +100,19 @@ namespace auryn {
 		/*! Returns the exponential decay time constant of the NMDA conductance.
 		 * The rise is governed by tau_ampa if tau_ampa << tau_nmda. */
 		AurynFloat get_tau_nmda();
-		/*! Set ratio between ampa/nmda contribution to excitatory conductance. */
+
+		/*! \brief Set ratio between ampa/nmda contribution to excitatory conductance. 
+		 *
+		 * This sets the ratio between the integrals between the conductance kernels. */
 		void set_ampa_nmda_ratio(AurynFloat ratio);
+
+		/*! \brief Sets nmda-ampa amplitude ratio
+		 *
+		 * This sets the ratio between the amplitudes of nmda to ampa. */
+		void set_nmda_ampa_current_ampl_ratio(AurynFloat ratio);
+
 		void clear();
+
 		/*! Internally used evolve function. Called by System. */
 		virtual void evolve();
 	};
