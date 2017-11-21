@@ -94,7 +94,8 @@ void StateMonitor::init(std::string filename, AurynDouble sampling_interval)
 {
 	outfile << std::setiosflags(std::ios::fixed) << std::setprecision(6);
 
-	set_stop_time(10.0);
+	// set_stop_time(10.0);
+	t_stop = -1; // at the end of all times
 	ssize = sampling_interval/auryn_timestep;
 	if ( ssize < 1 ) ssize = 1;
 
