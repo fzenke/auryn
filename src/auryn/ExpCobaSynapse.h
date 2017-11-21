@@ -23,8 +23,8 @@
 * Front Neuroinform 8, 76. doi: 10.3389/fninf.2014.00076
 */
 
-#ifndef EXPCUBASYNAPSE_H_
-#define EXPCUBASYNAPSE_H_
+#ifndef EXPCOBASYNAPSE_H_
+#define EXPCOBASYNAPSE_H_
 
 #include "auryn_definitions.h"
 #include "AurynVector.h"
@@ -65,5 +65,5 @@ namespace auryn {
 	};
 }
 
-#endif /*EXPCUBASYNAPSE_H_*/
+#endif /*EXPCOBASYNAPSE_H_*/
 

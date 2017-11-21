@@ -29,6 +29,7 @@
 #include "auryn_definitions.h"
 #include "AurynVector.h"
 #include "NeuronGroup.h"
+#include "ExpCobaSynapse.h"
 #include "LinearComboSynapse.h"
 #include "System.h"
 
@@ -51,20 +52,17 @@ namespace auryn {
 		AurynStateVector * t_leak;
 		AurynStateVector * t_exc;
 		AurynStateVector * t_inh;
-		AurynFloat scale_ampa,scale_gaba, scale_thr;
+		AurynFloat scale_thr;
 		AurynFloat tau_ampa,tau_gaba,tau_nmda;
-		AurynFloat A_ampa,A_nmda;
 		AurynFloat e_rest,e_rev,thr_rest,tau_mem,tau_thr,dthr;
-		AurynFloat mul_nmda;
 
 		LinearComboSynapse * exc_synapses; // AMPA and NMDA
-		LinearComboSynapse * inh_synapses; // AMPA and NMDA
+		ExpCobaSynapse * inh_synapses; // GABA
 
 		void init();
 		void free();
 		void calculate_scale_constants();
 		void integrate_membrane();
-		void integrate_linear_nmda_synapses();
 		void check_thresholds();
 
 	public:

@@ -106,6 +106,7 @@
 #include "auryn/SynapseModel.h"
 #include "auryn/ExpCubaSynapse.h"
 #include "auryn/ExpCobaSynapse.h"
+#include "auryn/LinearComboSynapse.h"
 
 // Checker definitions
 #include "auryn/Checker.h"

@@ -35,10 +35,7 @@ IFGroup::IFGroup( NeuronID size, NodeDistributionMode distmode ) : NeuronGroup(s
 
 void IFGroup::calculate_scale_constants()
 {
-	scale_ampa =  std::exp(-auryn_timestep/tau_ampa) ;
-	scale_gaba =  std::exp(-auryn_timestep/tau_gaba) ;
 	scale_thr  = std::exp(-auryn_timestep/tau_thr) ;
-	mul_nmda   = 1.0-std::exp(-auryn_timestep/tau_nmda);
 }
 
 void IFGroup::init()
@@ -62,6 +59,11 @@ void IFGroup::init()
 	exc_synapses->set_ampa_nmda_ratio(1.0);
 	exc_synapses->set_tau_ampa(tau_ampa);
 	exc_synapses->set_tau_nmda(tau_nmda);
+	exc_synapses->set_e_rev(0.0);
+
+	inh_synapses = new ExpCobaSynapse(this, g_gaba, t_inh );
+	inh_synapses->set_tau(tau_gaba);
+	inh_synapses->set_e_rev(e_rev);
 
 	calculate_scale_constants();
 	
@@ -79,32 +81,13 @@ void IFGroup::clear()
 }
 
 void IFGroup::free() {
+	delete exc_synapses;
+	delete inh_synapses;
 }
 
 IFGroup::~IFGroup()
 {
 	if ( evolve_locally() ) free();
-}
-
-void IFGroup::integrate_linear_nmda_synapses()
-{
-    // excitatory
-	// t_exc->copy(g_ampa);
-	// t_exc->scale(-A_ampa);
-	// t_exc->saxpy(-A_nmda,g_nmda);
-	// t_exc->mul(mem);
-    
-    // inhibitory
-	t_inh->diff(mem,e_rev);
-	t_inh->mul(g_gaba);
-
-    // compute dg_nmda = (g_ampa-g_nmda)*auryn_timestep/tau_nmda and add to g_nmda
-	// g_nmda->saxpy(mul_nmda, g_ampa);
-	// g_nmda->saxpy(-mul_nmda, g_nmda);
-
-	// decay of ampa and gaba channel, i.e. multiply by exp(-auryn_timestep/tau)
-	// g_ampa->scale(scale_ampa);
-	g_gaba->scale(scale_gaba);
 }
 
 /// Integrate the internal state
@@ -145,8 +128,8 @@ void IFGroup::check_thresholds()
 
 void IFGroup::evolve()
 {
-	exc_synapses->evolve();
-	integrate_linear_nmda_synapses();
+	exc_synapses->evolve(); //!< integrate_linear_nmda_synapses
+	inh_synapses->evolve(); 
 	integrate_membrane();
 	check_thresholds();
 }
@@ -207,31 +190,12 @@ AurynFloat IFGroup::get_tau_nmda()
 	return tau_nmda;
 }
 
-void IFGroup::set_ampa_nmda_ratio(AurynFloat ratio) 
+void IFGroup::set_nmda_ampa_current_ampl_ratio(AurynFloat ratio)
 {
- 	A_ampa = ratio/(ratio+1.0);
-	A_nmda = 1./(ratio+1.0);
+	exc_synapses->set_nmda_ampa_current_ampl_ratio(ratio);
 }
 
-void IFGroup::set_nmda_ampa_current_ampl_ratio(AurynFloat ratio) 
+void IFGroup::set_ampa_nmda_ratio(AurynFloat ratio)
 {
-	const double tau_r = tau_ampa;
-	const double tau_d = tau_nmda;
-
-	// compute amplitude of NMDA conductance
-	const double tmax = tau_r*std::log((tau_r+tau_d)/tau_r); // argmax
-	const double ampl = (1.0-std::exp(-tmax/tau_r))*std::exp(-tmax/tau_d)*tau_r/(tau_d-tau_r); 
-
-	// set relative amplitudes
-	A_ampa = 1.0;
-	A_nmda = ratio/ampl;
-
-	// normalize sum to one
-	const double sum = A_ampa+A_nmda;
-	A_ampa /= sum;
-	A_nmda /= sum;
-
-	// write constants to logfile
-	logger->parameter("A_ampa", A_ampa);
-	logger->parameter("A_nmda", A_nmda);
+	exc_synapses->set_ampa_nmda_ratio(ratio);
 }
