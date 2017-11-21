@@ -31,6 +31,9 @@
 #include "AIFGroup.h"
 #include "System.h"
 
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/variate_generator.hpp>
+#include <boost/random/normal_distribution.hpp>
 
 namespace auryn {
 
