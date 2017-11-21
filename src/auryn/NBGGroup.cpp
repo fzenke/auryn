@@ -46,7 +46,7 @@ void NBGGroup::precalculate_constants()
 	mul_soma    = auryn_timestep*(gs/Cs);
 	mul_wsoma   = auryn_timestep*(b_wsoma/Cs);
 	mul_dend    = auryn_timestep*(gd/Cd);
-	mul_wdend   = auryn_timestep*(1.0/Cd);
+	mul_wdend   = auryn_timestep*(a_wdend/Cd);
 
 	mul_alpha = auryn_timestep*(alpha/Cs); 
 	mul_beta = auryn_timestep*(beta/Cd);
@@ -55,7 +55,7 @@ void NBGGroup::precalculate_constants()
 
 	scale_wsoma = std::exp(-auryn_timestep/tau_wsoma); 
 	scale_wdend = std::exp(-auryn_timestep/tau_wdend); 
-	aux_a_wdend = auryn_timestep*(a_wdend/tau_wdend);
+	aux_a_wdend = auryn_timestep*(1.0/tau_wdend);
 }
 
 void NBGGroup::init()
@@ -91,7 +91,7 @@ void NBGGroup::init()
 	tau_wsoma = 100e-3;
 	tau_wdend = 30e-3;
 	b_wsoma = -200e-12; // adaptation current amplitude
-	a_wdend = -13e-9;
+	a_wdend = -13e-9; 
 
 	// synaptic time constants
 	tau_ampa = 5e-3;
@@ -111,7 +111,7 @@ void NBGGroup::init()
 
 	// counter to implement BAP box kernel
 	post_spike_countdown = new AurynVector<unsigned int>(get_vector_size());
-	const AurynFloat box_kernel_length = 3e-3;
+	const AurynFloat box_kernel_length = 2e-3;
 	post_spike_reset = int(box_kernel_length/auryn_timestep);  
 
 	// declare tmp vectos
@@ -126,11 +126,11 @@ void NBGGroup::init()
 void NBGGroup::clear()
 {
 	clear_spikes();
-	mem->set_all(e_rest);
 	thr->set_all(e_thr);
+	mem->set_all(e_rest);
 	state_dend->set_all(e_rest);
 	state_wsoma->set_all(0.0);
-	state_wdend->set_all(0.0);
+	state_wdend->set_all(1e-4);
 
 	// zero synaptic input
 	g_ampa->set_zero();
