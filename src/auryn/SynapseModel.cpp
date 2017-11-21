@@ -27,7 +27,7 @@
 
 using namespace auryn;
 
-SynapseModel::SynapseModel( SpikingGroup * parent, AurynStateVector * input, AurynStateVector * output) 
+SynapseModel::SynapseModel( NeuronGroup * parent, AurynStateVector * input, AurynStateVector * output) 
 {
 	parent_group = parent;
 	input_state = input;

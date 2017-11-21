@@ -28,7 +28,7 @@
 
 #include "auryn_definitions.h"
 #include "AurynVector.h"
-#include "SpikingGroup.h"
+#include "NeuronGroup.h"
 #include "SynapseModel.h"
 #include "System.h"
 
@@ -53,7 +53,7 @@ namespace auryn {
 		AurynFloat e_rev; //!< reversal potenital
 
 	public:
-		ExpCobaSynapse(SpikingGroup * parent, AurynStateVector * input, AurynStateVector * output);
+		ExpCobaSynapse(NeuronGroup * parent, AurynStateVector * input, AurynStateVector * output);
 
 		/*! \brief Sets synaptic decay time scale */
 		void set_tau(const AurynState tau);

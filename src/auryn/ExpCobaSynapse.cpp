@@ -27,7 +27,7 @@
 
 using namespace auryn;
 
-ExpCobaSynapse::ExpCobaSynapse(SpikingGroup * parent, AurynStateVector * input, AurynStateVector * output) 
+ExpCobaSynapse::ExpCobaSynapse(NeuronGroup * parent, AurynStateVector * input, AurynStateVector * output) 
 	: SynapseModel( parent, input, output )
 {
 	if ( input == output ) {

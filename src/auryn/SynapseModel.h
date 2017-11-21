@@ -28,14 +28,14 @@
 
 #include "auryn_definitions.h"
 #include "AurynVector.h"
-#include "SpikingGroup.h"
+#include "NeuronGroup.h"
 #include "System.h"
 
 namespace auryn {
 
 /*! \brief Implements base class for modular synapse models
  *
- * Synapse models piggy back onto a SpikingGroup or NeuronGroup,
+ * Synapse models piggy back onto a NeuronGroup,
  * and operate on StateVectors. They typically read transmitter 
  * input from one state vector (the target state of a Connection 
  * object) and output a "current" to a target state. 
@@ -45,18 +45,18 @@ namespace auryn {
  * is then fed to the membrane.
  *
  * Synapse models should implement an evolve function which has to be called
- * by the parent SpikingGroup.
+ * by the parent NeuronGroup.
  * 
  */
 	class SynapseModel 
 	{
 	protected:
-		SpikingGroup * parent_group;
+		NeuronGroup * parent_group;
 		AurynStateVector * input_state;
 		AurynStateVector * output_state;
 
 	public:
-		SynapseModel(SpikingGroup * parent, AurynStateVector * input, AurynStateVector * output);
+		SynapseModel(NeuronGroup * parent, AurynStateVector * input, AurynStateVector * output);
 
 		virtual void evolve() = 0;
 	};
