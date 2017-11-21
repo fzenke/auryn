@@ -50,8 +50,8 @@ namespace auryn {
 	{
 	private:
 		AurynStateVector * t_leak;
-		AurynStateVector * t_exc;
-		AurynStateVector * t_inh;
+		AurynStateVector * syn_current_exc;
+		AurynStateVector * syn_current_inh;
 		AurynFloat scale_thr;
 		AurynFloat tau_ampa,tau_gaba,tau_nmda;
 		AurynFloat e_rest,e_rev,thr_rest,tau_mem,tau_thr,dthr;

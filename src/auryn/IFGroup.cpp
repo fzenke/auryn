@@ -52,16 +52,16 @@ void IFGroup::init()
 	tau_nmda = 100e-3;
 
 	t_leak = get_state_vector("t_leak");
-	t_exc =  get_state_vector("t_exc");
-	t_inh = get_state_vector("t_inh");
+	syn_current_exc =  get_state_vector("syn_current_exc");
+	syn_current_inh = get_state_vector("syn_current_inh");
 
-	exc_synapses = new LinearComboSynapse(this, g_ampa, t_exc );
+	exc_synapses = new LinearComboSynapse(this, g_ampa, syn_current_exc );
 	exc_synapses->set_ampa_nmda_ratio(1.0);
 	exc_synapses->set_tau_ampa(tau_ampa);
 	exc_synapses->set_tau_nmda(tau_nmda);
 	exc_synapses->set_e_rev(0.0);
 
-	inh_synapses = new ExpCobaSynapse(this, g_gaba, t_inh );
+	inh_synapses = new ExpCobaSynapse(this, g_gaba, syn_current_inh );
 	inh_synapses->set_tau(tau_gaba);
 	inh_synapses->set_e_rev(e_rev);
 
@@ -100,13 +100,13 @@ void IFGroup::integrate_membrane()
 	thr->scale(scale_thr);
     
     // leak
-	t_leak->diff(mem,e_rest);
+	t_leak->diff(e_rest,mem);
     
     // membrane dynamics
 	const AurynFloat mul_tau_mem = auryn_timestep/tau_mem;
-    mem->saxpy(mul_tau_mem,t_exc); // t_exc is computed by combo synapse object
-    mem->saxpy(-mul_tau_mem,t_inh);
-    mem->saxpy(-mul_tau_mem,t_leak);
+    mem->saxpy(mul_tau_mem,syn_current_exc); // syn_current_exc is computed by combo synapse object
+    mem->saxpy(mul_tau_mem,syn_current_inh);
+    mem->saxpy(mul_tau_mem,t_leak);
 }
 
 void IFGroup::check_thresholds()
