@@ -29,6 +29,7 @@
 #include "auryn_definitions.h"
 #include "AurynVector.h"
 #include "NeuronGroup.h"
+#include "LinearComboSynapse.h"
 #include "System.h"
 
 namespace auryn {
@@ -55,12 +56,17 @@ namespace auryn {
 		AurynFloat A_ampa,A_nmda;
 		AurynFloat e_rest,e_rev,thr_rest,tau_mem,tau_thr,dthr;
 		AurynFloat mul_nmda;
+
+		LinearComboSynapse * exc_synapses; // AMPA and NMDA
+		LinearComboSynapse * inh_synapses; // AMPA and NMDA
+
 		void init();
 		void free();
 		void calculate_scale_constants();
 		void integrate_membrane();
 		void integrate_linear_nmda_synapses();
 		void check_thresholds();
+
 	public:
 		AurynFloat e_reset;
 		/*! \brief Default constructor.

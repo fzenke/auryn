@@ -54,14 +54,17 @@ void IFGroup::init()
 	tau_gaba = 10e-3;
 	tau_nmda = 100e-3;
 
-	set_ampa_nmda_ratio(1.0);
-
-	calculate_scale_constants();
-	
 	t_leak = get_state_vector("t_leak");
 	t_exc =  get_state_vector("t_exc");
 	t_inh = get_state_vector("t_inh");
 
+	exc_synapses = new LinearComboSynapse(this, g_ampa, t_exc );
+	exc_synapses->set_ampa_nmda_ratio(1.0);
+	exc_synapses->set_tau_ampa(tau_ampa);
+	exc_synapses->set_tau_nmda(tau_nmda);
+
+	calculate_scale_constants();
+	
 	clear();
 }
 
@@ -86,21 +89,21 @@ IFGroup::~IFGroup()
 void IFGroup::integrate_linear_nmda_synapses()
 {
     // excitatory
-	t_exc->copy(g_ampa);
-	t_exc->scale(-A_ampa);
-	t_exc->saxpy(-A_nmda,g_nmda);
-	t_exc->mul(mem);
+	// t_exc->copy(g_ampa);
+	// t_exc->scale(-A_ampa);
+	// t_exc->saxpy(-A_nmda,g_nmda);
+	// t_exc->mul(mem);
     
     // inhibitory
 	t_inh->diff(mem,e_rev);
 	t_inh->mul(g_gaba);
 
     // compute dg_nmda = (g_ampa-g_nmda)*auryn_timestep/tau_nmda and add to g_nmda
-	g_nmda->saxpy(mul_nmda, g_ampa);
-	g_nmda->saxpy(-mul_nmda, g_nmda);
+	// g_nmda->saxpy(mul_nmda, g_ampa);
+	// g_nmda->saxpy(-mul_nmda, g_nmda);
 
 	// decay of ampa and gaba channel, i.e. multiply by exp(-auryn_timestep/tau)
-	g_ampa->scale(scale_ampa);
+	// g_ampa->scale(scale_ampa);
 	g_gaba->scale(scale_gaba);
 }
 
@@ -118,7 +121,7 @@ void IFGroup::integrate_membrane()
     
     // membrane dynamics
 	const AurynFloat mul_tau_mem = auryn_timestep/tau_mem;
-    mem->saxpy(mul_tau_mem,t_exc);
+    mem->saxpy(mul_tau_mem,t_exc); // t_exc is computed by combo synapse object
     mem->saxpy(-mul_tau_mem,t_inh);
     mem->saxpy(-mul_tau_mem,t_leak);
 }
@@ -142,6 +145,7 @@ void IFGroup::check_thresholds()
 
 void IFGroup::evolve()
 {
+	exc_synapses->evolve();
 	integrate_linear_nmda_synapses();
 	integrate_membrane();
 	check_thresholds();
