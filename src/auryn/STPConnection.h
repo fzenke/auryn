@@ -53,16 +53,13 @@ private:
 	auryn_vector_float * state_u;
 	auryn_vector_float * state_temp;
 
-	double tau_d;
-	double tau_f;
-	double Urest;
-	double Ujump;
-
-
 	void init();
 	void free();
 
 public:
+	double tau_d;
+	double tau_f;
+	double Ujump;
 
 	/*! Minimal constructor for from file init -- deprecated
 	 * \param filename Filename to load
@@ -110,8 +107,11 @@ public:
 	/*! Setter for U_jump, which specifies the spike triggered change in the U equation in the model. Typically the same as urest. */
 	void set_ujump(AurynFloat r);
 
-	/*! Setter for U_rest the resting value of U. */
-	void set_urest(AurynFloat r);
+	/*! \brief Clear. */
+	void clear();
+
+	/*! \brief Clone parameters  */
+	void clone_parameters(STPConnection * con);
 
 	/*! Default destructor. */
 	virtual ~STPConnection();
