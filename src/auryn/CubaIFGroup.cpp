@@ -41,15 +41,17 @@ void CubaIFGroup::calculate_scale_constants()
 void CubaIFGroup::init()
 {
 	e_rest = -60e-3;
-	e_rev = -80e-3;
 	thr = -50e-3;
-	tau_mem = 20e-3;
+	set_tau_mem(20e-3);
 	set_refractory_period(5e-3);
 
 	calculate_scale_constants();
 	
 	ref = auryn_vector_ushort_alloc (get_vector_size()); 
 	bg_current = get_state_vector("bg_current");
+
+	default_exc_target_state = mem;
+	default_inh_target_state = mem;
 
 	t_bg_cur = bg_current->ptr(); 
 	t_mem = mem->ptr(); 
