@@ -62,6 +62,9 @@ void IFGroup::init()
 	t_exc =  get_state_vector("t_exc");
 	t_inh = get_state_vector("t_inh");
 
+	default_exc_target_state = g_ampa;
+	default_inh_target_state = g_gaba;
+
 	clear();
 }
 
