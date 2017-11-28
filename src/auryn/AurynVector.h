@@ -695,7 +695,7 @@ namespace auryn {
 				}
 			}
 
-			void set_random_normal(AurynState mean=0.0, AurynState sigma=1.0, unsigned int seed=8721)
+			void add_random_normal(AurynState mean=0.0, AurynState sigma=1.0, unsigned int seed=8721)
 			{
 				if ( seed == 0 )
 					seed = static_cast<unsigned int>(std::time(0));
@@ -705,8 +705,14 @@ namespace auryn {
 				AurynState rv;
 				for ( IndexType i = 0 ; i<size ; ++i ) {
 					rv = die();
-					data[i] = rv;
+					data[i] += rv;
 				}
+			}
+
+			void set_random_normal(AurynState mean=0.0, AurynState sigma=1.0, unsigned int seed=8721)
+			{
+				set_all(0.0);
+				add_random_normal();
 			}
 
 			/*! \brief Initializes vector elements with Gaussian of unit 
