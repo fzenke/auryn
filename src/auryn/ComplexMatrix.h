@@ -858,8 +858,7 @@ void ComplexMatrix<T>::scale_row(NeuronID i, T value)
 template <typename T>
 void ComplexMatrix<T>::scale_all(T value)
 {
-	for ( AurynLong i = 0 ; i < n_nonzero ; ++i ) 
-		scale_data( i , value );
+	get_synaptic_state_vector()->scale(value);
 }
 
 template <typename T>
