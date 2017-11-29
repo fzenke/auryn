@@ -42,20 +42,21 @@ void NBGGroup::precalculate_constants()
 	scale_gaba  =  std::exp(-auryn_timestep/tau_gaba);
 	mul_nmda    = 1.0-std::exp(-auryn_timestep/tau_nmda);
 
+
 	mul_thr     = auryn_timestep/tau_thr;
-	mul_soma    = auryn_timestep*(gs/Cs);
+
+	mul_soma    = auryn_timestep/tau_soma;
+	mul_alpha   = auryn_timestep*(gs/Cs); 
 	mul_wsoma   = auryn_timestep*(b_wsoma/Cs);
-	mul_dend    = auryn_timestep*(gd/Cd);
+
+	mul_dend    = auryn_timestep/tau_dend; // leak
+	mul_beta    = auryn_timestep*(gd/Cd);  // dend. nonlinearity 
+	box_height  = auryn_timestep*(zeta/Cd); // or bAP
 	mul_wdend   = auryn_timestep*(a_wdend/Cd);
 
-	mul_alpha = auryn_timestep*(alpha/Cs); 
-	mul_beta = auryn_timestep*(beta/Cd);
-
-	// mul_wsoma = std::exp(-auryn_timestep/tau_wsoma);
 
 	scale_wsoma = std::exp(-auryn_timestep/tau_wsoma); 
-	scale_wdend = std::exp(-auryn_timestep/tau_wdend); 
-	aux_a_wdend = auryn_timestep*(1.0/tau_wdend);
+	aux_mul_wdend = auryn_timestep/tau_wdend; // FIXME
 }
 
 void NBGGroup::init()
@@ -67,39 +68,37 @@ void NBGGroup::init()
 
 	// threshold
 	tau_thr   = 5e-3;
-	e_spk_thr = 1e-3; // TODO find good value here
+	e_spk_thr = 10e-3; // TODO find good value here
 
 	// soma 
+	tau_soma = 16e-3;
 	Cs = 370e-12;
-	gs = 23e-9;
+	gs = 1300e-12; // somatic coupling strength to dendrite
+	tau_wsoma = 100e-3;
+	b_wsoma = -200e-12; // adaptation current amplitude
 
 	// dendrite
+	tau_dend = 7e-3;
 	Cd = 170e-12;
-    gd = 24e-9;
+    gd = 1200e-12; // dendritic coupling strength to soma
+	tau_wdend = 30e-3;
+	a_wdend = -13e-9; 
 
-
-	alpha = 1300e-12; // dendritic coupling strength to soma
-	beta  = 1200e-12; // somatic coupling strength to dendrite
-	box_height = auryn_timestep*2600e-12/Cd;
+	// alpha = 1300e-12; 
+	// beta  = 1200e-12; 
+	zeta  = 2600e-12; // bap strength
+	box_kernel_length = 2e-3; // in ms
 
 	e_dend = -38e-3;
 	const AurynFloat Dthresh = 6e-3;
 	xi = 1.0/Dthresh;
 	
 
-
-	tau_wsoma = 100e-3;
-	tau_wdend = 30e-3;
-	b_wsoma = -200e-12; // adaptation current amplitude
-	a_wdend = -13e-9; 
-
 	// synaptic time constants
 	tau_ampa = 5e-3;
 	tau_gaba = 10e-3;
 	tau_nmda = 100e-3;
 
-
-	set_ampa_nmda_ratio(1.0);
 
 	precalculate_constants();
 
@@ -111,7 +110,6 @@ void NBGGroup::init()
 
 	// counter to implement BAP box kernel
 	post_spike_countdown = new AurynVector<unsigned int>(get_vector_size());
-	const AurynFloat box_kernel_length = 2e-3;
 	post_spike_reset = int(box_kernel_length/auryn_timestep);  
 
 	// declare tmp vectos
@@ -119,6 +117,36 @@ void NBGGroup::init()
 	t_leak = get_state_vector("t_leak");
 	t_exc =  get_state_vector("t_exc");
 	t_inh = get_state_vector("t_inh");
+
+
+	syn_current_exc_soma = get_state_vector("syn_current_exc_soma");
+	syn_current_exc_dend = get_state_vector("syn_current_exc_dend");
+	syn_current_inh_soma = get_state_vector("syn_current_inh_soma");
+	syn_current_inh_dend = get_state_vector("syn_current_inh_dend");
+
+	// set up synaptic input
+	g_ampa_dend = get_state_vector("g_ampa_dend");
+	g_gaba_dend = get_state_vector("g_gaba_dend");
+
+	syn_exc_soma = new LinearComboSynapse(this, g_ampa, syn_current_exc_soma );
+	syn_exc_soma->set_ampa_nmda_ratio(1.0);
+	syn_exc_soma->set_tau_ampa(tau_ampa);
+	syn_exc_soma->set_tau_nmda(tau_nmda);
+	syn_exc_soma->set_e_rev(0.0);
+
+	syn_exc_dend = new LinearComboSynapse(this, g_ampa_dend, syn_current_exc_dend );
+	syn_exc_dend->set_ampa_nmda_ratio(1.0);
+	syn_exc_dend->set_tau_ampa(tau_ampa);
+	syn_exc_dend->set_tau_nmda(tau_nmda);
+	syn_exc_dend->set_e_rev(0.0);
+
+	syn_inh_soma = new ExpCobaSynapse(this, g_gaba, syn_current_inh_soma );
+	syn_inh_soma->set_tau(tau_gaba);
+	syn_inh_soma->set_e_rev(e_inh);
+
+	syn_inh_dend = new ExpCobaSynapse(this, g_gaba_dend, syn_current_inh_dend );
+	syn_inh_dend->set_tau(tau_gaba);
+	syn_inh_dend->set_e_rev(e_inh);
 
 	clear();
 }
@@ -139,6 +167,10 @@ void NBGGroup::clear()
 }
 
 void NBGGroup::free() {
+	delete syn_exc_dend;
+	delete syn_inh_dend;
+	delete syn_exc_soma;
+	delete syn_inh_soma;
 	delete post_spike_countdown;
 }
 
@@ -147,45 +179,15 @@ NBGGroup::~NBGGroup()
 	if ( evolve_locally() ) free();
 }
 
-void NBGGroup::integrate_linear_nmda_synapses()
-{
-    // excitatory
-	t_exc->copy(g_ampa);
-	t_exc->scale(-A_ampa);
-	t_exc->saxpy(-A_nmda,g_nmda);
-	t_exc->mul(mem);
-    
-    // inhibitory
-	t_inh->diff(mem,e_inh);
-	t_inh->mul(g_gaba);
-
-    // compute dg_nmda = (g_ampa-g_nmda)*auryn_timestep/tau_nmda and add to g_nmda
-	g_nmda->saxpy(mul_nmda, g_ampa);
-	g_nmda->saxpy(-mul_nmda, g_nmda);
-
-	// decay of ampa and gaba channel, i.e. multiply by exp(-auryn_timestep/tau)
-	g_ampa->scale(scale_ampa);
-	g_gaba->scale(scale_gaba);
-}
-
 /*! \brief This method applies the Euler integration step to the membrane dynamics. */
 void NBGGroup::integrate_membrane()
 {
     // somatic dynamics 
 	temp->sigmoid(state_dend, xi, e_dend ); // sigmoid activation
-	// temp->diff(state_dend, e_dend );
-	// temp->mul(-xi);
-	// temp->exp();
-	// temp->add(1.0);
-	// temp->inv();
-	// temp->print();
-
 	t_leak->diff(e_rest, state_soma); // leak current
     state_soma->saxpy(mul_soma, t_leak);
 	state_soma->saxpy(mul_wsoma, state_wsoma);
 	state_soma->saxpy(mul_alpha, temp); // nonlinear activation from dendrite
-
-	state_wsoma->scale(scale_wsoma);
 	
 	// dendritic dynamics
 	t_leak->diff(e_rest, state_dend);  // dendritic leak
@@ -203,16 +205,21 @@ void NBGGroup::integrate_membrane()
 		} }
 
 	// synaptic input 
-    state_dend->saxpy(mul_dend, t_exc);  // exc synaptic input in units of leak
-    state_dend->saxpy(-mul_dend,t_inh); // inh synaptic input 
+    state_soma->saxpy(mul_soma, syn_current_exc_soma); 
+    state_soma->saxpy(mul_soma, syn_current_inh_soma); 
+    state_dend->saxpy(mul_dend, syn_current_exc_dend); 
+    state_dend->saxpy(mul_dend, syn_current_inh_dend); 
 
-	state_wdend->scale(scale_wdend);
+	// update somatic adapation variable (S42)
+	state_wsoma->scale(scale_wsoma);
+
+	// update dendritic adaptation variable (S44)
 	temp->diff(state_dend,e_rest);  // dendritic leak
-	state_wdend->saxpy(aux_a_wdend,temp);
+	temp->saxpy(-1.0,state_wdend);
+	state_wdend->saxpy(aux_mul_wdend,temp); 
 
 	// decay moving threshold
 	thr->follow_scalar(e_thr, mul_thr);
-
 }
 
 void NBGGroup::check_thresholds()
@@ -226,8 +233,8 @@ void NBGGroup::check_thresholds()
 			push_spike(unit);
 		    mem->set( unit, e_reset); // reset
 	        thr->set( unit, e_spk_thr); // increase dynamic threshold (refractory)
-			state_wsoma->add_specific(unit,1.0); // increments somatic adaptation variable
-			post_spike_countdown->set(unit,post_spike_reset);
+			state_wsoma->add_specific(unit, 1.0); // increments somatic adaptation variable
+			post_spike_countdown->set(unit, post_spike_reset);
 		} 
 		thr_ptr++;
 	}
@@ -236,43 +243,15 @@ void NBGGroup::check_thresholds()
 
 void NBGGroup::evolve()
 {
-	integrate_linear_nmda_synapses();
+	syn_exc_soma->evolve(); //!< integrate_linear_nmda_synapses
+	syn_inh_soma->evolve(); 
+	syn_exc_dend->evolve(); //!< integrate_linear_nmda_synapses
+	syn_inh_dend->evolve(); 
+	// integrate_linear_nmda_synapses();
 	integrate_membrane();
 	check_thresholds();
 }
 
-
-void NBGGroup::set_tau_ampa(AurynFloat taum)
-{
-	tau_ampa = taum;
-	precalculate_constants();
-}
-
-AurynFloat NBGGroup::get_tau_ampa()
-{
-	return tau_ampa;
-}
-
-void NBGGroup::set_tau_gaba(AurynFloat taum)
-{
-	tau_gaba = taum;
-	precalculate_constants();
-}
-
-AurynFloat NBGGroup::get_tau_gaba()
-{
-	return tau_gaba;
-}
-
-void NBGGroup::set_tau_nmda(AurynFloat tau)
-{
-	if ( tau < tau_ampa ) { 
-		logger->warning("tau_nmda has to be larger than tau_ampa in NBGGroup");
-		return;
-	}
-	tau_nmda = tau;
-	precalculate_constants();
-}
 
 void NBGGroup::set_tau_thr(AurynFloat tau)
 {
@@ -280,37 +259,3 @@ void NBGGroup::set_tau_thr(AurynFloat tau)
 	precalculate_constants();
 }
 
-
-AurynFloat NBGGroup::get_tau_nmda()
-{
-	return tau_nmda;
-}
-
-void NBGGroup::set_ampa_nmda_ratio(AurynFloat ratio) 
-{
- 	A_ampa = ratio/(ratio+1.0);
-	A_nmda = 1./(ratio+1.0);
-}
-
-void NBGGroup::set_nmda_ampa_current_ampl_ratio(AurynFloat ratio) 
-{
-	const double tau_r = tau_ampa;
-	const double tau_d = tau_nmda;
-
-	// compute amplitude of NMDA conductance
-	const double tmax = tau_r*std::log((tau_r+tau_d)/tau_r); // argmax
-	const double ampl = (1.0-std::exp(-tmax/tau_r))*std::exp(-tmax/tau_d)*tau_r/(tau_d-tau_r); 
-
-	// set relative amplitudes
-	A_ampa = 1.0;
-	A_nmda = ratio/ampl;
-
-	// normalize sum to one
-	const double sum = A_ampa+A_nmda;
-	A_ampa /= sum;
-	A_nmda /= sum;
-
-	// write constants to logfile
-	logger->parameter("A_ampa", A_ampa);
-	logger->parameter("A_nmda", A_nmda);
-}

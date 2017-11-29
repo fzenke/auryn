@@ -30,6 +30,8 @@
 #include "AurynVector.h"
 #include "NeuronGroup.h"
 #include "System.h"
+#include "ExpCobaSynapse.h"
+#include "LinearComboSynapse.h"
 
 namespace auryn {
 
@@ -62,16 +64,20 @@ namespace auryn {
 		AurynStateVector * temp;
 
 
-		AurynFloat tau_ampa, tau_gaba, tau_nmda, tau_thr, tau_m, tau_wsoma, tau_wdend;
+		AurynStateVector * g_ampa_dend, *g_gaba_dend;
+		AurynStateVector * syn_current_exc_soma, *syn_current_exc_dend;
+		AurynStateVector * syn_current_inh_soma, *syn_current_inh_dend;
+
+		AurynFloat tau_ampa, tau_gaba, tau_nmda, tau_thr, tau_soma, tau_dend, tau_wsoma, tau_wdend;
 		AurynFloat A_ampa, A_nmda;
 		AurynFloat e_rest, e_inh, e_thr, e_dend, e_spk_thr;
 		AurynFloat e_reset;
-		AurynFloat Cs, gs, Cd, gd, alpha, beta, box_height, xi; 
-		AurynFloat a_wdend, b_wsoma, aux_a_wdend;
+		AurynFloat Cs, gs, Cd, gd, alpha, beta, zeta, box_height, box_kernel_length, xi; 
+		AurynFloat a_wdend, b_wsoma, aux_mul_wdend;
 
 		AurynFloat mul_soma, mul_wsoma, mul_dend, mul_nmda, mul_alpha, mul_beta, mul_wdend;
 		AurynFloat scale_ampa, scale_gaba, mul_thr; 
-		AurynFloat scale_wsoma, scale_wdend; 
+		AurynFloat scale_wsoma; 
 
 		void init();
 		void free();
@@ -81,6 +87,9 @@ namespace auryn {
 		void check_thresholds();
 
 	public:
+		LinearComboSynapse * syn_exc_soma, *syn_exc_dend; // AMPA and NMDA
+		ExpCobaSynapse * syn_inh_soma, *syn_inh_dend; // GABA
+
 		/*! \brief Default constructor.
 		 *
 		 * @param size the size of the group.  
@@ -88,46 +97,15 @@ namespace auryn {
 		 */
 		NBGGroup( NeuronID size, NodeDistributionMode distmode=AUTO );
 		virtual ~NBGGroup();
+
 		/*! \brief Sets the membrane time constant */
 		void set_tau_mem(AurynFloat taum);
+
 		/*! \brief Returns the membrane time constant */
 		AurynFloat get_tau_mem();
 
-		/*! \brief Sets the exponential decay time constant of the AMPA conductance (default=5ms). */
-		void set_tau_ampa(AurynFloat tau);
-
-		/*! \brief Returns the exponential decay time constant of the AMPA conductance. */
-		AurynFloat get_tau_ampa();
-
-		/*! \brief Sets the exponential decay time constant of the GABA conductance (default=10ms). */
-		void set_tau_gaba(AurynFloat tau);
-
-		/*! \brief Returns the exponential decay time constant of the GABA conductance. */
-		AurynFloat get_tau_gaba();
-
-		/*! \brief Sets the exponential decay time constant of the NMDA conductance (default=100ms).
-		 *
-		 * The rise is governed by tau_ampa if tau_ampa << tau_nmda. */
-		void set_tau_nmda(AurynFloat tau);
-
-		/*! \brief Sets the exponential decay time constant of the threshold (default=5).
-		 *
-		 * Reflects absolute and relative refractory period. */
+		/*! \brief Sets the membrane time constant */
 		void set_tau_thr(AurynFloat tau);
-
-		/*! Returns the exponential decay time constant of the NMDA conductance.
-		 * The rise is governed by tau_ampa if tau_ampa << tau_nmda. */
-		AurynFloat get_tau_nmda();
-
-		/*! \brief Set ratio between ampa/nmda contribution to excitatory conductance. 
-		 *
-		 * This sets the ratio between the integrals between the conductance kernels. */
-		void set_ampa_nmda_ratio(AurynFloat ratio);
-
-		/*! \brief Sets nmda-ampa amplitude ratio
-		 *
-		 * This sets the ratio between the amplitudes of nmda to ampa. */
-		void set_nmda_ampa_current_ampl_ratio(AurynFloat ratio);
 
 		void clear();
 
