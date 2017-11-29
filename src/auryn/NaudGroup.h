@@ -23,8 +23,8 @@
 * Front Neuroinform 8, 76. doi: 10.3389/fninf.2014.00076
 */
 
-#ifndef NBGGROUP_H_
-#define NBGGROUP_H_
+#ifndef NAUDGROUP_H_
+#define NAUDGROUP_H_
 
 #include "auryn_definitions.h"
 #include "AurynVector.h"
@@ -35,18 +35,19 @@
 
 namespace auryn {
 
-/*! \brief This file implements NBGGroup, the Naud-Barthellier-Gerstner two compartment model 
+/*! \brief This file implements NaudGroup, Richard Naud's reduced two compartment model with active dendrites
  *
  * \version v0.1
  *
- * The model captures several key aspects of active dendrites and is described in detail in:
+ * The model captures several key aspects of active dendrites and is a
+ * reduction of an earlier model described in detail in:
  * Naud, R., Bathellier, B., and Gerstner, W. (2014). Spike-timing prediction
  * in cortical neurons with active dendrites. Front. Comput. Neurosci 8, 90.
  * https://www.frontiersin.org/articles/10.3389/fncom.2014.00090/full
  *
  * */
 
-	class NBGGroup : public NeuronGroup
+	class NaudGroup : public NeuronGroup
 	{
 	private:
 		AurynStateVector * state_soma; /*!< somatic voltage */
@@ -95,8 +96,8 @@ namespace auryn {
 		 * @param size the size of the group.  
 		 * @param distmode Node distribution mode  
 		 */
-		NBGGroup( NeuronID size, NodeDistributionMode distmode=AUTO );
-		virtual ~NBGGroup();
+		NaudGroup( NeuronID size, NodeDistributionMode distmode=AUTO );
+		virtual ~NaudGroup();
 
 		/*! \brief Sets the membrane time constant */
 		void set_tau_mem(AurynFloat taum);
@@ -114,5 +115,5 @@ namespace auryn {
 	};
 }
 
-#endif /*NBGGROUP_H_*/
+#endif /*NAUDGROUP_H_*/
 
