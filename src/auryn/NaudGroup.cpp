@@ -38,21 +38,20 @@ NaudGroup::NaudGroup( NeuronID size, NodeDistributionMode distmode ) : NeuronGro
 
 void NaudGroup::precalculate_constants()
 {
-	scale_ampa  =  std::exp(-auryn_timestep/tau_ampa);
-	scale_gaba  =  std::exp(-auryn_timestep/tau_gaba);
-	mul_nmda    = 1.0-std::exp(-auryn_timestep/tau_nmda);
+	scale_ampa = std::exp(-auryn_timestep/tau_ampa);
+	scale_gaba = std::exp(-auryn_timestep/tau_gaba);
+	mul_nmda   = 1.0-std::exp(-auryn_timestep/tau_nmda);
 
 
-	mul_thr     = auryn_timestep/tau_thr;
+	mul_thr    = auryn_timestep/tau_thr;
+	mul_soma   = auryn_timestep/tau_soma;
+	mul_alpha  = auryn_timestep*(gs/Cs); 
+	mul_wsoma  = auryn_timestep*(b_wsoma/Cs);
 
-	mul_soma    = auryn_timestep/tau_soma;
-	mul_alpha   = auryn_timestep*(gs/Cs); 
-	mul_wsoma   = auryn_timestep*(b_wsoma/Cs);
-
-	mul_dend    = auryn_timestep/tau_dend; // leak
-	mul_beta    = auryn_timestep*(gd/Cd);  // dend. nonlinearity 
-	box_height  = auryn_timestep*(zeta/Cd); // or bAP
-	mul_wdend   = auryn_timestep*(a_wdend/Cd);
+	mul_dend   = auryn_timestep/tau_dend; // leak
+	mul_beta   = auryn_timestep*(gd/Cd);  // dend. nonlinearity 
+	box_height = auryn_timestep*(zeta/Cd); // or bAP
+	mul_wdend  = auryn_timestep*(a_wdend/Cd);
 
 
 	scale_wsoma = std::exp(-auryn_timestep/tau_wsoma); 
@@ -67,8 +66,8 @@ void NaudGroup::init()
 	e_thr = -50e-3;
 
 	// threshold
-	tau_thr   = 5e-3;
-	e_spk_thr = 10e-3; // TODO find good value here
+	tau_thr   = 27e-3;
+	e_spk_thr = 2e-3; 
 
 	// soma 
 	tau_soma = 16e-3;
@@ -232,7 +231,7 @@ void NaudGroup::check_thresholds()
 			NeuronID unit = i-mem->data;
 			push_spike(unit);
 		    mem->set( unit, e_reset); // reset
-	        thr->set( unit, e_spk_thr); // increase dynamic threshold (refractory)
+	        thr->add_specific( unit, e_spk_thr); // increase dynamic threshold (refractory)
 			state_wsoma->add_specific(unit, 1.0); // increments somatic adaptation variable
 			post_spike_countdown->set(unit, post_spike_reset);
 		} 
