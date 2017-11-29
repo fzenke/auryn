@@ -25,18 +25,18 @@
 
 
 
-#include "NBGGroup.h"
+#include "NaudGroup.h"
 
 using namespace auryn;
 
-NBGGroup::NBGGroup( NeuronID size, NodeDistributionMode distmode ) : NeuronGroup(size, distmode)
+NaudGroup::NaudGroup( NeuronID size, NodeDistributionMode distmode ) : NeuronGroup(size, distmode)
 {
 	sys->register_spiking_group(this);
-	set_name("NBGGroup");
+	set_name("NaudGroup");
 	if ( evolve_locally() ) init();
 }
 
-void NBGGroup::precalculate_constants()
+void NaudGroup::precalculate_constants()
 {
 	scale_ampa  =  std::exp(-auryn_timestep/tau_ampa);
 	scale_gaba  =  std::exp(-auryn_timestep/tau_gaba);
@@ -59,7 +59,7 @@ void NBGGroup::precalculate_constants()
 	aux_mul_wdend = auryn_timestep/tau_wdend; // FIXME
 }
 
-void NBGGroup::init()
+void NaudGroup::init()
 {
 	e_rest = -70e-3;
 	e_reset = e_rest;
@@ -151,7 +151,7 @@ void NBGGroup::init()
 	clear();
 }
 
-void NBGGroup::clear()
+void NaudGroup::clear()
 {
 	clear_spikes();
 	thr->set_all(e_thr);
@@ -166,7 +166,7 @@ void NBGGroup::clear()
 	g_nmda->set_zero();
 }
 
-void NBGGroup::free() {
+void NaudGroup::free() {
 	delete syn_exc_dend;
 	delete syn_inh_dend;
 	delete syn_exc_soma;
@@ -174,13 +174,13 @@ void NBGGroup::free() {
 	delete post_spike_countdown;
 }
 
-NBGGroup::~NBGGroup()
+NaudGroup::~NaudGroup()
 {
 	if ( evolve_locally() ) free();
 }
 
 /*! \brief This method applies the Euler integration step to the membrane dynamics. */
-void NBGGroup::integrate_membrane()
+void NaudGroup::integrate_membrane()
 {
     // somatic dynamics 
 	temp->sigmoid(state_dend, xi, e_dend ); // sigmoid activation
@@ -222,7 +222,7 @@ void NBGGroup::integrate_membrane()
 	thr->follow_scalar(e_thr, mul_thr);
 }
 
-void NBGGroup::check_thresholds()
+void NaudGroup::check_thresholds()
 {
 	// mem->clip( e_inh, 0.0 );
 
@@ -241,7 +241,7 @@ void NBGGroup::check_thresholds()
 
 }
 
-void NBGGroup::evolve()
+void NaudGroup::evolve()
 {
 	syn_exc_soma->evolve(); //!< integrate_linear_nmda_synapses
 	syn_inh_soma->evolve(); 
@@ -253,7 +253,7 @@ void NBGGroup::evolve()
 }
 
 
-void NBGGroup::set_tau_thr(AurynFloat tau)
+void NaudGroup::set_tau_thr(AurynFloat tau)
 {
 	tau_thr = tau;
 	precalculate_constants();
