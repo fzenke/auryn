@@ -23,12 +23,14 @@
 * Front Neuroinform 8, 76. doi: 10.3389/fninf.2014.00076
 */
 
-#ifndef IFGROUP_H_
-#define IFGROUP_H_
+#ifndef MODSYNIFGROUP_H_
+#define MODSYNIFGROUP_H_
 
 #include "auryn_definitions.h"
 #include "AurynVector.h"
 #include "NeuronGroup.h"
+#include "ExpCobaSynapse.h"
+#include "LinearComboSynapse.h"
 #include "System.h"
 
 namespace auryn {
@@ -44,23 +46,25 @@ namespace auryn {
  * ajusted via set_ampa_nmda_ratio. The voltage dependence of NMDA is 
  * ignored in this model.
  */
-	class IFGroup : public NeuronGroup
+	class ModSynIFGroup : public NeuronGroup
 	{
 	private:
 		AurynStateVector * t_leak;
-		AurynStateVector * t_exc;
-		AurynStateVector * t_inh;
-		AurynFloat scale_ampa,scale_gaba, scale_thr;
+		AurynStateVector * syn_current_exc;
+		AurynStateVector * syn_current_inh;
+		AurynFloat scale_thr;
 		AurynFloat tau_ampa,tau_gaba,tau_nmda;
-		AurynFloat A_ampa,A_nmda;
 		AurynFloat e_rest,e_rev,thr_rest,tau_mem,tau_thr,dthr;
-		AurynFloat mul_nmda;
+
+		LinearComboSynapse * exc_synapses; // AMPA and NMDA
+		ExpCobaSynapse * inh_synapses; // GABA
+
 		void init();
 		void free();
 		void calculate_scale_constants();
 		void integrate_membrane();
-		void integrate_linear_nmda_synapses();
 		void check_thresholds();
+
 	public:
 		AurynFloat e_reset;
 		/*! \brief Default constructor.
@@ -68,8 +72,8 @@ namespace auryn {
 		 * @param size the size of the group.  
 		 * @param distmode Node distribution mode  
 		 */
-		IFGroup( NeuronID size, NodeDistributionMode distmode=AUTO );
-		virtual ~IFGroup();
+		ModSynIFGroup( NeuronID size, NodeDistributionMode distmode=AUTO );
+		virtual ~ModSynIFGroup();
 		/*! \brief Sets the membrane time constant */
 		void set_tau_mem(AurynFloat taum);
 		/*! \brief Returns the membrane time constant */
@@ -118,5 +122,5 @@ namespace auryn {
 	};
 }
 
-#endif /*IFGROUP_H_*/
+#endif /*MODSYNIFGROUP_H_*/
 

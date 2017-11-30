@@ -68,7 +68,6 @@ int main(int ac, char* av[])
 	con->set_tau_d(taud);
 	con->set_tau_f(tauf);
 	con->set_ujump(U);
-	con->set_urest(U);
 
 
 	// Sets up recording

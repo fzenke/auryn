@@ -23,51 +23,47 @@
 * Front Neuroinform 8, 76. doi: 10.3389/fninf.2014.00076
 */
 
-#ifndef AIF2GROUP_H_
-#define AIF2GROUP_H_
+#ifndef EXPCOBASYNAPSE_H_
+#define EXPCOBASYNAPSE_H_
 
 #include "auryn_definitions.h"
 #include "AurynVector.h"
-#include "AIFGroup.h"
+#include "NeuronGroup.h"
+#include "SynapseModel.h"
 #include "System.h"
-
-#include <boost/random/mersenne_twister.hpp>
-#include <boost/random/variate_generator.hpp>
-#include <boost/random/normal_distribution.hpp>
 
 namespace auryn {
 
-/*! \brief An adaptive integrate and fire group comparable to AIFGroup but with two independent adaptation timescales
+/*! \brief Implements an exponential conductance-based synapse model
+ *
+ * Default timescale is 5e-3s.
+ * We interpret input state as the neurotransmitter concentration which decays exponentially.
+ * The output state is interpreted as a current which results from multiplying the potential difference
+ * with the neurotransmitter concentration of input state.
+ *
+ * Note that output state is overwritten in each round and needs to be added to the membrane potential in 
+ * the parents evolve function.
+ *
  */
-class AIF2Group : public AIFGroup
-{
-private:
-	AurynFloat scale_adapt2;
-	AurynFloat tau_adapt2;
+	class ExpCobaSynapse : public SynapseModel
+	{
+	private:
+		AurynFloat tau_syn;
+		AurynFloat mul_syn;
+		AurynFloat e_rev; //!< reversal potenital
 
-	void init();
-	void free();
+	public:
+		ExpCobaSynapse(NeuronGroup * parent, AurynStateVector * input, AurynStateVector * output);
 
-protected:
-	auryn_vector_float * g_adapt2;
+		/*! \brief Sets synaptic decay time scale */
+		void set_tau(const AurynState tau);
 
-	void calculate_scale_constants();
-	void integrate_linear_nmda_synapses();
-	void check_thresholds();
+		/*! \brief Sets reversal potential */
+		void set_e_rev(const AurynState reversal_pot);
 
-public:
-	AIF2Group( NeuronID size, NodeDistributionMode distmode = AUTO);
-	virtual ~AIF2Group();
-
-	void random_adapt(AurynState mean, AurynState sigma);
-
-	AurynFloat dg_adapt2;
-
-	void clear();
-	virtual void evolve();
-};
-
+		virtual void evolve();
+	};
 }
 
-#endif /*AIF2GROUP_H_*/
+#endif /*EXPCOBASYNAPSE_H_*/
 

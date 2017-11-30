@@ -23,25 +23,22 @@
 * Front Neuroinform 8, 76. doi: 10.3389/fninf.2014.00076
 */
 
-#include "IFGroup.h"
+#include "ModSynIFGroup.h"
 
 using namespace auryn;
 
-IFGroup::IFGroup( NeuronID size, NodeDistributionMode distmode ) : NeuronGroup(size, distmode)
+ModSynIFGroup::ModSynIFGroup( NeuronID size, NodeDistributionMode distmode ) : NeuronGroup(size, distmode)
 {
 	sys->register_spiking_group(this);
 	if ( evolve_locally() ) init();
 }
 
-void IFGroup::calculate_scale_constants()
+void ModSynIFGroup::calculate_scale_constants()
 {
-	scale_ampa =  std::exp(-auryn_timestep/tau_ampa) ;
-	scale_gaba =  std::exp(-auryn_timestep/tau_gaba) ;
 	scale_thr  = std::exp(-auryn_timestep/tau_thr) ;
-	mul_nmda   = 1.0-std::exp(-auryn_timestep/tau_nmda);
 }
 
-void IFGroup::init()
+void ModSynIFGroup::init()
 {
 	e_rest = -70e-3;
 	e_reset = -70e-3;
@@ -54,21 +51,26 @@ void IFGroup::init()
 	tau_gaba = 10e-3;
 	tau_nmda = 100e-3;
 
-	set_ampa_nmda_ratio(1.0);
+	t_leak = get_state_vector("t_leak");
+	syn_current_exc =  get_state_vector("syn_current_exc");
+	syn_current_inh = get_state_vector("syn_current_inh");
+
+	exc_synapses = new LinearComboSynapse(this, g_ampa, syn_current_exc );
+	exc_synapses->set_ampa_nmda_ratio(1.0);
+	exc_synapses->set_tau_ampa(tau_ampa);
+	exc_synapses->set_tau_nmda(tau_nmda);
+	exc_synapses->set_e_rev(0.0);
+
+	inh_synapses = new ExpCobaSynapse(this, g_gaba, syn_current_inh );
+	inh_synapses->set_tau(tau_gaba);
+	inh_synapses->set_e_rev(e_rev);
 
 	calculate_scale_constants();
 	
-	t_leak = get_state_vector("t_leak");
-	t_exc =  get_state_vector("t_exc");
-	t_inh = get_state_vector("t_inh");
-
-	default_exc_target_state = g_ampa;
-	default_inh_target_state = g_gaba;
-
 	clear();
 }
 
-void IFGroup::clear()
+void ModSynIFGroup::clear()
 {
 	clear_spikes();
 	mem->set_all(e_rest);
@@ -78,55 +80,36 @@ void IFGroup::clear()
 	g_nmda->set_zero();
 }
 
-void IFGroup::free() {
+void ModSynIFGroup::free() {
+	delete exc_synapses;
+	delete inh_synapses;
 }
 
-IFGroup::~IFGroup()
+ModSynIFGroup::~ModSynIFGroup()
 {
 	if ( evolve_locally() ) free();
-}
-
-void IFGroup::integrate_linear_nmda_synapses()
-{
-    // excitatory
-	t_exc->copy(g_ampa);
-	t_exc->scale(-A_ampa);
-	t_exc->saxpy(-A_nmda,g_nmda);
-	t_exc->mul(mem);
-    
-    // inhibitory
-	t_inh->diff(mem,e_rev);
-	t_inh->mul(g_gaba);
-
-    // compute dg_nmda = (g_ampa-g_nmda)*auryn_timestep/tau_nmda and add to g_nmda
-	g_nmda->saxpy(mul_nmda, g_ampa);
-	g_nmda->saxpy(-mul_nmda, g_nmda);
-
-	// decay of ampa and gaba channel, i.e. multiply by exp(-auryn_timestep/tau)
-	g_ampa->scale(scale_ampa);
-	g_gaba->scale(scale_gaba);
 }
 
 /// Integrate the internal state
 /*!
        This method applies the Euler integration step to the membrane dynamics.
  */
-void IFGroup::integrate_membrane()
+void ModSynIFGroup::integrate_membrane()
 {
 	// moving threshold
 	thr->scale(scale_thr);
     
     // leak
-	t_leak->diff(mem,e_rest);
+	t_leak->diff(e_rest,mem);
     
     // membrane dynamics
 	const AurynFloat mul_tau_mem = auryn_timestep/tau_mem;
-    mem->saxpy(mul_tau_mem,t_exc);
-    mem->saxpy(-mul_tau_mem,t_inh);
-    mem->saxpy(-mul_tau_mem,t_leak);
+    mem->saxpy(mul_tau_mem,syn_current_exc); // syn_current_exc is computed by combo synapse object
+    mem->saxpy(mul_tau_mem,syn_current_inh);
+    mem->saxpy(mul_tau_mem,t_leak);
 }
 
-void IFGroup::check_thresholds()
+void ModSynIFGroup::check_thresholds()
 {
 	mem->clip( e_rev, 0.0 );
 
@@ -143,94 +126,76 @@ void IFGroup::check_thresholds()
 
 }
 
-void IFGroup::evolve()
+void ModSynIFGroup::evolve()
 {
-	integrate_linear_nmda_synapses();
+	exc_synapses->evolve(); //!< integrate_linear_nmda_synapses
+	inh_synapses->evolve(); 
 	integrate_membrane();
 	check_thresholds();
 }
 
 
-void IFGroup::set_tau_mem(AurynFloat taum)
+void ModSynIFGroup::set_tau_mem(AurynFloat taum)
 {
 	tau_mem = taum;
 	calculate_scale_constants();
 }
 
-AurynFloat IFGroup::get_tau_mem()
+AurynFloat ModSynIFGroup::get_tau_mem()
 {
 	return tau_mem;
 }
 
-void IFGroup::set_tau_ampa(AurynFloat taum)
+void ModSynIFGroup::set_tau_ampa(AurynFloat taum)
 {
 	tau_ampa = taum;
 	calculate_scale_constants();
 }
 
-AurynFloat IFGroup::get_tau_ampa()
+AurynFloat ModSynIFGroup::get_tau_ampa()
 {
 	return tau_ampa;
 }
 
-void IFGroup::set_tau_gaba(AurynFloat taum)
+void ModSynIFGroup::set_tau_gaba(AurynFloat taum)
 {
 	tau_gaba = taum;
 	calculate_scale_constants();
 }
 
-AurynFloat IFGroup::get_tau_gaba()
+AurynFloat ModSynIFGroup::get_tau_gaba()
 {
 	return tau_gaba;
 }
 
-void IFGroup::set_tau_nmda(AurynFloat tau)
+void ModSynIFGroup::set_tau_nmda(AurynFloat tau)
 {
 	if ( tau < tau_ampa ) { 
-		logger->warning("tau_nmda has to be larger than tau_ampa in IFGroup");
+		logger->warning("tau_nmda has to be larger than tau_ampa in ModSynIFGroup");
 		return;
 	}
 	tau_nmda = tau;
 	calculate_scale_constants();
 }
 
-void IFGroup::set_tau_thr(AurynFloat tau)
+void ModSynIFGroup::set_tau_thr(AurynFloat tau)
 {
 	tau_thr = tau;
 	calculate_scale_constants();
 }
 
 
-AurynFloat IFGroup::get_tau_nmda()
+AurynFloat ModSynIFGroup::get_tau_nmda()
 {
 	return tau_nmda;
 }
 
-void IFGroup::set_ampa_nmda_ratio(AurynFloat ratio) 
+void ModSynIFGroup::set_nmda_ampa_current_ampl_ratio(AurynFloat ratio)
 {
- 	A_ampa = ratio/(ratio+1.0);
-	A_nmda = 1./(ratio+1.0);
+	exc_synapses->set_nmda_ampa_current_ampl_ratio(ratio);
 }
 
-void IFGroup::set_nmda_ampa_current_ampl_ratio(AurynFloat ratio) 
+void ModSynIFGroup::set_ampa_nmda_ratio(AurynFloat ratio)
 {
-	const double tau_r = tau_ampa;
-	const double tau_d = tau_nmda;
-
-	// compute amplitude of NMDA conductance
-	const double tmax = tau_r*std::log((tau_r+tau_d)/tau_r); // argmax
-	const double ampl = (1.0-std::exp(-tmax/tau_r))*std::exp(-tmax/tau_d)*tau_r/(tau_d-tau_r); 
-
-	// set relative amplitudes
-	A_ampa = 1.0;
-	A_nmda = ratio/ampl;
-
-	// normalize sum to one
-	const double sum = A_ampa+A_nmda;
-	A_ampa /= sum;
-	A_nmda /= sum;
-
-	// write constants to logfile
-	logger->parameter("A_ampa", A_ampa);
-	logger->parameter("A_nmda", A_nmda);
+	exc_synapses->set_ampa_nmda_ratio(ratio);
 }

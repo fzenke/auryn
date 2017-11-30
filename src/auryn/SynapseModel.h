@@ -23,51 +23,44 @@
 * Front Neuroinform 8, 76. doi: 10.3389/fninf.2014.00076
 */
 
-#ifndef AIF2GROUP_H_
-#define AIF2GROUP_H_
+#ifndef SYNAPSEMODEL_H_
+#define SYNAPSEMODEL_H_
 
 #include "auryn_definitions.h"
 #include "AurynVector.h"
-#include "AIFGroup.h"
+#include "NeuronGroup.h"
 #include "System.h"
-
-#include <boost/random/mersenne_twister.hpp>
-#include <boost/random/variate_generator.hpp>
-#include <boost/random/normal_distribution.hpp>
 
 namespace auryn {
 
-/*! \brief An adaptive integrate and fire group comparable to AIFGroup but with two independent adaptation timescales
+/*! \brief Implements base class for modular synapse models
+ *
+ * Synapse models piggy back onto a NeuronGroup,
+ * and operate on StateVectors. They typically read transmitter 
+ * input from one state vector (the target state of a Connection 
+ * object) and output a "current" to a target state. 
+ * Input and target can be the same, for instance when the required function
+ * can be achieved by simply decaying it, or they may output to another output
+ * state (e.g. double filtering the input to implement an NMDA synapse) which
+ * is then fed to the membrane.
+ *
+ * Synapse models should implement an evolve function which has to be called
+ * by the parent NeuronGroup.
+ * 
  */
-class AIF2Group : public AIFGroup
-{
-private:
-	AurynFloat scale_adapt2;
-	AurynFloat tau_adapt2;
+	class SynapseModel 
+	{
+	protected:
+		NeuronGroup * parent_group;
+		AurynStateVector * input_state;
+		AurynStateVector * output_state;
 
-	void init();
-	void free();
+	public:
+		SynapseModel(NeuronGroup * parent, AurynStateVector * input, AurynStateVector * output);
 
-protected:
-	auryn_vector_float * g_adapt2;
-
-	void calculate_scale_constants();
-	void integrate_linear_nmda_synapses();
-	void check_thresholds();
-
-public:
-	AIF2Group( NeuronID size, NodeDistributionMode distmode = AUTO);
-	virtual ~AIF2Group();
-
-	void random_adapt(AurynState mean, AurynState sigma);
-
-	AurynFloat dg_adapt2;
-
-	void clear();
-	virtual void evolve();
-};
-
+		virtual void evolve() = 0;
+	};
 }
 
-#endif /*AIF2GROUP_H_*/
+#endif /*SYNAPSEMODEL_H_*/
 

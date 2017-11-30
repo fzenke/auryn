@@ -30,6 +30,9 @@
 #include <assert.h>
 #include "auryn_definitions.h"
 
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/variate_generator.hpp>
+#include <boost/random/normal_distribution.hpp>
 
 namespace auryn {
 
@@ -308,6 +311,25 @@ namespace auryn {
 				}
 			}
 
+			/*! \brief Element-wise division  
+			 *
+			 * */
+			void div(const T a) 
+			{
+				scale(1.0/a);
+			}
+
+			/*! \brief Element-wise vector division  
+			 *
+			 * */
+			void div(AurynVector * v) 
+			{
+				check_size(v);
+				for ( IndexType i = 0 ; i < size ; ++i ) {
+					data[i] /= v->data[i];
+				}
+			}
+
 			/*! \brief SAXPY operation as in GSL 
 			 *
 			 * Computes a*x + y and stores the result to y where y is the present instance. 
@@ -322,12 +344,25 @@ namespace auryn {
 				}
 			}
 
-
-			/*! \brief Scales all vector elements by a. */
+			/*! \brief Follows target vector v with rate.
+			 *
+			 * Example to implement the ODE:
+			 * tau dx/dt = -(x-v)  
+			 *
+			 * the rate parameter should be set to auryn_timestep/tau.
+			 * */
 			void follow(AurynVector<T,IndexType> * v, const T rate) 
 			{
 				for ( IndexType i = 0 ; i < size ; ++i ) {
 					data[i] += rate*(v->data[i]-data[i]);
+				}
+			}
+
+			/*! \brief Like follow but with a scalar target value a. */
+			void follow_scalar(const T a, const T rate) 
+			{
+				for ( IndexType i = 0 ; i < size ; ++i ) {
+					data[i] += rate*(a-data[i]);
 				}
 			}
 
@@ -379,6 +414,18 @@ namespace auryn {
 				for ( IndexType i = 0 ; i < size ; ++i ) {
 					data[i] = std::exp(data[i]);
 				}
+			}
+
+
+			/*! \brief Computes sigmoid(beta*(x-thr)) for each vector element and
+			 * stores result in this instance. */
+			void sigmoid(AurynVector * x, const T beta, const T thr)
+			{
+				diff(x,thr);
+				mul(-beta);
+				exp();
+				add(1.0);
+				inv();
 			}
 
 

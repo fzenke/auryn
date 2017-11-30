@@ -31,6 +31,9 @@
 #include <fstream>
 #include <string>
 
+#include <boost/archive/binary_oarchive.hpp> 
+#include <boost/archive/binary_iarchive.hpp> 
+
 namespace auryn {
 
 	class System;

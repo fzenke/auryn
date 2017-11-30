@@ -36,6 +36,14 @@
 #include <boost/random/variate_generator.hpp>
 #include <boost/random/exponential_distribution.hpp>
 
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/map.hpp>
+
+#include <boost/archive/text_oarchive.hpp> 
+#include <boost/archive/text_iarchive.hpp> 
+#include <boost/archive/binary_oarchive.hpp> 
+#include <boost/archive/binary_iarchive.hpp> 
+
 namespace auryn {
 
 typedef SimpleMatrix<AurynWeight*> BackwardMatrix;

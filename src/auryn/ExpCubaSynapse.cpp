@@ -23,51 +23,28 @@
 * Front Neuroinform 8, 76. doi: 10.3389/fninf.2014.00076
 */
 
-#ifndef AIF2GROUP_H_
-#define AIF2GROUP_H_
+#include "ExpCubaSynapse.h"
 
-#include "auryn_definitions.h"
-#include "AurynVector.h"
-#include "AIFGroup.h"
-#include "System.h"
+using namespace auryn;
 
-#include <boost/random/mersenne_twister.hpp>
-#include <boost/random/variate_generator.hpp>
-#include <boost/random/normal_distribution.hpp>
-
-namespace auryn {
-
-/*! \brief An adaptive integrate and fire group comparable to AIFGroup but with two independent adaptation timescales
- */
-class AIF2Group : public AIFGroup
+ExpCubaSynapse::ExpCubaSynapse(NeuronGroup * parent, AurynStateVector * input, AurynStateVector * output) 
+	: SynapseModel( parent, input, output )
 {
-private:
-	AurynFloat scale_adapt2;
-	AurynFloat tau_adapt2;
+	if ( input != output ) {
+		logger->warning("ExpCubaSynapse requires input and output state to be the same!");
+	}
 
-	void init();
-	void free();
-
-protected:
-	auryn_vector_float * g_adapt2;
-
-	void calculate_scale_constants();
-	void integrate_linear_nmda_synapses();
-	void check_thresholds();
-
-public:
-	AIF2Group( NeuronID size, NodeDistributionMode distmode = AUTO);
-	virtual ~AIF2Group();
-
-	void random_adapt(AurynState mean, AurynState sigma);
-
-	AurynFloat dg_adapt2;
-
-	void clear();
-	virtual void evolve();
-};
-
+	set_tau(5e-3); // sets a default timescale
 }
 
-#endif /*AIF2GROUP_H_*/
+void ExpCubaSynapse::set_tau(const AurynState tau)
+{
+	tau_syn = tau;
+	mul_syn = std::exp(-auryn_timestep/tau_syn);
+}
+
+void ExpCubaSynapse::evolve()
+{
+	input_state->scale(mul_syn);
+}
 
