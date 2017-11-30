@@ -39,7 +39,7 @@ int main(int ac, char* av[])
 	PoissonGroup * poisson_exc = new PoissonGroup(40, 5);
 
 	// connect
-	const double we = 0.5;
+	const double we = 1.0;
 	const double wi = 1.0;
 	const double sparseness = 0.5;
 	SparseConnection * con_ext_exc = new SparseConnection(poisson_exc, neurons_exc, we, sparseness);
