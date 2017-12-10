@@ -140,7 +140,6 @@ void BinaryStateMonitor::write_frame(const AurynTime time, const AurynState valu
 void BinaryStateMonitor::execute()
 {
 	if ( auryn::sys->get_clock() < t_stop && auryn::sys->get_clock()%ssize==0  ) {
-		char buffer[255];
 		if ( enable_compression && auryn::sys->get_clock()>0 ) {
 			AurynState value = *target_variable;
 			AurynState deriv = value-lastval;
