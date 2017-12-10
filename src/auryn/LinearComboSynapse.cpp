@@ -45,6 +45,10 @@ LinearComboSynapse::LinearComboSynapse(NeuronGroup * parent, AurynStateVector * 
 	set_ampa_nmda_ratio(1.0);
 }
 
+LinearComboSynapse::~LinearComboSynapse() 
+{
+}
+
 void LinearComboSynapse::set_tau_ampa(const AurynState tau)
 {
 	tau_ampa = tau;

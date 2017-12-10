@@ -55,6 +55,8 @@ namespace auryn {
 	public:
 		LinearComboSynapse(NeuronGroup * parent, AurynStateVector * input, AurynStateVector * output);
 
+		virtual ~LinearComboSynapse();
+
 		/*! \brief Sets AMPA decay time scale */
 		void set_tau_ampa(const AurynState tau);
 

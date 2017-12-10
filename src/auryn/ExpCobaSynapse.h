@@ -54,6 +54,7 @@ namespace auryn {
 
 	public:
 		ExpCobaSynapse(NeuronGroup * parent, AurynStateVector * input, AurynStateVector * output);
+		~ExpCobaSynapse();
 
 		/*! \brief Sets synaptic decay time scale */
 		void set_tau(const AurynState tau);

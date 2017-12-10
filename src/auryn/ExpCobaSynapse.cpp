@@ -38,6 +38,10 @@ ExpCobaSynapse::ExpCobaSynapse(NeuronGroup * parent, AurynStateVector * input, A
 	set_e_rev(0.0); // sets default reversal potential
 }
 
+ExpCobaSynapse::~ExpCobaSynapse()
+{
+}
+
 void ExpCobaSynapse::set_tau(const AurynState tau)
 {
 	tau_syn = tau;
