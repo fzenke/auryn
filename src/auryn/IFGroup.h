@@ -53,7 +53,7 @@ namespace auryn {
 		AurynFloat scale_ampa,scale_gaba, scale_thr;
 		AurynFloat tau_ampa,tau_gaba,tau_nmda;
 		AurynFloat A_ampa,A_nmda;
-		AurynFloat e_rest,e_rev,thr_rest,tau_mem,tau_thr,dthr;
+		AurynFloat thr_rest,tau_mem,tau_thr,dthr;
 		AurynFloat mul_nmda;
 		void init();
 		void free();
@@ -62,7 +62,9 @@ namespace auryn {
 		void integrate_linear_nmda_synapses();
 		void check_thresholds();
 	public:
-		AurynFloat e_reset;
+		AurynFloat u_reset; //!< Reset voltage
+		AurynFloat u_rest; //!< Resting potential
+		AurynFloat u_inh_rev; //!< Inhibitory reversal potential 
 		/*! \brief Default constructor.
 		 *
 		 * @param size the size of the group.  
