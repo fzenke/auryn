@@ -125,6 +125,7 @@
 #include "auryn/RealTimeMonitor.h"
 #include "auryn/RateMonitor.h"
 #include "auryn/PopulationRateMonitor.h"
+#include "auryn/BurstRateMonitor.h"
 #include "auryn/StateMonitor.h"
 #include "auryn/WeightSumMonitor.h"
 #include "auryn/PatternMonitor.h"
