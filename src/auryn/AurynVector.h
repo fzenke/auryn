@@ -330,6 +330,19 @@ namespace auryn {
 				}
 			}
 
+			/*! \brief Element-wise vector division which stores the result in this
+			 *
+			 * Computes elemntwise a/b and stores the result in current instance.
+			 *
+			 * */
+			void div(AurynVector * a, AurynVector * b) 
+			{
+				check_size(a);
+				for ( IndexType i = 0 ; i < size ; ++i ) {
+					data[i] = a->data[i]/b->data[i];
+				}
+			}
+
 			/*! \brief SAXPY operation as in GSL 
 			 *
 			 * Computes a*x + y and stores the result to y where y is the present instance. 
