@@ -43,9 +43,9 @@ void IFGroup::calculate_scale_constants()
 
 void IFGroup::init()
 {
-	e_rest = -70e-3;
-	e_reset = -70e-3;
-	e_rev = -80e-3;
+	u_rest = -70e-3;
+	u_reset = -70e-3;
+	u_inh_rev = -80e-3;
 	thr_rest = -50e-3;
 	dthr = 100e-3;
 	tau_thr = 5e-3;
@@ -71,7 +71,7 @@ void IFGroup::init()
 void IFGroup::clear()
 {
 	clear_spikes();
-	mem->set_all(e_rest);
+	mem->set_all(u_rest);
 	thr->set_zero();
 	g_ampa->set_zero();
 	g_gaba->set_zero();
@@ -95,7 +95,7 @@ void IFGroup::integrate_linear_nmda_synapses()
 	t_exc->mul(mem);
     
     // inhibitory
-	t_inh->diff(mem,e_rev);
+	t_inh->diff(mem,u_inh_rev);
 	t_inh->mul(g_gaba);
 
     // compute dg_nmda = (g_ampa-g_nmda)*auryn_timestep/tau_nmda and add to g_nmda
@@ -117,7 +117,7 @@ void IFGroup::integrate_membrane()
 	thr->scale(scale_thr);
     
     // leak
-	t_leak->diff(mem,e_rest);
+	t_leak->diff(mem,u_rest);
     
     // membrane dynamics
 	const AurynFloat mul_tau_mem = auryn_timestep/tau_mem;
@@ -128,14 +128,14 @@ void IFGroup::integrate_membrane()
 
 void IFGroup::check_thresholds()
 {
-	mem->clip( e_rev, 0.0 );
+	mem->clip( u_inh_rev, 0.0 );
 
 	AurynState * thr_ptr = thr->data;
 	for ( AurynState * i = mem->data ; i != mem->data+get_rank_size() ; ++i ) { // it's important to use rank_size here otherwise there might be spikes from units that do not exist
     	if ( *i > ( thr_rest + *thr_ptr ) ) {
 			NeuronID unit = i-mem->data;
 			push_spike(unit);
-		    mem->set( unit, e_reset); // reset
+		    mem->set( unit, u_reset); // reset
 	        thr->set( unit, dthr); //refractory
 		} 
 		thr_ptr++;

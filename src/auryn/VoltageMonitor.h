@@ -26,7 +26,7 @@
 #ifndef VOLTAGEMONITOR_H_
 #define VOLTAGEMONITOR_H_
 
-#define VOLTAGEMONITOR_PASTED_SPIKE_HEIGHT 20e-3
+#define VOLTAGEMONITOR_PASTED_SPIKE_HEIGHT 40e-3
 
 #include "auryn_definitions.h"
 #include "AurynVector.h"
