@@ -32,10 +32,6 @@ BurstRateMonitor::BurstRateMonitor(SpikingGroup * source, std::string filename, 
 	init(source,filename,binsize);
 }
 
-BurstRateMonitor::~BurstRateMonitor()
-{
-}
-
 void BurstRateMonitor::init(SpikingGroup * source, std::string filename, AurynDouble binsize)
 {
 	auryn::sys->register_device(this);
@@ -49,7 +45,7 @@ void BurstRateMonitor::init(SpikingGroup * source, std::string filename, AurynDo
 
 	const double default_tau = 16e-3;
 	post_trace = src->get_post_trace(default_tau);
-	burst_state = src->get_state_vector("_burst_state");
+	burst_state = new AurynVector<short>(src->get_vector_size()); 
 
 	set_tau(default_tau);
 	thr = std::exp(-1.0);
@@ -58,6 +54,11 @@ void BurstRateMonitor::init(SpikingGroup * source, std::string filename, AurynDo
 	std::stringstream oss;
 	oss << "BurstRateMonitor:: Setting binsize " << binsize << "s";
 	auryn::logger->msg(oss.str(),NOTIFICATION);
+}
+
+BurstRateMonitor::~BurstRateMonitor()
+{
+	delete burst_state;
 }
 
 void BurstRateMonitor::set_tau(double tau)
@@ -79,13 +80,13 @@ void BurstRateMonitor::execute()
 			// detect first spike in bursts and non-burst spikes 
 			if ( post_trace->get(s) < thr ) { 
 				++event_counter;
-				burst_state->set(s,0.0);
+				burst_state->set(s,0);
 			}
 
 			// detect second spike in burst
-			if ( post_trace->get(s) > thr && burst_state->get(s) == 0.0 ) { 
+			if ( post_trace->get(s) > thr && burst_state->get(s) == 0 ) { 
 				++burst_counter;
-				burst_state->set(s,1.0);
+				burst_state->set(s,1);
 			}
 
 			// last_post_val->set(s,post_trace->get(s));
@@ -99,8 +100,8 @@ void BurstRateMonitor::execute()
 			burst_counter = 0;
 			event_counter = 0;
 			outfile << auryn::sys->get_time() 
-				<< " " << event_rate 
-				<< " " << burst_rate << "\n";
+				<< " " << burst_rate
+				<< " " << event_rate << "\n";
 		}
 
 		// last_post_val->copy(post_trace);

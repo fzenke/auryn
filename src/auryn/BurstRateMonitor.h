@@ -57,7 +57,7 @@ private:
 	/*! \brief Trace to measure spike interval timing */
 	Trace * post_trace;
 	/*! \brief Burst state */
-	AurynStateVector * burst_state;
+	AurynVector<short> * burst_state;
 	/*! \brief Burst threshold */
 	AurynState thr;
 
