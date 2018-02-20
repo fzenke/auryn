@@ -113,4 +113,4 @@ public:
 
 }
 
-#endif /*NEURONGROUP_H_*/
+#endif /*CORRELATEDPOISSONGROUP_H_*/
