@@ -16,7 +16,7 @@ def select_spikes(spikes,t_start,t_stop):
     stop  = np.searchsorted(ts,t_stop, side='right')
     return spikes[start:stop]
 
-def plot_spikes(spikes,t_start,t_stop):
+def raster_plot(spikes,t_start,t_stop):
     """ Plots a spike raster plot from a spike array
     
     Parameters:
