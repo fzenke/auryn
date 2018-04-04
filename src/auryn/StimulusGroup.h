@@ -167,10 +167,10 @@ public:
 	bool background_during_stimulus;
 
 	/*! \brief Default constructor */
-	StimulusGroup(NeuronID n, string filename, string stimfile, StimulusGroupModeType stimulusmode=RANDOM, AurynFloat baserate=0.0 );
+	StimulusGroup(NeuronID n, string filename, string stimfile, StimulusGroupModeType stimulusmode=RANDOM, AurynFloat baserate=1.0 );
 
 	/*! \brief Constructor without stimfile. Patterns can be loaded afterwards using the load_patterns method. */
-	StimulusGroup(NeuronID n, string stimfile, StimulusGroupModeType stimulusmode=RANDOM, AurynFloat baserate=0.0 );
+	StimulusGroup(NeuronID n, string stimfile, StimulusGroupModeType stimulusmode=RANDOM, AurynFloat baserate=1.0 );
 
 	virtual ~StimulusGroup();
 	/*! \brief Standard virtual evolve function */
@@ -193,6 +193,9 @@ public:
 
 	/*! \brief Loads stimulus patterns from a designated file given */
 	virtual void load_patterns( string filename );
+
+	/*! \brief Clear stimulus patterns */
+	virtual void clear_patterns( );
 
 	/*! \brief Set mean quiet interval between consecutive stimuli */
 	void set_mean_off_period(AurynFloat period);

@@ -369,6 +369,11 @@ AurynFloat StimulusGroup::get_activity(NeuronID i)
 		return 0;
 }
 
+void StimulusGroup::clear_patterns( )
+{
+	stimuli.clear();
+}
+
 void StimulusGroup::load_patterns( std::string filename )
 {
 	std::ifstream fin (filename.c_str());
