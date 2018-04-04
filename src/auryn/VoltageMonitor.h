@@ -30,7 +30,7 @@
 
 #include "auryn_definitions.h"
 #include "AurynVector.h"
-#include "Monitor.h"
+#include "StateMonitor.h"
 #include "System.h"
 #include "Connection.h"
 #include <fstream>
@@ -45,45 +45,22 @@ namespace auryn {
  * VOLTAGEMONITOR_PASTED_SPIKE_HEIGHT by reading out the the current spikes. For 
  * performance it is adviced to use the StateMonitor which does not do any
  * spike pasting. */
-class VoltageMonitor : public Monitor
+class VoltageMonitor : public StateMonitor
 {
 private:
-	/*! Global neuron id to record from */
-	NeuronID gid;
 
 protected:
-	/*! The source neuron group to record from */
-	NeuronGroup * src;
-
-	/*! The source neuron id to record from */
-	NeuronID nid;
-
-	/*! The step size (sampling interval) in units of auryn_timestep */
-	AurynTime ssize;
-
-	/*! Defines the maximum recording time in AurynTime to save space. */
-	AurynTime tStop;
-
-	/*! Standard initialization */
-	void init(NeuronGroup * source, NeuronID id, string filename, AurynTime stepsize);
+	/*! \brief Standard initialization */
+	void init();
 	
 public:
-	/*! Paste spikes switch (default = true) */
+	/*! \brief Paste spikes switch (default = true) */
 	AurynTime paste_spikes;
 
-	/*! \brief Sets relative time at which to stop recording 
-	 *
-	 * The time is given in seconds and interpreted as relative time with 
-	 * respect to the current clock value. This features is useful to decrease
-	 * IO. The stop time can be set again after calling run to record multiple 
-	 * snippets. */
-	void record_for(AurynDouble time=10.0);
-
-	/*! Same as record for(time) */
-	void set_stop_time(AurynDouble time=10.0);
-
 	VoltageMonitor(NeuronGroup * source, NeuronID id, string filename,  AurynDouble stepsize=auryn_timestep);
+
 	virtual ~VoltageMonitor();
+
 	void execute();
 };
 
