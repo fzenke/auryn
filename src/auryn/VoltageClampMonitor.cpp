@@ -27,38 +27,20 @@
 
 using namespace auryn;
 
-VoltageClampMonitor::VoltageClampMonitor(NeuronGroup * source, NeuronID id, std::string filename) : Monitor(filename)
+VoltageClampMonitor::VoltageClampMonitor(NeuronGroup * source, NeuronID id, std::string filename) : VoltageMonitor(source, id, filename)
 {
-	init(source,id,filename);
+	clamping_voltage = -70e-3;
+	clamp_enabled = true;
 }
 
 VoltageClampMonitor::~VoltageClampMonitor()
 {
 }
 
-void VoltageClampMonitor::init(NeuronGroup * source, NeuronID id, std::string filename)
-{
-	// only register if the neuron exists on this rank
-	src = source;
-	nid = id;
-	gid = src->rank2global(nid);
-
-	clamping_voltage = -70e-3;
-	clamp_enabled = true;
-
-	t_stop = -1; // at the end of all times ...
-
-	if ( nid < src->get_post_size() ) {
-		auryn::sys->register_device(this);
-		outfile << std::setiosflags(std::ios::fixed) << std::setprecision(6);
-		outfile << "# Clamping neuron " << gid << "\n";
-	}
-}
-
 void VoltageClampMonitor::execute()
 {
 	if ( clamp_enabled && auryn::sys->get_clock() < t_stop ) {
-		AurynState * voltage = src->mem->ptr(nid);
+		AurynState * voltage = target_variable;
 		AurynState pseudo_current = clamping_voltage-*voltage;
 		// TODO a unitful quantity would be nice here ... 
 		*voltage += pseudo_current;
@@ -67,16 +49,3 @@ void VoltageClampMonitor::execute()
 }
 
 
-
-void VoltageClampMonitor::record_for(AurynDouble time)
-{
-	set_stop_time(time);
-}
-
-void VoltageClampMonitor::set_stop_time(AurynDouble time)
-{
-	if (time < 0) {
-		auryn::logger->msg("Warning: Negative stop times not supported -- ingoring.",WARNING);
-	} 
-	else t_stop = auryn::sys->get_clock() + time/auryn_timestep;
-}

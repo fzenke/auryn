@@ -30,7 +30,7 @@
 
 #include "auryn_definitions.h"
 #include "AurynVector.h"
-#include "Monitor.h"
+#include "VoltageMonitor.h"
 #include "System.h"
 #include "Connection.h"
 #include <fstream>
@@ -42,24 +42,11 @@ namespace auryn {
  *
  * The Monitor puts a single cell in voltage clamp and records the membrane current required ot keep the clamp. 
  * */
-class VoltageClampMonitor : public Monitor
+class VoltageClampMonitor : public VoltageMonitor
 {
 private:
-	/*! \brief Global neuron id to record from */
-	NeuronID gid;
 
 protected:
-	/*! \brief The source neuron group to record from */
-	NeuronGroup * src;
-
-	/*! \brief The source neuron id to record from */
-	NeuronID nid;
-
-	/*! \brief Defines the maximum recording time in AurynTime to save space. */
-	AurynTime t_stop;
-
-	/*! \brief Standard initialization */
-	void init(NeuronGroup * source, NeuronID id, string filename);
 	
 public:
 	/*! \brief Clamp active */
@@ -67,17 +54,6 @@ public:
 
 	/*! \brief The clamping voltage */
 	AurynState clamping_voltage;
-
-	/*! \brief Sets relative time at which to stop recording 
-	 *
-	 * The time is given in seconds and interpreted as relative time with 
-	 * respect to the current clock value. This features is useful to decrease
-	 * IO. The stop time can be set again after calling run to record multiple 
-	 * snippets. */
-	void record_for(AurynDouble time=10.0);
-
-	/*! \brief Same as record for(time) */
-	void set_stop_time(AurynDouble time=10.0);
 
 	/*! \brief Default constructor
 	 *
