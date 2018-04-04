@@ -51,6 +51,18 @@ SparseConnection::SparseConnection(NeuronID rows, NeuronID cols) : Connection(ro
 	init();
 }
 
+SparseConnection::SparseConnection( 
+		SpikingGroup * source, 
+		NeuronGroup * destination, 
+		TransmitterType transmitter, 
+		std::string name) 
+	: Connection(source,destination,transmitter,name)
+{
+	init();
+	std::stringstream oss;
+	oss << get_log_name() << "Setting up SparseConnection without connecting it. Needs to be manually connected!";
+	auryn::logger->msg(oss.str(),VERBOSE);
+}
 
 SparseConnection::SparseConnection( 
 		SpikingGroup * source, 
