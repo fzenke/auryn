@@ -48,6 +48,7 @@ namespace auryn {
 class VoltageMonitor : public StateMonitor
 {
 private:
+	NeuronID gid;
 
 protected:
 	/*! \brief Standard initialization */

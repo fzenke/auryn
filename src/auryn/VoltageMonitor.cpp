@@ -29,6 +29,8 @@ using namespace auryn;
 
 VoltageMonitor::VoltageMonitor(NeuronGroup * source, NeuronID id, std::string filename, AurynDouble stepsize) : StateMonitor(source, id, "mem", filename, stepsize)
 {
+	if ( !source->localrank(id) ) return; // do not anything if the neuron is not on the local rank
+	gid = id; // we also need the global id to scan for spikes, but StateMonitor only sets the rank id (nid)
 	init();
 }
 
@@ -52,7 +54,7 @@ void VoltageMonitor::execute()
 		if ( paste_spikes ) {
 			SpikeContainer * spikes = src->get_spikes_immediate();
 			for ( int i = 0 ; i < spikes->size() ; ++i ) {
-				if ( spikes->at(i) == nid ) {
+				if ( spikes->at(i) == gid ) {
 					voltage = VOLTAGEMONITOR_PASTED_SPIKE_HEIGHT;
 					outfile << (auryn::sys->get_time()) << " " << voltage << "\n";
 					return;
