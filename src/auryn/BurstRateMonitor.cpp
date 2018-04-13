@@ -58,6 +58,7 @@ void BurstRateMonitor::init(SpikingGroup * source, std::string filename, AurynDo
 	std::stringstream oss;
 	oss << "BurstRateMonitor:: Setting binsize " << binsize << "s";
 	auryn::logger->msg(oss.str(),NOTIFICATION);
+
 }
 
 void BurstRateMonitor::set_tau(double tau)
@@ -74,21 +75,18 @@ void BurstRateMonitor::execute()
 		for ( spk = src->get_spikes_immediate()->begin() ; 
 				spk < src->get_spikes_immediate()->end() ; 
 				++spk ) {
+
 			const NeuronID s = src->global2rank(*spk);
 
 			// detect first spike in bursts and non-burst spikes 
 			if ( post_trace->get(s) < thr ) { 
 				++event_counter;
-				burst_state->set(s,0.0);
-			}
-
-			// detect second spike in burst
-			if ( post_trace->get(s) > thr && burst_state->get(s) == 0.0 ) { 
+				burst_state->set(s,-1.0);
+			} else // detect second spike in burst
+			if ( burst_state->get(s) < 0.0 ) { 
 				++burst_counter;
 				burst_state->set(s,1.0);
 			}
-
-			// last_post_val->set(s,post_trace->get(s));
 		}
 
 
@@ -98,9 +96,10 @@ void BurstRateMonitor::execute()
 			const double event_rate = scaleconst*event_counter;
 			burst_counter = 0;
 			event_counter = 0;
+			// outfile << std::setiosflags(ios::fixed) << std::setprecision(3);
 			outfile << auryn::sys->get_time() 
-				<< " " << event_rate 
-				<< " " << burst_rate << "\n";
+				<< " " << burst_rate 
+				<< " " << event_rate << "\n";
 		}
 
 		// last_post_val->copy(post_trace);
