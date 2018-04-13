@@ -23,45 +23,51 @@
 * Front Neuroinform 8, 76. doi: 10.3389/fninf.2014.00076
 */
 
-#ifndef POISSONSPIKEINJECTOR_H_
-#define POISSONSPIKEINJECTOR_H_
+#ifndef VOLTAGECLAMPMONITOR_H_
+#define VOLTAGECLAMPMONITOR_H_
+
+#define VOLTAGEMONITOR_PASTED_SPIKE_HEIGHT 20e-3
 
 #include "auryn_definitions.h"
 #include "AurynVector.h"
+#include "VoltageMonitor.h"
 #include "System.h"
-#include "PoissonGroup.h"
+#include "Connection.h"
+#include <fstream>
+#include <iomanip>
 
 namespace auryn {
 
-/*! \brief A PoissonGroup which can directly add its output spike to another SpikingGroup by piggy backing onto it
+/*! \brief Implements a voltage clamp for one neuron and records the clamp current 
  *
- *
- * \todo Have to make sure this group has the same rank_lock structure as the piggy back group 
- */
-class PoissonSpikeInjector : public PoissonGroup
+ * The Monitor puts a single cell in voltage clamp and records the membrane current required ot keep the clamp. 
+ * */
+class VoltageClampMonitor : public VoltageMonitor
 {
 private:
-	typedef PoissonGroup super;
-
-	SpikingGroup * target;
-
 
 protected:
 	
 public:
-	/*! \brief Standard constructor. 
-	 * \param target_group is the group to whose output we add the random poisson spikes
-	 * \param rate is the mean firing rate of the poisson neurons in the spike injector 
-	 */
-	PoissonSpikeInjector(SpikingGroup * target_group, AurynDouble rate=5. );
+	/*! \brief Clamp active */
+	bool clamp_enabled;
 
-	/*! \brief Default destructor */
-	virtual ~PoissonSpikeInjector();
+	/*! \brief The clamping voltage */
+	AurynState clamping_voltage;
 
-	/*! \brief Standard evolve function */
-	virtual void evolve();
+	/*! \brief Default constructor
+	 *
+	 * \param source The group to record and clamp
+	 * \param id The neuron id to operate on
+	 * \param filename The filename to write the clamp current to
+	 * */
+	VoltageClampMonitor(NeuronGroup * source, NeuronID id, string filename);
+
+	/*! \brief The default destructor */
+	virtual ~VoltageClampMonitor();
+	void execute();
 };
 
 }
 
-#endif /*POISSONSPIKEINJECTOR_H_*/
+#endif /*VOLTAGECLAMPMONITOR_H_*/

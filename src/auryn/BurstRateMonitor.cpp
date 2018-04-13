@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2017 Friedemann Zenke
+* Copyright 2014-2018 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -32,10 +32,6 @@ BurstRateMonitor::BurstRateMonitor(SpikingGroup * source, std::string filename, 
 	init(source,filename,binsize);
 }
 
-BurstRateMonitor::~BurstRateMonitor()
-{
-}
-
 void BurstRateMonitor::init(SpikingGroup * source, std::string filename, AurynDouble binsize)
 {
 	auryn::sys->register_device(this);
@@ -59,6 +55,10 @@ void BurstRateMonitor::init(SpikingGroup * source, std::string filename, AurynDo
 	oss << "BurstRateMonitor:: Setting binsize " << binsize << "s";
 	auryn::logger->msg(oss.str(),NOTIFICATION);
 
+}
+
+BurstRateMonitor::~BurstRateMonitor()
+{
 }
 
 void BurstRateMonitor::set_tau(double tau)
@@ -85,7 +85,7 @@ void BurstRateMonitor::execute()
 			} else // detect second spike in burst
 			if ( burst_state->get(s) < 0.0 ) { 
 				++burst_counter;
-				burst_state->set(s,1.0);
+				burst_state->set(s,1);
 			}
 		}
 

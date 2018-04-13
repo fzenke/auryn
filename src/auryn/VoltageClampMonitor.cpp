@@ -23,39 +23,29 @@
 * Front Neuroinform 8, 76. doi: 10.3389/fninf.2014.00076
 */
 
-#include "WeightSumMonitor.h"
+#include "VoltageClampMonitor.h"
 
 using namespace auryn;
 
-WeightSumMonitor::WeightSumMonitor(Connection * source, std::string filename, AurynDouble binsize) : Monitor(filename)
+VoltageClampMonitor::VoltageClampMonitor(NeuronGroup * source, NeuronID id, std::string filename) : VoltageMonitor(source, id, filename)
 {
-	init(source,filename,binsize/auryn_timestep);
+	clamping_voltage = -70e-3;
+	clamp_enabled = true;
 }
 
-WeightSumMonitor::~WeightSumMonitor()
+VoltageClampMonitor::~VoltageClampMonitor()
 {
 }
 
-void WeightSumMonitor::init(Connection * source, std::string filename,AurynTime stepsize)
+void VoltageClampMonitor::execute()
 {
-	if ( !source->get_destination()->evolve_locally() ) return;
-
-	auryn::sys->register_device(this);
-
-	src = source;
-	ssize = stepsize;
-	if ( ssize < 1 ) ssize = 1;
-
-	outfile << std::setiosflags(std::ios::fixed) << std::setprecision(6);
-}
-
-void WeightSumMonitor::execute()
-{
-	if (auryn::sys->get_clock()%ssize==0) {
-		AurynDouble weightsum;
-		AurynDouble weightstd;
-		src->stats(weightsum, weightstd);
-		outfile << (auryn::sys->get_time()) << " " << weightsum << std::endl;
+	if ( clamp_enabled && auryn::sys->get_clock() < t_stop ) {
+		AurynState * voltage = target_variable;
+		AurynState pseudo_current = clamping_voltage-*voltage;
+		// TODO a unitful quantity would be nice here ... 
+		*voltage += pseudo_current;
+		outfile << (auryn::sys->get_time()) << " " << pseudo_current << "\n";
 	}
-
 }
+
+

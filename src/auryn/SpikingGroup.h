@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2017 Friedemann Zenke
+* Copyright 2014-2018 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -155,10 +155,6 @@ public:
 	/*! Holds group-wide state variables such as population target rates or global protein levels etc */
 	std::map<std::string,AurynState> state_variables;
 
-	/*! \brief Returns existing state vector by name. 
-	 *
-	 * If the state_vector does not exist the function returns NULL. */
-	AurynStateVector * find_state_vector(std::string key);
 
 	/*! \brief Adds a state vector passed as an argument to the dictinary. */
 	void add_state_vector( std::string key, AurynStateVector * state_vector );
@@ -168,13 +164,45 @@ public:
 	 * The state vector is not freed automatically! */
 	void remove_state_vector( std::string key );
 
-	/*! \brief Creates a new or returns an existing state vector by name. */
+	/*! \brief Returns existing state vector by name or NULL if it does not exist. 
+	 *
+	 * \param key A string with the name of the state vector.
+	 *
+	 * \returns The state vector and NULL if the state_vector does not 
+	 * exist. */
+	AurynStateVector * find_state_vector(std::string key);
+
+	/*! \brief Creates a new or returns an existing state vector by name. 
+	 *
+	 * This function returns a state vector for the given key. If a vector with the key does not exist
+	 * the function creates one. If it does exist it returns the existing one.
+	 * The function returns NULL if the statevector would have zero length on that rank.
+	 *
+	 * \param key The key name of the state vector to be return
+	 *
+	 * \returns A StateVector matching the key provided.
+	 * */
 	AurynStateVector * get_state_vector(std::string key);
 
-	/*! \brief Returns an new state vector by name. 
+	/*! \brief Returns an existing state with the supplied name. 
 	 *
-	 * \todo Implement an exception when a state vector already exists. */
-	AurynStateVector * get_new_state_vector(std::string key);
+	 *
+	 * \param key A string with the name of the state vector.
+	 *
+	 * \returns The state vector and NULL if the state_vector does not 
+	 * exist. */
+	AurynStateVector * get_existing_state_vector(std::string key);
+
+	/*! \brief Creates a new state vector and throws an exception if a vector with the same name exists. 
+	 *
+	 * Returns a new state vector with the given key and returns an exception if a vector with the same
+	 * key already exists. Moreover, NULL is returned if the state vector would have length 0 otherwise.
+	 *
+	 * \throws AurynDelayTooSmallException if a state vector with the same key already exists. 
+	 * \param key The key of the state vector to be created.
+	 * \returns An AurynStateVector with the provided key.
+	 * */
+	AurynStateVector * create_state_vector(std::string key);
 
 	/*! \brief Creates a new group-wide state variable or returns an existing group-wide variable by name then returns a pointer to it. */
 	AurynState * get_state_variable(std::string key);

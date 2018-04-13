@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2017 Friedemann Zenke
+* Copyright 2014-2018 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -141,13 +141,21 @@ public:
 
 	/*! \brief Empty constructor which should not be used -- TODO should be deprecated at some point. */
 	SparseConnection();
+
 	/*! \brief Load from wmat file constructor which should not be used -- TODO should be deprecated at some point. */
 	SparseConnection(const char * filename);
 
-	/*! \brief Constructor for manual filling. */
+	/*! \brief Deprecated constructor for manual filling. \deprecated */
 	SparseConnection(NeuronID rows, NeuronID cols);
 
+	/*! \brief Deprecated constructor for loading from file \deprecated */
 	SparseConnection(SpikingGroup * source, NeuronGroup * destination, const char * filename, TransmitterType transmitter=GLUT);
+
+	/*! \brief Constructor for manual filling. */
+	SparseConnection(SpikingGroup * source, 
+			NeuronGroup * destination, 
+			TransmitterType transmitter=GLUT, 
+			string name="SparseConnection");
 
 	/*! \brief Default constructor which sets up a random sparse matrix with fixed weight between the source and destination group. 
 	 *

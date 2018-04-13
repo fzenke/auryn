@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2017 Friedemann Zenke
+* Copyright 2014-2018 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -367,6 +367,11 @@ AurynFloat StimulusGroup::get_activity(NeuronID i)
 		return activity[global2rank(i)];
 	else 
 		return 0;
+}
+
+void StimulusGroup::clear_patterns( )
+{
+	stimuli.clear();
 }
 
 void StimulusGroup::load_patterns( std::string filename )

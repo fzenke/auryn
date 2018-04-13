@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2017 Friedemann Zenke
+* Copyright 2014-2018 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -56,8 +56,6 @@ private:
 	AurynDouble scaleconst;
 	/*! \brief Trace to measure spike interval timing */
 	Trace * post_trace;
-	/*! \brief Burst state */
-	AurynStateVector * burst_state;
 	/*! \brief Burst threshold */
 	AurynState thr;
 
@@ -71,6 +69,9 @@ protected:
 	virtual void virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version );
 	virtual void virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version );
 public:
+	/*! \brief Burst state */
+	AurynVector<short> * burst_state;
+
 	/*! \brief Default Constructor 
 	 @param[source] The source spiking group.
 	 @param[filename] The filename to write to (should be different for each rank.)

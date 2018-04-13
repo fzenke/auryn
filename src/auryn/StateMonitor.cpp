@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2017 Friedemann Zenke
+* Copyright 2014-2018 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -99,7 +99,7 @@ void StateMonitor::init(std::string filename, AurynDouble sampling_interval)
 	ssize = sampling_interval/auryn_timestep;
 	if ( ssize < 1 ) ssize = 1;
 
-	enable_compression = true;
+	enable_compression = false;
 	lastval = 0.0;
 	lastder = 0.0;
 }
