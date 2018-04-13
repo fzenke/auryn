@@ -70,7 +70,7 @@ protected:
 	virtual void virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version );
 public:
 	/*! \brief Burst state */
-	AurynVector<short> * burst_state;
+	AurynStateVector * burst_state;
 
 	/*! \brief Default Constructor 
 	 @param[source] The source spiking group.
