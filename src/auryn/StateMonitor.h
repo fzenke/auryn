@@ -119,6 +119,13 @@ public:
 	/*! \brief Set an absolute time when to stop recording. */
 	void set_stop_time(AurynDouble time=10.0);
 
+	/*! \brief Sets the step size. 
+	 *
+	 * Sets the sampling interval using units of AurynTime.
+	 *
+	 * \param step The step size*/
+	void set_step_size(int step=1);
+
 	virtual ~StateMonitor();
 	void execute();
 };

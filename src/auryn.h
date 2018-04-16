@@ -82,6 +82,7 @@
 #include "auryn/PoissonSpikeInjector.h"
 #include "auryn/FileInputGroup.h"
 #include "auryn/FileModulatedPoissonGroup.h"
+#include "auryn/ParrotGroup.h"
 #include "auryn/StimulusGroup.h"
 #include "auryn/SpikeTimingStimGroup.h"
 #include "auryn/ProfilePoissonGroup.h"

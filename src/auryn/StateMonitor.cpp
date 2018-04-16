@@ -144,6 +144,12 @@ void StateMonitor::set_stop_time(AurynDouble time)
 	t_stop = stoptime/auryn_timestep;
 }
 
+void StateMonitor::set_step_size(int step)
+{
+	if ( step >= 1 ) ssize = step;
+	else ssize = 1;
+}
+
 void StateMonitor::record_for(AurynDouble time)
 {
 	if (time < 0) {

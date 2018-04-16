@@ -89,4 +89,4 @@ public:
 
 }
 
-#endif /*NEURONGROUP_H_*/
+#endif /*POISSONGROUP_H_*/
