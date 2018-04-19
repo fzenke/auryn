@@ -110,7 +110,7 @@ void SpikingGroup::init( NeuronID n, NodeDistributionMode mode )
 	auryn::logger->msg(oss.str(),VERBOSE);
 
 	delay = new SpikeDelay( );
-	set_delay(MINDELAY+1); 
+	set_delay(MINDELAY); 
 
 	evolve_locally_bool = evolve_locally_bool && ( get_rank_size() > 0 );
 
