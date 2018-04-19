@@ -114,6 +114,9 @@ int main(int ac, char* av[])
 	SpikeMonitor * smon1 = new SpikeMonitor( poisson, sys->fn("poisson","ras"), size);
 	SpikeMonitor * smon2 = new SpikeMonitor( parrot, sys->fn("parrot","ras"), size);
 
+	DelayedSpikeMonitor * dsmon1 = new DelayedSpikeMonitor( poisson, sys->fn("poisson","dras"), size);
+	DelayedSpikeMonitor * dsmon2 = new DelayedSpikeMonitor( parrot, sys->fn("parrot","dras"), size);
+
 	RateChecker * chk = new RateChecker( poisson , -1 , 20.*kappa , 10);
 	if (!sys->run(simtime,false)) 
 			errcode = 1;

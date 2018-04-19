@@ -372,6 +372,7 @@ AurynFloat StimulusGroup::get_activity(NeuronID i)
 void StimulusGroup::clear_patterns( )
 {
 	stimuli.clear();
+	stimulus_active = false ;
 }
 
 void StimulusGroup::load_patterns( std::string filename )
@@ -391,7 +392,7 @@ void StimulusGroup::load_patterns( std::string filename )
 	char buffer[256];
 	std::string line;
 
-	stimuli.clear();
+	clear_patterns();
 
 	type_pattern pattern;
 	int total_pattern_size = 0;
