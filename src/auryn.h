@@ -74,6 +74,7 @@
 #include "auryn/MinimalTripletConnection.h"
 #include "auryn/IdentityConnection.h"
 #include "auryn/AllToAllConnection.h"
+#include "auryn/FanOutConnection.h"
 
 // Spiking and input group definitions
 #include "auryn/SpikingGroup.h"
@@ -88,6 +89,7 @@
 #include "auryn/ProfilePoissonGroup.h"
 #include "auryn/StructuredPoissonGroup.h"
 #include "auryn/CorrelatedPoissonGroup.h"
+#include "auryn/InputChannelGroup.h"
 #include "auryn/MovingBumpGroup.h"
 #include "auryn/AuditoryBeepGroup.h"
 
