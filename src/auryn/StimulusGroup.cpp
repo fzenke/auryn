@@ -287,7 +287,7 @@ void StimulusGroup::evolve()
 				stimulus_active = false ;
 				last_stim_offset_time = sys->get_clock();
 
-				if ( randomintervals ) {
+				if ( randomintervals && mean_off_period>0.0 ) {
 					boost::exponential_distribution<> dist(1./mean_off_period);
 					boost::variate_generator<boost::mt19937&, boost::exponential_distribution<> > die(order_gen, dist);
 					next_action_time = auryn::sys->get_clock() + (AurynTime)(std::max(0.0,die())/auryn_timestep);
