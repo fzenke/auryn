@@ -106,13 +106,22 @@ int main(int ac, char* av[])
 
 	auryn_init(ac, av);
 	sys->set_master_seed(seed);
+	logger->set_logfile_loglevel(EVERYTHING);
 
 	PoissonGroup * poisson = new PoissonGroup(size,kappa);
 	ParrotGroup * parrot = new ParrotGroup(poisson);
 	parrot->set_delay(20); // sets the axonal delay in units of auryn_timeteps.
 
+	// Record original spikes before axonal delay 
 	SpikeMonitor * smon1 = new SpikeMonitor( poisson, sys->fn("poisson","ras"), size);
-	SpikeMonitor * smon2 = new SpikeMonitor( parrot, sys->fn("parrot","ras"), size);
+
+	DelayedSpikeMonitor * dmon1 = new DelayedSpikeMonitor( poisson, sys->fn("poisson2","ras"), size);
+
+	// Record parrot spikes before axonal delay
+	DelayedSpikeMonitor * smon2 = new DelayedSpikeMonitor( parrot, sys->fn("parrot","ras"), size);
+
+	// Record original spikes before axonal delay 
+	DelayedSpikeMonitor * dmon2 = new DelayedSpikeMonitor( parrot, sys->fn("parrot2","ras"), size);
 
 	RateChecker * chk = new RateChecker( poisson , -1 , 20.*kappa , 10);
 	if (!sys->run(simtime,false)) 
