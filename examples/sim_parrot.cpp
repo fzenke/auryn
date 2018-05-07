@@ -123,6 +123,9 @@ int main(int ac, char* av[])
 	// Record original spikes before axonal delay 
 	DelayedSpikeMonitor * dmon2 = new DelayedSpikeMonitor( parrot, sys->fn("parrot2","ras"), size);
 
+	DelayedSpikeMonitor * dsmon1 = new DelayedSpikeMonitor( poisson, sys->fn("poisson","dras"), size);
+	DelayedSpikeMonitor * dsmon2 = new DelayedSpikeMonitor( parrot, sys->fn("parrot","dras"), size);
+
 	RateChecker * chk = new RateChecker( poisson , -1 , 20.*kappa , 10);
 	if (!sys->run(simtime,false)) 
 			errcode = 1;

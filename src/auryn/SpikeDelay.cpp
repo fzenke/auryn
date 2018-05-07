@@ -31,21 +31,20 @@ AurynTime * SpikeDelay::clock_ptr = NULL;
 
 SpikeDelay::SpikeDelay( int delay )
 {
-	ndelay = delay;
 	numSpikeAttributes = 0;
-	delaybuf = new SpikeContainer * [ndelay] ;
-	attribbuf = new AttributeContainer * [ndelay] ;
-	for (int i = 0 ; i < ndelay ; ++i) {
-		delaybuf[i] = new SpikeContainer( );
-		attribbuf[i] = new AttributeContainer( );
-	}
+	delaybuf = NULL;
+	attribbuf = NULL;
+	set_delay(delay);
 }
 
 void SpikeDelay::set_delay( int delay ) 
 {
-	if ( delay == ndelay ) return;
-	free();
-	ndelay = delay;
+	if ( delay+1 == ndelay ) return; // we already have the right delay
+
+	if ( delaybuf ) free(); // we have to free the old delay
+
+	// and now create the new delay
+	ndelay = delay+1;
 	delaybuf = new SpikeContainer * [ndelay] ;
 	attribbuf = new AttributeContainer * [ndelay] ;
 	for (int i = 0 ; i < ndelay ; ++i) {
