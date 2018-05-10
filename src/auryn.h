@@ -74,7 +74,6 @@
 #include "auryn/MinimalTripletConnection.h"
 #include "auryn/IdentityConnection.h"
 #include "auryn/AllToAllConnection.h"
-#include "auryn/FanOutConnection.h"
 
 // Spiking and input group definitions
 #include "auryn/SpikingGroup.h"
