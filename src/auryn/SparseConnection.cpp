@@ -228,6 +228,25 @@ void SparseConnection::random_data_normal(AurynWeight mean, AurynWeight sigma)
 	}
 }
 
+void SparseConnection::random_data_lognormal(AurynWeight mean, AurynWeight sigma) 
+{
+	std::stringstream oss;
+	oss << get_log_name() << "randomizing non-zero connections (lognormal) with mean=" 
+		<< mean << " sigma=" << sigma ;
+	auryn::logger->msg(oss.str(),NOTIFICATION);
+
+	boost::lognormal_distribution<> dist((double)mean, (double)sigma);
+	boost::variate_generator<boost::mt19937&, boost::lognormal_distribution<> > die(SparseConnection::sparse_connection_gen, dist);
+	AurynWeight rv;
+
+	for ( AurynLong i = 0 ; i<w->get_nonzero() ; ++i ) {
+		rv = die();
+		w->set_data(i,rv);
+	}
+
+	clip(get_min_weight(), get_max_weight());
+}
+
 void SparseConnection::init_random_binary(AurynFloat prob, AurynWeight wlo, AurynWeight whi) 
 {
 	std::stringstream oss;
@@ -296,6 +315,21 @@ void SparseConnection::set_block(NeuronID lo_row, NeuronID hi_row, NeuronID lo_c
 			  w->get_data_begin()[j-w->get_row_begin(0)] = temp;
 		}
 	}
+}
+
+
+void SparseConnection::scale_block(NeuronID lo_row, NeuronID hi_row, NeuronID lo_col, NeuronID hi_col, AurynWeight alpha)
+{
+	for ( NeuronID i = 0 ; i < get_m_rows() ; ++i ) 
+	{
+		for ( NeuronID * j = w->get_row_begin(i) ; j != w->get_row_end(i) ; ++j )
+		{
+			if (i >= lo_row && i < hi_row && *j >= lo_col && *j < hi_col )
+			  w->get_data_begin()[j-w->get_row_begin(0)] *= alpha;
+		}
+	}
+
+	clip(get_min_weight(), get_max_weight());
 }
 
 void SparseConnection::set_all(AurynWeight weight)
@@ -953,87 +987,115 @@ void SparseConnection::put_pattern( type_pattern * pattern1, type_pattern * patt
 	}
 }
 
-void SparseConnection::load_patterns( std::string filename, AurynWeight strength, bool overwrite, bool chainmode )
+
+
+std::vector<type_pattern> SparseConnection::load_pattern_file( string filename, int nb_max_patterns ) 
 {
-	load_patterns( filename, strength, 1000000, overwrite, chainmode );
-}
+	std::vector<type_pattern> patterns;
 
-void SparseConnection::load_patterns( std::string filename, AurynWeight strength, int n, bool overwrite, bool chainmode )
-{
-
-		std::ifstream fin (filename.c_str());
-		if (!fin) {
-			std::stringstream oss2;
-			oss2 << get_log_name() << "There was a problem opening file " << filename << " for reading.";
-			auryn::logger->msg(oss2.str(),WARNING);
-			return;
-		} else {
-			std::stringstream oss;
-			oss << get_log_name() << "Loading patterns from " << filename << " ...";
-			auryn::logger->msg(oss.str(),NOTIFICATION);
-		}
-
-		unsigned int patcount = 0 ;
-
-		NeuronID mindimension = std::min( get_m_rows()*patterns_every_pre, get_n_cols()*patterns_every_post );
-		bool istoolarge = false;
-		
-
-		type_pattern pattern;
-		std::vector<type_pattern> patterns;
-		char buffer[256];
-		std::string line;
-
-		while(!fin.eof()) {
-			line.clear();
-			fin.getline (buffer,255);
-			line = buffer;
-
-			if(line[0] == '#') continue;
-			if ( patcount >= n ) break;
-			if (line == "") { 
-				if ( pattern.size() > 0 ) {
-					// put_pattern( &pattern, strength, overwrite );
-					patterns.push_back(pattern);
-					patcount++;
-					pattern.clear();
-				}
-				continue;
-			}
-
-			pattern_member pm;
-			std::stringstream iss (line);
-			pm.gamma = 1 ; 
-			iss >>  pm.i ;
-			if ( !wrap_patterns && !istoolarge && pm.i > mindimension ) { 
-				std::stringstream oss;
-				oss << get_log_name() << "Some elements of pattern " << patcount << " are larger than the underlying NeuronGroups!";
-				auryn::logger->msg(oss.str(),WARNING);
-				istoolarge = true;
-			}
-			iss >>  pm.gamma ;
-			if ( patterns_ignore_gamma ) 
-				pm.gamma = 1;
-			pattern.push_back(pm) ;
-		}
-
-		if ( chainmode ) {
-			for ( int i = 0 ; i < patterns.size()-1 ; ++i ) {
-				put_pattern( &(patterns[i]), &(patterns[i+1]), strength, overwrite );
-			}
-		} else {
-			for ( int i = 0 ; i < patterns.size() ; ++i ) {
-				put_pattern( &(patterns[i]), strength, overwrite );
-			}
-		}
-
-		// put_pattern( &pattern, strength );
-
-		fin.close();
+	std::ifstream fin (filename.c_str());
+	if (!fin) {
+		std::stringstream oss2;
+		oss2 << get_log_name() << "There was a problem opening file " << filename << " for reading.";
+		auryn::logger->msg(oss2.str(),WARNING);
+		return patterns;
+	} else {
 		std::stringstream oss;
-		oss << get_log_name() << "Added " << patcount << " patterns";
+		oss << get_log_name() << "Loading patterns from " << filename << " ...";
 		auryn::logger->msg(oss.str(),NOTIFICATION);
+	}
+
+	unsigned int patcount = 0 ;
+
+	NeuronID mindimension = std::min( get_m_rows()*patterns_every_pre, get_n_cols()*patterns_every_post );
+	bool istoolarge = false;
+	
+
+	type_pattern pattern;
+	char buffer[256];
+	std::string line;
+
+	while(!fin.eof()) {
+		line.clear();
+		fin.getline (buffer,255);
+		line = buffer;
+
+		if(line[0] == '#') continue;
+		if ( patcount >= nb_max_patterns ) break;
+		if (line == "") { 
+			if ( pattern.size() > 0 ) {
+				// put_pattern( &pattern, strength, overwrite );
+				patterns.push_back(pattern);
+				patcount++;
+				pattern.clear();
+			}
+			continue;
+		}
+
+		pattern_member pm;
+		std::stringstream iss (line);
+		pm.gamma = 1 ; 
+		iss >>  pm.i ;
+		if ( !wrap_patterns && !istoolarge && pm.i > mindimension ) { 
+			std::stringstream oss;
+			oss << get_log_name() << "Some elements of pattern " << patcount << " are larger than the underlying NeuronGroups!";
+			auryn::logger->msg(oss.str(),WARNING);
+			istoolarge = true;
+		}
+		iss >>  pm.gamma ;
+		if ( patterns_ignore_gamma ) 
+			pm.gamma = 1;
+		pattern.push_back(pm) ;
+	}
+
+	fin.close();
+
+	return patterns;
 }
+
+
+void SparseConnection::load_patterns( std::string filename, AurynWeight strength, int nb_max_patterns, bool overwrite, bool chainmode )
+{
+	std::vector<type_pattern> patterns = load_pattern_file( filename, nb_max_patterns );
+
+	if ( chainmode ) {
+		for ( int i = 0 ; i < patterns.size()-1 ; ++i ) {
+			put_pattern( &(patterns[i]), &(patterns[i+1]), strength, overwrite );
+		}
+	} else {
+		for ( int i = 0 ; i < patterns.size() ; ++i ) {
+			put_pattern( &(patterns[i]), strength, overwrite );
+		}
+	}
+
+	// put_pattern( &pattern, strength );
+
+	std::stringstream oss;
+	oss << get_log_name() << "Added " << patterns.size() << " patterns";
+	auryn::logger->msg(oss.str(),NOTIFICATION);
+}
+
+
+void SparseConnection::load_pre_post_patterns( std::string pre_file, std::string post_file, AurynWeight strength, int nb_max_patterns, bool overwrite )
+{
+	std::vector<type_pattern> pre_patterns = load_pattern_file( pre_file, nb_max_patterns );
+	std::vector<type_pattern> post_patterns = load_pattern_file( post_file, nb_max_patterns );
+
+	// check if both files supplied the same number of patterns
+	if ( pre_patterns.size() != post_patterns.size() ) {
+		auryn::logger->error("Error loading patterns. Number of patterns in prefile and postfile does not match. Aborting.");
+		return;
+	}
+
+	for ( int i = 0 ; i < pre_patterns.size() ; ++i ) {
+		put_pattern( &(pre_patterns[i]), &(post_patterns[i]), strength, overwrite );
+	}
+
+	std::stringstream oss;
+	oss << get_log_name() << "Added " << pre_patterns.size() << " patterns";
+	auryn::logger->msg(oss.str(),NOTIFICATION);
+}
+
 
 std::vector<neuron_pair> SparseConnection::get_block(NeuronID lo_row, NeuronID hi_row,  NeuronID lo_col, NeuronID hi_col) 
 {

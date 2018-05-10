@@ -89,9 +89,9 @@ namespace auryn {
 
 		string outputdir;
 
-		boost::mt19937 gen; 
-		boost::random::uniform_int_distribution<> * dist;
-		boost::variate_generator<boost::mt19937&, boost::random::uniform_int_distribution<> > * die;
+		boost::mt19937 seed_gen; 
+		boost::random::uniform_int_distribution<> * seed_dist;
+		boost::variate_generator<boost::mt19937&, boost::random::uniform_int_distribution<> > * seed_die;
 
 		double simulation_time_realtime_ratio;
 

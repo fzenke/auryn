@@ -725,7 +725,7 @@ namespace auryn {
 			void set_random_normal(AurynState mean=0.0, AurynState sigma=1.0, unsigned int seed=8721)
 			{
 				set_all(0.0);
-				add_random_normal();
+				add_random_normal(mean, sigma);
 			}
 
 			/*! \brief Initializes vector elements with Gaussian of unit 
@@ -751,12 +751,31 @@ namespace auryn {
 				return false;
 			}
 
-			/*! \brief Print vector elements jo std out for debugging */
+			/*! \brief Print vector elements to stdout for debugging */
 			void print() {
 				for ( IndexType i = 0 ; i < size ; ++i ) {
 					std::cout << get(i) << " ";
 				}
 				std::cout << std::endl;
+			}
+
+			/*! \brief Print vector elements to a text file for debugging */
+			void write_to_file(std::string filename) {
+
+				std::ofstream outfile;
+				outfile.open(filename.c_str(),std::ios::out);
+				if (!outfile) {
+					std::stringstream oss;
+					throw AurynOpenFileException();
+				}
+
+				outfile << std::setprecision(7);
+
+				for ( IndexType i = 0 ; i < size ; ++i ) {
+					outfile << get(i) << "\n";
+				}
+
+				outfile.close();
 			}
 	};
 

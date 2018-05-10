@@ -112,8 +112,8 @@ void System::init() {
 
 	// init random number generator
 	// gen  = boost::mt19937();
-	dist = new boost::random::uniform_int_distribution<> ();
-	die  = new boost::variate_generator<boost::mt19937&, boost::random::uniform_int_distribution<> > ( gen, *dist );
+	seed_dist = new boost::random::uniform_int_distribution<> ();
+	seed_die  = new boost::variate_generator<boost::mt19937&, boost::random::uniform_int_distribution<> > ( seed_gen, *seed_dist );
 	unsigned int hardcoded_seed = 3521;
 	set_master_seed(hardcoded_seed);
 
@@ -203,8 +203,8 @@ void System::free()
 		delete syncbuffer;
 #endif // AURYN_CODE_USE_MPI
 
-    delete dist;
-	delete die;
+    delete seed_dist;
+	delete seed_die;
 }
 
 void System::step()
@@ -1006,12 +1006,12 @@ void System::set_master_seed( unsigned int seed )
 	oss << "Seeding this rank with master seed " << rank_master_seed;
 	auryn::logger->msg(oss.str(),INFO);
 
-	gen.seed(rank_master_seed);
+	seed_gen.seed(rank_master_seed);
 }
 
 unsigned int System::get_seed()
 {
-	return (*die)();
+	return (*seed_die)();
 }
 
 unsigned int System::get_synced_seed()

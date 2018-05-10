@@ -111,7 +111,14 @@ protected:
 	/*! Allocates memory for a given sparse connectivity matrix. Usually ComplexMatrix or ComplexMatrix */
 	void allocate(AurynLong bufsize);
 
-
+	/*! \brief Reads patterns from a .pat file and returns a vector with the patterns. 
+	 *
+	 * \param filename The file to load
+	 * \param nb_max_patterns The maximum number of patterns to load. 
+	 *
+	 * \returns A vector with elements of type_pattern. Returns an empty vector on file error.
+	 * */
+	std::vector<type_pattern> load_pattern_file( string filename, int nb_max_patterns);
 	
 public:
 	/*! \brief Switch that toggles for the load_patterns function whether or 
@@ -237,6 +244,9 @@ public:
 	/*! \brief Sets all weights of existing connections in a block spanned by the first 4 parameters to the value given. */
 	void set_block(NeuronID lo_row, NeuronID hi_row, NeuronID lo_col, NeuronID hi_col, AurynWeight weight);
 
+	/*! \brief Scale all weights of existing connections in a block spanned by the first 4 parameters to the value given. */
+	void scale_block(NeuronID lo_row, NeuronID hi_row, NeuronID lo_col, NeuronID hi_col, AurynWeight alpha);
+
 	/*! \brief Sets all weights of existing connections to the given value. */
 	virtual void set_all(AurynWeight weight);
 
@@ -301,11 +311,34 @@ public:
 	 * TODO add more explanation here.*/
 	void put_pattern(type_pattern * pattern1, type_pattern * pattern2, AurynWeight strength, bool overwrite );
 
-	/*! \brief Reads patterns from a .pat file and adds them as Hebbian assemblies onto an existing weight matrix */
-	void load_patterns( string filename, AurynWeight strength, bool overwrite = false, bool chainmode = false);
 
-	/*! \brief Reads first n patterns from a .pat file and adds them as Hebbian assemblies onto an existing weight matrix */
-	void load_patterns( string filename, AurynWeight strength, int n, bool overwrite = false, bool chainmode = false);
+	/*! \brief Reads first n patterns from a .pat file and adds them as Hebbian assemblies onto an 
+	 * existing weight matrix 
+	 * 
+	 * \param filename The file to read the patterns from
+	 * \param strength The strength to set or add to connections within a pattern (depending on setting of overwrite)
+	 * \param nb_max_patterns The maximum number of patterns to load
+	 * \param overwrite Whether to add strength to each connection in the pattern or whether to set the 
+	 * connection to he value specified
+	 * \param chainmode If set to true the function does not create cell assemblies but a synfire chain
+	 * architecture in which each pattern is connected to the next as a chain. 
+	 *
+	 * */
+	void load_patterns( string filename, AurynWeight strength, int nb_max_patterns=10000, bool overwrite = false, bool chainmode = false);
+
+	/*! \brief Reads patterns from two files and connects them
+	 *
+	 * \param pre_file File containint the presynaptic patterns
+	 * \param post_file File containint the postsynaptic patterns
+	 * \param strength Synaptic strength value of a connection
+	 * \param nb_max_patterns The maximum number of patterns to load
+	 * \param overwrite Whether to add or set strength to each connection 
+	 *
+	 * This function can be used to connect a bunch of populations in 
+	 * one group to different populations in another group.
+	 * The two pattern files must have the same number of patterns stored. 
+	 * */
+	void load_pre_post_patterns( std::string pre_file, std::string post_file, AurynWeight strength, int nb_max_patterns, bool overwrite = false);
 
 	/*! \brief Internally used propagate method
 	 *
