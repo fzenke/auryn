@@ -317,6 +317,21 @@ void SparseConnection::set_block(NeuronID lo_row, NeuronID hi_row, NeuronID lo_c
 	}
 }
 
+
+void SparseConnection::scale_block(NeuronID lo_row, NeuronID hi_row, NeuronID lo_col, NeuronID hi_col, AurynWeight alpha)
+{
+	for ( NeuronID i = 0 ; i < get_m_rows() ; ++i ) 
+	{
+		for ( NeuronID * j = w->get_row_begin(i) ; j != w->get_row_end(i) ; ++j )
+		{
+			if (i >= lo_row && i < hi_row && *j >= lo_col && *j < hi_col )
+			  w->get_data_begin()[j-w->get_row_begin(0)] *= alpha;
+		}
+	}
+
+	clip(get_min_weight(), get_max_weight());
+}
+
 void SparseConnection::set_all(AurynWeight weight)
 {
 	w->set_all( weight );

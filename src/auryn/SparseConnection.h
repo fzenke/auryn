@@ -244,6 +244,9 @@ public:
 	/*! \brief Sets all weights of existing connections in a block spanned by the first 4 parameters to the value given. */
 	void set_block(NeuronID lo_row, NeuronID hi_row, NeuronID lo_col, NeuronID hi_col, AurynWeight weight);
 
+	/*! \brief Scale all weights of existing connections in a block spanned by the first 4 parameters to the value given. */
+	void scale_block(NeuronID lo_row, NeuronID hi_row, NeuronID lo_col, NeuronID hi_col, AurynWeight alpha);
+
 	/*! \brief Sets all weights of existing connections to the given value. */
 	virtual void set_all(AurynWeight weight);
 
