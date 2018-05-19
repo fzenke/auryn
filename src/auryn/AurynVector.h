@@ -26,9 +26,14 @@
 #ifndef AURYNVECTOR_H_
 #define AURYNVECTOR_H_
 
+#include <stdio.h>
+#include <string.h>
 #include <ctime>
 #include <assert.h>
 #include "auryn_definitions.h"
+
+#include <boost/serialization/utility.hpp>
+#include <boost/serialization/split_member.hpp>
 
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/variate_generator.hpp>
@@ -184,7 +189,7 @@ namespace auryn {
 					allocate(new_size);
 					// copy old data
 					const size_t copy_size = std::min(old_size,new_size) * sizeof(T);
-					std::memcpy(data, old_data, copy_size);
+					memcpy(data, old_data, copy_size);
 					free(old_data);
 				}
 			}
