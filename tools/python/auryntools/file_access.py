@@ -121,7 +121,7 @@ class AurynBinaryStateFile(AurynBinaryFile):
         ''' Returns timeseries of state for given temporal interval'''
         if self.num_data_frames==0: return []
         idx_start = self.find_frame( t_start )
-        idx_stop  = self.find_frame( t_stop )
+        idx_stop  = self.find_frame( t_stop-self.timestep ) # we use an exclusive upper bound
         start_pos = idx_start*self.frame_size
         num_elements = idx_stop-idx_start+1
         if num_elements<=0: return []
@@ -156,7 +156,7 @@ class AurynBinarySpikeFile(AurynBinaryFile):
     def get_spikes( self, t_start=0.0, t_stop=1e32, max_id=1e32 ):
         if self.num_data_frames==0: return []
         idx_start = self.find_frame( t_start )
-        idx_stop = self.find_frame( t_stop )
+        idx_stop = self.find_frame( t_stop-self.timestep ) # exclusive upper bound
         start_pos = idx_start*self.frame_size
         num_elements = idx_stop-idx_start+1
         if num_elements<=0: return []
