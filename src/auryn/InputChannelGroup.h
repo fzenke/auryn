@@ -77,7 +77,10 @@ protected:
 	NeuronID * x;
 	
 public:
-	AurynDouble amplitude, mean;
+	/*! \brief Array for OU process amplitudes */
+	AurynDouble * amplitudes; 
+	/*! \brief Array for OU process means */
+	AurynDouble * means;
 
 	/*! Default constructor.
 	 *
@@ -94,7 +97,13 @@ public:
 	void set_rate(AurynDouble rate);
 	void set_timescale(AurynDouble scale);
 	void set_offset(int off);
-	void set_amplitude(AurynDouble amp);
+
+	void set_means(AurynDouble m);
+	void set_mean(NeuronID channel, AurynDouble m);
+
+	void set_amplitudes(AurynDouble amp);
+	void set_amplitude(NeuronID channel, AurynDouble amp);
+
 	void set_stoptime(AurynDouble stoptime);
 	AurynDouble get_rate();
 	void seed();

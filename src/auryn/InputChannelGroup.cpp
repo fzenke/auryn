@@ -40,10 +40,13 @@ void InputChannelGroup::init(AurynDouble  rate, NeuronID chsize )
 		nb_channels = size/chsize;
 		offset = 0;
 
-		mean = 0.0;
+		means = new double[nb_channels];
+		set_means(0.0);
+
+		amplitudes = new double[nb_channels];
+		set_amplitudes(50.0);
 
 		timescale = 50e-3;
-		set_amplitude(50.0);
 		set_stoptime(0);
 
 		std::stringstream oss;
@@ -92,6 +95,8 @@ InputChannelGroup::~InputChannelGroup()
 		delete rank_noise;
 		delete [] x;
 		delete [] o;
+		delete [] means;
+		delete [] amplitudes;
 	}
 }
 
@@ -113,13 +118,13 @@ void InputChannelGroup::evolve()
 
 	for ( unsigned int g = 0 ; g < nb_channels ; ++g ) { // loop over channels
 		// integrate Ornstein Uhlenbeck process
-		o[g] += ( mean - o[g] )*auryn_timestep/timescale;
+		o[g] += ( means[g] - o[g] )*auryn_timestep/timescale;
 
 		// noise increment
 		o[g] += 2.0*((AurynDouble)(*shared_noise)()-0.5)*std::sqrt(auryn_timestep/timescale);
 
 		// group rate
-		AurynDouble grouprate = amplitude*o[g];  
+		AurynDouble grouprate = amplitudes[g]*o[g];  
 		if ( grouprate <= 0 ) grouprate = 0.0;
 
 		const AurynFloat epsilon = 1e-3;
@@ -140,10 +145,24 @@ void InputChannelGroup::seed()
 		rank_noise_gen.seed(sys->get_seed()); 
 }
 
-void InputChannelGroup::set_amplitude(AurynDouble amp)
+void InputChannelGroup::set_mean(NeuronID channel, AurynDouble m)
 {
-	amplitude = amp;
-	auryn::logger->parameter("amplitude",amplitude);
+	means[channel] = m;
+}
+
+void InputChannelGroup::set_means(AurynDouble m)
+{
+	for ( unsigned int i = 0 ; i < nb_channels ; ++i ) set_mean(i,m);
+}
+
+void InputChannelGroup::set_amplitude(NeuronID channel, AurynDouble amp)
+{
+	amplitudes[channel] = amp;
+}
+
+void InputChannelGroup::set_amplitudes(AurynDouble amp)
+{
+	for ( unsigned int i = 0 ; i < nb_channels ; ++i ) set_amplitude(i,amp);
 }
 
 void InputChannelGroup::set_timescale(AurynDouble scale)
