@@ -113,5 +113,4 @@ def vogels_plot( spikes ):
     pl.tick_params( axis='y', which='both', left='off', right='off', labelleft='off') 
     cvisi_hist(spikes, color="#c4000a", bins=30)
     pl.xlabel("CVISI [1]")
-    pl.show()
 
