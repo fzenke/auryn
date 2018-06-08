@@ -80,7 +80,7 @@ def cvisis(spikes):
         last_spikes[i] = t
 
     cvisi_dist = []
-    for i in xrange(len(sum1)):
+    for i in range(len(sum1)):
         if nspikes[i]<2: continue
         mean = sum1[i]/nspikes[i]
         var  = sum2[i]/(nspikes[i]-1)-mean**2
