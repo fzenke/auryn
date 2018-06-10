@@ -100,6 +100,8 @@ void PatternMonitor::execute()
 				outfile << " " << mean/bsize;
 			}
 
+			outfile << "\n"; //newline
+
 			// reset counter
 			for ( NeuronID i = 0 ; i < src->get_rank_size() ; ++i )
 				counter[i] = 0;
