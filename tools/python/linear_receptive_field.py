@@ -1,6 +1,6 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import numpy as np
-import pylab as pl
+import matplotlib.pyplot as plt
 from auryntools import *
 
 # This example assumes that you have run the code from
@@ -28,10 +28,10 @@ for i,t_start in enumerate(start_times):
     print("Analyzing %is..%is"%(t_start,t_end))
     spike_times = np.array(sf.get_spike_times(neuron_id, t_start, t_end))
     hist = sfo.time_triggered_histogram( spike_times, time_offset=-t_bin, time_window=t_bin, max_neuron_id=n_max )
-    pl.subplot(2,3,i+1)
-    pl.title("t=%is"%t_start)
-    pl.imshow(hist.reshape((dim,dim)), origin='bottom')
-pl.show()
+    plt.subplot(2,3,i+1)
+    plt.title("t=%is"%t_start)
+    plt.imshow(hist.reshape((dim,dim)), origin='bottom')
+plt.show()
 
 
     

@@ -1,6 +1,6 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import numpy as np
-import pylab as pl
+import matplotlib.pyplot as plt
 from auryntools import *
 
 # This code snipped assumes that you have run the example simulation
@@ -14,10 +14,10 @@ t_to  =2.5
 sf = AurynBinaryStateFile(filename)
 mem = np.array(sf.get_data(t_from, t_to))
 
-pl.plot(mem[:,0], mem[:,1])
-pl.xlabel("Time [s]")
-pl.ylabel("Membrane potential [V]")
-pl.show()
+plt.plot(mem[:,0], mem[:,1])
+plt.xlabel("Time [s]")
+plt.ylabel("Membrane potential [V]")
+plt.show()
     
 
 
