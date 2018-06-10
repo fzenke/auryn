@@ -14,8 +14,13 @@ class AurynBinaryFile:
     '''
     This class is the abstract base class to access binary Auryn files.
     '''
+
     def unpack(self, data):
         return struct.unpack(self.data_format, data)
+
+    def read_frames(self, bufsize):
+        return self.datafile.read(bufsize*self.frame_size)
+
 
     def get_frame(self,idx):
         '''
@@ -27,6 +32,15 @@ class AurynBinaryFile:
         frame = self.unpack(data)
         return frame
 
+    def get_frame_time(self, idx):
+        '''
+        Returns decoded time of a frame with index idx.
+        '''
+        at, _ = self.get_frame(idx)
+        ft = at*self.timestep
+        return ft
+
+
     def find_frame(self, time=0):
         '''
         Find frame index of given time by bisection.
@@ -35,16 +49,25 @@ class AurynBinaryFile:
         idx_hi = self.last_frame+1
         while idx_lo+1<idx_hi:
             pivot = (idx_lo+idx_hi)//2
-            at, nid = self.get_frame(pivot)
-            ft = at*self.timestep
+            ft = self.get_frame_time(pivot)
             if ft<=time:
                 idx_lo = pivot
             else:
                 idx_hi = pivot
+
         return idx_lo
 
-    def read_frames(self, bufsize):
-        return self.datafile.read(bufsize*self.frame_size)
+
+    def find_frame_interval(self, t_start, t_stop):
+        """ Converts a temporal interval t_start <= x < t_stop (following numpy convention) into a frame index interval """
+        idx_start = self.find_frame( t_start )
+        idx_stop  = self.find_frame( t_stop ) 
+        while idx_start < self.last_frame and self.get_frame_time(idx_start) < t_start:
+            idx_start += 1
+        while idx_stop > idx_start and self.get_frame_time(idx_stop) > t_stop:
+            idx_stop -= 1
+        return idx_start, idx_stop
+
 
     def refresh(self):
         ''' Reload file internal properties in case the file has changed'''
@@ -85,8 +108,8 @@ class AurynBinaryFile:
         at,val = self.get_frame(self.last_frame)
         self.t_max = at*self.timestep
 
-    def open_file(self):
 
+    def open_file(self):
         self.frame_size = struct.calcsize(self.data_format)
         try:
             self.datafile = open(self.filename, "rb")
@@ -120,8 +143,7 @@ class AurynBinaryStateFile(AurynBinaryFile):
     def get_data(self, t_start=0.0, t_stop=1e32):
         ''' Returns timeseries of state for given temporal interval'''
         if self.num_data_frames==0: return []
-        idx_start = self.find_frame( t_start )
-        idx_stop  = self.find_frame( t_stop-self.timestep ) # we use an exclusive upper bound
+        idx_start, idx_stop = self.find_frame_interval(t_start, t_stop)
         start_pos = idx_start*self.frame_size
         num_elements = idx_stop-idx_start+1
         if num_elements<=0: return []
@@ -155,9 +177,8 @@ class AurynBinarySpikeFile(AurynBinaryFile):
 
     def get_spikes( self, t_start=0.0, t_stop=1e32, max_id=1e32 ):
         if self.num_data_frames==0: return []
-        idx_start = self.find_frame( t_start )
-        idx_stop = self.find_frame( t_stop-self.timestep ) # exclusive upper bound
-        start_pos = idx_start*self.frame_size
+        idx_start, idx_stop = self.find_frame_interval(t_start, t_stop)
+        start_pos = (idx_start)*self.frame_size
         num_elements = idx_stop-idx_start+1
         if num_elements<=0: return []
 
@@ -173,8 +194,8 @@ class AurynBinarySpikeFile(AurynBinaryFile):
         return spikes
 
     def get_spike_counts( self, t_start=0.0, t_stop=1e32, min_size=1 ):
-        idx_start = self.find_frame( t_start, lower=False )
-        idx_stop = self.find_frame( t_stop, lower=True )
+        idx_start = self.find_frame( t_start )
+        idx_stop = self.find_frame( t_stop )
         start_pos = idx_start*self.frame_size
         num_elements = idx_stop-idx_start
 
@@ -197,8 +218,8 @@ class AurynBinarySpikeFile(AurynBinaryFile):
         return self.get_spikes(t_start=self.t_max-seconds)
 
     def get_spike_times( self, neuron_id=0, t_start=0, t_stop=1e32 ):
-        idx_start = self.find_frame( t_start, lower=False )
-        idx_stop = self.find_frame( t_stop, lower=True )
+        idx_start = self.find_frame( t_start )
+        idx_stop = self.find_frame( t_stop )
 
         idx_cur = idx_start
         start_pos = idx_start*self.frame_size
