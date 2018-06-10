@@ -166,18 +166,36 @@ public:
 	/*! \brief Switch for background firing during stimulus. */
 	bool background_during_stimulus;
 
-	/*! \brief Default constructor */
+	/*! \brief Default constructor 
+	 * 
+	 * \param n Size of the group
+	 * \param filename The path and filename of the pat file.
+	 * \param stimfile The path and filename of the output file used to record the stimulus timing. 
+	 * \param stimulusmode Stimulus mode specifies in which order patterns are presented 
+	 * \param baserate The base firing rate with which all activity is multiplied. 
+	 * */
 	StimulusGroup(NeuronID n, string filename, string stimfile, StimulusGroupModeType stimulusmode=RANDOM, AurynFloat baserate=1.0 );
 
-	/*! \brief Constructor without stimfile. Patterns can be loaded afterwards using the load_patterns method. */
+	/*! \brief Constructor without pattern file. Patterns can be loaded afterwards using the load_patterns method. 
+	 *
+	 * Like the default constructor only that no patterns are specified. They have to be loaded afterwards using the load_patterns
+	 * function.
+	 *
+	 * \param n Size of the group
+	 * \param stimfile The path and filename of the output file used to record the stimulus timing. 
+	 * \param stimulusmode Stimulus mode specifies in which order patterns are presented 
+	 * \param baserate The base firing rate with which all activity is multiplied. 
+	 * */
 	StimulusGroup(NeuronID n, string stimfile, StimulusGroupModeType stimulusmode=RANDOM, AurynFloat baserate=1.0 );
 
 	virtual ~StimulusGroup();
+
 	/*! \brief Standard virtual evolve function */
 	virtual void evolve();
+
 	/*! \brief Sets the baserate that is the rate at 1 activity */
 	void set_baserate(AurynFloat baserate);
-	void set_maxrate(AurynFloat baserate); // TODO remove deprecated
+	void set_maxrate(AurynFloat baserate); //!< TODO \todo \deprecated remove this function since it's deprecated
 
 	/*! \brief Sets the stimulation mode. Can be any of StimulusGroupModeType (MANUAL,RANDOM,SEQUENTIAL,SEQUENTIAL_REV). */
 	void set_stimulation_mode(StimulusGroupModeType mode);
@@ -191,7 +209,10 @@ public:
 	/*! \brief Gets the activity of unit i */
 	AurynFloat get_activity(NeuronID i);
 
-	/*! \brief Loads stimulus patterns from a designated file given */
+	/*! \brief Loads stimulus patterns from a designated pat file given 
+	 *
+	 * \param filename The path and filename of the pat file to laod. 
+	 * */
 	virtual void load_patterns( string filename );
 
 	/*! \brief Clear stimulus patterns */
@@ -227,10 +248,13 @@ public:
 
 	/*! \brief Setter for pattern probability distribution */
 	void set_distribution ( std::vector<double> probs );
+
 	/*! \brief Getter for pattern probability distribution */
 	std::vector<double> get_distribution ( );
+
 	/*! \brief Getter for pattern i of the probability distribution */
 	double get_distribution ( int i );
+
 	/*! \brief Returns number of stimuli shown */
 	unsigned int get_stim_count();
 
@@ -255,6 +279,7 @@ public:
 
 	/*! Initialized distribution to be flat */
 	void flat_distribution( );
+
 	/*! Normalizes the distribution */
 	void normalize_distribution( );
 
