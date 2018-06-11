@@ -317,9 +317,9 @@ public:
 	 * 
 	 * \param filename The file to read the patterns from
 	 * \param strength The strength to set or add to connections within a pattern (depending on setting of overwrite)
-	 * \param nb_max_patterns The maximum number of patterns to load
+	 * \param nb_max_patterns The maximum number of patterns to load (default 10000)
 	 * \param overwrite Whether to add strength to each connection in the pattern or whether to set the 
-	 * connection to he value specified
+	 * connection to he value specified (default false)
 	 * \param chainmode If set to true the function does not create cell assemblies but a synfire chain
 	 * architecture in which each pattern is connected to the next as a chain. 
 	 *
@@ -331,14 +331,14 @@ public:
 	 * \param pre_file File containint the presynaptic patterns
 	 * \param post_file File containint the postsynaptic patterns
 	 * \param strength Synaptic strength value of a connection
-	 * \param nb_max_patterns The maximum number of patterns to load
-	 * \param overwrite Whether to add or set strength to each connection 
+	 * \param nb_max_patterns The maximum number of patterns to load (default 10000) 
+	 * \param overwrite Whether to add or set strength to each connection (default false) 
 	 *
 	 * This function can be used to connect a bunch of populations in 
 	 * one group to different populations in another group.
 	 * The two pattern files must have the same number of patterns stored. 
 	 * */
-	void load_pre_post_patterns( std::string pre_file, std::string post_file, AurynWeight strength, int nb_max_patterns, bool overwrite = false);
+	void load_pre_post_patterns( std::string pre_file, std::string post_file, AurynWeight strength, int nb_max_patterns=10000, bool overwrite = false);
 
 	/*! \brief Internally used propagate method
 	 *
