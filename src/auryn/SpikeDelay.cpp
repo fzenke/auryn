@@ -34,6 +34,7 @@ SpikeDelay::SpikeDelay( int delay )
 	numSpikeAttributes = 0;
 	delaybuf = NULL;
 	attribbuf = NULL;
+	ndelay = 0;
 	set_delay(delay);
 }
 
