@@ -175,8 +175,11 @@ class AurynBinarySpikeFile(AurynBinaryFile):
         self.filename = filename
         self.open_file()
 
-    def get_spikes( self, t_start=0.0, t_stop=1e32, max_id=1e32 ):
+    def get_spikes( self, t_start=0.0, t_stop=1e32, max_id=1e32, last=None ):
         if self.num_data_frames==0: return []
+        if last is not None:
+            t_stop  = self.t_max
+            t_start = self.t_max-last
         idx_start, idx_stop = self.find_frame_interval(t_start, t_stop)
         start_pos = (idx_start)*self.frame_size
         num_elements = idx_stop-idx_start+1
@@ -290,10 +293,10 @@ class AurynBinarySpikeView:
         spike_times.sort()
         return spike_times
 
-    def get_spikes( self, t_start=0.0, t_stop=1e32, max_id=1e32 ):
+    def get_spikes( self, *args, **kwargs):
         spikes = []
         for spk in self.spike_files:
-            spikes.extend( spk.get_spikes( t_start, t_stop, max_id ) )
+            spikes.extend( spk.get_spikes( *args, **kwargs ) )
 
         self.sort_spikes(spikes)
         return spikes
