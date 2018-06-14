@@ -144,7 +144,7 @@ void DuplexConnection::compute_reverse_matrix( int z )
 			}
 		}
 	}
-	bkw->fill_zeros();
+	bkw->fill_na();
 	delete [] rowwalker;
 
 	if ( fwd->get_nonzero() != bkw->get_nonzero() ) {

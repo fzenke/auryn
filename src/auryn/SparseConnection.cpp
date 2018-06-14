@@ -498,7 +498,7 @@ void SparseConnection::connect_random(AurynWeight weight, AurynDouble sparseness
 
 void SparseConnection::finalize()
 {
-	w->fill_zeros();
+	w->fill_na();
 	if ( dst->evolve_locally() ) {
 		std::stringstream oss;
 		oss << get_log_name() << "Finalized with fill level " << w->get_fill_level();
@@ -912,7 +912,7 @@ bool SparseConnection::load_from_file(ForwardMatrix * m, std::string filename, A
 		auryn::logger->msg(oss.str(),VERBOSE);
 	}
 
-	m->fill_zeros();
+	m->fill_na();
 	// finalize(); // commented this line out because it only acts on w
 
 	return true;
