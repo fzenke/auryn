@@ -62,13 +62,15 @@ private:
 	template<class Archive>
 	void load(Archive & ar, const unsigned int version)
 		{
+			AurynLong load_datasize;
+			AurynLong nnz;
+
 			ar & m_rows;
 			ar & n_cols;
-			ar & datasize;
-			resize_buffer_and_clear(datasize);
-
-			AurynLong nnz;
+			ar & load_datasize;
 			ar & nnz;
+
+			resize_buffer_and_clear(load_datasize);
 
 			for (AurynLong c = 0 ; c < nnz ; ++c) {
 				NeuronID i,j;
@@ -141,7 +143,16 @@ public:
 	T * get_data_ptr(const NeuronID * ind_ptr);
 	/*! Gets the matching data value for a given index pointer */
 	T get_data(const NeuronID * ind_ptr);
+	/*! \brief Same as fill_na
+	 *
+	 * \deprecated Because it does not really fill zeros, but NA.
+	 * */
 	void fill_zeros();
+	/*! \brief Marks the remainder of buffers non-existing connections. 
+	 *
+	 * Should be called by finalize before using the matrix.
+	 * */
+	void fill_na();
 	AurynDouble get_fill_level();
 	T get(NeuronID i, NeuronID j);
 	bool exists(NeuronID i, NeuronID j);
@@ -258,8 +269,9 @@ void SimpleMatrix<T>::init(NeuronID m, NeuronID n, AurynLong size)
 template <typename T>
 void SimpleMatrix<T>::resize_buffer(AurynLong newsize)
 {
-	AurynLong oldsize = datasize;
-	AurynLong copysize = std::min(oldsize,newsize);
+	const AurynLong oldsize = datasize;
+	if ( oldsize == newsize ) return;
+	const AurynLong copysize = std::min(oldsize,newsize);
 
 	// std::cout << " copy colinds " << std::endl;
 
@@ -401,7 +413,7 @@ AurynLong SimpleMatrix<T>::get_nonzero()
 }
 
 template <typename T>
-void SimpleMatrix<T>::fill_zeros()
+void SimpleMatrix<T>::fill_na()
 {
 	for ( NeuronID i = current_row ; i < m_rows-1 ; ++i )
 	{
@@ -410,6 +422,11 @@ void SimpleMatrix<T>::fill_zeros()
 	current_row = get_m_rows();
 }
 
+template <typename T>
+void SimpleMatrix<T>::fill_zeros()
+{
+	fill_na();
+}
 
 template <typename T>
 T SimpleMatrix<T>::get(NeuronID i, NeuronID j)
@@ -432,19 +449,23 @@ T * SimpleMatrix<T>::get_ptr(NeuronID i, NeuronID j)
 	// check bounds
 	if ( !(i < m_rows && j < n_cols) ) return NULL;
 
+#ifdef DEBUG
+	std::cout << "enter search" << std::endl;
+#endif // DEBUG
 	// perform binary search
 	NeuronID * lo = rowptrs[i];
 	NeuronID * hi = rowptrs[i+1];
-	NeuronID * c  = hi;
 
 	if ( lo >= hi ) // no elements/targets in this row
 		return NULL; 
 	
 	while ( lo < hi ) {
-		c = lo + (hi-lo)/2;
+		NeuronID * c = lo + (hi-lo)/2;
 		if ( *c < j ) lo = c+1;
 		else hi = c;
-		//std::cout << i << ":" << j << "   " << *lo << ":" << *hi << endl;
+#ifdef DEBUG
+		std::cout << i << ":" << j << "   " << *lo << ":" << *hi << std::endl;
+#endif // DEBUG
 	}
 	
 	if ( *lo == j ) {

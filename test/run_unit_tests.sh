@@ -8,6 +8,7 @@ $BUILDDIR/test/src/test_AurynStateVector && \
 $BUILDDIR/test/src/test_AurynDelayVector && \
 $BUILDDIR/test/src/test_EulerTrace && \
 $BUILDDIR/test/src/test_LinearTrace && \
-$BUILDDIR/test/src/test_ComplexMatrix && exit 0
+$BUILDDIR/test/src/test_ComplexMatrix && \
+$BUILDDIR/test/src/test_SimpleMatrix && exit 0
 
 exit 1

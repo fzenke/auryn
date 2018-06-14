@@ -19,7 +19,7 @@ BOOST_AUTO_TEST_CASE( dense_fill_and_read ) {
 			mat.push_back(j,i,element(j,i));
 		}
 	}
-	mat.fill_zeros();
+	mat.fill_na();
 
 
 	for (int j = 0 ; j<nb_pre ; j += 1)
@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE( sparse_fill_and_read ) {
 			}
 		}
 	}
-	mat.fill_zeros();
+	mat.fill_na();
 	BOOST_CHECK_EQUAL( mat.get_nonzero(), count );
 
 	for (int j = 0 ; j<nb_pre ; j += 1) {
@@ -57,6 +57,61 @@ BOOST_AUTO_TEST_CASE( sparse_fill_and_read ) {
 			int el = mat.get(j,i);
 			// std::cout << j << " " << i << " sh:" << element(j,i) << " is:" << el << std::endl;
 			if ( element(j,i)%2 ) {
+				BOOST_CHECK_EQUAL( el, element(j,i) );
+			} else {
+				BOOST_CHECK_EQUAL( el, 0 );
+			}
+		}
+	}
+}
+
+BOOST_AUTO_TEST_CASE( buffer_resize ) {
+
+	int nb_pre = 15;
+	int nb_post = 13;
+
+	// here we reserve too much memory
+	auryn::ComplexMatrix<int> mat(nb_pre,nb_post,nb_pre*nb_post*10); 
+
+	int count = 0;
+	for (int j = 0 ; j<nb_pre ; j += 1)
+	{
+		for (int i = 0 ; i<nb_post; i += 1) {
+			if ( element(j,i)%5 ) { // push only every 5th element
+				mat.push_back(j,i,element(j,i));
+				count++;
+			}
+		}
+	}
+	mat.fill_na();
+	BOOST_CHECK_EQUAL( mat.get_nonzero(), count );
+
+	// now resize to make it smaller
+	// we do prune here which calls resize buffer to the exact number of nonzero elements
+	mat.prune();
+
+	BOOST_CHECK_EQUAL( mat.get_nonzero(), count );
+
+	for (int j = 0 ; j<nb_pre ; j += 1) {
+		for (int i = 0 ; i<nb_post ; i += 1) {
+			int el = mat.get(j,i);
+			if ( element(j,i)%5 ) {
+				BOOST_CHECK_EQUAL( el, element(j,i) );
+			} else {
+				BOOST_CHECK_EQUAL( el, 0 );
+			}
+		}
+	}
+
+	// now resize to make the buffer bigger again 
+	mat.resize_buffers(1000);
+
+	BOOST_CHECK_EQUAL( mat.get_nonzero(), count );
+
+	for (int j = 0 ; j<nb_pre ; j += 1) {
+		for (int i = 0 ; i<nb_post ; i += 1) {
+			int el = mat.get(j,i);
+			if ( element(j,i)%5 ) {
 				BOOST_CHECK_EQUAL( el, element(j,i) );
 			} else {
 				BOOST_CHECK_EQUAL( el, 0 );
@@ -80,7 +135,7 @@ BOOST_AUTO_TEST_CASE( sparse_complex_fill_and_read ) {
 			}
 		}
 	}
-	mat.fill_zeros();
+	mat.fill_na();
 
 	mat.get_synaptic_state_vector(1)->copy(mat.get_synaptic_state_vector(0));
 	mat.get_synaptic_state_vector(1)->scale(2);
@@ -115,7 +170,7 @@ BOOST_AUTO_TEST_CASE( sparse_complex_prune ) {
 			}
 		}
 	}
-	mat.fill_zeros();
+	mat.fill_na();
 
 	// Prune the matrix
 	mat.prune();
