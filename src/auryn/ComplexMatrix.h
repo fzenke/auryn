@@ -106,21 +106,23 @@ private:
 	void load(Archive & ar, const unsigned int version)
 		{
 			const StateID cur_num_syn_states = get_num_synaptic_states();
+			AurynLong load_statesize;
+			AurynLong load_n_nonzero;
 
 			ar & m_rows;
 			ar & n_cols;
 			ar & n_z_values;
 			ar & current_row;
 			ar & current_col;
-			ar & statesize;
-			ar & n_nonzero;
+			ar & load_statesize;
+			ar & load_n_nonzero;
 
-			if ( n_z_values != cur_num_syn_states ) { // check if we have the some number of tensor modes
+			if ( n_z_values != cur_num_syn_states ) { // check if we have the same number of tensor modes
 				throw AurynMatrixComplexStateException();
 			}
 
-			// allocate necessary memory
-			resize_buffers(statesize);
+			// allocate necessary memory and set statesize
+			resize_buffers(load_statesize);
 
 			// rowpointers -- translate in elements per row
 			for ( NeuronID i = 0 ; i < m_rows+1 ; ++i ) {
@@ -129,13 +131,15 @@ private:
 				rowptrs[i] = rowptrs[0]+num_elements;
 			}
 			// colindices
-			for (AurynLong i = 0 ; i < n_nonzero ; ++i) {
+			for (AurynLong i = 0 ; i < load_n_nonzero ; ++i) {
 				ar & colinds[i];
 			}
 			// data
 			for (StateID z = 0; z < n_z_values ; ++z ) {
 				ar & *(statevectors[z]);
 			}
+			// set the nonzero value to the actual number
+			n_nonzero = load_n_nonzero;
 		}
 	BOOST_SERIALIZATION_SPLIT_MEMBER()
 
@@ -250,6 +254,13 @@ public:
 	 * This function has to be called after filling the matrix with elements e.g. random sparse
 	 * and before using it in a simulation. It is typically called by the finalize function in 
 	 * SparseConnection. */
+	void fill_na();
+
+
+	/*! \brief Same as fill_na but deprecated because of bad name
+	 *
+	 * \deprecated Due to bad name
+	 *  */
 	void fill_zeros();
 
 
@@ -510,25 +521,34 @@ void ComplexMatrix<T>::init(NeuronID m, NeuronID n, AurynLong size, NeuronID z)
 template <typename T>
 void ComplexMatrix<T>::resize_buffers(AurynLong new_size)
 {
-	AurynLong oldsize = get_statesize();
-	if ( oldsize == new_size ) return;
-	statesize = new_size;
+	const AurynLong old_statesize = get_statesize();
+	const AurynLong new_statesize = std::min(new_size,(AurynLong)m_rows*n_cols);
 
-	NeuronID * new_colinds = new NeuronID [get_datasize()];
-	std::copy(colinds, colinds+get_nonzero(), new_colinds);
+	if ( old_statesize == new_statesize ) return; // nothing to be done
+
+	// allocate new mem 
+	NeuronID * new_colinds = new NeuronID [new_statesize];
+
+	// copy column indices
+	const AurynLong copysize = std::min(old_statesize,new_statesize);
+	std::copy(colinds, colinds+copysize, new_colinds);
 
 	// update rowpointers
 	ptrdiff_t offset = new_colinds-colinds;
 	for ( NeuronID i = 0 ; i < m_rows+1 ; ++i ) {
 		rowptrs[i] += offset;
 	}
-	
+
+	// free old memory
 	delete [] colinds;
 	colinds = new_colinds;
 
+	// resize state vectors individually
 	for ( StateID i = 0 ; i < get_num_synaptic_states() ; ++i ) {
-		statevectors[i]->resize(new_size);
+		statevectors[i]->resize(new_statesize);
 	}
+
+	statesize = new_statesize;
 }
 
 template <typename T>
@@ -653,7 +673,7 @@ AurynLong ComplexMatrix<T>::get_nonzero()
 }
 
 template <typename T>
-void ComplexMatrix<T>::fill_zeros()
+void ComplexMatrix<T>::fill_na()
 {
 	for ( NeuronID i = current_row ; i < m_rows-1 ; ++i )
 	{
@@ -662,6 +682,11 @@ void ComplexMatrix<T>::fill_zeros()
 	current_row = get_m_rows();
 }
 
+template <typename T>
+void ComplexMatrix<T>::fill_zeros()
+{
+	fill_na();
+}
 
 template <typename T>
 bool ComplexMatrix<T>::exists(NeuronID i, NeuronID j, NeuronID z)
@@ -737,13 +762,12 @@ AurynLong ComplexMatrix<T>::get_data_index(NeuronID i, NeuronID j)
 	// perform binary search
 	NeuronID * lo = rowptrs[i];
 	NeuronID * hi = rowptrs[i+1];
-	NeuronID * c  = hi;
 
 	if ( lo >= hi ) // no elements/targets in this row
 		return data_index_error_value; 
 	
 	while ( lo < hi ) {
-		c = lo + (hi-lo)/2;
+		NeuronID * c = lo + (hi-lo)/2;
 		if ( *c < j ) lo = c+1;
 		else hi = c;
 #ifdef DEBUG
