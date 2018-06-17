@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2017 Friedemann Zenke
+* Copyright 2014-2018 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -53,7 +53,6 @@ FileModulatedPoissonGroup::~FileModulatedPoissonGroup()
 
 void FileModulatedPoissonGroup::evolve()
 {
-
 	AurynDouble t ;
 	AurynDouble r ;
 
@@ -84,8 +83,7 @@ void FileModulatedPoissonGroup::evolve()
 		set_rate(rate);
 	}
 
-	if ( rate ) 
-		PoissonGroup::evolve();
+	if ( rate > 0.0 ) PoissonGroup::evolve();
 
 	last_rate = rate;
 }

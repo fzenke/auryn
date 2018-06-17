@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2017 Friedemann Zenke
+* Copyright 2014-2018 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -82,11 +82,13 @@
 #include "auryn/PoissonSpikeInjector.h"
 #include "auryn/FileInputGroup.h"
 #include "auryn/FileModulatedPoissonGroup.h"
+#include "auryn/ParrotGroup.h"
 #include "auryn/StimulusGroup.h"
 #include "auryn/SpikeTimingStimGroup.h"
 #include "auryn/ProfilePoissonGroup.h"
 #include "auryn/StructuredPoissonGroup.h"
 #include "auryn/CorrelatedPoissonGroup.h"
+#include "auryn/InputChannelGroup.h"
 #include "auryn/MovingBumpGroup.h"
 #include "auryn/AuditoryBeepGroup.h"
 
@@ -101,7 +103,13 @@
 #include "auryn/IafPscDeltaGroup.h"
 #include "auryn/IafPscExpGroup.h"
 #include "auryn/IzhikevichGroup.h"
+#include "auryn/NaudGroup.h"
 
+// SynapseModel
+#include "auryn/SynapseModel.h"
+#include "auryn/ExpCubaSynapse.h"
+#include "auryn/ExpCobaSynapse.h"
+#include "auryn/LinearComboSynapse.h"
 
 // Checker definitions
 #include "auryn/Checker.h"
@@ -112,6 +120,7 @@
 #include "auryn/Device.h"
 #include "auryn/Monitor.h"
 #include "auryn/VoltageMonitor.h"
+#include "auryn/VoltageClampMonitor.h"
 #include "auryn/SpikeMonitor.h"
 #include "auryn/BinarySpikeMonitor.h"
 #include "auryn/BinaryStateMonitor.h"
@@ -119,6 +128,7 @@
 #include "auryn/RealTimeMonitor.h"
 #include "auryn/RateMonitor.h"
 #include "auryn/PopulationRateMonitor.h"
+#include "auryn/BurstRateMonitor.h"
 #include "auryn/StateMonitor.h"
 #include "auryn/WeightSumMonitor.h"
 #include "auryn/PatternMonitor.h"

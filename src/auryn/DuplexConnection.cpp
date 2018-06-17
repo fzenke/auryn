@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2017 Friedemann Zenke
+* Copyright 2014-2018 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -144,7 +144,7 @@ void DuplexConnection::compute_reverse_matrix( int z )
 			}
 		}
 	}
-	bkw->fill_zeros();
+	bkw->fill_na();
 	delete [] rowwalker;
 
 	if ( fwd->get_nonzero() != bkw->get_nonzero() ) {

@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2017 Friedemann Zenke
+* Copyright 2014-2018 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -110,7 +110,7 @@ void SpikingGroup::init( NeuronID n, NodeDistributionMode mode )
 	auryn::logger->msg(oss.str(),VERBOSE);
 
 	delay = new SpikeDelay( );
-	set_delay(MINDELAY+1); 
+	set_delay(MINDELAY); 
 
 	evolve_locally_bool = evolve_locally_bool && ( get_rank_size() > 0 );
 
@@ -745,27 +745,6 @@ void SpikingGroup::remove_state_vector( std::string key )
 	state_vectors.erase(key);
 }
 
-AurynStateVector * SpikingGroup::get_state_vector(std::string key)
-{
-	if ( state_vectors.find(key) == state_vectors.end() ) {
-		if ( get_vector_size() == 0 ) return NULL;
-		AurynStateVector * vec = new AurynStateVector(get_vector_size()); 
-		add_state_vector(key, vec);
-
-		if ( auryn_AlignOffset( vec->size, vec->data, sizeof(float), 16) ) {
-			throw AurynMemoryAlignmentException();
-		}
-
-		return vec;
-	} else {
-		return state_vectors.find(key)->second;
-	}
-}
-
-AurynStateVector * SpikingGroup::get_new_state_vector(std::string key) {
-	return get_state_vector(key);
-}
-
 AurynStateVector * SpikingGroup::find_state_vector(std::string key)
 {
 	std::stringstream oss;
@@ -777,6 +756,38 @@ AurynStateVector * SpikingGroup::find_state_vector(std::string key)
 		return state_vectors.find(key)->second;
 	}
 }
+
+AurynStateVector * SpikingGroup::get_existing_state_vector(std::string key) {
+	return find_state_vector(key);
+}
+
+AurynStateVector * SpikingGroup::create_state_vector(std::string key) {
+	if ( get_vector_size() == 0 ) return NULL; 
+	AurynStateVector * vec = find_state_vector(key);
+	if ( vec == NULL ) {
+		vec = new AurynStateVector(get_vector_size()); 
+		add_state_vector(key, vec);
+
+		if ( auryn_AlignOffset( vec->size, vec->data, sizeof(float), 16) ) {
+			throw AurynMemoryAlignmentException();
+		}
+		return vec;
+	} else {
+		auryn::logger->error("Failed to creat a new state because a vector with the same key already exists.");
+		throw AurynStateVectorException();
+	}
+}
+
+AurynStateVector * SpikingGroup::get_state_vector(std::string key)
+{
+	AurynStateVector * vec = find_state_vector(key);
+	if ( vec ) {
+		return vec;
+	} else {
+		return create_state_vector(key);
+	}
+}
+
 
 void SpikingGroup::randomize_state_vector_gauss(std::string state_vector_name, AurynState mean, AurynState sigma, int seed)
 {

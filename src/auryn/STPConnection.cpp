@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2017 Friedemann Zenke
+* Copyright 2014-2018 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -33,17 +33,11 @@ void STPConnection::init()
 		// init of STP stuff
 		tau_d = 0.2;
 		tau_f = 1.0;
-		Urest = 0.3;
 		Ujump = 0.01;
 		state_x = auryn_vector_float_alloc( src->get_rank_size() );
 		state_u = auryn_vector_float_alloc( src->get_rank_size() );
 		state_temp = auryn_vector_float_alloc( src->get_rank_size() );
-		for (NeuronID i = 0; i < src->get_rank_size() ; i++)
-		{
-			   auryn_vector_float_set (state_x, i, 1 ); // TODO
-			   auryn_vector_float_set (state_u, i, Ujump );
-		}
-
+		clear();
 	}
 
 	// Registering the right amount of spike attributes
@@ -191,6 +185,19 @@ void STPConnection::set_ujump(AurynFloat r) {
 	Ujump = r;
 }
 
-void STPConnection::set_urest(AurynFloat r) {
-	Urest = r;
+void STPConnection::clear() 
+{
+	for (NeuronID i = 0; i < src->get_rank_size() ; i++)
+	{
+		   auryn_vector_float_set (state_x, i, 1 ); // TODO
+		   auryn_vector_float_set (state_u, i, Ujump );
+	}
+}
+
+void STPConnection::clone_parameters(STPConnection * con) 
+{
+	tau_d = con->tau_d;
+	tau_f = con->tau_f;
+	Ujump = con->Ujump;
+	clear();
 }

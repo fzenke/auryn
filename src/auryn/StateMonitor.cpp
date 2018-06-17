@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2017 Friedemann Zenke
+* Copyright 2014-2018 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -94,11 +94,12 @@ void StateMonitor::init(std::string filename, AurynDouble sampling_interval)
 {
 	outfile << std::setiosflags(std::ios::fixed) << std::setprecision(6);
 
-	set_stop_time(10.0);
+	// set_stop_time(10.0);
+	t_stop = -1; // at the end of all times
 	ssize = sampling_interval/auryn_timestep;
 	if ( ssize < 1 ) ssize = 1;
 
-	enable_compression = true;
+	enable_compression = false;
 	lastval = 0.0;
 	lastder = 0.0;
 }
@@ -141,6 +142,12 @@ void StateMonitor::set_stop_time(AurynDouble time)
 { 
 	AurynDouble stoptime = std::min( time, std::numeric_limits<AurynTime>::max()*auryn_timestep );
 	t_stop = stoptime/auryn_timestep;
+}
+
+void StateMonitor::set_step_size(int step)
+{
+	if ( step >= 1 ) ssize = step;
+	else ssize = 1;
 }
 
 void StateMonitor::record_for(AurynDouble time)

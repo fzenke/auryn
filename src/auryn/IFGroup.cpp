@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2017 Friedemann Zenke
+* Copyright 2014-2018 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -35,16 +35,17 @@ IFGroup::IFGroup( NeuronID size, NodeDistributionMode distmode ) : NeuronGroup(s
 
 void IFGroup::calculate_scale_constants()
 {
-	scale_ampa =  exp(-auryn_timestep/tau_ampa) ;
-	scale_gaba =  exp(-auryn_timestep/tau_gaba) ;
-	scale_thr = exp(-auryn_timestep/tau_thr) ;
+	scale_ampa =  std::exp(-auryn_timestep/tau_ampa) ;
+	scale_gaba =  std::exp(-auryn_timestep/tau_gaba) ;
+	scale_thr  = std::exp(-auryn_timestep/tau_thr) ;
+	mul_nmda   = 1.0-std::exp(-auryn_timestep/tau_nmda);
 }
 
 void IFGroup::init()
 {
-	e_rest = -70e-3;
-	e_reset = -70e-3;
-	e_rev = -80e-3;
+	u_rest = -70e-3;
+	u_reset = -70e-3;
+	u_inh_rev = -80e-3;
 	thr_rest = -50e-3;
 	dthr = 100e-3;
 	tau_thr = 5e-3;
@@ -61,13 +62,16 @@ void IFGroup::init()
 	t_exc =  get_state_vector("t_exc");
 	t_inh = get_state_vector("t_inh");
 
+	default_exc_target_state = g_ampa;
+	default_inh_target_state = g_gaba;
+
 	clear();
 }
 
 void IFGroup::clear()
 {
 	clear_spikes();
-	mem->set_all(e_rest);
+	mem->set_all(u_rest);
 	thr->set_zero();
 	g_ampa->set_zero();
 	g_gaba->set_zero();
@@ -84,15 +88,6 @@ IFGroup::~IFGroup()
 
 void IFGroup::integrate_linear_nmda_synapses()
 {
-	// decay of ampa and gaba channel, i.e. multiply by exp(-auryn_timestep/tau)
-	g_ampa->scale(scale_ampa);
-	g_gaba->scale(scale_gaba);
-
-    // compute dg_nmda = (g_ampa-g_nmda)*auryn_timestep/tau_nmda and add to g_nmda
-	const AurynFloat mul_nmda = auryn_timestep/tau_nmda;
-	g_nmda->saxpy(mul_nmda, g_ampa);
-	g_nmda->saxpy(-mul_nmda, g_nmda);
-
     // excitatory
 	t_exc->copy(g_ampa);
 	t_exc->scale(-A_ampa);
@@ -100,8 +95,16 @@ void IFGroup::integrate_linear_nmda_synapses()
 	t_exc->mul(mem);
     
     // inhibitory
-	t_inh->diff(mem,e_rev);
+	t_inh->diff(mem,u_inh_rev);
 	t_inh->mul(g_gaba);
+
+    // compute dg_nmda = (g_ampa-g_nmda)*auryn_timestep/tau_nmda and add to g_nmda
+	g_nmda->saxpy(mul_nmda, g_ampa);
+	g_nmda->saxpy(-mul_nmda, g_nmda);
+
+	// decay of ampa and gaba channel, i.e. multiply by exp(-auryn_timestep/tau)
+	g_ampa->scale(scale_ampa);
+	g_gaba->scale(scale_gaba);
 }
 
 /// Integrate the internal state
@@ -114,7 +117,7 @@ void IFGroup::integrate_membrane()
 	thr->scale(scale_thr);
     
     // leak
-	t_leak->diff(mem,e_rest);
+	t_leak->diff(mem,u_rest);
     
     // membrane dynamics
 	const AurynFloat mul_tau_mem = auryn_timestep/tau_mem;
@@ -125,14 +128,14 @@ void IFGroup::integrate_membrane()
 
 void IFGroup::check_thresholds()
 {
-	mem->clip( e_rev, 0.0 );
+	mem->clip( u_inh_rev, 0.0 );
 
 	AurynState * thr_ptr = thr->data;
 	for ( AurynState * i = mem->data ; i != mem->data+get_rank_size() ; ++i ) { // it's important to use rank_size here otherwise there might be spikes from units that do not exist
     	if ( *i > ( thr_rest + *thr_ptr ) ) {
 			NeuronID unit = i-mem->data;
 			push_spike(unit);
-		    mem->set( unit, e_reset); // reset
+		    mem->set( unit, u_reset); // reset
 	        thr->set( unit, dthr); //refractory
 		} 
 		thr_ptr++;
@@ -181,9 +184,13 @@ AurynFloat IFGroup::get_tau_gaba()
 	return tau_gaba;
 }
 
-void IFGroup::set_tau_nmda(AurynFloat taum)
+void IFGroup::set_tau_nmda(AurynFloat tau)
 {
-	tau_nmda = taum;
+	if ( tau < tau_ampa ) { 
+		logger->warning("tau_nmda has to be larger than tau_ampa in IFGroup");
+		return;
+	}
+	tau_nmda = tau;
 	calculate_scale_constants();
 }
 
@@ -203,4 +210,27 @@ void IFGroup::set_ampa_nmda_ratio(AurynFloat ratio)
 {
  	A_ampa = ratio/(ratio+1.0);
 	A_nmda = 1./(ratio+1.0);
+}
+
+void IFGroup::set_nmda_ampa_current_ampl_ratio(AurynFloat ratio) 
+{
+	const double tau_r = tau_ampa;
+	const double tau_d = tau_nmda;
+
+	// compute amplitude of NMDA conductance
+	const double tmax = tau_r*std::log((tau_r+tau_d)/tau_r); // argmax
+	const double ampl = (1.0-std::exp(-tmax/tau_r))*std::exp(-tmax/tau_d)*tau_r/(tau_d-tau_r); 
+
+	// set relative amplitudes
+	A_ampa = 1.0;
+	A_nmda = ratio/ampl;
+
+	// normalize sum to one
+	const double sum = A_ampa+A_nmda;
+	A_ampa /= sum;
+	A_nmda /= sum;
+
+	// write constants to logfile
+	logger->parameter("A_ampa", A_ampa);
+	logger->parameter("A_nmda", A_nmda);
 }

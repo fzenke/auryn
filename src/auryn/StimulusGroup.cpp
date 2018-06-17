@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2017 Friedemann Zenke
+* Copyright 2014-2018 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -44,8 +44,10 @@ void StimulusGroup::init(StimulusGroupModeType stimulusmode, std::string stimfil
 
 	seed(2351301);
 
+
 	set_stimulation_mode(stimulusmode);
 
+	stimulation_count = 0;
 	stimulus_active = false ;
 	set_all( 0.0 ); 
 
@@ -285,7 +287,7 @@ void StimulusGroup::evolve()
 				stimulus_active = false ;
 				last_stim_offset_time = sys->get_clock();
 
-				if ( randomintervals ) {
+				if ( randomintervals && mean_off_period>0.0 ) {
 					boost::exponential_distribution<> dist(1./mean_off_period);
 					boost::variate_generator<boost::mt19937&, boost::exponential_distribution<> > die(order_gen, dist);
 					next_action_time = auryn::sys->get_clock() + (AurynTime)(std::max(0.0,die())/auryn_timestep);
@@ -331,6 +333,7 @@ void StimulusGroup::evolve()
 					if ( !binary_patterns )
 						set_active_pattern( cur_stim_index );
 					stimulus_active = true;
+					stimulation_count++;
 					last_stim_onset_time = sys->get_clock();
 
 					if ( randomintervals && stimulus_order != STIMFILE ) {
@@ -366,6 +369,12 @@ AurynFloat StimulusGroup::get_activity(NeuronID i)
 		return 0;
 }
 
+void StimulusGroup::clear_patterns( )
+{
+	stimuli.clear();
+	stimulus_active = false ;
+}
+
 void StimulusGroup::load_patterns( std::string filename )
 {
 	std::ifstream fin (filename.c_str());
@@ -383,7 +392,7 @@ void StimulusGroup::load_patterns( std::string filename )
 	char buffer[256];
 	std::string line;
 
-	stimuli.clear();
+	clear_patterns();
 
 	type_pattern pattern;
 	int total_pattern_size = 0;
@@ -609,4 +618,9 @@ unsigned int StimulusGroup::get_cur_stim()
 unsigned int StimulusGroup::get_num_stimuli()
 {
 	return stimuli.size();
+}
+
+unsigned int StimulusGroup::get_stim_count()
+{
+	return stimulation_count;
 }

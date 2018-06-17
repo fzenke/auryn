@@ -14,8 +14,13 @@ class AurynBinaryFile:
     '''
     This class is the abstract base class to access binary Auryn files.
     '''
+
     def unpack(self, data):
         return struct.unpack(self.data_format, data)
+
+    def read_frames(self, bufsize):
+        return self.datafile.read(bufsize*self.frame_size)
+
 
     def get_frame(self,idx):
         '''
@@ -27,33 +32,56 @@ class AurynBinaryFile:
         frame = self.unpack(data)
         return frame
 
-    def find_frame(self, time=0, lower=False):
+    def get_frame_time(self, idx):
+        '''
+        Returns decoded time of a frame with index idx.
+        '''
+        at, _ = self.get_frame(idx)
+        ft = at*self.timestep
+        return ft
+
+
+    def find_frame(self, time=0):
         '''
         Find frame index of given time by bisection.
         '''
-        idx_lo = 1
-        idx_hi = self.last_frame
+        idx_lo = 1 
+        idx_hi = self.last_frame+1
         while idx_lo+1<idx_hi:
             pivot = (idx_lo+idx_hi)//2
-            at, nid = self.get_frame(pivot)
-            ft = at*self.timestep
-            if ft>time:
-                idx_hi = pivot
-            else:
+            ft = self.get_frame_time(pivot)
+            if ft<=time:
                 idx_lo = pivot
-        if lower:
-            return idx_lo
-        else:
-            return idx_hi
+            else:
+                idx_hi = pivot
 
-    def read_frames(self, bufsize):
-        return self.datafile.read(bufsize*self.frame_size)
+        return idx_lo
+
+
+    def find_frame_interval(self, t_start, t_stop):
+        """ Converts a temporal interval t_start <= x < t_stop (following numpy convention) into a frame index interval """
+        idx_start = self.find_frame( t_start )
+        idx_stop  = self.find_frame( t_stop ) 
+        while idx_start < self.last_frame and self.get_frame_time(idx_start) < t_start:
+            idx_start += 1
+        while idx_stop > idx_start and self.get_frame_time(idx_stop) > t_stop:
+            idx_stop -= 1
+        return idx_start, idx_stop
+
 
     def refresh(self):
         ''' Reload file internal properties in case the file has changed'''
 
         # Reader spk file header
         data = self.datafile.read(self.frame_size)
+        if not data:
+            print("Warning! Empty file %s"%self.filename)
+            self.last_frame = 0
+            self.num_data_frames = 0
+            self.t_min = 0
+            self.t_max = 0
+            return 
+
         self.header = struct.unpack(self.data_format, data)
         self.timestep = 1.0/self.header[0]
         version_code = int(self.header[1])%1000
@@ -67,8 +95,8 @@ class AurynBinaryFile:
         # Determine size of file
         self.datafile.seek(0,2)
         self.filesize = self.datafile.tell()
-        self.last_frame = self.filesize//self.frame_size-1
-        self.num_data_frames = self.last_frame-1
+        self.last_frame = self.filesize//self.frame_size-1 # frame number starts at 0
+        self.num_data_frames = self.last_frame
         self.datafile.seek(self.frame_size,0)
         if self.debug:
             print("Filesize %i"%self.filesize)
@@ -80,8 +108,8 @@ class AurynBinaryFile:
         at,val = self.get_frame(self.last_frame)
         self.t_max = at*self.timestep
 
-    def open_file(self):
 
+    def open_file(self):
         self.frame_size = struct.calcsize(self.data_format)
         try:
             self.datafile = open(self.filename, "rb")
@@ -114,10 +142,11 @@ class AurynBinaryStateFile(AurynBinaryFile):
 
     def get_data(self, t_start=0.0, t_stop=1e32):
         ''' Returns timeseries of state for given temporal interval'''
-        idx_start = self.find_frame( t_start, lower=False )
-        idx_stop  = self.find_frame( t_stop, lower=True )
+        if self.num_data_frames==0: return []
+        idx_start, idx_stop = self.find_frame_interval(t_start, t_stop)
         start_pos = idx_start*self.frame_size
-        num_elements = idx_stop-idx_start
+        num_elements = idx_stop-idx_start+1
+        if num_elements<=0: return []
 
         self.datafile.seek(start_pos,0)
         raw_data = self.datafile.read(num_elements*self.frame_size)
@@ -146,12 +175,15 @@ class AurynBinarySpikeFile(AurynBinaryFile):
         self.filename = filename
         self.open_file()
 
-    def get_spikes( self, t_start=0.0, t_stop=1e32, max_id=1e32 ):
-        idx_start = self.find_frame( t_start, lower=False )
-        idx_stop = self.find_frame( t_stop, lower=True )
-        start_pos = idx_start*self.frame_size
-        num_elements = idx_stop-idx_start
-        if num_elements==-1: return []
+    def get_spikes( self, t_start=0.0, t_stop=1e32, max_id=1e32, last=None ):
+        if self.num_data_frames==0: return []
+        if last is not None:
+            t_stop  = self.t_max
+            t_start = self.t_max-last
+        idx_start, idx_stop = self.find_frame_interval(t_start, t_stop)
+        start_pos = (idx_start)*self.frame_size
+        num_elements = idx_stop-idx_start+1
+        if num_elements<=0: return []
 
         self.datafile.seek(start_pos,0)
         data = self.datafile.read(num_elements*self.frame_size)
@@ -161,11 +193,12 @@ class AurynBinarySpikeFile(AurynBinaryFile):
             at, nid = struct.unpack_from(self.data_format, data, i*self.frame_size)
             if nid<max_id:
                 spikes.append((self.timestep*at, nid))
+
         return spikes
 
     def get_spike_counts( self, t_start=0.0, t_stop=1e32, min_size=1 ):
-        idx_start = self.find_frame( t_start, lower=False )
-        idx_stop = self.find_frame( t_stop, lower=True )
+        idx_start = self.find_frame( t_start )
+        idx_stop = self.find_frame( t_stop )
         start_pos = idx_start*self.frame_size
         num_elements = idx_stop-idx_start
 
@@ -188,8 +221,8 @@ class AurynBinarySpikeFile(AurynBinaryFile):
         return self.get_spikes(t_start=self.t_max-seconds)
 
     def get_spike_times( self, neuron_id=0, t_start=0, t_stop=1e32 ):
-        idx_start = self.find_frame( t_start, lower=False )
-        idx_stop = self.find_frame( t_stop, lower=True )
+        idx_start = self.find_frame( t_start )
+        idx_stop = self.find_frame( t_stop )
 
         idx_cur = idx_start
         start_pos = idx_start*self.frame_size
@@ -260,10 +293,10 @@ class AurynBinarySpikeView:
         spike_times.sort()
         return spike_times
 
-    def get_spikes( self, t_start=0.0, t_stop=1e32, max_id=1e32 ):
+    def get_spikes( self, *args, **kwargs):
         spikes = []
         for spk in self.spike_files:
-            spikes.extend( spk.get_spikes( t_start, t_stop, max_id ) )
+            spikes.extend( spk.get_spikes( *args, **kwargs ) )
 
         self.sort_spikes(spikes)
         return spikes

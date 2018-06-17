@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2017 Friedemann Zenke
+* Copyright 2014-2018 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -26,10 +26,18 @@
 #ifndef AURYNVECTOR_H_
 #define AURYNVECTOR_H_
 
+#include <stdio.h>
+#include <string.h>
 #include <ctime>
 #include <assert.h>
 #include "auryn_definitions.h"
 
+#include <boost/serialization/utility.hpp>
+#include <boost/serialization/split_member.hpp>
+
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/variate_generator.hpp>
+#include <boost/random/normal_distribution.hpp>
 
 namespace auryn {
 
@@ -181,7 +189,7 @@ namespace auryn {
 					allocate(new_size);
 					// copy old data
 					const size_t copy_size = std::min(old_size,new_size) * sizeof(T);
-					std::memcpy(data, old_data, copy_size);
+					memcpy(data, old_data, copy_size);
 					free(old_data);
 				}
 			}
@@ -308,6 +316,38 @@ namespace auryn {
 				}
 			}
 
+			/*! \brief Element-wise division  
+			 *
+			 * */
+			void div(const T a) 
+			{
+				scale(1.0/a);
+			}
+
+			/*! \brief Element-wise vector division  
+			 *
+			 * */
+			void div(AurynVector * v) 
+			{
+				check_size(v);
+				for ( IndexType i = 0 ; i < size ; ++i ) {
+					data[i] /= v->data[i];
+				}
+			}
+
+			/*! \brief Element-wise vector division which stores the result in this
+			 *
+			 * Computes elemntwise a/b and stores the result in current instance.
+			 *
+			 * */
+			void div(AurynVector * a, AurynVector * b) 
+			{
+				check_size(a);
+				for ( IndexType i = 0 ; i < size ; ++i ) {
+					data[i] = a->data[i]/b->data[i];
+				}
+			}
+
 			/*! \brief SAXPY operation as in GSL 
 			 *
 			 * Computes a*x + y and stores the result to y where y is the present instance. 
@@ -322,12 +362,25 @@ namespace auryn {
 				}
 			}
 
-
-			/*! \brief Scales all vector elements by a. */
+			/*! \brief Follows target vector v with rate.
+			 *
+			 * Example to implement the ODE:
+			 * tau dx/dt = -(x-v)  
+			 *
+			 * the rate parameter should be set to auryn_timestep/tau.
+			 * */
 			void follow(AurynVector<T,IndexType> * v, const T rate) 
 			{
 				for ( IndexType i = 0 ; i < size ; ++i ) {
 					data[i] += rate*(v->data[i]-data[i]);
+				}
+			}
+
+			/*! \brief Like follow but with a scalar target value a. */
+			void follow_scalar(const T a, const T rate) 
+			{
+				for ( IndexType i = 0 ; i < size ; ++i ) {
+					data[i] += rate*(a-data[i]);
 				}
 			}
 
@@ -379,6 +432,18 @@ namespace auryn {
 				for ( IndexType i = 0 ; i < size ; ++i ) {
 					data[i] = std::exp(data[i]);
 				}
+			}
+
+
+			/*! \brief Computes sigmoid(beta*(x-thr)) for each vector element and
+			 * stores result in this instance. */
+			void sigmoid(AurynVector * x, const T beta, const T thr)
+			{
+				diff(x,thr);
+				mul(-beta);
+				exp();
+				add(1.0);
+				inv();
 			}
 
 
@@ -648,7 +713,7 @@ namespace auryn {
 				}
 			}
 
-			void set_random_normal(AurynState mean=0.0, AurynState sigma=1.0, unsigned int seed=8721)
+			void add_random_normal(AurynState mean=0.0, AurynState sigma=1.0, unsigned int seed=8721)
 			{
 				if ( seed == 0 )
 					seed = static_cast<unsigned int>(std::time(0));
@@ -658,8 +723,14 @@ namespace auryn {
 				AurynState rv;
 				for ( IndexType i = 0 ; i<size ; ++i ) {
 					rv = die();
-					data[i] = rv;
+					data[i] += rv;
 				}
+			}
+
+			void set_random_normal(AurynState mean=0.0, AurynState sigma=1.0, unsigned int seed=8721)
+			{
+				set_all(0.0);
+				add_random_normal(mean, sigma);
 			}
 
 			/*! \brief Initializes vector elements with Gaussian of unit 
@@ -685,12 +756,31 @@ namespace auryn {
 				return false;
 			}
 
-			/*! \brief Print vector elements jo std out for debugging */
+			/*! \brief Print vector elements to stdout for debugging */
 			void print() {
 				for ( IndexType i = 0 ; i < size ; ++i ) {
 					std::cout << get(i) << " ";
 				}
 				std::cout << std::endl;
+			}
+
+			/*! \brief Print vector elements to a text file for debugging */
+			void write_to_file(std::string filename) {
+
+				std::ofstream outfile;
+				outfile.open(filename.c_str(),std::ios::out);
+				if (!outfile) {
+					std::stringstream oss;
+					throw AurynOpenFileException();
+				}
+
+				outfile << std::setprecision(7);
+
+				for ( IndexType i = 0 ; i < size ; ++i ) {
+					outfile << get(i) << "\n";
+				}
+
+				outfile.close();
 			}
 	};
 

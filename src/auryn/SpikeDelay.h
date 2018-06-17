@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2017 Friedemann Zenke
+* Copyright 2014-2018 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -69,6 +69,12 @@ class SpikeDelay
 
 		static AurynTime * clock_ptr;
 
+		/*! \brief Stores the size of the delay line in AurynTime.
+		 *
+		 * Note that at least one element would needed even if there was no delay. 
+		 * However, typically the delay has to be at least 1 timestep. 
+		 * Therefore ndelay is typically delay+1.
+		 * */
 		unsigned int ndelay;
 		void free();
 
@@ -76,7 +82,7 @@ class SpikeDelay
 
 
 		/*! \brief The default constructor. */
-		SpikeDelay( int delaysteps = MINDELAY+1 );
+		SpikeDelay( int delaysteps=MINDELAY );
 
 		/*! \brief The default destructor. */
 		virtual ~SpikeDelay();
@@ -84,7 +90,7 @@ class SpikeDelay
 		/*! \brief Set delay in number of timesteps. 
 		 *
 		 * This allows to set the size of the delay in timesteps. The delay has to be at least of
-		 * size MINDELAY+1. */
+		 * size MINDELAY. */
 		void set_delay( int delay );
 
 		/*! \brief Get delay time in AurynTime

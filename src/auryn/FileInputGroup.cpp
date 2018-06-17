@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2017 Friedemann Zenke
+* Copyright 2014-2018 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -48,10 +48,11 @@ FileInputGroup::FileInputGroup(NeuronID n, std::string filename,
 		bool loop, AurynFloat delay) 
 : SpikingGroup( n , RANKLOCK )
 {
+	init();
 	playinloop = loop;
+	if ( playinloop ) set_loop_grid(auryn_timestep);
 	time_delay = (AurynTime) (delay/auryn_timestep);
 	time_offset = 0;
-	init();
 	load_spikes(filename);
 }
 

@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2017 Friedemann Zenke
+* Copyright 2014-2018 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -91,22 +91,16 @@ void PatternMonitor::execute()
 			for ( std::vector<type_pattern>::iterator pattern = patterns->begin() ; 
 					pattern != patterns->end() ; ++pattern ) { 
 				double sum = 0.;
-				NeuronID act = 0;
 				for ( type_pattern::iterator piter = pattern->begin() ; piter != pattern->end() ; ++piter ) {
 					if ( counter[piter->i] > 0 ) {
 						sum += counter[piter->i];
-						act++;
 					}
 				}
 				double mean = sum/pattern->size();
-				outfile << " " << mean/bsize << " " << 1.0*act/pattern->size();
+				outfile << " " << mean/bsize;
 			}
 
-			NeuronID act = 0;
-			for ( NeuronID i = 0 ; i < src->get_rank_size() ; ++i )
-				if (counter[i]) act++;
-
-			outfile << " " << 1.0*act/src->get_rank_size() << "\n"; // total activation
+			outfile << "\n"; //newline
 
 			// reset counter
 			for ( NeuronID i = 0 ; i < src->get_rank_size() ; ++i )

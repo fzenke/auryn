@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2017 Friedemann Zenke
+* Copyright 2014-2018 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -49,7 +49,7 @@ private:
 	auryn_vector_float * bg_current;
 	auryn_vector_ushort * ref;
 	unsigned short refractory_time;
-	AurynFloat e_rest,e_rev,thr,tau_mem;
+	AurynFloat e_rest,thr,tau_mem;
 	AurynFloat scale_mem;
 
 	AurynFloat * t_bg_cur; 

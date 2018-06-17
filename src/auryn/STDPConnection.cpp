@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2017 Friedemann Zenke
+* Copyright 2014-2018 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -26,7 +26,7 @@ void STDPConnection::init(AurynFloat eta, AurynFloat tau_pre, AurynFloat tau_pos
 {
 	if ( dst->get_post_size() == 0 ) return;
 
-	A = eta; // post-pre
+	A = -eta; // post-pre
 	B = eta; // pre-post
 
 	auryn::logger->parameter("eta",eta);

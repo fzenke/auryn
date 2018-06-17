@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2017 Friedemann Zenke
+* Copyright 2014-2018 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -882,8 +882,7 @@ void ComplexMatrix<T>::scale_row(NeuronID i, T value)
 template <typename T>
 void ComplexMatrix<T>::scale_all(T value)
 {
-	for ( AurynLong i = 0 ; i < n_nonzero ; ++i ) 
-		scale_data( i , value );
+	get_synaptic_state_vector()->scale(value);
 }
 
 template <typename T>

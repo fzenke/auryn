@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2017 Friedemann Zenke
+* Copyright 2014-2018 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -30,6 +30,9 @@
 #include "AurynVector.h"
 #include <fstream>
 #include <string>
+
+#include <boost/archive/binary_oarchive.hpp> 
+#include <boost/archive/binary_iarchive.hpp> 
 
 namespace auryn {
 

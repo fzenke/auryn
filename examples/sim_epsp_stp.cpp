@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2017 Friedemann Zenke
+* Copyright 2014-2018 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -68,7 +68,6 @@ int main(int ac, char* av[])
 	con->set_tau_d(taud);
 	con->set_tau_f(tauf);
 	con->set_ujump(U);
-	con->set_urest(U);
 
 
 	// Sets up recording

@@ -16,6 +16,7 @@ def spike_counts(spikes):
         nspikes[i] += 1
     return nspikes
 
+
 def rates(spikes):
     '''
     Compute firing rates for each neuron
@@ -34,8 +35,10 @@ def rates(spikes):
     nspikes = spike_counts(spikes)
     return 1.0*nspikes/t_diff
 
+
 def rate_hist( spikes, *args, **kwargs ):
     return pl.hist(rates(spikes), *args, **kwargs )
+
 
 def isis(spikes):
     '''
@@ -53,8 +56,10 @@ def isis(spikes):
         last_spikes[i] = t
     return ISIs
 
+
 def isi_hist( spikes, *args, **kwargs ):
     return pl.hist(isis(spikes), *args, **kwargs )
+
 
 def cvisis(spikes):
     '''
@@ -80,7 +85,7 @@ def cvisis(spikes):
         last_spikes[i] = t
 
     cvisi_dist = []
-    for i in xrange(len(sum1)):
+    for i in range(len(sum1)):
         if nspikes[i]<2: continue
         mean = sum1[i]/nspikes[i]
         var  = sum2[i]/(nspikes[i]-1)-mean**2
@@ -88,30 +93,39 @@ def cvisis(spikes):
 
     return cvisi_dist
 
+
 def cvisi_hist( spikes, *args, **kwargs ):
     return pl.hist(cvisis(spikes), *args, **kwargs )
 
-def vogels_plot( spikes ):
+
+def vogels_plot( spikes, nb_bins=15 ):
     '''
     Quickly plots histograms for rate, ISI and CVISI like in Vogels et al. 2005
     '''
 
-    pl.figure(figsize=(10,3))
-    pl.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.2)
-    pl.subplot(131)
-    pl.tick_params( axis='y', which='both', left='off', right='off', labelleft='off') 
-    rate_hist(spikes, color="#00548c", bins=30)
-    pl.xlabel("Rate [Hz]")
+    def remove_frame(ax):
+        ax.get_yaxis().set_visible(False)
+        ax.spines['left'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        ax.spines['top'].set_visible(False)
 
-    pl.subplot(132)
+    pl.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.2)
+    ax = pl.subplot(131)
     pl.tick_params( axis='y', which='both', left='off', right='off', labelleft='off') 
-    isi_hist(spikes, color="#ffcc00", bins=np.logspace(np.log10(1e-3), np.log10(10.0), 30))
+    rate_hist(spikes, color="#00548c", bins=nb_bins)
+    pl.xlabel("Rate [Hz]")
+    remove_frame(ax)
+
+    ax = pl.subplot(132)
+    pl.tick_params( axis='y', which='both', left='off', right='off', labelleft='off') 
+    isi_hist(spikes, color="#ffcc00", bins=np.logspace(np.log10(1e-3), np.log10(10.0), nb_bins))
     pl.gca().set_xscale("log")
     pl.xlabel("ISI [s]")
+    remove_frame(ax)
 
-    pl.subplot(133)
+    ax = pl.subplot(133)
     pl.tick_params( axis='y', which='both', left='off', right='off', labelleft='off') 
-    cvisi_hist(spikes, color="#c4000a", bins=30)
+    cvisi_hist(spikes, color="#c4000a", bins=nb_bins)
     pl.xlabel("CVISI [1]")
-    pl.show()
+    remove_frame(ax)
 

@@ -1,6 +1,6 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import numpy as np
-import pylab as pl
+import matplotlib.pyplot as plt
 from auryntools import *
 
 # This code snipped assumes that you have run the example simulation
@@ -14,10 +14,10 @@ seconds = 0.1
 sf = AurynBinarySpikeFile(filename)
 spikes = np.array(sf.get_last(seconds))
 
-pl.scatter(spikes[:,0], spikes[:,1])
-pl.xlabel("Time [s]")
-pl.ylabel("Neuron ID")
-pl.show()
+plt.scatter(spikes[:,0], spikes[:,1])
+plt.xlabel("Time [s]")
+plt.ylabel("Neuron ID")
+plt.show()
     
 
 

@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2017 Friedemann Zenke
+* Copyright 2014-2018 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -109,8 +109,6 @@
 #include <exception>
 #include <limits>
 
-
-
 #ifndef CODE_ACTIVATE_CILK_INSTRUCTIONS
 #include <x86intrin.h> // SIMD intrinsics (pulls everything you need)
 #else // XMM registers are not supported on the phi platform
@@ -122,21 +120,8 @@
 namespace mpi = boost::mpi;
 #endif
 
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/map.hpp>
-
-#include <boost/archive/text_oarchive.hpp> 
-#include <boost/archive/text_iarchive.hpp> 
-#include <boost/archive/binary_oarchive.hpp> 
-#include <boost/archive/binary_iarchive.hpp> 
-
-#include <boost/random/mersenne_twister.hpp>
-#include <boost/random/variate_generator.hpp>
-#include <boost/random/normal_distribution.hpp>
 
 #include "Logger.h"
-
-
 
 
 namespace auryn {

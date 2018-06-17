@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2017 Friedemann Zenke
+* Copyright 2014-2018 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -41,7 +41,7 @@ namespace auryn {
  * 
  * Instances of this class record the population firing rate of the src SpikingGroup assigned.
  * Binning is done discretely in bins of size bsize that is directly transformed in discrete 
- * AurynTime steps. The default 
+ * AurynTime steps. 
  */
 
 class PatternMonitor : protected Monitor

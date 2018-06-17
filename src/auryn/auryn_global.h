@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2017 Friedemann Zenke
+* Copyright 2014-2018 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -75,13 +75,14 @@ namespace auryn {
 	 * \param logfile_prefix A file prefix (without path) which Auryn will use to generate
 	 * a log file name.
 	 * */
-	void auryn_init(int ac, char* av[], string dir=".", string simulation_name="", string logfile_prefix="" );
+	void auryn_init(int ac, char* av[], string dir=".", string simulation_name="default", string logfile_prefix="", LogMessageType filelog_level=NOTIFICATION, LogMessageType consolelog_level=PROGRESS);
 
-	/*! \brief Initalizes MPI (used internally)
+	/*! \brief Initalizes Auryn base environment (used internally)
 	 *
-	 * This function is called as port of auryn_init and is typically called internally.
+	 * This function is called as port of auryn_init and is typically called internally. 
+	 * It instantiates the global Logger object and initializes the MPI environment.
 	 */
-	void auryn_mpi_init(int ac, char* av[], string dir=".", string logfile_prefix="");
+	void auryn_env_init(int ac, char* av[], string dir=".", string logfile_prefix="", LogMessageType filelog_level=NOTIFICATION, LogMessageType consolelog_level=PROGRESS);
 
 	/*! \brief Initalizes the Auryn kernel (used internally)
 	 *
@@ -90,7 +91,7 @@ namespace auryn {
 	 * Then manual calles of auryn_kernel_init and auryn_kernel_free can be used to reinitalize the kernel
 	 * without closing down the MPI environment.
 	 */
-	void auryn_kernel_init(string dir=".", string simulation_name="");
+	void auryn_kernel_init(string dir=".", string simulation_name="default");
 
 	/*! \brief Cleanly shuts down Auryn simulation environment. 
 	 *
@@ -103,7 +104,7 @@ namespace auryn {
 	 * This function frees the MPI modules and logger. It is usually called by auryn_free()
 	 * \see auryn_kernel_init
 	 */
-	void auryn_mpi_free();
+	void auryn_env_free();
 
 	/*! \brief Frees the current auryn kernel (used interally)
 	 *

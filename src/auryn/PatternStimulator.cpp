@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2017 Friedemann Zenke
+* Copyright 2014-2018 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -81,7 +81,7 @@ void PatternStimulator::propagate()
 		while( !timeseriesfile.eof() && filetime < auryn::sys->get_clock() ) {
 			line.clear();
 			timeseriesfile.getline (buffer,255); 
-			// FIXME This buffer can quickly become to small of read lots of columns
+			// TODO This buffer can quickly become too small of read lots of columns
 			// Instead this section should be re-written to directly read one token/column 
 			// at a time in the loop below. Just making the buffer size large should be avoided 
 			// not to risk buffer overflow or unecessarily large memory consumption on cluster

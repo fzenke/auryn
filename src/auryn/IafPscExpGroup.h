@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2017 Friedemann Zenke
+* Copyright 2014-2018 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -29,6 +29,7 @@
 #include "auryn_definitions.h"
 #include "AurynVector.h"
 #include "NeuronGroup.h"
+#include "ExpCubaSynapse.h"
 #include "System.h"
 
 namespace auryn {
@@ -49,7 +50,6 @@ private:
 
 	AurynFloat tau_mem, r_mem, c_mem;
 	AurynFloat tau_syn;
-	AurynFloat scale_syn;
 	AurynFloat scale_mem;
 
 	AurynFloat * t_mem; 
@@ -72,6 +72,8 @@ public:
 
 	/*! \brief Vector holding neuronspecific synaptic currents */
 	AurynStateVector * syn_current;
+
+	ExpCubaSynapse * synapse_model;
 
 	/*! \brief Temp vector */
 	AurynStateVector * temp;

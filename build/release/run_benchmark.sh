@@ -2,7 +2,7 @@
 
 # Compile code
 make clean
-./bootstrap.sh && make
+./bootstrap.sh && make -j 8
 sleep 2
 
 # Benchmark parameters

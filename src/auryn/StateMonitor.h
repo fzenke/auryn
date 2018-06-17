@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2017 Friedemann Zenke
+* Copyright 2014-2018 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -118,6 +118,13 @@ public:
 
 	/*! \brief Set an absolute time when to stop recording. */
 	void set_stop_time(AurynDouble time=10.0);
+
+	/*! \brief Sets the step size. 
+	 *
+	 * Sets the sampling interval using units of AurynTime.
+	 *
+	 * \param step The step size*/
+	void set_step_size(int step=1);
 
 	virtual ~StateMonitor();
 	void execute();

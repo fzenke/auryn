@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2017 Friedemann Zenke
+* Copyright 2014-2018 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -51,7 +51,7 @@ class CurrentInjector : protected Device
 private:
 
 	/*! Vector storing all the current values */
-	auryn_vector_float * currents;
+	AurynVectorFloat * currents;
 
 	/*! Target membrane */
 	AurynVectorFloat * target_vector;

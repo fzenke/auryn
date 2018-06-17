@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2017 Friedemann Zenke
+* Copyright 2014-2018 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -36,7 +36,6 @@ IafPscExpGroup::IafPscExpGroup(NeuronID size) : NeuronGroup(size)
 void IafPscExpGroup::calculate_scale_constants()
 {
 	scale_mem  = auryn_timestep/tau_mem;
-	scale_syn  = exp(-auryn_timestep/tau_syn);
 }
 
 void IafPscExpGroup::init()
@@ -59,12 +58,13 @@ void IafPscExpGroup::init()
 	default_exc_target_state = syn_current;
 	default_inh_target_state = syn_current;
 
+	synapse_model = new ExpCubaSynapse(this, syn_current, syn_current);
+	synapse_model->set_tau(tau_syn);
 
 	t_mem = mem->ptr( ); 
 	t_ref = ref->ptr( ); 
 
 	clear();
-
 }
 
 void IafPscExpGroup::clear()
@@ -84,6 +84,7 @@ IafPscExpGroup::~IafPscExpGroup()
 {
 	if ( !evolve_locally() ) return;
 
+	delete synapse_model;
 	delete ref;
 }
 
@@ -116,7 +117,7 @@ void IafPscExpGroup::evolve()
 
 	}
 
-	syn_current->scale(scale_syn);
+	synapse_model->evolve();
 }
 
 void IafPscExpGroup::set_tau_mem(AurynFloat taum)

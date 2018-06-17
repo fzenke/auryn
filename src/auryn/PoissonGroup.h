@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2017 Friedemann Zenke
+* Copyright 2014-2018 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -89,4 +89,4 @@ public:
 
 }
 
-#endif /*NEURONGROUP_H_*/
+#endif /*POISSONGROUP_H_*/

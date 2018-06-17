@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2017 Friedemann Zenke
+* Copyright 2014-2018 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -53,7 +53,8 @@ namespace auryn {
 		AurynFloat scale_ampa,scale_gaba, scale_thr;
 		AurynFloat tau_ampa,tau_gaba,tau_nmda;
 		AurynFloat A_ampa,A_nmda;
-		AurynFloat e_rest,e_rev,thr_rest,tau_mem,tau_thr,dthr;
+		AurynFloat thr_rest,tau_mem,tau_thr,dthr;
+		AurynFloat mul_nmda;
 		void init();
 		void free();
 		void calculate_scale_constants();
@@ -61,7 +62,9 @@ namespace auryn {
 		void integrate_linear_nmda_synapses();
 		void check_thresholds();
 	public:
-		AurynFloat e_reset;
+		AurynFloat u_reset; //!< Reset voltage
+		AurynFloat u_rest; //!< Resting potential
+		AurynFloat u_inh_rev; //!< Inhibitory reversal potential 
 		/*! \brief Default constructor.
 		 *
 		 * @param size the size of the group.  
@@ -99,9 +102,19 @@ namespace auryn {
 		/*! Returns the exponential decay time constant of the NMDA conductance.
 		 * The rise is governed by tau_ampa if tau_ampa << tau_nmda. */
 		AurynFloat get_tau_nmda();
-		/*! Set ratio between ampa/nmda contribution to excitatory conductance. */
+
+		/*! \brief Set ratio between ampa/nmda contribution to excitatory conductance. 
+		 *
+		 * This sets the ratio between the integrals between the conductance kernels. */
 		void set_ampa_nmda_ratio(AurynFloat ratio);
+
+		/*! \brief Sets nmda-ampa amplitude ratio
+		 *
+		 * This sets the ratio between the amplitudes of nmda to ampa. */
+		void set_nmda_ampa_current_ampl_ratio(AurynFloat ratio);
+
 		void clear();
+
 		/*! Internally used evolve function. Called by System. */
 		virtual void evolve();
 	};
