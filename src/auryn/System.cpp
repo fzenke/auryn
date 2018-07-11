@@ -321,15 +321,15 @@ void System::evolve()
 
 void System::evolve_connections()
 {
-	for ( std::vector<SpikingGroup *>::const_iterator iter = spiking_groups.begin() ; 
-		  iter != spiking_groups.end() ; 
-		  ++iter ) 
-		(*iter)->evolve_traces(); // evolve only if existing on rank
-
 	for ( std::vector<Connection *>::const_iterator iter = connections.begin() ; 
 			iter != connections.end() ; 
 			++iter )
 		(*iter)->evolve(); 
+
+	for ( std::vector<SpikingGroup *>::const_iterator iter = spiking_groups.begin() ; 
+		  iter != spiking_groups.end() ; 
+		  ++iter ) 
+		(*iter)->evolve_traces(); // evolve only if existing on rank
 }
 
 void System::propagate()
@@ -504,18 +504,25 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 		// Auryn duty cycle
 		evolve(); // Evolve state of NeuronGroups
 		propagate(); // Propagate spikes through connections and implement plasticity
-		execute_devices(); // Calls Monitors for recording or other devices to interfere with sim
 
-		if ( checking ) { // run checkers to break run if needed
+		// Updates the internal state of connection instances 
+		// (eg update synaptic traces etc)
+		// traditionally this is run after propagate for a simpler
+		// implementation of triplet models, however, might consider
+		// changing this in the future
+		evolve_connections(); 
+
+		// Call all Devices and Monitors 
+		execute_devices(); 
+
+		// run checkers and break run if needed
+		if ( checking ) { 
 			if (!execute_checkers()) {
 				return false;
 			}
 		}
 
-		// Updates the internal state of connection instances 
-		// (eg update synaptic traces etc)
-		evolve_connections(); 
-		
+		// increment kernel clock
 		step();	
 
 #ifdef AURYN_CODE_USE_MPI
