@@ -49,8 +49,8 @@ int main(int ac,char *av[]) {
 	std::string strbuf ;
 	std::string msg;
 
-	NeuronID ne = 8000;
-	NeuronID ni = 2000;
+	NeuronID ne = 200000; // ALa changed
+	NeuronID ni = ne/4; // ALa changed
 
 	NeuronID nrec = 50;
 
@@ -198,6 +198,7 @@ int main(int ac,char *av[]) {
 	// 	= new IdentityConnection(pstim_i,neurons_i, w, MEM );
 	
 
+	logger->msg("Setting up E connections ...",PROGRESS,true); // ALa added
 	SparseConnection * con_ee 
 		= new SparseConnection( neurons_e,neurons_e,w,sparseness,MEM);
 
@@ -213,6 +214,7 @@ int main(int ac,char *av[]) {
 	msg = "Setting up monitors ...";
 	logger->msg(msg,PROGRESS,true);
 
+#ifdef RASOUTPUT  // ALa changed
 	std::stringstream filename;
 	filename << outputfile << "e.ras";
 	SpikeMonitor * smon_e = new SpikeMonitor( neurons_e, filename.str().c_str(), nrec);
@@ -221,6 +223,7 @@ int main(int ac,char *av[]) {
 	filename.clear();
 	filename << outputfile << "i.ras";
 	SpikeMonitor * smon_i = new SpikeMonitor( neurons_i, filename.str().c_str(), nrec);
+#endif // RASOUTPUT
 
 	// filename.str("");
 	// filename.clear();
@@ -251,8 +254,10 @@ int main(int ac,char *av[]) {
 	con_ii->sanity_check();
 
 	logger->msg("Simulating ..." ,PROGRESS,true);
+	double start = MPI_Wtime(); // ALa added
 	if (!sys->run(simtime,true)) 
 			errcode = 1;
+	if (sys->mpi_rank()==0) std::cout << "Execution time: " << MPI_Wtime() - start << std::endl; // ALa added
 
 	if ( !save.empty() ) {
 		sys->save_network_state(save);
@@ -262,6 +267,9 @@ int main(int ac,char *av[]) {
 	if (errcode)
 		auryn_abort(errcode);
 
+
+	if (sys->mpi_rank()==0) // ALa added
+	    std::cerr << "Maximum send buffer allocated: " << sys->get_max_send_buffer_size() << std::endl;
 
 	logger->msg("Freeing ..." ,PROGRESS,true);
 	auryn_free();

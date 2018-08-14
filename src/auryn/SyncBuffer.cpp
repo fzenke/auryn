@@ -71,6 +71,7 @@ void SyncBuffer::init()
 	syncCount = 0;
 
 	max_send_size = 4;
+	send_bufx.resize(max_send_size);  // ALa added
 	recv_buf.resize(mpicom->size()*max_send_size);
 
 	reset_send_buffer();
@@ -136,11 +137,51 @@ void SyncBuffer::push(SpikeDelay * delay, const NeuronID size)
 }
 
 
+void SyncBuffer::fixup_recv_buf_size() 
+{
+
+    int ierr = 0,curr_send_buf_size = send_buf.size(),gmax_send_size;
+    bool max_send_size_expanded = false,max_send_size_shrunk = false;
+
+    // max_send_size is used to set size of recv_buffer */
+
+    /* Find and distribute max_send_size */
+    try { 
+	ierr = MPI_Allreduce(&curr_send_buf_size,&gmax_send_size,1,MPI_INT,MPI_MAX,*mpicom);
+    } catch ( MPI::Exception e ) {
+	std::cerr << "fixup_recv_buf_size:Error in Allreduce. " << e.Get_error_string() << e.Get_error_code();
+	MPI::COMM_WORLD.Abort (-1) ;
+    }
+
+    if (gmax_send_size>max_send_size) {
+	max_send_size *=2;
+	if (max_send_size<gmax_send_size) max_send_size = gmax_send_size;
+	max_send_size_expanded = true;
+    } else if (gmax_send_size>1 && gmax_send_size<max_send_size/4) {
+	max_send_size /= 4;
+	if (max_send_size<1) max_send_size = 1;
+	max_send_size_shrunk = true;
+	}
+
+    if (max_send_size_expanded || max_send_size_shrunk) {
+	recv_buf.resize(mpicom->size()*(max_send_size+2));
+	send_bufx.resize((max_send_size));
+    }
+}
+
 void SyncBuffer::null_terminate_send_buffer()
 {
 	// puts a "delta spike" just behind the last unrolled delay of the last group
 	// std::cout << " term " << carry_offset << std::endl;
 	send_buf.push_back(carry_offset);
+}
+
+void SyncBuffer::update_send_bufx() // ALa added
+{
+	if (send_bufx.size()!=max_send_size) send_bufx.resize(max_send_size);
+	
+	fill(send_bufx.begin(),send_bufx.end(),0);
+	for (size_t i=0; i<send_buf.size(); i++) send_bufx[i] = send_buf[i];
 }
 
 NeuronID * SyncBuffer::read_delta_spike_from_buffer(NeuronID * iter, SYNCBUFFER_DELTA_DATATYPE & delta)
@@ -277,11 +318,13 @@ void SyncBuffer::sync()
     T1 = MPI_Wtime();     /* start time */
 #endif
 	if ( send_buf.size() <= max_send_size ) {
-		ierr = MPI_Allgather(send_buf.data(), send_buf.size(), MPI_UNSIGNED, 
+// 		ierr = MPI_Allgather(send_buf.data(), send_buf.size(), MPI_UNSIGNED,          // ALa changed
+// 				recv_buf.data(), max_send_size, MPI_UNSIGNED, *mpicom);
+		ierr = MPI_Allgather(send_bufx.data(), max_send_size, MPI_UNSIGNED, 
 				recv_buf.data(), max_send_size, MPI_UNSIGNED, *mpicom);
 	} else { 
 		// Create an overflow package 
-		// std::cout << " overflow " << overflow_value << " " << send_buf.size() << std::endl;
+		std::cout << " overflow " << overflow_value << " " << send_buf.size() << std::endl;
 		NeuronID overflow_data [2]; 
 		overflow_data[0] = overflow_value;
 		overflow_data[1] = send_buf.size(); 
@@ -292,8 +335,21 @@ void SyncBuffer::sync()
 
 	// error handling
 	if ( ierr ) {
-		std::cerr << "Error during MPI_Allgather." << std::endl;
+		std::cerr << "Error during MPI_Allgather " << std::endl;
+
+		switch (ierr) {
+
+		case MPI_ERR_COMM: std::cerr << "(MPI_ERR_COMM)." ; break;
+		case MPI_ERR_COUNT: std::cerr << "(MPI_ERR_COUNT)." ; break;
+		case MPI_ERR_TYPE: std::cerr << "(MPI_ERR_TYPE)." ; break;
+		case MPI_ERR_BUFFER: std::cerr << "(MPI_ERR_BUFFER)." ; break;
+		default: std::cerr << "ierr = " << ierr ; break;
+		}
+		std::cerr << std::endl;
+
 		// TODO add an exception to actually break the run here
+
+		MPI::COMM_WORLD.Abort(-1) ;
 	}
 
 #ifdef CODE_COLLECT_SYNC_TIMING_STATS
@@ -327,7 +383,9 @@ void SyncBuffer::sync()
 		max_send_size = new_send_size+2;
 		recv_buf.resize(mpicom->size()*max_send_size);
 		// resend full buffer
-		ierr = MPI_Allgather(send_buf.data(), send_buf.size(), MPI_UNSIGNED, 
+// 		ierr = MPI_Allgather(send_buf.data(), send_buf.size(), MPI_UNSIGNED,         // ALa changed
+// 		 		recv_buf.data(), max_send_size, MPI_UNSIGNED, *mpicom);
+		ierr = MPI_Allgather(send_bufx.data(), max_send_size, MPI_UNSIGNED, 
 		 		recv_buf.data(), max_send_size, MPI_UNSIGNED, *mpicom);
 	} 
 

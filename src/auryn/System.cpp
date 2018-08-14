@@ -289,6 +289,10 @@ void System::sync()
 	// tim.tv_nsec = 500000L;
 	// nanosleep(&tim,&tim2);
 	
+	syncbuffer->fixup_recv_buf_size(); // ALa changed
+
+	syncbuffer->update_send_bufx(); // ALa changed
+
 	syncbuffer->sync();
 	for ( iter = spiking_groups.begin() ; iter != spiking_groups.end() ; ++iter ) 
 		syncbuffer->pop((*iter)->delay,(*iter)->get_size()); 
@@ -1023,4 +1027,10 @@ unsigned int System::get_synced_seed()
 #endif // AURYN_CODE_USE_MPI
 	// std::cout << mpi_rank() << " " << value << std::endl;
 	return value;
+}
+
+int System::get_max_send_buffer_size() {
+
+    return syncbuffer->get_max_send_buffer_size();
+
 }
