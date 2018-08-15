@@ -71,7 +71,7 @@ void SyncBuffer::init()
 	syncCount = 0;
 
 	max_send_size = 4;
-	recv_buf.resize(mpicom->size()*max_send_size);
+	resize_buffers(max_send_size);
 
 	reset_send_buffer();
 
@@ -252,13 +252,13 @@ void SyncBuffer::pop(SpikeDelay * delay, const NeuronID size)
 void SyncBuffer::sync() 
 {
 	if ( syncCount >= SYNCBUFFER_SIZE_HIST_LEN ) {  // update the estimate of maximum send size
-		NeuronID mean_send_size =  maxSendSum/syncCount; 
-		NeuronID var_send_size  =  (maxSendSum2-mean_send_size*mean_send_size)/syncCount;
-		NeuronID upper_estimate =  mean_send_size+SYNCBUFFER_SIZE_MARGIN_MULTIPLIER*sqrt(var_send_size);
+		const NeuronID mean_send_size =  maxSendSum/syncCount; 
+		const NeuronID var_send_size  =  (maxSendSum2-mean_send_size*mean_send_size)/syncCount;
+		const NeuronID upper_estimate =  mean_send_size+SYNCBUFFER_SIZE_MARGIN_MULTIPLIER*std::sqrt(var_send_size);
 
 		if ( max_send_size > upper_estimate && max_send_size > 4 ) { 
 			max_send_size = (max_send_size+upper_estimate)/2;
-			recv_buf.resize(mpicom->size()*max_send_size);
+			resize_buffers(max_send_size);
 #ifdef DEBUG
 			std::cerr << "Reducing maximum send buffer size to "
 				<< max_send_size
@@ -277,8 +277,10 @@ void SyncBuffer::sync()
     T1 = MPI_Wtime();     /* start time */
 #endif
 	if ( send_buf.size() <= max_send_size ) {
-		ierr = MPI_Allgather(send_buf.data(), send_buf.size(), MPI_UNSIGNED, 
+		ierr = MPI_Allgather(send_buf.data(), send_buf.size(), MPI_UNSIGNED,  
 				recv_buf.data(), max_send_size, MPI_UNSIGNED, *mpicom);
+		// FIXME the previous line might be causing the problems in Anders' code.
+		// We might have to make the send buffer size the same on all ranks to be standard conform.
 	} else { 
 		// Create an overflow package 
 		// std::cout << " overflow " << overflow_value << " " << send_buf.size() << std::endl;
@@ -325,7 +327,7 @@ void SyncBuffer::sync()
 			<< std::endl;
 #endif //DEBUG
 		max_send_size = new_send_size+2;
-		recv_buf.resize(mpicom->size()*max_send_size);
+		resize_buffers(max_send_size);
 		// resend full buffer
 		ierr = MPI_Allgather(send_buf.data(), send_buf.size(), MPI_UNSIGNED, 
 		 		recv_buf.data(), max_send_size, MPI_UNSIGNED, *mpicom);
@@ -355,6 +357,12 @@ void SyncBuffer::reset_send_buffer()
 		pop_offsets[i] = 0;
 		pop_delta_spikes[i] = undefined_delta_size;
 	}
+}
+
+void SyncBuffer::resize_buffers(NeuronID send_size)
+{
+	send_buf.reserve(send_size);
+	recv_buf.resize(mpicom->size()*send_size);
 }
 
 int SyncBuffer::get_max_send_buffer_size()

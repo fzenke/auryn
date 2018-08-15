@@ -86,6 +86,7 @@ namespace auryn {
 			NeuronID * pop_offsets;
 
 			void reset_send_buffer();
+			void resize_buffers(NeuronID send_size);
 
 			void init();
 			void free();
