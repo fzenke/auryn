@@ -48,6 +48,8 @@ void SyncBuffer::init()
 	/* Overflow value for syncbuffer */
 	overflow_value = std::numeric_limits<NeuronID>::max();
 
+	overflow_counter = 0;
+
 	/* Maximum delta size. We make this one smaller than max to avoid problems 
 	 * if the datatype is the same as NeuronID and then the max corresponds
 	 * to the overflow value in send buffer ... */
@@ -295,7 +297,15 @@ void SyncBuffer::sync()
 	// error handling
 	if ( ierr ) {
 		std::cerr << "Error during MPI_Allgather." << std::endl;
-		// TODO add an exception to actually break the run here
+		switch (ierr) {
+			case MPI_ERR_COMM: std::cerr << "(MPI_ERR_COMM)." ; break;
+			case MPI_ERR_COUNT: std::cerr << "(MPI_ERR_COUNT)." ; break;
+			case MPI_ERR_TYPE: std::cerr << "(MPI_ERR_TYPE)." ; break;
+			case MPI_ERR_BUFFER: std::cerr << "(MPI_ERR_BUFFER)." ; break;
+			default: std::cerr << "ierr = " << ierr ; break;
+		}
+		std::cerr << std::endl;
+		MPI::COMM_WORLD.Abort(-1);
 	}
 
 #ifdef CODE_COLLECT_SYNC_TIMING_STATS
@@ -320,12 +330,13 @@ void SyncBuffer::sync()
 	if ( overflow ) {
 #ifdef DEBUG
 		std::cerr << "Overflow in SyncBuffer adapting buffersize to "
-			<< (new_send_size+1)*sizeof(NeuronID)
+			<< (new_send_size+2)*sizeof(NeuronID)
 			<< " ( "
-			<< mpicom->size()*(new_send_size+1)*sizeof(NeuronID)
+			<< mpicom->size()*(new_send_size+2)*sizeof(NeuronID)
 			<< " total ) " 
 			<< std::endl;
 #endif //DEBUG
+		++overflow_counter;
 		max_send_size = new_send_size+2;
 		resize_buffers(max_send_size);
 		// resend full buffer
@@ -368,6 +379,11 @@ void SyncBuffer::resize_buffers(NeuronID send_size)
 int SyncBuffer::get_max_send_buffer_size()
 {
 	return max_send_size;
+}
+
+int SyncBuffer::get_overflow_count()
+{
+	return overflow_counter;
 }
 
 #ifdef CODE_COLLECT_SYNC_TIMING_STATS
