@@ -68,12 +68,12 @@ namespace auryn {
 
 
 			// NeuronID size_history[SYNCBUFFER_SIZE_HIST_LEN];
-			NeuronID maxSendSum;
-			NeuronID maxSendSum2;
-			NeuronID syncCount;
+			unsigned int max_send_sum;
+			unsigned int max_send_sum2;
+			unsigned int sync_counter;
 
 			/*! \brief The send buffer size that all ranks agree upon */
-			NeuronID max_send_size;
+			unsigned int max_send_size;
 
 			mpi::communicator * mpicom;
 
@@ -84,10 +84,10 @@ namespace auryn {
 			SYNCBUFFER_DELTA_DATATYPE * last_spike_pos;
 
 			/*! \brief vector with offset values to allow to pop more than one delay */
-			NeuronID * pop_offsets;
+			unsigned int * pop_offsets;
 
 			void reset_send_buffer();
-			void resize_buffers(NeuronID send_size);
+			void resize_buffers(unsigned int send_size);
 
 			void init();
 			void free();
@@ -119,6 +119,9 @@ namespace auryn {
 
 			/*! \brief Return max_send_size value which determines the size of the MPI AllGather operation. */
 			int get_max_send_buffer_size();	
+
+			/*! \brief Return sync count since object instantiation. */
+			unsigned int get_sync_count();	
 
 			/*! \brief Return overflow count since object instantiation. */
 			unsigned int get_overflow_count();	

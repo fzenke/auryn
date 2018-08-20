@@ -68,9 +68,9 @@ void SyncBuffer::init()
 	}
 
 
-	maxSendSum = 0;
-	maxSendSum2 = 0;
-	syncCount = 0;
+	max_send_sum = 0;
+	max_send_sum2 = 0;
+	sync_counter = 0;
 
 	max_send_size = 4;
 	resize_buffers(max_send_size);
@@ -253,9 +253,9 @@ void SyncBuffer::pop(SpikeDelay * delay, const NeuronID size)
 
 void SyncBuffer::sync() 
 {
-	if ( syncCount >= SYNCBUFFER_SIZE_HIST_LEN ) {  // update the estimate of maximum send size
-		const NeuronID mean_send_size =  maxSendSum/syncCount; 
-		const NeuronID var_send_size  =  (maxSendSum2-mean_send_size*mean_send_size)/syncCount;
+	if ( sync_counter >= SYNCBUFFER_SIZE_HIST_LEN ) {  // update the estimate of maximum send size
+		const NeuronID mean_send_size =  max_send_sum/sync_counter; 
+		const NeuronID var_send_size  =  (max_send_sum2-mean_send_size*mean_send_size)/sync_counter;
 		const NeuronID upper_estimate =  mean_send_size+SYNCBUFFER_SIZE_MARGIN_MULTIPLIER*std::sqrt(var_send_size);
 
 		if ( max_send_size > upper_estimate && max_send_size > 4 ) { 
@@ -267,9 +267,9 @@ void SyncBuffer::sync()
 				<< std::endl;
 #endif //DEBUG
 		}	
-		maxSendSum = 0;
-		maxSendSum2 = 0;
-		syncCount = 0;
+		max_send_sum = 0;
+		max_send_sum2 = 0;
+		sync_counter = 0;
 	}
 
 	int ierr = 0;
@@ -349,11 +349,11 @@ void SyncBuffer::sync()
 	for ( int i = 0 ; i < mpicom->size() ; ++i ) { 
 		largest_message = std::max(pop_offsets[i],largest_message);
 	}
-	maxSendSum += largest_message;
-	maxSendSum2 += largest_message*largest_message;
+	max_send_sum  += largest_message;
+	max_send_sum2 += largest_message*largest_message;
 
 
-	syncCount++;
+	sync_counter++;
 
 	reset_send_buffer();
 }
@@ -381,9 +381,14 @@ int SyncBuffer::get_max_send_buffer_size()
 	return max_send_size;
 }
 
-int SyncBuffer::get_overflow_count()
+unsigned int SyncBuffer::get_overflow_count()
 {
 	return overflow_counter;
+}
+
+unsigned int SyncBuffer::get_sync_count()
+{
+	return sync_counter;
 }
 
 #ifdef CODE_COLLECT_SYNC_TIMING_STATS
