@@ -61,6 +61,7 @@ namespace auryn {
 			std::vector<NeuronID> recv_buf;
 
 			NeuronID overflow_value;
+			unsigned int overflow_counter;
 
 			SYNCBUFFER_DELTA_DATATYPE max_delta_size;
 			SYNCBUFFER_DELTA_DATATYPE undefined_delta_size;
@@ -118,6 +119,9 @@ namespace auryn {
 
 			/*! \brief Return max_send_size value which determines the size of the MPI AllGather operation. */
 			int get_max_send_buffer_size();	
+
+			/*! \brief Return overflow count since object instantiation. */
+			unsigned int get_overflow_count();	
 
 #ifdef CODE_COLLECT_SYNC_TIMING_STATS
 			AurynDouble deltaT;
