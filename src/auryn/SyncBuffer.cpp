@@ -279,17 +279,25 @@ void SyncBuffer::sync()
     T1 = MPI_Wtime();     /* start time */
 #endif
 	if ( send_buf.size() <= max_send_size ) {
-		ierr = MPI_Allgather(send_buf.data(), send_buf.size(), MPI_UNSIGNED,  
+		// ierr = MPI_Allgather(send_buf.data(), send_buf.size(), MPI_UNSIGNED, 
+		ierr = MPI_Allgather(send_buf.data(), max_send_size, MPI_UNSIGNED,  
 				recv_buf.data(), max_send_size, MPI_UNSIGNED, *mpicom);
-		// FIXME the previous line might be causing the problems in Anders' code.
-		// We might have to make the send buffer size the same on all ranks to be standard conform.
+		// The previous lines were changed to always send max_send_size because different sendcount 
+		// sizes across ranks seemingly caused problems in Anders Lansner's code.
 	} else { 
 		// Create an overflow package 
 		// std::cout << " overflow " << overflow_value << " " << send_buf.size() << std::endl;
-		NeuronID overflow_data [2]; 
+		// NeuronID overflow_data [2]; 
+		// overflow_data[0] = overflow_value;
+		// overflow_data[1] = send_buf.size(); 
+		// ierr = MPI_Allgather(&overflow_data, 2, MPI_UNSIGNED, 
+		// 		recv_buf.data(), max_send_size, MPI_UNSIGNED, *mpicom);
+		
+		// Changed for the same reasons as the lines above ... 	
+		NeuronID overflow_data [max_send_size]; 
 		overflow_data[0] = overflow_value;
 		overflow_data[1] = send_buf.size(); 
-		ierr = MPI_Allgather(&overflow_data, 2, MPI_UNSIGNED, 
+		ierr = MPI_Allgather(&overflow_data, max_send_size, MPI_UNSIGNED, 
 				recv_buf.data(), max_send_size, MPI_UNSIGNED, *mpicom);
 	}
 
@@ -340,7 +348,8 @@ void SyncBuffer::sync()
 		max_send_size = new_send_size+2;
 		resize_buffers(max_send_size);
 		// resend full buffer
-		ierr = MPI_Allgather(send_buf.data(), send_buf.size(), MPI_UNSIGNED, 
+		// ierr = MPI_Allgather(send_buf.data(), send_buf.size(), MPI_UNSIGNED, 
+		ierr = MPI_Allgather(send_buf.data(), max_send_size, MPI_UNSIGNED, 
 		 		recv_buf.data(), max_send_size, MPI_UNSIGNED, *mpicom);
 	} 
 
