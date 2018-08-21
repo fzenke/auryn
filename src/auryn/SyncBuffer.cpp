@@ -255,7 +255,7 @@ void SyncBuffer::sync()
 {
 	if ( sync_counter >= SYNCBUFFER_SIZE_HIST_LEN ) {  // update the estimate of maximum send size
 		const NeuronID mean_send_size =  max_send_sum/sync_counter; 
-		const NeuronID var_send_size  =  (max_send_sum2-mean_send_size*mean_send_size)/sync_counter;
+		const NeuronID var_send_size  =  (max_send_sum2/sync_counter-mean_send_size*mean_send_size);
 		const NeuronID upper_estimate =  mean_send_size+SYNCBUFFER_SIZE_MARGIN_MULTIPLIER*std::sqrt(var_send_size);
 
 		if ( max_send_size > upper_estimate && max_send_size > 4 ) { 
