@@ -199,8 +199,19 @@ void System::free()
 
 
 #ifdef AURYN_CODE_USE_MPI
-	if ( syncbuffer != NULL )
+	if ( syncbuffer != NULL ) {
+		if ( syncbuffer->get_sync_count() > 0 && mpi_rank()==0 ) {
+			const double relative_overflow_rate = 1.0*syncbuffer->get_overflow_count()/get_clock()*MINDELAY;
+			std::stringstream oss;
+			oss << "System:: Freeing SyncBuffer (overflow count="
+				<< syncbuffer->get_overflow_count() << ", "
+				<< std::scientific << std::setprecision(5) 
+				<< "rel. overflow rate=" << relative_overflow_rate << ")";
+			logger->info(oss.str()); 
+		}
+		logger->debug("System:: Freeing SyncBuffer");
 		delete syncbuffer;
+	}
 #endif // AURYN_CODE_USE_MPI
 
     delete seed_dist;
@@ -469,7 +480,7 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 
 	    if ( (mpi_rank()==0) && (not quiet) && ( (get_clock()%progressbar_update_interval==0) || get_clock()==(stoptime-1) ) ) {
 			double fraction = 1.0*(get_clock()-starttime+1)*auryn_timestep/total_time;
-			progressbar(fraction,get_clock()); // TODO find neat solution for the rate
+			progressbar(fraction, get_clock()); // TODO find neat solution for the rate
 		}
 
 		if ( get_clock()%LOGGER_MARK_INTERVAL==0 && get_clock()>0 ) // set a mark 
