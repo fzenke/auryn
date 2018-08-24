@@ -139,6 +139,8 @@ int main(int ac,char *av[]) {
 	string outputfile = oss.str();
 	if ( fast ) sys->quiet = true;
 
+	logger->set_logfile_loglevel(INFO);
+
 
 	logger->msg("Setting up neuron groups ...",PROGRESS,true);
 
