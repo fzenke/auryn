@@ -1,0 +1,12 @@
+module add git
+module sw PrgEnv-cray PrgEnv-gnu
+module add cdt/17.10
+module add cmake
+module add boost
+
+export CC=cc
+export CXX=CC
+export MPICC=cc
+export MPICXX=CC
+
+

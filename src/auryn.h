@@ -67,6 +67,7 @@
 #include "auryn/STPConnection.h"
 #include "auryn/ABSConnection.h"
 #include "auryn/DuplexConnection.h"
+#include "auryn/BcpnnConnection.h"
 #include "auryn/TripletConnection.h"
 #include "auryn/LPTripletConnection.h"
 #include "auryn/TripletDecayConnection.h"
