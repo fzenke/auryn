@@ -60,12 +60,13 @@ int main(int ac, char* av[])
 	double simtime = 10.;
 
 	NeuronID nbinputs = 100;
-	NeuronID size = 10;
+	NeuronID size = 25;
 	unsigned int seed = 1;
 	double kappa = 20;
 	AurynFloat sparseness = 0.6;
-	AurynWeight winit = 0.03;
-	AurynWeight winit2 = 0.05;
+	AurynWeight winit = 0.04;
+	AurynWeight winit2 = 0.04;
+	bool nomon = false;
 
 	double tau_pre = 20e-3; // stdp window decay (pre-post part)
 	double tau_z_pr = 25e-3; // Bcpnn tau_zi decay
@@ -88,6 +89,7 @@ int main(int ac, char* av[])
             ("nbinputs", po::value<int>(), "number of Poisson inputs")
             ("size", po::value<int>(), "number of neurons")
             ("seed", po::value<int>(), "random seed")
+            ("nomon", po::value<bool>(), "if 'true' no monitorint of state variables")
         ;
 
         po::variables_map vm;        
@@ -95,62 +97,47 @@ int main(int ac, char* av[])
         po::notify(vm);    
 
         if (vm.count("help")) {
-            std::cout << desc << "\n";
             return 1;
         }
 
         if (vm.count("kappa")) {
-            std::cout << "kappa set to " 
-                 << vm["kappa"].as<double>() << ".\n";
 			kappa = vm["kappa"].as<double>();
         } 
 
         if (vm.count("dir")) {
-            std::cout << "dir set to " 
-                 << vm["dir"].as<string>() << ".\n";
 			dir = vm["dir"].as<string>();
         } 
 
         if (vm.count("simtime")) {
-            std::cout << "simtime set to " 
-                 << vm["simtime"].as<double>() << ".\n";
 			simtime = vm["simtime"].as<double>();
         } 
 
         if (vm.count("sparseness")) {
-            std::cout << "sparseness set to " 
-                 << vm["sparseness"].as<double>() << ".\n";
 			sparseness = vm["sparseness"].as<double>();
         } 
 
         if (vm.count("winit")) {
-            std::cout << "winit set to " 
-                 << vm["winit"].as<double>() << ".\n";
 			winit = vm["winit"].as<double>();
         } 
 
         if (vm.count("winit2")) {
-            std::cout << "winit2 set to " 
-                 << vm["winit2"].as<double>() << ".\n";
 			winit2 = vm["winit2"].as<double>();
         } 
 
         if (vm.count("nbinputs")) {
-            std::cout << "nbinputs set to " 
-                 << vm["nbinputs"].as<int>() << ".\n";
 			nbinputs = vm["nbinputs"].as<int>();
         } 
 
         if (vm.count("size")) {
-            std::cout << "size set to " 
-                 << vm["size"].as<int>() << ".\n";
 			size = vm["size"].as<int>();
         } 
 
         if (vm.count("seed")) {
-            std::cout << "seed set to " 
-                 << vm["seed"].as<int>() << ".\n";
 			seed = vm["seed"].as<int>();
+        } 
+
+        if (vm.count("nomon")) {
+			nomon = vm["nomon"].as<bool>();
         } 
     }
     catch(std::exception& e) {
@@ -171,16 +158,11 @@ int main(int ac, char* av[])
 	PoissonGroup * poisson = new PoissonGroup(nbinputs, kappa);
 	TIFGroup * prneurons = new TIFGroup(nbinputs);
 
-	float refractory_period = 5e-3;
-	std::cerr << "Refractory time of TIF neurons = " << refractory_period << " sec" << std::endl;
+	float refractory_period = 5e-3; // Refractory time of TIF neurons = 0.005 sec
 
 	TIFGroup * poneurons = new TIFGroup(size);
 
 	SparseConnection *sp1_con = new SparseConnection(poisson,prneurons,winit,sparseness);
-
-	// point online rate monitor to neurons
-	// sys->set_online_rate_monitor_id(prneurons->get_uid());
-	// sys->set_online_rate_monitor_id(poneurons->get_uid());
 
 	SparseConnection *sp2_con = new SparseConnection(prneurons,poneurons,winit2,sparseness);
 
@@ -191,32 +173,57 @@ int main(int ac, char* av[])
 
 	// Monitors
 
-	StateMonitor * zi_mon = new StateMonitor(prneurons->get_pre_trace(tau_z_pr),5,"zi.txt");
-	StateMonitor * zj_mon = new StateMonitor(poneurons->get_post_trace(tau_z_po),5,"zj.txt");
-	StateMonitor * pi_mon = new StateMonitor(prneurons->get_state_vector("tr_p_pre"),5,"pi.txt");
-	StateMonitor * pj_mon = new StateMonitor(poneurons->get_state_vector("tr_p_post"),5,"pj.txt");
+	if (not nomon) {
 
-	StateMonitor * bias_mon = new StateMonitor(poneurons->get_state_vector("w"),5,"bj.txt");
+		// point online rate monitor to neurons
+		// sys->set_online_rate_monitor_id(prneurons->get_uid());
+		// sys->set_online_rate_monitor_id(poneurons->get_uid());
 
-	// // Record spikes
-   	SpikeMonitor * smon_pr = new SpikeMonitor(prneurons,"prspikes.txt");
-	SpikeMonitor * smon_po = new SpikeMonitor(poneurons,"pospikes.txt");
+		int ipre = 99,ipost = 17;
+		if (nbinputs<ipre) {
+			logger->msg("ERROR in main: nbinputs<ipre",PROGRESS,true);
+			auryn_abort(4711);
+		}
+		if (size<ipost) {
+			logger->msg("ERROR in main: size<ipost",PROGRESS,true);
+			auryn_abort(4712);
+		}
 
-	VoltageMonitor * vmon_pr = new VoltageMonitor(prneurons,5,"vmem_pr.txt");
-	VoltageMonitor * vmon_po = new VoltageMonitor(poneurons,5,"vmem_po.txt");
+		StateMonitor * zi_mon = new StateMonitor(prneurons->get_pre_trace(tau_z_pr),ipre,sys->fn("zi"));
+		StateMonitor * zj_mon = new StateMonitor(poneurons->get_post_trace(tau_z_po),ipost,sys->fn("zj"));
+
+		StateMonitor * pj_mon = new StateMonitor(poneurons->get_state_vector("tr_p_post"),ipost,sys->fn("pj"));
+		StateMonitor * bias_mon = new StateMonitor(poneurons->get_state_vector("w"),ipost,sys->fn("bj"));
+
+		// // Record spikes
+		SpikeMonitor * smon_pr = new SpikeMonitor(prneurons,sys->fn("prspikes"));
+		SpikeMonitor * smon_po = new SpikeMonitor(poneurons,sys->fn("pospikes"));
+
+		VoltageMonitor * vmon_pr = new VoltageMonitor(prneurons,ipre,sys->fn("vmem_pr"));
+		VoltageMonitor * vmon_po = new VoltageMonitor(poneurons,ipost,sys->fn("vmem_po"));
 	
-    // // Record input firing rate (sample every 1s)
-	PopulationRateMonitor * pmon_in = new PopulationRateMonitor(prneurons,"prrate.txt", 0.1 );
+		// // Record input firing rate (sample every 1s)
+		PopulationRateMonitor * pmon_in = new PopulationRateMonitor(prneurons,sys->fn("prrate"), 0.1 );
 	
-    // // Record output firing rate (sample every 1s)
-	PopulationRateMonitor * pmon_ut = new PopulationRateMonitor(poneurons,"porate.txt", 0.1 );
+		// // Record output firing rate (sample every 1s)
+		PopulationRateMonitor * pmon_ut = new PopulationRateMonitor(poneurons,sys->fn("porate"), 0.1 );
 	
-	// Record individual synaptic weights (sample every 10 ms)
-	WeightMonitor * pijmon = new WeightMonitor(bcpnn_con,5,5,"pij.txt",0.01,SINGLE,1);
-	WeightMonitor * wijmon = new WeightMonitor(bcpnn_con,5,5,"wij.txt",0.01,SINGLE,0);
+		// Record individual synaptic weights (sample every 10 ms)
+		WeightMonitor * pimon = new WeightMonitor(bcpnn_con,ipre,ipost,sys->fn("pi"),0.01,SINGLE,2);
+		WeightMonitor * pijmon = new WeightMonitor(bcpnn_con,ipre,ipost,sys->fn("pij"),0.01,SINGLE,1);
+		WeightMonitor * wijmon = new WeightMonitor(bcpnn_con,ipre,ipost,sys->fn("wij"),0.01,SINGLE,0);
+
+	}
+
+	MPI_Barrier(MPI::COMM_WORLD);
+
+	double start = MPI::Wtime();
 
 	// Run simulation
 	if (!sys->run(simtime)) errcode = 1;
+
+	if (sys->mpi_rank()==0)
+		std::cerr << "Execution time = " << MPI::Wtime() - start << " sec\n";	  
 
 	// Close Auryn
 	logger->msg("Freeing ...",PROGRESS,true);

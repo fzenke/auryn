@@ -25,5 +25,5 @@ clean:
 	rm *.o sim_bcpnn_1
 
 clean2:
-	rm -f *.txt *.log *~
+	rm -f sim_bcpnn\.* *.log *~
 

@@ -47,11 +47,14 @@ void BcpnnConnection::init(AurynFloat tau_pre,AurynFloat tau_z_pre, AurynFloat t
 	tr_z_pre = src->get_pre_trace(tau_z_pre);
 	tr_z_pre->set_kinc(kinc_z_pre);
 
-	// bcpnn_pi trace
+	w->set_num_synapse_states(3);
+	zid_wij = 0;
+	zid_pij = 1;
+	zid_pi = 2;
+
     kinc_p = 1 - exp(-auryn_timestep/tau_p);
-	tr_p_pre = src->get_post_state_trace(tr_z_pre,tau_p);
-	tr_p_pre->set_kinc(kinc_p);
-	src->add_state_vector("tr_p_pre",tr_p_pre);
+
+	// bcpnn_pi trace in connection (zid_pi)
 
 	/* Initialization of postsynaptic traces */
 
@@ -62,22 +65,22 @@ void BcpnnConnection::init(AurynFloat tau_pre,AurynFloat tau_z_pre, AurynFloat t
 
 	// bcpnn_pj trace
 	tr_p_post = dst->get_post_state_trace(tr_z_post,tau_p);
-	tr_p_pre->set_kinc(kinc_p);
+	tr_p_post->set_kinc(kinc_p);
 	dst->add_state_vector("tr_p_post",tr_p_post);
 	
 	// bcpnn_pij trace
 
-	w->set_num_synapse_states(2);
-	zid_wij = 0;
-	zid_pij= 1;
-
 	p_decay = exp(-auryn_timestep/tau_p);
  
-	set_eps(1e-12);
+	// bias_variable = dst->get_state_vector("w")->data;
+	bj_vectordata = dst->get_state_vector("w")->data;
+	wij_vector = w->get_state_vector(zid_wij);
+	pij_vector = w->get_state_vector(zid_pij);
+	pi_vector = w->get_state_vector(zid_pi);
+
+	set_eps(1e-18);
 	set_bgain(1);
 	set_wgain(1);
-
-	bias_variable= dst->get_state_vector("w")->data;
 
 	stdp_active = true;
 
@@ -110,7 +113,6 @@ void BcpnnConnection::set_wgain(AurynFloat value) {
 
 }
 
-
 void BcpnnConnection::init_shortcuts() 
 {
 	if ( dst->get_post_size() == 0 ) return; // if there are no target neurons on this rank
@@ -135,7 +137,6 @@ void BcpnnConnection::free()
 		<< " freeing ...";
 	auryn::logger->msg(oss.str(),VERBOSE);
 	auryn::logger->msg("BcpnnConnection:: Freeing poststatetraces",VERBOSE);
-	src->remove_state_vector("tr_p_pre");
 	dst->remove_state_vector("tr_p_post");
 
 }
@@ -205,30 +206,40 @@ void BcpnnConnection::evolve() {
 
 #ifdef USED
 
-	w->get_state_vector(zid_pij)->scale(p_decay);
+	if (dst->get_post_size()!=0) {
+		wij_vector->scale(p_decay);
+		pij_vector->scale(p_decay);
+		pi_vector->scale(p_decay);
+	}
 
 	// add pre*post elements
+
 	for (NeuronID li = 0; li < dst->get_post_size() ; ++li ) {
+
 		const NeuronID gi = dst->rank2global(li); // id translation for MPI
-		const AurynWeight pj = tr_p_post->get(li);
+
+		AurynWeight pj = tr_p_post->get(li);
 
 		/* Updating postneuron bias bj */
-		bias_variable[li] = bgain * std::log(pj + eps);
+		// bias_variable[li] = bgain * std::log(pj + eps);
+		bj_vectordata[li] = bgain * std::log(pj + eps);
 
-		for (const NeuronID *c = bkw->get_row_begin(gi) ; 
-			 c != bkw->get_row_end(gi) ; 
-			 ++c ) {
+		for (const NeuronID *c = bkw->get_row_begin(gi); c != bkw->get_row_end(gi); ++c ) {
+
 			AurynWeight *weight = bkw->get_data(c); 
 			const AurynLong didx = w->data_ptr_to_didx(weight); // index of element in data array
 			const AurynState zi = tr_z_pre->get(*c);
 			const AurynState zj = tr_z_post->get(li);
-			AurynState de = kinc_p * zi * zj; // our multiplication
-			w->get_state_vector(zid_pij)->add_specific(didx,de);
+			AurynState de = kinc_p * zi* zj; // our multiplication
+			pi_vector->add_specific(didx,kinc_p*zi);
+			pij_vector->add_specific(didx,de);
 
-			const AurynWeight pi = tr_p_pre->get(*c);
-			const AurynWeight pij = w->get_state_vector(zid_pij)->get(didx);
+			const AurynWeight pi = pi_vector->get(didx);
+			const AurynWeight pij = pij_vector->get(didx);
+
 			const AurynWeight wij = wgain * std::log((pij + eps2)/((pi + eps) * (pj + eps)));
 			w->get_state_vector(zid_wij)->set(didx,wij);
+
 		}
 
 	}

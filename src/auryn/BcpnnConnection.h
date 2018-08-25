@@ -72,9 +72,12 @@ protected:
 
 	AurynFloat p_decay;
 
-	int zid_wij,zid_pij;
+	int zid_wij,zid_pi,zid_pij;
 
-	AurynState *bias_variable;
+	AurynState *bj_vectordata;
+	AurynVector<float,long unsigned int> *wij_vector;
+	AurynVector<float,long unsigned int> *pij_vector;
+	AurynVector<float,long unsigned int> *pi_vector;
 
 	NeuronID * fwd_ind; 
 	AurynWeight * fwd_data;
@@ -94,7 +97,6 @@ public:
 	/* Definitions of presynaptic traces */
 	Trace * tr_pre;
 	Trace * tr_z_pre;
-	Trace * tr_p_pre;
 
 	/* Definitions of postsynaptic traces */
 	Trace * tr_post;
