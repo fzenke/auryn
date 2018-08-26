@@ -42,6 +42,8 @@ using namespace auryn;
 
 namespace po = boost::program_options;
 
+#define WITH_BCPNN
+
 int main(int ac,char *av[]) {
 	std::string dir = "./";
 	std::string ras = ""; // ALa added, ff
@@ -50,15 +52,15 @@ int main(int ac,char *av[]) {
 	std::string strbuf ;
 	std::string msg;
 
-	NeuronID ne = 2000; // ALa changed
+	NeuronID ne = 8000; // ALa changed
 	NeuronID ni = ne/4; // ALa changed
 
 	NeuronID nrec = 50;
 
 	double w = 0.1e-3; // 0.1mV PSC size
 	double wext = 0.1e-3; 
-	double sparseness = 0.1; // ALa added, ff
-	double simtime = 1.;
+	double sparseness = 0.25; // ALa added, ff
+	double simtime = 10.;
 
 	double gamma = 5.0;
 	double poisson_rate = 20.0e3;
@@ -86,7 +88,7 @@ int main(int ac,char *av[]) {
             ("sparseness", po::value<double>(), "connectivity sparseness")
             ("nu", po::value<double>(), "the external firing rate nu")
             ("dir", po::value<std::string>(), "dir from file")
-            ("ras", po::value<std::string>(), "if not "" produce spike raster file")
+            ("ras", po::value<std::string>(), "if not "" produce spike raster and rate files")
             ("load", po::value<std::string>(), "load from file")
             ("save", po::value<std::string>(), "save to file")
             ("fee", po::value<std::string>(), "file with EE connections")
@@ -221,11 +223,16 @@ int main(int ac,char *av[]) {
 	SparseConnection * con_ee 
 		= new SparseConnection( neurons_e,neurons_e,w,sparseness,MEM);
 
-	// BcpnnConnection * bcpnn_con = new BcpnnConnection(prneurons,poneurons,0,sparseness,
-	//  												  tau_pre,tau_z_pr,tau_z_po,tau_p);
+#ifdef WITH_BCPNN
+// 	BcpnnConnection * bcpnn_con = new BcpnnConnection(prneurons,poneurons,0,sparseness,
+// 							  tau_pre,tau_z_pr,tau_z_po,tau_p);
 
 	BcpnnConnection *con_ee_bcpnn
-		= new BcpnnConnection( neurons_e,neurons_e,w,sparseness,0.01,0.01,0.01,1.0);
+		= new BcpnnConnection( neurons_e,neurons_e,w,sparseness,0.01,0.01,0.01,0.2);
+
+	con_ee_bcpnn->set_bgain(1e-32);
+	con_ee_bcpnn->set_wgain(1e-32);
+#endif // WITH_BCPNN
 
 	SparseConnection * con_ei 
 		= new SparseConnection( neurons_e,neurons_i,w,sparseness,MEM);
@@ -249,11 +256,12 @@ int main(int ac,char *av[]) {
 	    filename.clear();
 	    filename << outputfile << "i.ras";
 	    SpikeMonitor * smon_i = new SpikeMonitor( neurons_i, filename.str().c_str(), nrec);
-	}
+	    
+	    // Record firing rates (sample every 1s)
+	    PopulationRateMonitor * pmon_e = new PopulationRateMonitor(neurons_e,sys->fn("e_rate"),0.05);
+	    PopulationRateMonitor * pmon_i = new PopulationRateMonitor(neurons_i,sys->fn("i_rate"),0.05);
 
-	// Record firing rates (sample every 1s)
-	PopulationRateMonitor * pmon_e = new PopulationRateMonitor(neurons_e,sys->fn("e_rate"),0.05);
-	PopulationRateMonitor * pmon_i = new PopulationRateMonitor(neurons_i,sys->fn("i_rate"),0.05);
+	}
 
 	// filename.str("");
 	// filename.clear();
@@ -298,7 +306,10 @@ int main(int ac,char *av[]) {
 
 
 	if (sys->mpi_rank()==0) { // ALa added
-	    std::cerr << "N:o non-zero ee weights: " << con_ee->get_nonzero() << std::endl;
+	    std::cerr << "N:o non-zero ee weights: " << con_ee->get_nonzero()*sys->mpi_size() << std::endl;
+#ifdef WITH_BCPNN
+	    std::cerr << "N:o non-zero ee_bcpnn weights: " << con_ee_bcpnn->get_nonzero()*sys->mpi_size() << std::endl;
+#endif // WITH_BCPNN
 	    std::cerr << "Maximum send buffer allocated: " << sys->get_max_send_buffer_size() << std::endl;
 	    std::cout << "Execution time: " << MPI_Wtime() - start << std::endl; // ALa added
 	    MPI_Barrier(MPI::COMM_WORLD);

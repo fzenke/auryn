@@ -503,7 +503,7 @@ void SparseConnection::finalize()
 		std::stringstream oss;
 		oss << get_log_name() << "Finalized with fill level " << w->get_fill_level();
 		auryn::logger->msg(oss.str(),VERBOSE);
-		if (w->get_fill_level()<WARN_FILL_LEVEL)
+		if (false && w->get_fill_level()<WARN_FILL_LEVEL) // ALa changed
 		{
 			std::stringstream oss2;
 			oss2 << get_log_name() <<"Wasteful fill level (" << w->get_fill_level() << ")! Make sure everything is in order!";
