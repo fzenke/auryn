@@ -42,8 +42,6 @@ using namespace auryn;
 
 namespace po = boost::program_options;
 
-#define WITH_BCPNN
-
 int main(int ac,char *av[]) {
 	std::string dir = "./";
 	std::string ras = ""; // ALa added, ff
@@ -57,6 +55,7 @@ int main(int ac,char *av[]) {
 
 	NeuronID nrec = 50;
 
+	bool with_bcpnn = false; // ALa added
 	double w = 0.1e-3; // 0.1mV PSC size
 	double wext = 0.1e-3; 
 	double sparseness = 0.25; // ALa added, ff
@@ -86,6 +85,7 @@ int main(int ac,char *av[]) {
             ("ne", po::value<int>(), "no of exc units") // ALa added ff
             ("gamma", po::value<double>(), "gamma factor for inhibitory weight")
             ("sparseness", po::value<double>(), "connectivity sparseness")
+            ("with_bpnn", po::value<bool>(), "BcpnnConnection used")
             ("nu", po::value<double>(), "the external firing rate nu")
             ("dir", po::value<std::string>(), "dir from file")
             ("ras", po::value<std::string>(), "if not "" produce spike raster and rate files")
@@ -121,6 +121,10 @@ int main(int ac,char *av[]) {
 
         if (vm.count("sparseness")) {
 			sparseness = vm["sparseness"].as<double>();
+        } 
+
+        if (vm.count("with_bcpnn")) {
+			with_bcpnn = vm["with_bcpnn"].as<bool>();
         } 
 
         if (vm.count("nu")) {
@@ -194,28 +198,7 @@ int main(int ac,char *av[]) {
 	PoissonStimulator * pstim_e
 		= new PoissonStimulator( neurons_e, poisson_rate, wext );
 	PoissonStimulator * pstim_i
-		= new PoissonStimulator( neurons_i, poisson_rate, wext );
-
-	// The following would give correlated poisson noise from a single
-	// population of Poisson Neurons.
-	// PoissonGroup * poisson 
-	// 	= new PoissonGroup( ne, poisson_rate );
-	// SparseConnection * cone 
-	// 	= new SparseConnection(poisson,neurons_e, w, sparseness, MEM );
-	// SparseConnection * coni 
-	// 	= new SparseConnection(poisson,neurons_i, w, sparseness, MEM );
-
-	// This would be a solution where independend Poisson spikes
-	// are used from two PoissonGroups.
-	// PoissonGroup * pstim_e 
-	// 	= new PoissonGroup( ne, poisson_rate*ne*sparseness );
-	// IdentityConnection * ide 
-	// 	= new IdentityConnection(pstim_e,neurons_e, w, MEM );
-	// PoissonGroup * pstim_i  
-	// 	= new PoissonGroup( ni, poisson_rate*ne*sparseness );
-	// IdentityConnection * idi
-	// 	= new IdentityConnection(pstim_i,neurons_i, w, MEM );
-	
+		= new PoissonStimulator( neurons_i, poisson_rate, wext );	
 
 	logger->msg("Setting up E connections ...",PROGRESS,true); // ALa added
 	if (sys->mpi_rank()==0) std::cerr << "sparseness = " << sparseness << std::endl;
@@ -223,16 +206,16 @@ int main(int ac,char *av[]) {
 	SparseConnection * con_ee 
 		= new SparseConnection( neurons_e,neurons_e,w,sparseness,MEM);
 
-#ifdef WITH_BCPNN
-// 	BcpnnConnection * bcpnn_con = new BcpnnConnection(prneurons,poneurons,0,sparseness,
-// 							  tau_pre,tau_z_pr,tau_z_po,tau_p);
+	BcpnnConnection *con_ee_bcpnn;
+	if (with_bcpnn) {
+		 	// con_ee_bcpnn = new BcpnnConnection(prneurons,poneurons,0,sparseness,
+			// 								tau_pre,tau_z_pr,tau_z_po,tau_p);
 
-	BcpnnConnection *con_ee_bcpnn
-		= new BcpnnConnection( neurons_e,neurons_e,w,sparseness,0.01,0.01,0.01,0.2);
+		con_ee_bcpnn = new BcpnnConnection( neurons_e,neurons_e,w,sparseness,0.01,0.01,0.01,0.2);
 
-	con_ee_bcpnn->set_bgain(1e-32);
-	con_ee_bcpnn->set_wgain(1e-32);
-#endif // WITH_BCPNN
+		con_ee_bcpnn->set_bgain(1e-32);
+		con_ee_bcpnn->set_wgain(1e-32);
+	}
 
 	SparseConnection * con_ei 
 		= new SparseConnection( neurons_e,neurons_i,w,sparseness,MEM);
@@ -307,9 +290,8 @@ int main(int ac,char *av[]) {
 
 	if (sys->mpi_rank()==0) { // ALa added
 	    std::cerr << "N:o non-zero ee weights: " << con_ee->get_nonzero()*sys->mpi_size() << std::endl;
-#ifdef WITH_BCPNN
-	    std::cerr << "N:o non-zero ee_bcpnn weights: " << con_ee_bcpnn->get_nonzero()*sys->mpi_size() << std::endl;
-#endif // WITH_BCPNN
+		if (with_bcpnn)
+			std::cerr << "N:o non-zero ee_bcpnn weights: " << con_ee_bcpnn->get_nonzero()*sys->mpi_size() << std::endl;
 	    std::cerr << "Maximum send buffer allocated: " << sys->get_max_send_buffer_size() << std::endl;
 	    std::cout << "Execution time: " << MPI_Wtime() - start << std::endl; // ALa added
 	    MPI_Barrier(MPI::COMM_WORLD);
