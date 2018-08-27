@@ -65,10 +65,13 @@ int main(int ac, char* av[])
 	NeuronID size = 25;
 	unsigned int seed = 1;
 	double kappa = 20;
-	AurynFloat sparseness = 0.6;
-	AurynWeight winit = 0.04;
-	AurynWeight winit2 = 0.04;
+	AurynFloat sparseness = 0.5;
+	AurynFloat npostsyn = 100;
+	AurynWeight winit = 0.025;
+	bool with_bcpnn = false;
 	bool nomon = false;
+	int ipre = 5;
+	int ipost = 5;
 
 	double tau_pre = 20e-3; // stdp window decay (pre-post part)
 	double tau_z_pr = 25e-3; // Bcpnn tau_zi decay
@@ -84,15 +87,18 @@ int main(int ac, char* av[])
             ("help", "produce help message")
             ("dir", po::value<string>(), "output directory")
             ("simtime", po::value<double>(), "simulation time")
-            ("sparseness", po::value<double>(), "sparseness")
+            // ("sparseness", po::value<double>(), "sparseness")
+            ("with_bcpnn", po::value<bool>(), "BcpnnConnection used")
             ("winit", po::value<double>(), "initial weight")
-            ("winit2", po::value<double>(), "initial weight 2")
             ("kappa", po::value<double>(), "presynaptic firing rate")
             ("nbinputs", po::value<int>(), "number of Poisson inputs")
             ("size", po::value<int>(), "number of neurons")
+            ("npostsyn", po::value<int>(), "number of synapses on postynaptic neuron")
+            ("ipre", po::value<int>(), "presynaptic neuron to monitor")
+            ("ipost", po::value<int>(), "postsynaptic neuron to monitor")
             ("seed", po::value<int>(), "random seed")
             ("nomon", po::value<bool>(), "if 'true' no monitorint of state variables")
-        ;
+			;
 
         po::variables_map vm;        
         po::store(po::parse_command_line(ac, av, desc), vm);
@@ -114,16 +120,16 @@ int main(int ac, char* av[])
 			simtime = vm["simtime"].as<double>();
         } 
 
-        if (vm.count("sparseness")) {
-			sparseness = vm["sparseness"].as<double>();
+        // if (vm.count("sparseness")) {
+		// 	sparseness = vm["sparseness"].as<double>();
+        // } 
+
+        if (vm.count("with_bcpnn")) {
+			with_bcpnn = vm["with_bcpnn"].as<bool>();
         } 
 
         if (vm.count("winit")) {
 			winit = vm["winit"].as<double>();
-        } 
-
-        if (vm.count("winit2")) {
-			winit2 = vm["winit2"].as<double>();
         } 
 
         if (vm.count("nbinputs")) {
@@ -132,6 +138,18 @@ int main(int ac, char* av[])
 
         if (vm.count("size")) {
 			size = vm["size"].as<int>();
+        } 
+
+        if (vm.count("npostsyn")) {
+			npostsyn = vm["npostsyn"].as<int>();
+        } 
+
+        if (vm.count("ipre")) {
+			ipre = vm["ipre"].as<int>();
+        } 
+
+        if (vm.count("ipost")) {
+			ipost = vm["ipost"].as<int>();
         } 
 
         if (vm.count("seed")) {
@@ -150,38 +168,45 @@ int main(int ac, char* av[])
         std::cerr << "Exception of unknown type!\n";
     }
 
+	if (npostsyn>nbinputs) {
+		std::cerr << "ERROR in main: npostsyn>nbinputs" << std::endl;
+		exit(0);
+	}
+
 	// Init Auryn
 	auryn_init(ac, av, dir, "sim_bcpnn");
 	sys->set_master_seed(seed);
 
 	logger->set_logfile_loglevel(EVERYTHING);
 
+	sparseness = (float)npostsyn/nbinputs;
+	if (sys->mpi_rank()==0)
+		std::cerr << "sparseness = " << sparseness << std::endl;
+
 	// Neurons
-	PoissonGroup * poisson = new PoissonGroup(nbinputs, kappa);
-	TIFGroup * prneurons = new TIFGroup(nbinputs);
+	PoissonGroup * poisson = new PoissonGroup(nbinputs,kappa);
 
 	float refractory_period = 5e-3; // Refractory time of TIF neurons = 0.005 sec
 
 	TIFGroup * poneurons = new TIFGroup(size);
 
-	SparseConnection *sp1_con = new SparseConnection(poisson,prneurons,winit,sparseness);
+	SparseConnection *sp_con = new SparseConnection(poisson,poneurons,winit,sparseness);
 
-	SparseConnection *sp2_con = new SparseConnection(prneurons,poneurons,winit2,sparseness);
-
-	BcpnnConnection * bcpnn_con = new BcpnnConnection(prneurons,poneurons,0,sparseness,
-	 												  tau_pre,tau_z_pr,tau_z_po,tau_p,refractory_period);
-	bcpnn_con->set_wgain(1e-4);
-	bcpnn_con->set_bgain(1e-4);
+	BcpnnConnection *bcpnn_con;
+	if (with_bcpnn) {
+		bcpnn_con = new BcpnnConnection(poisson,poneurons,0,sparseness,
+										tau_pre,tau_z_pr,tau_z_po,tau_p,refractory_period);
+		bcpnn_con->set_wgain(1e-16);
+		bcpnn_con->set_bgain(1e-16);
+	}
 
 	// Monitors
 
 	if (not nomon) {
 
 		// point online rate monitor to neurons
-		// sys->set_online_rate_monitor_id(prneurons->get_uid());
 		// sys->set_online_rate_monitor_id(poneurons->get_uid());
 
-		int ipre = 99,ipost = 17;
 		if (nbinputs<ipre) {
 			logger->msg("ERROR in main: nbinputs<ipre",PROGRESS,true);
 			auryn_abort(4711);
@@ -191,31 +216,33 @@ int main(int ac, char* av[])
 			auryn_abort(4712);
 		}
 
-		StateMonitor * zi_mon = new StateMonitor(prneurons->get_pre_trace(tau_z_pr),ipre,sys->fn("zi"));
-		StateMonitor * zj_mon = new StateMonitor(poneurons->get_post_trace(tau_z_po),ipost,sys->fn("zj"));
+		if (with_bcpnn) {
+			StateMonitor * zi_mon = new StateMonitor(poisson->get_pre_trace(tau_z_pr),ipre,sys->fn("zi"));
+			StateMonitor * zj_mon = new StateMonitor(poneurons->get_post_trace(tau_z_po),ipost,sys->fn("zj"));
 
-#ifdef UNUSEDMON
-		StateMonitor * pj_mon = new StateMonitor(poneurons->get_state_vector("tr_p_post"),ipost,sys->fn("pj"));
-		StateMonitor * bias_mon = new StateMonitor(poneurons->get_state_vector("w"),ipost,sys->fn("bj"));
+			StateMonitor * pi_mon = new StateMonitor(poisson->get_state_vector("tr_p_pre"),
+													 ipre,sys->fn("pi"));
+			StateMonitor * pj_mon = new StateMonitor(poneurons->get_state_vector("tr_p_post"),
+													 ipost,sys->fn("pj"));
+			StateMonitor * bias_mon = new StateMonitor(poneurons->get_state_vector("w"),ipost,sys->fn("bj"));
+
+			// Record individual synaptic weights (sample every 10 ms)
+			WeightMonitor * pijmon = new WeightMonitor(bcpnn_con,ipre,ipost,sys->fn("pij"),0.01,SINGLE,1);
+			WeightMonitor * wijmon = new WeightMonitor(bcpnn_con,ipre,ipost,sys->fn("wij"),0.01,SINGLE,0);
+		}
 
 		// // Record spikes
-		SpikeMonitor * smon_pr = new SpikeMonitor(prneurons,sys->fn("prspikes"));
+		SpikeMonitor * smon_pr = new SpikeMonitor(poisson,sys->fn("prspikes"));
 		SpikeMonitor * smon_po = new SpikeMonitor(poneurons,sys->fn("pospikes"));
 
-		VoltageMonitor * vmon_pr = new VoltageMonitor(prneurons,ipre,sys->fn("vmem_pr"));
 		VoltageMonitor * vmon_po = new VoltageMonitor(poneurons,ipost,sys->fn("vmem_po"));
 	
 		// // Record input firing rate (sample every 1s)
-		PopulationRateMonitor * pmon_in = new PopulationRateMonitor(prneurons,sys->fn("prrate"), 0.1 );
+		PopulationRateMonitor * pmon_in = new PopulationRateMonitor(poisson,sys->fn("prrate"), 0.005 );
 	
 		// // Record output firing rate (sample every 1s)
-		PopulationRateMonitor * pmon_ut = new PopulationRateMonitor(poneurons,sys->fn("porate"), 0.1 );
+		PopulationRateMonitor * pmon_ut = new PopulationRateMonitor(poneurons,sys->fn("porate"), 0.005 );
 	
-		// Record individual synaptic weights (sample every 10 ms)
-		WeightMonitor * pimon = new WeightMonitor(bcpnn_con,ipre,ipost,sys->fn("pi"),0.01,SINGLE,2);
-		WeightMonitor * pijmon = new WeightMonitor(bcpnn_con,ipre,ipost,sys->fn("pij"),0.01,SINGLE,1);
-		WeightMonitor * wijmon = new WeightMonitor(bcpnn_con,ipre,ipost,sys->fn("wij"),0.01,SINGLE,0);
-#endif // UNUSEDMON
 	}
 
 	MPI_Barrier(MPI::COMM_WORLD);
@@ -225,8 +252,26 @@ int main(int ac, char* av[])
 	// Run simulation
 	if (!sys->run(simtime)) errcode = 1;
 
-	if (sys->mpi_rank()==0)
-		std::cerr << "Execution time = " << MPI::Wtime() - start << " sec\n";	  
+	int nsyn,gnsyn;
+	/* Get total number of non-plastic synapses */
+	nsyn = sp_con->get_nonzero();
+	MPI_Gather(&nsyn,1,MPI_INT,&gnsyn,1,MPI_INT,0,*sys->get_com());
+
+	int bcpnn_nsyn,bcpnn_gnsyn;
+	if (with_bcpnn) {
+		/* Get total number of bcpnn-synapses */
+		bcpnn_nsyn = bcpnn_con->get_nonzero();
+		MPI_Gather(&bcpnn_nsyn,1,MPI_INT,&bcpnn_gnsyn,1,MPI_INT,0,*sys->get_com());
+	}
+	
+	if (sys->mpi_rank()==0) {
+		std::cerr << "Execution time = " << MPI::Wtime() - start << " sec\n";
+
+		std::cerr << "N:o non-plastic weights = " << gnsyn << std::endl;
+		
+		if (with_bcpnn)
+			std::cerr << "N:o bcpnn weights = " << bcpnn_gnsyn << std::endl;
+	}
 
 	// Close Auryn
 	logger->msg("Freeing ...",PROGRESS,true);
