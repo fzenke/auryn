@@ -61,19 +61,23 @@ int main(int ac, char* av[])
 
 	double simtime = 10.;
 
-	NeuronID nbinputs = 100;
-	NeuronID size = 25;
+	NeuronID nbinputs = 100; // 3000
+	NeuronID size = 25; // 3000
 	unsigned int seed = 1;
 	double kappa = 20;
 	AurynFloat sparseness = 0.5;
 	AurynFloat npostsyn = 100;
 	AurynWeight winit = 0.025;
+	bool with_stdp = false;
 	bool with_bcpnn = false;
 	bool nomon = false;
 	int ipre = 5;
 	int ipost = 5;
 
-	double tau_pre = 20e-3; // stdp window decay (pre-post part)
+	double tau_pre = 20e-3; // stdp window decay (pre part)
+	double tau_post = 20e-3; // stdp window decay (post part)
+	double eta = 1.0e-3; // stdp learning rate
+
 	double tau_z_pr = 25e-3; // Bcpnn tau_zi decay
 	double tau_z_po = 10e-3; // Bcpnn tau_zj decay
 	double tau_p = 0.2;
@@ -88,6 +92,7 @@ int main(int ac, char* av[])
             ("dir", po::value<string>(), "output directory")
             ("simtime", po::value<double>(), "simulation time")
             // ("sparseness", po::value<double>(), "sparseness")
+            ("with_stdp", po::value<bool>(), "STDPConnection used")
             ("with_bcpnn", po::value<bool>(), "BcpnnConnection used")
             ("winit", po::value<double>(), "initial weight")
             ("kappa", po::value<double>(), "presynaptic firing rate")
@@ -123,6 +128,10 @@ int main(int ac, char* av[])
         // if (vm.count("sparseness")) {
 		// 	sparseness = vm["sparseness"].as<double>();
         // } 
+
+        if (vm.count("with_stdp")) {
+			with_stdp = vm["with_stdp"].as<bool>();
+        } 
 
         if (vm.count("with_bcpnn")) {
 			with_bcpnn = vm["with_bcpnn"].as<bool>();
@@ -192,6 +201,15 @@ int main(int ac, char* av[])
 
 	SparseConnection *sp_con = new SparseConnection(poisson,poneurons,winit,sparseness);
 
+	STDPConnection *stdp_con;
+	if (with_stdp) {	
+		STDPConnection * stdp_con = new STDPConnection(poisson,poneurons,winit,sparseness,tau_pre,tau_post );
+		stdp_con->A = -1.20*tau_post/tau_pre*eta; // post-pre
+		stdp_con->B = eta; // pre-post
+		stdp_con->set_min_weight(0.0);
+		stdp_con->set_max_weight(1.0);
+	}
+
 	BcpnnConnection *bcpnn_con;
 	if (with_bcpnn) {
 		bcpnn_con = new BcpnnConnection(poisson,poneurons,0,sparseness,
@@ -257,6 +275,13 @@ int main(int ac, char* av[])
 	nsyn = sp_con->get_nonzero();
 	MPI_Gather(&nsyn,1,MPI_INT,&gnsyn,1,MPI_INT,0,*sys->get_com());
 
+	int stdp_nsyn,stdp_gnsyn;
+	if (with_stdp) {
+		/* Get total number of stdp-synapses */
+		stdp_nsyn = stdp_con->get_nonzero();
+		MPI_Gather(&stdp_nsyn,1,MPI_INT,&stdp_gnsyn,1,MPI_INT,0,*sys->get_com());
+	}
+	
 	int bcpnn_nsyn,bcpnn_gnsyn;
 	if (with_bcpnn) {
 		/* Get total number of bcpnn-synapses */
@@ -269,6 +294,9 @@ int main(int ac, char* av[])
 
 		std::cerr << "N:o non-plastic weights = " << gnsyn << std::endl;
 		
+		if (with_stdp)
+			std::cerr << "N:o stdp weights = " << stdp_gnsyn << std::endl;
+
 		if (with_bcpnn)
 			std::cerr << "N:o bcpnn weights = " << bcpnn_gnsyn << std::endl;
 	}
