@@ -617,6 +617,7 @@ void SparseConnection::sanity_check()
 
 void SparseConnection::stats(AurynDouble &mean, AurynDouble &std)
 {
+	std::cerr << "XXX" << std::endl;
 	stats(mean, std, 0);
 }
 

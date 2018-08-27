@@ -203,7 +203,7 @@ int main(int ac, char* av[])
 
 	STDPConnection *stdp_con;
 	if (with_stdp) {	
-		STDPConnection * stdp_con = new STDPConnection(poisson,poneurons,winit,sparseness,tau_pre,tau_post );
+		stdp_con = new STDPConnection(poisson,poneurons,winit,sparseness,tau_pre,tau_post );
 		stdp_con->A = -1.20*tau_post/tau_pre*eta; // post-pre
 		stdp_con->B = eta; // pre-post
 		stdp_con->set_min_weight(0.0);
