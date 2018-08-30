@@ -108,6 +108,15 @@ public:
 	 */
 	StateMonitor(Trace * trace, NeuronID id, string filename, AurynDouble sampling_interval=auryn_timestep);
 
+	/*! \brief Trace constructor with source info // ALa added
+	 *
+	 * \param trace The source synaptic trace
+	 * \param filename The filename of the file to dump the output to
+	 * \param sampling_interval The sampling interval in seconds
+	 */
+	StateMonitor(SpikingGroup *source,Trace * trace, NeuronID id, string filename,
+				 AurynDouble sampling_interval=auryn_timestep);
+
 	/*! \brief Sets relative time at which to stop recording 
 	 *
 	 * The time is given in seconds and interpreted as relative time with 
@@ -129,6 +138,28 @@ public:
 	virtual ~StateMonitor();
 	void execute();
 };
+
+/*! \brief Records from an arbitray pretrace vector of one unit from the source SpikingGroup to a file.*/
+class PreTraceMonitor : public StateMonitor
+{
+
+ public:
+
+	PreTraceMonitor(SpikingGroup *group,Trace *pretrace,NeuronID id,
+					std::string filename,AurynDouble sampling_interval = auryn_timestep);
+
+} ;
+
+/*! \brief Records from an arbitray posttrace vector of one unit from the source SpikingGroup to a file.*/
+class PostTraceMonitor : public StateMonitor
+{
+
+ public:
+
+	PostTraceMonitor(SpikingGroup *group,string posttracename,NeuronID id,
+					 std::string filename,AurynDouble sampling_interval = auryn_timestep);
+
+} ;
 
 }
 

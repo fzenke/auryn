@@ -205,6 +205,11 @@ void SparseConnection::set_max_weight(AurynWeight maximum_weight)
 	wmax = maximum_weight;
 }
 
+bool SparseConnection::exists(NeuronID i, NeuronID j, NeuronID z) // ALa added
+{
+	return w->exists(i,j,z);
+}
+
 void SparseConnection::random_data(AurynWeight mean, AurynWeight sigma) 
 {
 	random_data_normal(mean, sigma);
@@ -376,7 +381,7 @@ void SparseConnection::connect_block_random(AurynWeight weight,
 	}
 
 	if ( weight < get_min_weight() ) {
-		auryn::logger->msg("Weight smaller than minimal weight. Updating minimal weight and proceeding.",WARNING);
+	    //		auryn::logger->msg("Weight smaller than minimal weight. Updating minimal weight and proceeding.",WARNING); // ALa changed
 		set_min_weight(weight);
 	}
 
@@ -503,7 +508,7 @@ void SparseConnection::finalize()
 		std::stringstream oss;
 		oss << get_log_name() << "Finalized with fill level " << w->get_fill_level();
 		auryn::logger->msg(oss.str(),VERBOSE);
-		if (w->get_fill_level()<WARN_FILL_LEVEL)
+		if (false && w->get_fill_level()<WARN_FILL_LEVEL) // ALa changed
 		{
 			std::stringstream oss2;
 			oss2 << get_log_name() <<"Wasteful fill level (" << w->get_fill_level() << ")! Make sure everything is in order!";

@@ -58,6 +58,7 @@ namespace auryn {
 	{
 		private:
 			std::vector<NeuronID> send_buf;
+	                std::vector<NeuronID> send_bufx; // ALa added
 			std::vector<NeuronID> recv_buf;
 
 			NeuronID overflow_value;
@@ -102,6 +103,12 @@ namespace auryn {
 
 			/*! \brief The default destructor. */
 			virtual ~SyncBuffer( );
+
+	                /*! \brief Fixes up recv_buf size. */     // ALa added
+	                void fixup_recv_buf_size();
+
+	                /*! \brief Copies content of send_buf to send_bufx. */     // ALa added
+	                void update_send_bufx();
 
 			/*! \brief Synchronize spikes and additional information across ranks. */
 			void sync();

@@ -1,0 +1,16 @@
+module add git
+module sw PrgEnv-cray PrgEnv-gnu
+module add cdt/17.10
+#module add boost/1.66.0-gcc-7.2.0
+## module add boost/1.66.0-gcc7-py36
+## module add cmake/3.0.2
+module add cmake
+module add boost
+
+export CC=cc
+export CXX=CC
+export MPICC=cc
+export MPICXX=CC
+
+
+

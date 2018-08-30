@@ -445,12 +445,14 @@ Trace * SpikingGroup::get_post_state_trace( AurynStateVector * state, AurynFloat
 
 	// trace does not exist yet, so we are creating 
 	// it and do the book keeping
-	auryn::logger->msg("Initializing post trace instance",VERBOSE);
+	auryn::logger->msg("Initializing post state trace instance",VERBOSE);
 	Trace * tmp = new EulerTrace(get_post_size(),tau);
+
 	tmp->set_target(state);
 	post_state_traces.push_back(tmp);
 	post_state_traces_spike_biases.push_back(b);
 	post_state_traces_states.push_back(state);
+
 	return tmp;
 }
 

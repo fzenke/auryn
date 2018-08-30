@@ -43,21 +43,23 @@ using namespace auryn;
 namespace po = boost::program_options;
 
 int main(int ac,char *av[]) {
-	std::string dir = ".";
+	std::string dir = "./";
+	std::string ras = ""; // ALa added, ff
 
 	std::stringstream oss;
 	std::string strbuf ;
 	std::string msg;
 
-	NeuronID ne = 8000;
-	NeuronID ni = 2000;
+	NeuronID ne = 8000; // ALa changed
+	NeuronID ni = ne/4; // ALa changed
 
 	NeuronID nrec = 50;
 
+	bool with_bcpnn = false; // ALa added
 	double w = 0.1e-3; // 0.1mV PSC size
 	double wext = 0.1e-3; 
-	double sparseness = 0.1;
-	double simtime = 1.;
+	double sparseness = 0.25; // ALa added, ff
+	double simtime = 10.;
 
 	double gamma = 5.0;
 	double poisson_rate = 20.0e3;
@@ -80,9 +82,13 @@ int main(int ac,char *av[]) {
         desc.add_options()
             ("help", "produce help message")
             ("simtime", po::value<double>(), "duration of simulation")
+            ("ne", po::value<int>(), "no of exc units") // ALa added ff
             ("gamma", po::value<double>(), "gamma factor for inhibitory weight")
+            ("sparseness", po::value<double>(), "connectivity sparseness")
+            ("with_bpnn", po::value<bool>(), "BcpnnConnection used")
             ("nu", po::value<double>(), "the external firing rate nu")
             ("dir", po::value<std::string>(), "dir from file")
+            ("ras", po::value<std::string>(), "if not "" produce spike raster and rate files")
             ("load", po::value<std::string>(), "load from file")
             ("save", po::value<std::string>(), "save to file")
             ("fee", po::value<std::string>(), "file with EE connections")
@@ -104,8 +110,21 @@ int main(int ac,char *av[]) {
 			simtime = vm["simtime"].as<double>();
         } 
 
+        if (vm.count("ne")) {
+	    ne = vm["ne"].as<int>();
+	    ni = ne/4;
+        } 
+
         if (vm.count("gamma")) {
 			gamma = vm["gamma"].as<double>();
+        } 
+
+        if (vm.count("sparseness")) {
+			sparseness = vm["sparseness"].as<double>();
+        } 
+
+        if (vm.count("with_bcpnn")) {
+			with_bcpnn = vm["with_bcpnn"].as<bool>();
         } 
 
         if (vm.count("nu")) {
@@ -114,6 +133,10 @@ int main(int ac,char *av[]) {
 
         if (vm.count("dir")) {
 			dir = vm["dir"].as<std::string>();
+        } 
+
+        if (vm.count("ras")) {
+			ras = vm["ras"].as<std::string>();
         } 
 
         if (vm.count("load")) {
@@ -150,7 +173,7 @@ int main(int ac,char *av[]) {
 
 	auryn_init(ac, av);
 
-	oss << dir  << "/brunel." << sys->mpi_rank() << ".";
+	oss << dir  << ras << sys->mpi_rank() << ".";
 	std::string outputfile = oss.str();
 
 	//
@@ -175,31 +198,24 @@ int main(int ac,char *av[]) {
 	PoissonStimulator * pstim_e
 		= new PoissonStimulator( neurons_e, poisson_rate, wext );
 	PoissonStimulator * pstim_i
-		= new PoissonStimulator( neurons_i, poisson_rate, wext );
+		= new PoissonStimulator( neurons_i, poisson_rate, wext );	
 
-	// The following would give correlated poisson noise from a single
-	// population of Poisson Neurons.
-	// PoissonGroup * poisson 
-	// 	= new PoissonGroup( ne, poisson_rate );
-	// SparseConnection * cone 
-	// 	= new SparseConnection(poisson,neurons_e, w, sparseness, MEM );
-	// SparseConnection * coni 
-	// 	= new SparseConnection(poisson,neurons_i, w, sparseness, MEM );
-
-	// This would be a solution where independend Poisson spikes
-	// are used from two PoissonGroups.
-	// PoissonGroup * pstim_e 
-	// 	= new PoissonGroup( ne, poisson_rate*ne*sparseness );
-	// IdentityConnection * ide 
-	// 	= new IdentityConnection(pstim_e,neurons_e, w, MEM );
-	// PoissonGroup * pstim_i  
-	// 	= new PoissonGroup( ni, poisson_rate*ne*sparseness );
-	// IdentityConnection * idi
-	// 	= new IdentityConnection(pstim_i,neurons_i, w, MEM );
-	
+	logger->msg("Setting up E connections ...",PROGRESS,true); // ALa added
+	if (sys->mpi_rank()==0) std::cerr << "sparseness = " << sparseness << std::endl;
 
 	SparseConnection * con_ee 
 		= new SparseConnection( neurons_e,neurons_e,w,sparseness,MEM);
+
+	BcpnnConnection *con_ee_bcpnn;
+	if (with_bcpnn) {
+		 	// con_ee_bcpnn = new BcpnnConnection(prneurons,poneurons,0,sparseness,
+			// 								tau_pre,tau_z_pr,tau_z_po,tau_p);
+
+		con_ee_bcpnn = new BcpnnConnection( neurons_e,neurons_e,w,sparseness,0.01,0.01,0.01,0.2);
+
+		con_ee_bcpnn->set_bgain(1e-32);
+		con_ee_bcpnn->set_wgain(1e-32);
+	}
 
 	SparseConnection * con_ei 
 		= new SparseConnection( neurons_e,neurons_i,w,sparseness,MEM);
@@ -213,14 +229,22 @@ int main(int ac,char *av[]) {
 	msg = "Setting up monitors ...";
 	logger->msg(msg,PROGRESS,true);
 
-	std::stringstream filename;
-	filename << outputfile << "e.ras";
-	SpikeMonitor * smon_e = new SpikeMonitor( neurons_e, filename.str().c_str(), nrec);
+	if (ras!="") {
+	    std::stringstream filename;
 
-	filename.str("");
-	filename.clear();
-	filename << outputfile << "i.ras";
-	SpikeMonitor * smon_i = new SpikeMonitor( neurons_i, filename.str().c_str(), nrec);
+	    filename << outputfile << "e.ras";
+	    SpikeMonitor * smon_e = new SpikeMonitor( neurons_e, filename.str().c_str(), nrec);
+
+	    filename.str("");
+	    filename.clear();
+	    filename << outputfile << "i.ras";
+	    SpikeMonitor * smon_i = new SpikeMonitor( neurons_i, filename.str().c_str(), nrec);
+	    
+	    // Record firing rates (sample every 1s)
+	    PopulationRateMonitor * pmon_e = new PopulationRateMonitor(neurons_e,sys->fn("e_rate"),0.05);
+	    PopulationRateMonitor * pmon_i = new PopulationRateMonitor(neurons_i,sys->fn("i_rate"),0.05);
+
+	}
 
 	// filename.str("");
 	// filename.clear();
@@ -251,6 +275,7 @@ int main(int ac,char *av[]) {
 	con_ii->sanity_check();
 
 	logger->msg("Simulating ..." ,PROGRESS,true);
+	double start = MPI_Wtime(); // ALa added
 	if (!sys->run(simtime,true)) 
 			errcode = 1;
 
@@ -262,6 +287,15 @@ int main(int ac,char *av[]) {
 	if (errcode)
 		auryn_abort(errcode);
 
+
+	if (sys->mpi_rank()==0) { // ALa added
+	    std::cerr << "N:o non-zero ee weights: " << con_ee->get_nonzero()*sys->mpi_size() << std::endl;
+		if (with_bcpnn)
+			std::cerr << "N:o non-zero ee_bcpnn weights: " << con_ee_bcpnn->get_nonzero()*sys->mpi_size() << std::endl;
+	    std::cerr << "Maximum send buffer allocated: " << sys->get_max_send_buffer_size() << std::endl;
+	    std::cout << "Execution time: " << MPI_Wtime() - start << std::endl; // ALa added
+	    MPI_Barrier(MPI::COMM_WORLD);
+	} else MPI_Barrier(MPI::COMM_WORLD);
 
 	logger->msg("Freeing ..." ,PROGRESS,true);
 	auryn_free();

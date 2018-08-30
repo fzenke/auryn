@@ -88,7 +88,7 @@
  *  Furthermore groups that are distributed will not be cut up in chunks that
  *  are not smaller than this. This is done to reduce overhead
  */
-#define DEFAULT_MINDISTRIBUTEDSIZE 16
+#define DEFAULT_MINDISTRIBUTEDSIZE 1 // ALa changed
 
 
 /*! \brief These precompiler directives are deprecated and should not be used any more.

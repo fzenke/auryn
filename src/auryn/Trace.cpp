@@ -29,9 +29,10 @@ using namespace auryn;
 
 
 
-Trace::Trace(NeuronID n, AurynFloat timeconstant) : AurynStateVector(n)
+Trace::Trace(NeuronID n, AurynFloat timeconstant,AurynFloat kinc) : AurynStateVector(n)
 {
 	set_timeconstant(timeconstant);
+	set_kinc(kinc);
 }
 
 Trace::~Trace()
@@ -48,6 +49,11 @@ AurynFloat Trace::get_tau()
 	return tau;
 }
 
+void Trace::set_kinc(AurynFloat kinc)
+{
+	this->kinc = kinc;
+}
+
 AurynStateVector * Trace::get_state_ptr()
 {
 	return this;
@@ -55,7 +61,7 @@ AurynStateVector * Trace::get_state_ptr()
 
 void Trace::inc(NeuronID i)
 {
-   data[i]++;
+   data[i] += kinc;
 }
 
 void Trace::inc(SpikeContainer * sc)

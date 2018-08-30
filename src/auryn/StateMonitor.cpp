@@ -28,10 +28,12 @@
 using namespace auryn;
 
 
-StateMonitor::StateMonitor(SpikingGroup * source, NeuronID id, std::string statename, std::string filename, AurynDouble sampling_interval)  : Monitor(filename, "state")
+StateMonitor::StateMonitor(SpikingGroup * source, NeuronID id, std::string statename, std::string filename, AurynDouble sampling_interval)  : Monitor()  // ALa changed
 {
 
 	if ( !source->localrank(id) ) return; // do not register if neuron is not on the local rank
+
+	open_output_file(filename); // ALa added
 
 	init(filename, sampling_interval);
 	auryn::sys->register_device(this);
@@ -51,9 +53,11 @@ StateMonitor::StateMonitor(SpikingGroup * source, NeuronID id, std::string state
 	}
 }
 
-StateMonitor::StateMonitor(AurynStateVector * state, NeuronID id, std::string filename, AurynDouble sampling_interval): Monitor(filename, "state")
+StateMonitor::StateMonitor(AurynStateVector * state, NeuronID id, std::string filename, AurynDouble sampling_interval): Monitor() // ALa changed
 {
 	if ( id >= state->size ) return; // do not register if neuron is out of vector range
+
+	open_output_file(filename); // ALa added
 
 	init(filename, sampling_interval);
 
@@ -64,9 +68,11 @@ StateMonitor::StateMonitor(AurynStateVector * state, NeuronID id, std::string fi
 	lastval = *target_variable;
 }
 
-StateMonitor::StateMonitor(AurynSynStateVector * state, NeuronID id, std::string filename, AurynDouble sampling_interval): Monitor(filename, "state")
+StateMonitor::StateMonitor(AurynSynStateVector * state, NeuronID id, std::string filename, AurynDouble sampling_interval): Monitor()  // ALa changed
 {
 	if ( id >= state->size ) return; // do not register if neuron is out of vector range
+
+	open_output_file(filename); // ALa added
 
 	init(filename, sampling_interval);
 
@@ -77,9 +83,29 @@ StateMonitor::StateMonitor(AurynSynStateVector * state, NeuronID id, std::string
 	lastval = *target_variable;
 }
 
-StateMonitor::StateMonitor(Trace * trace, NeuronID id, std::string filename, AurynDouble sampling_interval): Monitor(filename, "state")
+StateMonitor::StateMonitor(Trace * trace, NeuronID id, std::string filename, AurynDouble sampling_interval): Monitor()  // ALa changed
 {
 	if ( id >= trace->get_state_ptr()->size ) return; // do not register if neuron is out of vector range
+
+	open_output_file(filename); // ALa added
+
+	init(filename, sampling_interval);
+
+	auryn::sys->register_device(this);
+	src = NULL;
+	nid = id;
+	target_variable = trace->get_state_ptr()->data+nid;
+	lastval = *target_variable;
+}
+
+StateMonitor::StateMonitor(SpikingGroup *source, Trace * trace, NeuronID id, std::string filename,
+						   AurynDouble sampling_interval): Monitor()  // ALa added
+{
+	if ( !source->localrank(id) ) return; // do not register if neuron is not on the local rank
+
+	if ( id >= trace->get_state_ptr()->size ) return; // do not register if neuron is out of vector range
+
+	open_output_file(filename); // ALa added
 
 	init(filename, sampling_interval);
 
@@ -157,4 +183,16 @@ void StateMonitor::record_for(AurynDouble time)
 	} 
 	else t_stop = auryn::sys->get_clock() + time/auryn_timestep;
 	auryn::logger->debug("Set record for times for monitor.");
+}
+
+PreTraceMonitor::PreTraceMonitor(SpikingGroup *group,Trace *pretrace,NeuronID id,
+								 std::string filename,AurynDouble sampling_interval):
+	StateMonitor(group,pretrace,id,filename,sampling_interval)  // ALa added
+{
+}
+
+PostTraceMonitor::PostTraceMonitor(SpikingGroup *group,string posttracename,NeuronID id,
+								   std::string filename,AurynDouble sampling_interval):
+	StateMonitor(group,id,posttracename,filename,sampling_interval)  // ALa added
+{
 }

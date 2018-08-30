@@ -691,9 +691,10 @@ void ComplexMatrix<T>::fill_zeros()
 template <typename T>
 bool ComplexMatrix<T>::exists(NeuronID i, NeuronID j, NeuronID z)
 {
-	if ( get_data_index(i,j) == data_index_error_value || z >= get_num_synaptic_states() )
+	if ( get_data_index(i,j) == data_index_error_value || z >= get_num_synaptic_states() ) {
+		// std::cerr << "ERROR: Element i = " << i << " j = " << j << " z = " << z << " non-existent!\n";
 		return false;
-	else 
+	} else
 		return true;
 }
 
@@ -747,7 +748,6 @@ T * ComplexMatrix<T>::get_state_end(StateID z)
 {
 	return get_state_begin(z)+get_datasize();
 }
-
 
 template <typename T>
 AurynLong ComplexMatrix<T>::get_data_index(NeuronID i, NeuronID j)

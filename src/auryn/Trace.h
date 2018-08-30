@@ -41,10 +41,12 @@ private:
 protected:
 	/*! Decay time constant in [s]. */
 	AurynFloat tau;
+	/* Increment value in inc() */
+	AurynFloat kinc; // Added by ALa
 
 public:
 	/*! \brief Default constructor */
-	Trace(NeuronID n, AurynFloat timeconstant);
+	Trace(NeuronID n, AurynFloat timeconstant,AurynFloat kinc = 1.);
 
 	/*! \brief Default destructor */
 	virtual ~Trace();
@@ -69,6 +71,9 @@ public:
 
 	/*! \brief  Get decay time constant */
 	AurynFloat get_tau();
+
+	/*! \brief Set the increment value of the trace */
+	virtual void set_kinc( AurynFloat kinc );
 
 	/*! \brief Get trace value of trace dived by tau
 	 *

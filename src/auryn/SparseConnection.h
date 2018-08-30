@@ -421,6 +421,9 @@ public:
 		return wmax;
 	};
 
+	/*! \brief Checks if connection [i,j] exists. */
+	bool exists(NeuronID i, NeuronID j, NeuronID z);
+
 	/*! \brief Returns a vector of ConnectionsID of a block specified by the arguments */
 	std::vector<neuron_pair> get_block(NeuronID lo_row, NeuronID hi_row, NeuronID lo_col, NeuronID hi_col);
 
