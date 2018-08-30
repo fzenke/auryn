@@ -69,8 +69,7 @@ protected:
 	AurynFloat kinc_z_pre; 
 	AurynFloat kinc_z_post; 
 	AurynFloat kinc_p; 
-
-	AurynFloat p_decay;
+	AurynFloat kdec_p; 
 
 	int zid_wij,zid_pi,zid_pij;
 

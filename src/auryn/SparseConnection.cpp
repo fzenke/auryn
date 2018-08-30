@@ -205,6 +205,11 @@ void SparseConnection::set_max_weight(AurynWeight maximum_weight)
 	wmax = maximum_weight;
 }
 
+bool SparseConnection::exists(NeuronID i, NeuronID j, NeuronID z) // ALa added
+{
+	return w->exists(i,j,z);
+}
+
 void SparseConnection::random_data(AurynWeight mean, AurynWeight sigma) 
 {
 	random_data_normal(mean, sigma);
@@ -617,7 +622,6 @@ void SparseConnection::sanity_check()
 
 void SparseConnection::stats(AurynDouble &mean, AurynDouble &std)
 {
-	std::cerr << "XXX" << std::endl;
 	stats(mean, std, 0);
 }
 

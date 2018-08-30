@@ -51,7 +51,13 @@ Monitor::Monitor( ) : Device()
 
 void Monitor::open_output_file(std::string filename)
 {
-	outfile.open( filename.c_str(), std::ios::out );
+	if ( filename.empty() ) { // generate default filename from device id
+		fname = generate_filename();
+	} else 
+		fname = filename;
+
+	active = true;
+	outfile.open( fname.c_str(), std::ios::out );
 	if (!outfile) {
 	  std::stringstream oss;
 	  oss << "Can't open output file " << filename;

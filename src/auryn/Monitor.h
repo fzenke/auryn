@@ -63,10 +63,8 @@ namespace auryn {
 		/*! Default extension */
 		std::string default_file_extension;
 
-
 		/*! Opens a text outputfile -- for binary files redefine this function in derived class. */
 		virtual void open_output_file(std::string filename);
-
 
 		/*! Functions necesssary for serialization and loading saving to netstate files. */
 		virtual void virtual_serialize(boost::archive::binary_oarchive & ar, const unsigned int version ) ;

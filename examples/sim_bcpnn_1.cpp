@@ -32,15 +32,15 @@
  *  * pospikes.txt : Spikes of postsynaptic neurons
  *  * prrate.txt : Population firing rate of presynaptic neurons
  *  * porate.txt : Population firing rate of postsynaptic neurons
- *  * zi.txt : z-trace of presynaptic neuron 5.
- *  * zj.txt : z-trace of postsynaptic neuron 5.
- *  * pi.txt : p-trace of presynaptic neuron 5.
- *  * pj.txt : p-trace of postsynaptic neuron 5.
- *  * bj.txt : bias of postsynaptic neuron 5.
- *  * pij.txt : p-trace of connection between presynaptic neuron 5 and postsynaptic neuron 5.
- *  * wij.txt : weight of connection between presynaptic neuron 5 and postsynaptic neuron 5.
- *  * vmem_pr.txt : Membrane potential of presynaptic neuron 5.
- *  * vmem_po.txt : Membrane potential of postsynaptic neuron 5.
+ *  * zi.txt : z-trace of presynaptic neuron ipre.
+ *  * zj.txt : z-trace of postsynaptic neuron ipost.
+ *  * pi.txt : p-trace of presynaptic neuron ipre.
+ *  * pj.txt : p-trace of postsynaptic neuron ipost.
+ *  * bj.txt : bias of postsynaptic neuron ipost.
+ *  * pij.txt : p-trace of connection between presynaptic neuron ipre and postsynaptic neuron ipost.
+ *  * wij.txt : weight of connection between presynaptic neuron ipre and postsynaptic neuron ipost.
+ *  * vmem_pr.txt : Membrane potential of presynaptic neuron ipre.
+ *  * vmem_po.txt : Membrane potential of postsynaptic neuron ipost.
  *
  */
 
@@ -67,7 +67,7 @@ int main(int ac, char* av[])
 	double kappa = 20;
 	AurynFloat sparseness = 0.5;
 	AurynFloat npostsyn = 100;
-	AurynWeight winit = 0.025;
+	AurynWeight winit = 0.02;
 	bool with_stdp = false;
 	bool with_bcpnn = false;
 	bool nomon = false;
@@ -214,8 +214,8 @@ int main(int ac, char* av[])
 	if (with_bcpnn) {
 		bcpnn_con = new BcpnnConnection(poisson,poneurons,0,sparseness,
 										tau_pre,tau_z_pr,tau_z_po,tau_p,refractory_period);
-		bcpnn_con->set_wgain(1e-16);
-		bcpnn_con->set_bgain(1e-16);
+		bcpnn_con->set_wgain(1e-4);
+		bcpnn_con->set_bgain(1e-4);
 	}
 
 	// Monitors
@@ -235,31 +235,38 @@ int main(int ac, char* av[])
 		}
 
 		if (with_bcpnn) {
-			StateMonitor * zi_mon = new StateMonitor(poisson->get_pre_trace(tau_z_pr),ipre,sys->fn("zi"));
-			StateMonitor * zj_mon = new StateMonitor(poneurons->get_post_trace(tau_z_po),ipost,sys->fn("zj"));
 
-			StateMonitor * pi_mon = new StateMonitor(poisson->get_state_vector("tr_p_pre"),
-													 ipre,sys->fn("pi"));
-			StateMonitor * pj_mon = new StateMonitor(poneurons->get_state_vector("tr_p_post"),
-													 ipost,sys->fn("pj"));
-			StateMonitor * bias_mon = new StateMonitor(poneurons->get_state_vector("w"),ipost,sys->fn("bj"));
+			if (sys->mpi_rank()==0)
+				std::cerr << "ipre = " << ipre << " ipost = " << ipost << std::endl;
 
-			// Record individual synaptic weights (sample every 10 ms)
-			WeightMonitor * pijmon = new WeightMonitor(bcpnn_con,ipre,ipost,sys->fn("pij"),0.01,SINGLE,1);
+			// StateMonitor * zi_mon = new StateMonitor(poisson,poisson->get_pre_trace(tau_z_pr),ipre,
+			//  										 sys->fn("zi"));
+			PreTraceMonitor * zi_mon = new PreTraceMonitor(poisson,poisson->get_pre_trace(tau_z_pr),ipre,
+														   sys->fn("zi"));
+			PostTraceMonitor * zj_mon = new PostTraceMonitor(poneurons,"tr_z_post",ipost,sys->fn("zj"));
+			// StateMonitor * zj_mon = new StateMonitor(poneurons->get_post_trace(tau_z_po),ipost,
+			// 										 sys->fn("zj"));
+
+			PostTraceMonitor * pj_mon = new PostTraceMonitor(poneurons,"tr_p_post",ipost,sys->fn("pj"));
+			StateMonitor * bias_mon = new StateMonitor(poneurons,ipost,"bj_post",sys->fn("bj"));
+
+			// // Record individual synaptic weights (sample every 10 ms)
+			WeightMonitor * pimon = new WeightMonitor(bcpnn_con,ipre,ipost,sys->fn("pi"),0.01,SINGLE,2);
+			WeightMonitor * pijmon = new WeightMonitor(bcpnn_con,ipre,ipost,sys->fn("pij"),0.001,SINGLE,1);
 			WeightMonitor * wijmon = new WeightMonitor(bcpnn_con,ipre,ipost,sys->fn("wij"),0.01,SINGLE,0);
 		}
 
-		// // Record spikes
+		// Record spikes
 		SpikeMonitor * smon_pr = new SpikeMonitor(poisson,sys->fn("prspikes"));
 		SpikeMonitor * smon_po = new SpikeMonitor(poneurons,sys->fn("pospikes"));
 
-		VoltageMonitor * vmon_po = new VoltageMonitor(poneurons,ipost,sys->fn("vmem_po"));
+		// VoltageMonitor * vmon_po = new VoltageMonitor(poneurons,ipost,sys->fn("vmem_po"));
 	
 		// // Record input firing rate (sample every 1s)
-		PopulationRateMonitor * pmon_in = new PopulationRateMonitor(poisson,sys->fn("prrate"), 0.005 );
+		// PopulationRateMonitor * pmon_in = new PopulationRateMonitor(poisson,sys->fn("prrate"), 0.005 );
 	
 		// // Record output firing rate (sample every 1s)
-		PopulationRateMonitor * pmon_ut = new PopulationRateMonitor(poneurons,sys->fn("porate"), 0.005 );
+		// PopulationRateMonitor * pmon_ut = new PopulationRateMonitor(poneurons,sys->fn("porate"), 0.005 );
 	
 	}
 
@@ -273,20 +280,20 @@ int main(int ac, char* av[])
 	int nsyn,gnsyn;
 	/* Get total number of non-plastic synapses */
 	nsyn = sp_con->get_nonzero();
-	MPI_Gather(&nsyn,1,MPI_INT,&gnsyn,1,MPI_INT,0,*sys->get_com());
+	MPI_Reduce(&nsyn,&gnsyn,1,MPI_INT,MPI_SUM,0,*sys->get_com());
 
 	int stdp_nsyn,stdp_gnsyn;
 	if (with_stdp) {
 		/* Get total number of stdp-synapses */
 		stdp_nsyn = stdp_con->get_nonzero();
-		MPI_Gather(&stdp_nsyn,1,MPI_INT,&stdp_gnsyn,1,MPI_INT,0,*sys->get_com());
+		MPI_Reduce(&stdp_nsyn,&stdp_gnsyn,1,MPI_INT,MPI_SUM,0,*sys->get_com());
 	}
 	
 	int bcpnn_nsyn,bcpnn_gnsyn;
 	if (with_bcpnn) {
 		/* Get total number of bcpnn-synapses */
 		bcpnn_nsyn = bcpnn_con->get_nonzero();
-		MPI_Gather(&bcpnn_nsyn,1,MPI_INT,&bcpnn_gnsyn,1,MPI_INT,0,*sys->get_com());
+		MPI_Reduce(&bcpnn_nsyn,&bcpnn_gnsyn,1,MPI_INT,MPI_SUM,0,*sys->get_com());
 	}
 	
 	if (sys->mpi_rank()==0) {
