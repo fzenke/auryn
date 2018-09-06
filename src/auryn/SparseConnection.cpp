@@ -848,14 +848,19 @@ bool SparseConnection::load_from_file(ForwardMatrix * m, std::string filename, A
 		<< " @ "<<1.*k/(src->get_size()*dst->get_rank_size())<<")";
 	auryn::logger->msg(oss.str(),NOTIFICATION);
 
-
 	while ( infile.getline (buffer,255) )
 	{
 		count++;
 		sscanf (buffer,"%u %u %e",&i,&j,&val);
 		try {
-			if ( dst->localrank(j-1) ) {
-				m->push_back(i-1,j-1,val);
+			// if ( dst->localrank(j-1) ) {  // ALa changed
+			// 	std::cerr << i-1 << " " << j-1 << " " << val << " " << std::endl;
+			// 	//m->push_back(i-1,j-1,val);
+			// 	m->push_back(i-1,j-1,val);
+			// 	pushback_count++;
+			// }
+			if ( dst->localrank(j) ) {
+				m->push_back(i,j,val);
 				pushback_count++;
 			}
 		}

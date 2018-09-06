@@ -20,6 +20,8 @@
 
 #include "STDPConnection.h"
 
+#define WGAIN 1e-4
+
 using namespace auryn;
 
 void STDPConnection::init(AurynFloat eta, AurynFloat tau_pre, AurynFloat tau_post, AurynFloat maxweight)
@@ -128,7 +130,7 @@ void STDPConnection::propagate_forward()
 			// handle plasticity
 			if ( stdp_active ) {
 				// performs weight update
-			    *weight += on_pre(*c);
+			    *weight += WGAIN*on_pre(*c);
 
 				// clips weights
 				if ( *weight > get_max_weight() ) *weight = get_max_weight(); 
@@ -158,7 +160,7 @@ void STDPConnection::propagate_backward()
 
 				// computes plasticity update
 				AurynWeight * weight = bkw->get_data(c); 
-				*weight += on_post(*c);
+				*weight += WGAIN * on_post(*c);
 
 				// clips weights
 				if ( *weight > get_max_weight() ) *weight = get_max_weight(); 
