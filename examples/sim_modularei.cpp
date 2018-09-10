@@ -45,26 +45,38 @@ int main(int ac,char *av[]) {
 	NeuronID nmcu = 1;
 	NeuronID npy = 60; // N:o pyramidal cells per minicolumn
 	NeuronID nba = 16; // N:o basket cells per minicolumn
+#ifdef USEDB
 	NeuronID ndb = 1; // N:o double bouguet cells per minicolumn
+#endif // USEDB
+
+#ifdef USEVP
 	NeuronID nvp = 1; // N:o vip cells per minicolumn
+#endif // USEVP
 	NeuronID npo = 60; // N:o poisson cells per minicolumn
 
 	int nrec = nhcu * nmcu * npy;
 
 	std::vector<Connection *> corr_connections;
 
-	double refractory_period = 2e-3;
+	double refractory_period = 1e-3;
 
 	double py_wbg = 0.030;
 	double ba_wbg = 0.0225;
+#ifdef USEDB
 	double db_wbg = 0.0225;
+#endif // USEDB
+#ifdef USEVP
 	double vp_wbg = 0.0225;
-	
+#endif // USEVP	
 	double tau_ad = 144e-3;
 	double py_b = 0.02e-9;
 	double ba_b = 0;
+#ifdef USEDB
 	double db_b = 0;
+#endif // USEDB
+#ifdef USEVP
 	double vp_b = 0;
+#endif // USEVP	
 
 	double simtime = 5;
 
@@ -84,19 +96,31 @@ int main(int ac,char *av[]) {
             ("tau_ad", po::value<double>(), "tau value for adaptation")
             ("py_wbg", po::value<double>(), "weight from background poisson to pyramidalcells")
             ("ba_wbg", po::value<double>(), "weight from background poisson to basket cells")
+#ifdef USEDB
             ("db_wbg", po::value<double>(), "weight from background poisson to double bouquet cells")
+#endif // USEDB
+#ifdef USEVP
             ("vp_wbg", po::value<double>(), "weight from background poisson to vip cells")
+#endif // USEVP	
             ("py_b", po::value<double>(), "b value for pyramidal cells")
             ("ba_b", po::value<double>(), "b value for basket cells")
+#ifdef USEDB
             ("db_b", po::value<double>(), "b value for double bouquet cells")
+#endif // USEDB
+#ifdef USEVP
             ("vp_b", po::value<double>(), "b value for vip cells")
+#endif // USEVP	
             ("simtime", po::value<double>(), "duration of simulation")
             ("nhcu", po::value<int>(), "n:o hypercolumns in network")
             ("nmcu", po::value<int>(), "n:o minicolumns per hypercolumn")
             ("npy", po::value<int>(), "n:o pyramidal cells per minicolumn")
             ("nba", po::value<int>(), "n:o basket cells per minicolumn")
+#ifdef USEDB
             ("ndb", po::value<int>(), "n:o double bouquet cells per minicolumn")
+#endif // USEDB
+#ifdef USEVP
             ("nvp", po::value<int>(), "n:o vip cells per minicolumn")
+#endif // USEVP	
             ("nrec", po::value<int>(), "n:o spike recorded cells")
 
             ("poisson_rate", po::value<double>(), "the background poisson firing rate")
@@ -131,13 +155,17 @@ int main(int ac,char *av[]) {
 			ba_wbg = vm["ba_wbg"].as<double>();
         } 
 
+#ifdef USEDB
         if (vm.count("db_wbg")) {
 			db_wbg = vm["db_wbg"].as<double>();
         } 
+#endif // USEDB
 
+#ifdef USEVP
         if (vm.count("vp_wbg")) {
 			vp_wbg = vm["vp_wbg"].as<double>();
         } 
+#endif // USEVP	
 
         if (vm.count("py_b")) {
 			py_b = vm["py_b"].as<double>();
@@ -147,13 +175,17 @@ int main(int ac,char *av[]) {
 			ba_b = vm["ba_b"].as<double>();
         } 
 
+#ifdef USEDB
         if (vm.count("db_b")) {
 			db_b = vm["db_b"].as<double>();
         } 
+#endif // USEDB
 
+#ifdef USEVP
         if (vm.count("vp_b")) {
 			vp_b = vm["vp_b"].as<double>();
         } 
+#endif // USEVP	
 
         if (vm.count("simtime")) {
 			simtime = vm["simtime"].as<double>();
@@ -175,13 +207,17 @@ int main(int ac,char *av[]) {
 	    nba = vm["nba"].as<int>();
         } 
 
+#ifdef USEDB
         if (vm.count("ndb")) {
 	    ndb = vm["ndb"].as<int>();
         } 
+#endif // USEDB
 
+#ifdef USEVP
         if (vm.count("nvp")) {
 	    nvp = vm["nvp"].as<int>();
         } 
+#endif // USEVP	
 
         if (vm.count("nrec")) {
 	    nrec = -vm["nrec"].as<int>();
@@ -228,9 +264,13 @@ int main(int ac,char *av[]) {
 		std::cout << "N:o pyramidal cells = " << nhcu*nmcu*npy<< " (" << npy*nmcu << " per hcu)" << std::endl;
 		std::cout << "N:o basket cells = " << nhcu*nmcu*nba << " (" << nba*nmcu << " per hcu)" << std::endl;
 
+#ifdef USEDB
 		std::cout << "N:o double bouquet cells = " << nhcu*nmcu*ndb << " (" << ndb*nmcu << " per hcu)" << std::endl;
+#endif // USEDB
 
+#ifdef USEVP
 		std::cout << "N:o vip cells = " << nhcu*nmcu*nvp << " (" << nvp*nmcu << " per hcu)" << std::endl;
+#endif // USEVP	
 	}
 
 	logger->msg("Setting up neuron groups ...",PROGRESS,true);
@@ -247,26 +287,37 @@ int main(int ac,char *av[]) {
 	ba_cells->set_a(0);
 	ba_cells->set_b(ba_b);
 
+#ifdef USEDB
 	AdExGroup *db_cells = new AdExGroup(nhcu*nmcu*ndb);
 	db_cells->set_refractory_period(refractory_period);
 	db_cells->set_tau_w(tau_ad);
 	db_cells->set_a(0);
 	db_cells->set_b(db_b);
+#endif // USEDB
 
+#ifdef USEVP
 	AdExGroup *vp_cells = new AdExGroup(nhcu*nmcu*nvp);
 	vp_cells->set_refractory_period(refractory_period);
 	vp_cells->set_tau_w(tau_ad);
 	vp_cells->set_a(0);
 	vp_cells->set_b(vp_b);
+#endif // USEVP	
 
 	std::cout << "Poisson rate " << poisson_rate;
 
+	StimulusGroup *sg1 = new StimulusGroup(py_cells->get_size(),"py1.stim",RANDOM,poisson_rate);
+	sg1->set_all(1);
+	
 	PoissonGroup *poisson = new PoissonGroup(npo,poisson_rate);
-	SparseConnection *con_stim_py = new SparseConnection(poisson,py_cells,py_wbg,0.5,GLUT);
+	//	SparseConnection *con_stim_py = new SparseConnection(poisson,py_cells,py_wbg,0.5,GLUT);
 	SparseConnection *con_stim_ba = new SparseConnection(poisson,ba_cells,ba_wbg,0.5,GLUT);
+#ifdef USEDB
 	SparseConnection *con_stim_db = new SparseConnection(poisson,db_cells,db_wbg,0.5,GLUT);
+#endif // USEDB
+#ifdef USEVP
 	SparseConnection *con_stim_vp = new SparseConnection(poisson,vp_cells,vp_wbg,0.5,GLUT);
-
+#endif // USEVP	
+	
 	logger->msg("Setting up local py->py connections ...",PROGRESS,true);
 	SparseConnection *py_pyL = new SparseConnection(py_cells,py_cells,"WpypyLx.wij",GLUT);
 
@@ -279,45 +330,73 @@ int main(int ac,char *av[]) {
 	logger->msg("Setting up ba->py connections ...",PROGRESS,true);
 	SparseConnection *ba_py = new SparseConnection(ba_cells,py_cells,"Wbapyx.wij",GABA);
 
+#ifdef USEDB
 	logger->msg("Setting up py->db connections ...",PROGRESS,true);
 	SparseConnection *py_db = new SparseConnection(py_cells,db_cells,"WpydbGx.wij",GLUT);
 
 	logger->msg("Setting up db->py connections ...",PROGRESS,true);
 	SparseConnection *db_py = new SparseConnection(db_cells,py_cells,"Wdbpyx.wij",GABA);
+#endif // USEDB
 
+#ifdef USEVP
 	logger->msg("Setting up py->vp connections ...",PROGRESS,true);
 	SparseConnection *py_vp = new SparseConnection(py_cells,vp_cells,"Wpyvpx.wij",GLUT);
+#endif // USEVP	
 
+#ifdef USEDB
+#ifdef USEVP
 	logger->msg("Setting up vp->db connections ...",PROGRESS,true);
 	SparseConnection *vp_db = new SparseConnection(vp_cells,db_cells,"Wvpdbx.wij",GABA);
+#endif // USEVP	
+#endif // USEDB
 
 	if ( monitor!="") {
-	    std::stringstream fname_py,fname_ba,fname_db,fname_vp;
+	    std::stringstream fname_py,fname_ba
+#ifdef USEDB
+			,fname_db
+#endif // USEDB
+#ifdef USEVP
+			,fname_vp
+#endif // USEVP	
+			;
 
 	    fname_py << outputfile << "py.ras";
 	    SpikeMonitor *smon_py = new SpikeMonitor(py_cells,fname_py.str().c_str(),nrec);
 	    fname_ba << outputfile << "ba.ras";
 	    SpikeMonitor *smon_ba = new SpikeMonitor(ba_cells,fname_ba.str().c_str(),nrec);
+#ifdef USEDB
 	    fname_db << outputfile << "db.ras";
 	    SpikeMonitor *smon_db = new SpikeMonitor(db_cells,fname_db.str().c_str(),nrec);
+#endif // USEDB
+
+#ifdef USEVP
 	    fname_vp << outputfile << "vp.ras";
 	    SpikeMonitor *smon_vp = new SpikeMonitor(vp_cells,fname_vp.str().c_str(),nrec);
+#endif // USEVP	
 
 		VoltageMonitor *vmon_py1 = new VoltageMonitor(py_cells,0,sys->fn("py1.vmem"));
 		VoltageMonitor *vmon_py2 = new VoltageMonitor(py_cells,nhcu*nmcu*npy-1,sys->fn("py2.vmem"));
 		VoltageMonitor *vmon_ba1 = new VoltageMonitor(ba_cells,0,sys->fn("ba1.vmem"));
 		VoltageMonitor *vmon_ba2 = new VoltageMonitor(ba_cells,nhcu*nmcu*nba-1,sys->fn("ba2.vmem"));
+#ifdef USEDB
 		VoltageMonitor *vmon_db1 = new VoltageMonitor(db_cells,0,sys->fn("db1.vmem"));
 		VoltageMonitor *vmon_db2 = new VoltageMonitor(db_cells,nhcu*nmcu*ndb-1,sys->fn("db2.vmem"));
+#endif // USEDB
+#ifdef USEVP
 		VoltageMonitor *vmon_vp1 = new VoltageMonitor(vp_cells,0,sys->fn("vp1.vmem"));
 		VoltageMonitor *vmon_vp2 = new VoltageMonitor(vp_cells,nhcu*nmcu*nvp-1,sys->fn("vp2.vmem"));
+#endif // USEVP	
 
 	    // Record firing rates (sample every 50 ms)
 	    PopulationRateMonitor *pmon_po = new PopulationRateMonitor(poisson,sys->fn("po_rate"),0.005);
 	    PopulationRateMonitor *pmon_py = new PopulationRateMonitor(py_cells,sys->fn("py_rate"),0.005);
 	    PopulationRateMonitor *pmon_ba = new PopulationRateMonitor(ba_cells,sys->fn("ba_rate"),0.005);
+#ifdef USEDB
 	    PopulationRateMonitor *pmon_db = new PopulationRateMonitor(db_cells,sys->fn("db_rate"),0.005);
+#endif // USEDB
+#ifdef USEVP
 	    PopulationRateMonitor *pmon_vp = new PopulationRateMonitor(vp_cells,sys->fn("vp_rate"),0.005);
+#endif // USEVP	
 
 	}
 
@@ -328,7 +407,13 @@ int main(int ac,char *av[]) {
 		std::cerr << "Can't open output file " << fname.c_str() << std::endl;
 	  throw AurynOpenFileException();
 	}
-	outfile << nhcu*nmcu*npy << " " << nhcu*nmcu*nba << " " << nhcu*nmcu*ndb << " " << nhcu*nmcu*nvp << std::endl;
+	outfile << nhcu*nmcu*npy << " " << nhcu*nmcu*nba << " " ;
+#ifdef USEDB
+	outfile << nhcu*nmcu*ndb << " " ;
+#endif // USEDB
+#ifdef USEVP
+	outfile << nhcu*nmcu*nvp << std::endl;
+#endif // USEVP	
 	outfile.close();
 
 	logger->msg("Simulating ..." ,PROGRESS,true);
@@ -353,7 +438,20 @@ int main(int ac,char *av[]) {
 	if (errcode)
 		auryn_abort(errcode);
 
-	int nsyn_pypyL,gnsyn_pypyL,nsyn_pyba,gnsyn_pyba,nsyn_bapy,gnsyn_bapy,nsyn_pydb,gnsyn_pydb,nsyn_dbpy,gnsyn_dbpy,nsyn_pyvp,gnsyn_pyvp,nsyn_vpdb,gnsyn_vpdb;
+	int nsyn_pypyL,gnsyn_pypyL,nsyn_pyba,gnsyn_pyba,nsyn_bapy,gnsyn_bapy
+#ifdef USEDB
+		,nsyn_pydb,gnsyn_pydb,nsyn_dbpy,gnsyn_dbpy
+#endif // USEDB
+#ifdef USEVP
+		,nsyn_pyvp,gnsyn_pyvp
+#endif // USEVP	
+#ifdef USEDB
+#ifdef USEVP
+		,nsyn_vpdb,gnsyn_vpdb
+#endif // USEVP	
+#endif // USEDB
+		;
+
 	/* Get total number of different types of synapses */
 	nsyn_pypyL = py_pyL->get_nonzero();
 	MPI_Reduce(&nsyn_pypyL,&gnsyn_pypyL,1,MPI_INT,MPI_SUM,0,*sys->get_com());
@@ -364,17 +462,25 @@ int main(int ac,char *av[]) {
 	nsyn_bapy = ba_py->get_nonzero();
 	MPI_Reduce(&nsyn_bapy,&gnsyn_bapy,1,MPI_INT,MPI_SUM,0,*sys->get_com());
 	
+#ifdef USEDB
 	nsyn_pydb = py_db->get_nonzero();
 	MPI_Reduce(&nsyn_pydb,&gnsyn_pydb,1,MPI_INT,MPI_SUM,0,*sys->get_com());
 
 	nsyn_dbpy = db_py->get_nonzero();
 	MPI_Reduce(&nsyn_dbpy,&gnsyn_dbpy,1,MPI_INT,MPI_SUM,0,*sys->get_com());
+#endif // USEDB
 	
+#ifdef USEVP
 	nsyn_pyvp = py_vp->get_nonzero();
 	MPI_Reduce(&nsyn_pyvp,&gnsyn_pyvp,1,MPI_INT,MPI_SUM,0,*sys->get_com());
+#endif // USEVP	
 
+#ifdef USEDB
+#ifdef USEVP
 	nsyn_vpdb = db_py->get_nonzero();
 	MPI_Reduce(&nsyn_vpdb,&gnsyn_vpdb,1,MPI_INT,MPI_SUM,0,*sys->get_com());
+#endif // USEVP	
+#endif // USEDB
 	
 	if (sys->mpi_rank()==0) {
 		std::cerr << "Execution time = " << MPI::Wtime() - start << " sec\n";
@@ -385,13 +491,21 @@ int main(int ac,char *av[]) {
 		
 		std::cerr << "N:o ba->py weights = " << gnsyn_bapy << std::endl;
 		
+#ifdef USEDB
 		std::cerr << "N:o py->db weights = " << gnsyn_pydb << std::endl;
 		
 		std::cerr << "N:o db->py weights = " << gnsyn_dbpy << std::endl;
+#endif // USEDB
 		
+#ifdef USEVP
 		std::cerr << "N:o py->vp weights = " << gnsyn_pyvp << std::endl;
+#endif // USEVP	
 		
+#ifdef USEDB
+#ifdef USEVP
 		std::cerr << "N:o vp->db weights = " << gnsyn_vpdb << std::endl;
+#endif // USEVP	
+#endif // USEDB
 		
 	    std::cerr << "Maximum send buffer size: " << sys->get_max_send_buffer_size() << std::endl;
 
@@ -401,3 +515,6 @@ int main(int ac,char *av[]) {
 
 	return errcode;
 }
+
+
+
