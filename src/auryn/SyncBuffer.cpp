@@ -408,11 +408,11 @@ void SyncBuffer::reset_send_buffer()
 
 void SyncBuffer::resize_buffers(NeuronID send_size)
 {
+	send_buf.reserve(send_size);
+	recv_buf.resize(mpicom->size()*send_size);
 	for ( int r = 0 ; r<mpicom->size() ; ++r ) {
 		rank_displs[r] = r*send_size;
 	}
-	send_buf.reserve(send_size);
-	recv_buf.resize(mpicom->size()*send_size);
 }
 
 int SyncBuffer::get_max_send_buffer_size()
