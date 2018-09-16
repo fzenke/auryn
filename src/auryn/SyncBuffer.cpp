@@ -266,6 +266,14 @@ void SyncBuffer::pop(SpikeDelay * delay, const NeuronID size)
 }
 
 
+int SyncBuffer::compute_buffer_size_with_margin(int n, int sum, int sum2)
+{
+	const NeuronID mean =  sum/n; 
+	const NeuronID var  =  (sum2/n-mean*mean);
+	const NeuronID uest =  mean+SYNCBUFFER_SIZE_MARGIN_MULTIPLIER*std::sqrt(var);
+	return uest;
+}
+
 void SyncBuffer::sync() 
 {
 	if ( sync_counter >= SYNCBUFFER_SIZE_HIST_LEN ) {  // update the estimate of maximum send size
@@ -273,9 +281,7 @@ void SyncBuffer::sync()
 		// update per rank send size estimates (TODO could compute max from these values)
 		std::cout << "r" << mpicom->rank() << ": ";
 		for ( int i = 0 ; i<mpicom->size() ; ++i ) {
-			const NeuronID mean =  rank_send_sum[i]/sync_counter; 
-			const NeuronID var  =  (rank_send_sum2[i]/sync_counter-mean*mean);
-			const NeuronID uest =  mean+SYNCBUFFER_SIZE_MARGIN_MULTIPLIER*std::sqrt(var);
+			const NeuronID uest =  compute_buffer_size_with_margin(sync_counter,rank_send_sum[i],rank_send_sum2[i]);
 			if ( rank_recv_count[i] > uest && rank_recv_count[i] > 4 ) { 
 				rank_recv_count[i] = (rank_recv_count[i]+uest)/2;
 				std::cout << rank_recv_count[i] << " ";
@@ -319,11 +325,13 @@ void SyncBuffer::sync()
 						      recv_buf.data(), rank_recv_count, rank_displs, MPI_UNSIGNED, *mpicom);
 	} else { 
 		// Create an overflow package 
-		NeuronID overflow_data [rank_recv_count[mpicom->rank()]]; 
+		NeuronID * overflow_data;
+		overflow_data = new NeuronID[rank_recv_count[mpicom->rank()]]; 
 		overflow_data[0] = overflow_value;
 		overflow_data[1] = send_buf.size(); 
-		ierr = MPI_Allgatherv(&overflow_data, rank_recv_count[mpicom->rank()], MPI_UNSIGNED,  
+		ierr = MPI_Allgatherv(overflow_data, rank_recv_count[mpicom->rank()], MPI_UNSIGNED,  
 							  recv_buf.data(), rank_recv_count, rank_displs, MPI_UNSIGNED, *mpicom);
+		delete [] overflow_data;
 	}
 
 	// error handling
