@@ -43,7 +43,7 @@ SyncBuffer::~SyncBuffer(  )
 
 	delete [] rank_send_sum;
 	delete [] rank_send_sum2;
-	delete [] rank_send_count;
+	delete [] rank_recv_count;
 	delete [] rank_displs;
 }
 
@@ -80,12 +80,12 @@ void SyncBuffer::init()
 
 	rank_send_sum = new int[mpicom->size()];
 	rank_send_sum2 = new int[mpicom->size()];
-	rank_send_count = new int[mpicom->size()];
+	rank_recv_count = new int[mpicom->size()];
 	rank_displs = new int[mpicom->size()];
 	for ( int r = 0 ; r<mpicom->size() ; ++r ) {
 		rank_send_sum[r] = 0;
 		rank_send_sum2[r] = 0;
-		rank_send_count[r] = 4;
+		rank_recv_count[r] = 2; // make space for overflow
 	}
 
 	resize_buffers(max_send_size);
@@ -276,9 +276,9 @@ void SyncBuffer::sync()
 			const NeuronID mean =  rank_send_sum[i]/sync_counter; 
 			const NeuronID var  =  (rank_send_sum2[i]/sync_counter-mean*mean);
 			const NeuronID uest =  mean+SYNCBUFFER_SIZE_MARGIN_MULTIPLIER*std::sqrt(var);
-			if ( rank_send_count[i] > uest && rank_send_count[i] > 2 ) { 
-				rank_send_count[i] = (rank_send_count[i]+uest)/2;
-				std::cout << rank_send_count[i] << " ";
+			if ( rank_recv_count[i] > uest && rank_recv_count[i] > 4 ) { 
+				rank_recv_count[i] = (rank_recv_count[i]+uest)/2;
+				std::cout << rank_recv_count[i] << " ";
 				// std::cout << rank_send_sum[i] << " ";
 			}
 
@@ -314,16 +314,16 @@ void SyncBuffer::sync()
     T1 = MPI_Wtime();     /* start time */
 #endif
 
-	if ( send_buf.size() <= rank_send_count[mpicom->rank()] ) {
-		ierr = MPI_Allgatherv(send_buf.data(), rank_send_count[mpicom->rank()], MPI_UNSIGNED,  
-						      recv_buf.data(), rank_send_count, rank_displs, MPI_UNSIGNED, *mpicom);
+	if ( send_buf.size() <= rank_recv_count[mpicom->rank()] ) {
+		ierr = MPI_Allgatherv(send_buf.data(), rank_recv_count[mpicom->rank()], MPI_UNSIGNED,  
+						      recv_buf.data(), rank_recv_count, rank_displs, MPI_UNSIGNED, *mpicom);
 	} else { 
 		// Create an overflow package 
-		NeuronID overflow_data [rank_send_count[mpicom->rank()]]; 
+		NeuronID overflow_data [rank_recv_count[mpicom->rank()]]; 
 		overflow_data[0] = overflow_value;
 		overflow_data[1] = send_buf.size(); 
-		ierr = MPI_Allgatherv(&overflow_data, rank_send_count[mpicom->rank()], MPI_UNSIGNED,  
-							  recv_buf.data(), rank_send_count, rank_displs, MPI_UNSIGNED, *mpicom);
+		ierr = MPI_Allgatherv(&overflow_data, rank_recv_count[mpicom->rank()], MPI_UNSIGNED,  
+							  recv_buf.data(), rank_recv_count, rank_displs, MPI_UNSIGNED, *mpicom);
 	}
 
 	// error handling
@@ -352,7 +352,7 @@ void SyncBuffer::sync()
 		if  ( recv_buf[r*max_send_size]==overflow_value ) {
 			overflow = true;
 			const NeuronID value = recv_buf[r*max_send_size+1];
-			rank_send_count[r] = value;
+			rank_recv_count[r] = std::max(value,(unsigned int)2); // leave enough space for an overflow package
 			if ( value > new_send_size ) {
 				new_send_size = value;
 			}
@@ -374,14 +374,14 @@ void SyncBuffer::sync()
 		max_send_size = new_send_size+2;
 		resize_buffers(max_send_size);
 		// resend full buffer
-		ierr = MPI_Allgatherv(send_buf.data(), rank_send_count[mpicom->rank()], MPI_UNSIGNED,  
-							  recv_buf.data(), rank_send_count, rank_displs, MPI_UNSIGNED, *mpicom);
+		ierr = MPI_Allgatherv(send_buf.data(), rank_recv_count[mpicom->rank()], MPI_UNSIGNED,  
+							  recv_buf.data(), rank_recv_count, rank_displs, MPI_UNSIGNED, *mpicom);
 	} 
 
 	// reset
 	NeuronID largest_message = 0;
 	for ( int r = 0 ; r < mpicom->size() ; ++r ) { 
-		const unsigned int val = pop_offsets[r];
+		const unsigned int val = pop_offsets[r]; // contains "message sizes" implictly
 		rank_send_sum[r]  += val;
 		rank_send_sum2[r] += val*val;
 		largest_message = std::max(val,largest_message);
@@ -409,7 +409,7 @@ void SyncBuffer::reset_send_buffer()
 void SyncBuffer::resize_buffers(NeuronID send_size)
 {
 	for ( int r = 0 ; r<mpicom->size() ; ++r ) {
-		rank_displs[r] = r*max_send_size;
+		rank_displs[r] = r*send_size;
 	}
 	send_buf.reserve(send_size);
 	recv_buf.resize(mpicom->size()*send_size);
