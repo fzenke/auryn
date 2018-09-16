@@ -74,7 +74,7 @@ namespace auryn {
 
 			int * rank_send_sum;
 			int * rank_send_sum2;
-			int * rank_send_count;
+			int * rank_recv_count;
 			int * rank_displs;
 
 			/*! \brief The send buffer size that all ranks agree upon */
