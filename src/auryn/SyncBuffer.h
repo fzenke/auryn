@@ -29,7 +29,7 @@
 
 
 #define SYNCBUFFER_SIZE_MARGIN_MULTIPLIER 5 //!< Safety margin for receive buffer size -- a value of 3 should make overflows rare in AI state
-#define SYNCBUFFER_SIZE_HIST_LEN 2048 //!< Accumulate history over this number of timesteps before updating the sendbuffer size in the absence of overflows
+#define SYNCBUFFER_SIZE_HIST_LEN 4096 //!< Accumulate history over this number of timesteps before updating the sendbuffer size in the absence of overflows
 
 /*! \brief Datatype used for delta computation should be a "long" for large nets with sparse activity otherwise NeuronID 
  *
@@ -97,6 +97,7 @@ namespace auryn {
 			void init();
 			void free();
 
+			int compute_buffer_margin(int n, int sum, int sum2);
 			int compute_buffer_size_with_margin(int n, int sum, int sum2);
 
 			/*! \brief Reads the next spike delta */
