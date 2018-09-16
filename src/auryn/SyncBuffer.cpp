@@ -309,24 +309,17 @@ void SyncBuffer::sync()
     T1 = MPI_Wtime();     /* start time */
 #endif
 
-	for ( int r = 0 ; r < mpicom->size() ; ++r ) {
-		std::cout << mpicom->rank() << "/" << r << " send " << std::endl;
-		std::cout << mpicom->rank() << "/" << r << " rank_send_count = " << rank_send_count[r] << std::endl;
-		std::cout << mpicom->rank() << "/" << r << " rank_displs = " << rank_displs[r] << std::endl;
-	}
 	if ( send_buf.size() <= rank_send_count[mpicom->rank()] ) {
 		ierr = MPI_Allgatherv(send_buf.data(), rank_send_count[mpicom->rank()], MPI_UNSIGNED,  
 						      recv_buf.data(), rank_send_count, rank_displs, MPI_UNSIGNED, *mpicom);
 	} else { 
 		// Create an overflow package 
-		std::cout << " overflow " << std::endl;
 		NeuronID overflow_data [rank_send_count[mpicom->rank()]]; 
 		overflow_data[0] = overflow_value;
 		overflow_data[1] = send_buf.size(); 
 		ierr = MPI_Allgatherv(&overflow_data, rank_send_count[mpicom->rank()], MPI_UNSIGNED,  
 							  recv_buf.data(), rank_send_count, rank_displs, MPI_UNSIGNED, *mpicom);
 	}
-
 
 	// error handling
 	if ( ierr ) {
@@ -371,17 +364,10 @@ void SyncBuffer::sync()
 			<< " total ) " 
 			<< std::endl;
 #endif //DEBUG
-		std::cout << " handling overflow " << std::endl;
 		++overflow_counter;
 		max_send_size = new_send_size+2;
 		resize_buffers(max_send_size);
 		// resend full buffer
-		// ierr = MPI_Allgather(send_buf.data(), send_buf.size(), MPI_UNSIGNED, 
-		for ( int r = 0 ; r < mpicom->size() ; ++r ) {
-			std::cout << mpicom->rank() << "/" << r << " resend " << std::endl;
-			std::cout << mpicom->rank() << "/" << r << " rank_send_count = " << rank_send_count[r] << std::endl;
-			std::cout << mpicom->rank() << "/" << r << " rank_displs = " << rank_displs[r] << std::endl;
-		}
 		ierr = MPI_Allgatherv(send_buf.data(), rank_send_count[mpicom->rank()], MPI_UNSIGNED,  
 							  recv_buf.data(), rank_send_count, rank_displs, MPI_UNSIGNED, *mpicom);
 	} 
