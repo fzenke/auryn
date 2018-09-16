@@ -269,6 +269,24 @@ void SyncBuffer::pop(SpikeDelay * delay, const NeuronID size)
 void SyncBuffer::sync() 
 {
 	if ( sync_counter >= SYNCBUFFER_SIZE_HIST_LEN ) {  // update the estimate of maximum send size
+
+		// update per rank send size estimates (TODO could compute max from these values)
+		std::cout << "r" << mpicom->rank() << ": ";
+		for ( int i = 0 ; i<mpicom->size() ; ++i ) {
+			const NeuronID mean =  rank_send_sum[i]/sync_counter; 
+			const NeuronID var  =  (rank_send_sum2[i]/sync_counter-mean*mean);
+			const NeuronID uest =  mean+SYNCBUFFER_SIZE_MARGIN_MULTIPLIER*std::sqrt(var);
+			if ( rank_send_count[i] > uest && rank_send_count[i] > 2 ) { 
+				rank_send_count[i] = (rank_send_count[i]+uest)/2;
+				std::cout << rank_send_count[i] << " ";
+				// std::cout << rank_send_sum[i] << " ";
+			}
+
+			rank_send_sum[i]  = 0;
+			rank_send_sum2[i] = 0;
+		}
+		std::cout << std::endl;
+
 		const NeuronID mean_send_size =  max_send_sum/sync_counter; 
 		const NeuronID var_send_size  =  (max_send_sum2/sync_counter-mean_send_size*mean_send_size);
 		const NeuronID upper_estimate =  mean_send_size+SYNCBUFFER_SIZE_MARGIN_MULTIPLIER*std::sqrt(var_send_size);
@@ -283,19 +301,6 @@ void SyncBuffer::sync()
 				<< std::endl;
 #endif //DEBUG
 		}	
-
-		// update per rank send size estimates (TODO could compute max from these values)
-		for ( int i = 0 ; i<mpicom->size() ; ++i ) {
-			const NeuronID mean =  rank_send_sum[i]/sync_counter; 
-			const NeuronID var  =  (rank_send_sum2[i]/sync_counter-mean*mean);
-			const NeuronID uest =  mean+SYNCBUFFER_SIZE_MARGIN_MULTIPLIER*std::sqrt(var);
-			if ( rank_send_count[i] > uest && rank_send_count[i] > 4 ) { 
-				rank_send_count[i] = (rank_send_count[i]+uest)/2;
-			}
-
-			rank_send_sum[i]  = 0;
-			rank_send_sum2[i] = 0;
-		}
 
 		max_send_sum = 0;
 		max_send_sum2 = 0;
@@ -356,6 +361,7 @@ void SyncBuffer::sync()
 
 
 	if ( overflow ) {
+		std::cout << "overflow" << std::endl;
 #ifdef DEBUG
 		std::cerr << "Overflow in SyncBuffer adapting buffersize to "
 			<< (new_send_size+2)*sizeof(NeuronID)
