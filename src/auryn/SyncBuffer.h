@@ -72,6 +72,11 @@ namespace auryn {
 			unsigned int max_send_sum2;
 			unsigned int sync_counter;
 
+			int * rank_send_sum;
+			int * rank_send_sum2;
+			int * rank_send_count;
+			int * rank_displs;
+
 			/*! \brief The send buffer size that all ranks agree upon */
 			unsigned int max_send_size;
 
