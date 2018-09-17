@@ -2,7 +2,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8.11)
 PROJECT(Auryn)
 
 # The version number.
-SET(Auryn_VERSION_MAJOR 0)
+SET(Auryn_VERSION_MAJOR 1)
 SET(Auryn_VERSION_MINOR 8)
 
 # Important GCC Compiler flags for Auryn's performance
