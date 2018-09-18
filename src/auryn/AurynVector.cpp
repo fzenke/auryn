@@ -60,10 +60,12 @@ AurynVectorFloat::AurynVectorFloat(NeuronID n) : AurynVector<float>(n)
 
 void AurynVectorFloat::resize(NeuronID new_size) 
 {
+#ifdef CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY
 	if ( new_size%SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS ) {
 		const NeuronID div = new_size/SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS; // rounds down
 		new_size = (div+1)*SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS; // is multiple of SIMD...
 	}
+#endif /* CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY */
 	super::resize(new_size);
 }
 
