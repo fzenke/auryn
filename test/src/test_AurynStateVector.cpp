@@ -5,7 +5,10 @@
 
 int expected_size( int n ) 
 {
-	const int n_simd = SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS;
+	int n_simd = 1;
+#ifdef CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY
+	n_simd = SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS;
+#endif /* CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY */
 	int n_expected = n;
 	if ( n%n_simd ) n_expected = ((n/n_simd)+1)*n_simd;
 	return n_expected;
