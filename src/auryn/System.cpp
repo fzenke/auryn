@@ -200,7 +200,7 @@ void System::free()
 
 #ifdef AURYN_CODE_USE_MPI
 	if ( syncbuffer != NULL ) {
-		if ( syncbuffer->get_sync_count() > 0 && mpi_rank()==0 ) {
+		if ( get_clock() > 0 && mpi_rank()==0 ) {
 			const double relative_overflow_rate = 1.0*syncbuffer->get_overflow_count()/get_clock()*MINDELAY;
 			std::stringstream oss;
 			oss << "System:: Freeing SyncBuffer (overflow count="
