@@ -49,7 +49,7 @@
  * Even if you do not enforce this here the compiler might still choose to use
  * them when mtune settings are set appropriately.
  * */
-#define CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY
+// #define CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY
 
 /*! \brief Use Intel Cilk Plus -- only has an effect when 
  * CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY is enabled. 
