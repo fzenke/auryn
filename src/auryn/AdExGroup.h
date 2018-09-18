@@ -120,6 +120,12 @@ public:
     /*! Set value of E_l (default -70.6mV) */
     void set_e_rest(AurynFloat erest);
 
+    /*! Set value of E_l (default 0mV) */
+	void set_e_rev_ampa(AurynFloat erev); // ALa added
+
+    /*! Set value of E_l (default -80mV) */
+	void set_e_rev_gaba(AurynFloat erev); // ALa added
+
     /*! Set value of V_t (default -50.4mV) */
     void set_e_thr(AurynFloat ethr);
 

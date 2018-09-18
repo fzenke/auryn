@@ -191,6 +191,14 @@ void AdExGroup::set_e_rest(AurynFloat erest)
         auryn_vector_float_set (mem, i, e_rest);
 }
 
+void AdExGroup::set_e_rev_ampa(AurynFloat erev) { // ALa added
+	e_rev_ampa = erev;
+}
+
+void AdExGroup::set_e_rev_gaba(AurynFloat erev) { // ALa added
+	e_rev_gaba = erev;
+}
+
 void AdExGroup::set_a(AurynFloat _a)
 {
     a = _a/g_leak;

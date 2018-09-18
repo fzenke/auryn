@@ -309,13 +309,17 @@ int main(int ac,char *av[]) {
 	sg1->set_all(1);
 	
 	PoissonGroup *poisson = new PoissonGroup(npo,poisson_rate);
-	//	SparseConnection *con_stim_py = new SparseConnection(poisson,py_cells,py_wbg,0.5,GLUT);
-	SparseConnection *con_stim_ba = new SparseConnection(poisson,ba_cells,ba_wbg,0.5,GLUT);
+	SparseConnection *con_stim_py_exc = new SparseConnection(poisson,py_cells,py_wbg,0.5,GLUT);
+	SparseConnection *con_stim_py_inh = new SparseConnection(poisson,py_cells,py_wbg,0.5,GABA);
+	SparseConnection *con_stim_ba_exc = new SparseConnection(poisson,ba_cells,ba_wbg,0.5,GLUT);
+	SparseConnection *con_stim_ba_inh = new SparseConnection(poisson,ba_cells,ba_wbg,0.5,GABA);
 #ifdef USEDB
-	SparseConnection *con_stim_db = new SparseConnection(poisson,db_cells,db_wbg,0.5,GLUT);
+	SparseConnection *con_stim_db_exc = new SparseConnection(poisson,db_cells,db_wbg,0.5,GLUT);
+	SparseConnection *con_stim_db_inh = new SparseConnection(poisson,db_cells,db_wbg,0.5,GABA);
 #endif // USEDB
 #ifdef USEVP
-	SparseConnection *con_stim_vp = new SparseConnection(poisson,vp_cells,vp_wbg,0.5,GLUT);
+	SparseConnection *con_stim_vp_exc = new SparseConnection(poisson,vp_cells,vp_wbg,0.5,GLUT);
+	SparseConnection *con_stim_vp_inh = new SparseConnection(poisson,vp_cells,vp_wbg,0.5,GABA);
 #endif // USEVP	
 	
 	logger->msg("Setting up local py->py connections ...",PROGRESS,true);
