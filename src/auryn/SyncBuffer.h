@@ -68,8 +68,6 @@ namespace auryn {
 
 
 			// NeuronID size_history[SYNCBUFFER_SIZE_HIST_LEN];
-			unsigned int max_send_sum;
-			unsigned int max_send_sum2;
 			unsigned int sync_counter;
 
 			int * rank_send_sum;
@@ -78,7 +76,7 @@ namespace auryn {
 			int * rank_displs;
 
 			/*! \brief The send buffer size that all ranks agree upon */
-			unsigned int max_send_size;
+			int max_send_size;
 
 			mpi::communicator * mpicom;
 

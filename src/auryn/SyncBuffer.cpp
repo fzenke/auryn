@@ -73,8 +73,6 @@ void SyncBuffer::init()
 	}
 
 
-	// max_send_sum = 0;
-	// max_send_sum2 = 0;
 	sync_counter = 0;
 	max_send_size = 4;
 
@@ -284,8 +282,7 @@ void SyncBuffer::sync()
 {
 	if ( sync_counter >= SYNCBUFFER_SIZE_HIST_LEN ) {  // update the estimate of maximum send size
 
-		// update per rank send size estimates (TODO could compute max from these values)
-		// std::cout << "r" << mpicom->rank() << ": ";
+		// update per rank send size estimates 
 		for ( int i = 0 ; i<mpicom->size() ; ++i ) {
 			const int uest =  compute_buffer_size_with_margin(sync_counter,rank_send_sum[i],rank_send_sum2[i]);
 			if ( rank_recv_count[i] > uest && rank_recv_count[i] > 4 ) { 
@@ -294,13 +291,21 @@ void SyncBuffer::sync()
 				rank_recv_count[i] = uest;
 			}
 
-			// std::cout << rank_recv_count[i] << " ";
-			// std::cout << rank_send_sum[i]/sync_counter << " "; 
 			rank_send_sum[i]  = 0;
 			rank_send_sum2[i] = 0;
 		}
-		// std::cout << max_send_size << " "; 
-		// std::cout << std::endl;
+	
+		// find max send/recv value for max_send_size
+		int new_max_send_size = 0;
+		for ( int i = 0 ; i<mpicom->size() ; ++i ) {
+			new_max_send_size = std::max(rank_recv_count[i],new_max_send_size);
+		}
+
+		if (max_send_size!=new_max_send_size) {
+			max_send_size = new_max_send_size;
+			resize_buffers(max_send_size);
+			// std::cout << "Updates max_send_size " << max_send_size << std::endl;
+		}
 
 		sync_counter = 0;
 	}
@@ -348,7 +353,7 @@ void SyncBuffer::sync()
 
 	/* Detect overflow */
 	bool overflow = false;
-	NeuronID new_send_size = 0;
+	int new_send_size = 0;
 	for (int r = 0 ; r < mpicom->size() ; ++r ) {
 		if  ( recv_buf[r*max_send_size]==overflow_value ) {
 			overflow = true;
@@ -394,9 +399,6 @@ void SyncBuffer::sync()
 		rank_send_sum2[r] += val*val;
 	}
 	// std::cout << std::endl;
-
-	// max_send_sum  += largest_message;
-	// max_send_sum2 += largest_message*largest_message;
 
 	sync_counter++;
 
