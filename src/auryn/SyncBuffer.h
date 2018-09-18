@@ -29,7 +29,7 @@
 
 
 #define SYNCBUFFER_SIZE_MARGIN_MULTIPLIER 3 //!< Safety margin for receive buffer size -- a value of 3 should make overflows rare in AI state
-#define SYNCBUFFER_SIZE_HIST_LEN 2048 //!< Accumulate history over this number of timesteps before updating the sendbuffer size in the absence of overflows
+#define SYNCBUFFER_SIZE_HIST_LEN 512 //!< Accumulate history over this number of timesteps before updating the sendbuffer size in the absence of overflows
 
 /*! \brief Datatype used for delta computation should be a "long" for large nets with sparse activity otherwise NeuronID 
  *
@@ -66,14 +66,15 @@ namespace auryn {
 			SYNCBUFFER_DELTA_DATATYPE max_delta_size;
 			SYNCBUFFER_DELTA_DATATYPE undefined_delta_size;
 
-
-			// NeuronID size_history[SYNCBUFFER_SIZE_HIST_LEN];
-			unsigned int max_send_sum;
-			unsigned int max_send_sum2;
 			unsigned int sync_counter;
 
+			int * rank_send_sum;
+			int * rank_send_sum2;
+			int * rank_recv_count;
+			int * rank_displs;
+
 			/*! \brief The send buffer size that all ranks agree upon */
-			unsigned int max_send_size;
+			int max_send_size;
 
 			mpi::communicator * mpicom;
 
@@ -91,6 +92,10 @@ namespace auryn {
 
 			void init();
 			void free();
+
+			void update_send_recv_counts();
+			int compute_buffer_margin(int n, int sum, int sum2);
+			int compute_buffer_size_with_margin(int n, int sum, int sum2);
 
 			/*! \brief Reads the next spike delta */
 			NeuronID * read_delta_spike_from_buffer(NeuronID * iter, SYNCBUFFER_DELTA_DATATYPE & delta);

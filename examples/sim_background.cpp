@@ -491,7 +491,7 @@ int main(int ac, char* av[])
 
 	auryn_init(ac, av, dir, "sim_background", logfile_prefix);
 
-	logger->set_logfile_loglevel( PROGRESS );
+	logger->set_logfile_loglevel( INFO );
 	if ( verbose ) logger->set_logfile_loglevel( EVERYTHING );
 
 
