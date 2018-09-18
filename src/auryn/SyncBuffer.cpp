@@ -278,36 +278,40 @@ int SyncBuffer::compute_buffer_size_with_margin(int n, int sum, int sum2)
 	return uest;
 }
 
+
+void SyncBuffer::update_send_recv_counts()
+{
+	// update per rank send size estimates 
+	for ( int i = 0 ; i<mpicom->size() ; ++i ) {
+		const int uest =  compute_buffer_size_with_margin(sync_counter,rank_send_sum[i],rank_send_sum2[i]);
+		if ( rank_recv_count[i] > uest && rank_recv_count[i] > 4 ) { 
+			rank_recv_count[i] = rank_recv_count[i]+(uest-rank_recv_count[i])/2;
+		} else {
+			rank_recv_count[i] = uest;
+		}
+
+		rank_send_sum[i]  = 0;
+		rank_send_sum2[i] = 0;
+	}
+
+	// find max send/recv value for max_send_size
+	int new_max_send_size = 0;
+	for ( int i = 0 ; i<mpicom->size() ; ++i ) {
+		new_max_send_size = std::max(rank_recv_count[i],new_max_send_size);
+	}
+
+	if (max_send_size!=new_max_send_size) {
+		max_send_size = new_max_send_size;
+		resize_buffers(max_send_size);
+	}
+
+	sync_counter = 0;
+}
+
 void SyncBuffer::sync() 
 {
 	if ( sync_counter >= SYNCBUFFER_SIZE_HIST_LEN ) {  // update the estimate of maximum send size
-
-		// update per rank send size estimates 
-		for ( int i = 0 ; i<mpicom->size() ; ++i ) {
-			const int uest =  compute_buffer_size_with_margin(sync_counter,rank_send_sum[i],rank_send_sum2[i]);
-			if ( rank_recv_count[i] > uest && rank_recv_count[i] > 4 ) { 
-				rank_recv_count[i] = rank_recv_count[i]+(uest-rank_recv_count[i])/2;
-			} else {
-				rank_recv_count[i] = uest;
-			}
-
-			rank_send_sum[i]  = 0;
-			rank_send_sum2[i] = 0;
-		}
-	
-		// find max send/recv value for max_send_size
-		int new_max_send_size = 0;
-		for ( int i = 0 ; i<mpicom->size() ; ++i ) {
-			new_max_send_size = std::max(rank_recv_count[i],new_max_send_size);
-		}
-
-		if (max_send_size!=new_max_send_size) {
-			max_send_size = new_max_send_size;
-			resize_buffers(max_send_size);
-			// std::cout << "Updates max_send_size " << max_send_size << std::endl;
-		}
-
-		sync_counter = 0;
+		update_send_recv_counts();
 	}
 
 	int ierr = 0;
@@ -358,7 +362,7 @@ void SyncBuffer::sync()
 		if  ( recv_buf[r*max_send_size]==overflow_value ) {
 			overflow = true;
 			const NeuronID value = recv_buf[r*max_send_size+1];
-			rank_recv_count[r] = std::max(value+2,(unsigned int)2); // leave enough space for an overflow package
+			rank_recv_count[r] = std::max(value,(unsigned int)2); // leave enough space for an overflow package
 			if ( value > new_send_size ) {
 				new_send_size = value;
 			}
@@ -384,23 +388,15 @@ void SyncBuffer::sync()
 							  recv_buf.data(), rank_recv_count, rank_displs, MPI_UNSIGNED, *mpicom);
 	} 
 
-	// reset
-	// NeuronID largest_message = 0;
-	// for ( int r = 0 ; r < mpicom->size() ; ++r ) { 
-	// 	const unsigned int val = pop_offsets[r]; // contains "message sizes" implictly
-	// 	largest_message = std::max(val,largest_message);
-	// }
-
-	// std::cout << "r " << mpicom->rank() << ": " ;
 	for ( int r = 0 ; r < mpicom->size() ; ++r ) { 
 		const unsigned int val = recv_buf[r*max_send_size];
-		// std::cout << val << " ";
 		rank_send_sum[r]  += val;
 		rank_send_sum2[r] += val*val;
 	}
-	// std::cout << std::endl;
-
 	sync_counter++;
+
+	// update senc/recv counters and buffers earlier if there was an overflow and we have some stats
+	// if ( overflow && sync_counter>10 ) update_send_recv_counts(); 
 
 	reset_send_buffer();
 }
