@@ -29,6 +29,7 @@ using namespace auryn;
 
 void STPConnection::init() 
 {
+
 	if ( src->get_rank_size() > 0 ) {
 		// init of STP stuff
 		tau_d = 0.2;
