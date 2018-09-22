@@ -53,7 +53,7 @@ void BcpnnConnection::init(AurynFloat tau_pre,AurynFloat tau_z_pre, AurynFloat t
 	zid_pij = 1;
 	zid_pi = 2;
 
-    kinc_p = 1 - exp(-auryn_timestep/tau_p);
+	kinc_p = 1 - exp(-auryn_timestep/tau_p);
 	kdec_p = exp(-auryn_timestep/tau_p);
 
 	// bcpnn_pi trace in connection (zid_pi)

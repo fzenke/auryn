@@ -58,22 +58,23 @@ namespace auryn {
 	{
 		private:
 			std::vector<NeuronID> send_buf;
-	                std::vector<NeuronID> send_bufx; // ALa added
 			std::vector<NeuronID> recv_buf;
 
 			NeuronID overflow_value;
+			unsigned int overflow_counter;
 
 			SYNCBUFFER_DELTA_DATATYPE max_delta_size;
 			SYNCBUFFER_DELTA_DATATYPE undefined_delta_size;
 
+			unsigned int sync_counter;
 
-			// NeuronID size_history[SYNCBUFFER_SIZE_HIST_LEN];
-			NeuronID maxSendSum;
-			NeuronID maxSendSum2;
-			NeuronID syncCount;
+			int * rank_send_sum;
+			int * rank_send_sum2;
+			int * rank_recv_count;
+			int * rank_displs;
 
 			/*! \brief The send buffer size that all ranks agree upon */
-			NeuronID max_send_size;
+			int max_send_size;
 
 			mpi::communicator * mpicom;
 
@@ -84,12 +85,17 @@ namespace auryn {
 			SYNCBUFFER_DELTA_DATATYPE * last_spike_pos;
 
 			/*! \brief vector with offset values to allow to pop more than one delay */
-			NeuronID * pop_offsets;
+			unsigned int * pop_offsets;
 
 			void reset_send_buffer();
+			void resize_buffers(unsigned int send_size);
 
 			void init();
 			void free();
+
+			void update_send_recv_counts();
+			int compute_buffer_margin(int n, int sum, int sum2);
+			int compute_buffer_size_with_margin(int n, int sum, int sum2);
 
 			/*! \brief Reads the next spike delta */
 			NeuronID * read_delta_spike_from_buffer(NeuronID * iter, SYNCBUFFER_DELTA_DATATYPE & delta);
@@ -103,12 +109,6 @@ namespace auryn {
 
 			/*! \brief The default destructor. */
 			virtual ~SyncBuffer( );
-
-	                /*! \brief Fixes up recv_buf size. */     // ALa added
-	                void fixup_recv_buf_size();
-
-	                /*! \brief Copies content of send_buf to send_bufx. */     // ALa added
-	                void update_send_bufx();
 
 			/*! \brief Synchronize spikes and additional information across ranks. */
 			void sync();
@@ -124,6 +124,12 @@ namespace auryn {
 
 			/*! \brief Return max_send_size value which determines the size of the MPI AllGather operation. */
 			int get_max_send_buffer_size();	
+
+			/*! \brief Return sync count since object instantiation. */
+			unsigned int get_sync_count();	
+
+			/*! \brief Return overflow count since object instantiation. */
+			unsigned int get_overflow_count();	
 
 #ifdef CODE_COLLECT_SYNC_TIMING_STATS
 			AurynDouble deltaT;

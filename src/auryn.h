@@ -100,6 +100,7 @@
 #include "auryn/AIFGroup.h"
 #include "auryn/AIF2Group.h"
 #include "auryn/AdExGroup.h"
+#include "auryn/AdExGroupNB.h" // ALa added
 #include "auryn/SRM0Group.h"
 #include "auryn/IafPscDeltaGroup.h"
 #include "auryn/IafPscExpGroup.h"

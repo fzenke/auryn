@@ -205,7 +205,7 @@ void SparseConnection::set_max_weight(AurynWeight maximum_weight)
 	wmax = maximum_weight;
 }
 
-bool SparseConnection::exists(NeuronID i, NeuronID j, NeuronID z) // ALa added
+bool SparseConnection::exists(NeuronID i, NeuronID j, StateID z) // ALa added
 {
 	return w->exists(i,j,z);
 }
@@ -381,7 +381,9 @@ void SparseConnection::connect_block_random(AurynWeight weight,
 	}
 
 	if ( weight < get_min_weight() ) {
-	    //		auryn::logger->msg("Weight smaller than minimal weight. Updating minimal weight and proceeding.",WARNING); // ALa changed
+#ifdef DEBUG
+	    auryn::logger->msg("Weight smaller than minimal weight. Updating minimal weight and proceeding.",WARNING); // ALa changed
+#endif // DEBUG
 		set_min_weight(weight);
 	}
 
@@ -508,12 +510,14 @@ void SparseConnection::finalize()
 		std::stringstream oss;
 		oss << get_log_name() << "Finalized with fill level " << w->get_fill_level();
 		auryn::logger->msg(oss.str(),VERBOSE);
-		if (false && w->get_fill_level()<WARN_FILL_LEVEL) // ALa changed
+#ifdef DEBUG
+		if (w->get_fill_level()<WARN_FILL_LEVEL) // ALa changed
 		{
 			std::stringstream oss2;
 			oss2 << get_log_name() <<"Wasteful fill level (" << w->get_fill_level() << ")! Make sure everything is in order!";
 			auryn::logger->msg(oss2.str(),WARNING);
 		}
+#endif // DEBUG
 	}
 }
 
@@ -853,16 +857,10 @@ bool SparseConnection::load_from_file(ForwardMatrix * m, std::string filename, A
 		count++;
 		sscanf (buffer,"%u %u %e",&i,&j,&val);
 		try {
-			// if ( dst->localrank(j-1) ) {  // ALa changed
-			// 	std::cerr << i-1 << " " << j-1 << " " << val << " " << std::endl;
-			// 	//m->push_back(i-1,j-1,val);
-			// 	m->push_back(i-1,j-1,val);
-			// 	pushback_count++;
-			// }
-			if ( dst->localrank(j) ) {
-				m->push_back(i,j,val);
-				pushback_count++;
-			}
+		    if ( dst->localrank(j-1) ) {
+			m->push_back(i-1,j-1,val);
+			pushback_count++;
+		    }
 		}
 		catch ( AurynMatrixPushBackException )
 		{

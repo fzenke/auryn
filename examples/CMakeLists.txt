@@ -5,4 +5,3 @@ FOREACH( sourcepath ${SIM_SOURCES} )
 	ADD_EXECUTABLE( ${simname} ${sourcefile} )
 	TARGET_LINK_LIBRARIES( ${simname} auryn ${AURYN_EXT_LINKLIBS} )
 ENDFOREACH( sourcepath ${SIM_SOURCES} )
-

@@ -99,7 +99,7 @@ StateMonitor::StateMonitor(Trace * trace, NeuronID id, std::string filename, Aur
 }
 
 StateMonitor::StateMonitor(SpikingGroup *source, Trace * trace, NeuronID id, std::string filename,
-						   AurynDouble sampling_interval): Monitor()  // ALa added
+			   AurynDouble sampling_interval): Monitor()  // ALa added
 {
 	if ( !source->localrank(id) ) return; // do not register if neuron is not on the local rank
 
@@ -186,13 +186,13 @@ void StateMonitor::record_for(AurynDouble time)
 }
 
 PreTraceMonitor::PreTraceMonitor(SpikingGroup *group,Trace *pretrace,NeuronID id,
-								 std::string filename,AurynDouble sampling_interval):
+				 std::string filename,AurynDouble sampling_interval):
 	StateMonitor(group,pretrace,id,filename,sampling_interval)  // ALa added
 {
 }
 
 PostTraceMonitor::PostTraceMonitor(SpikingGroup *group,string posttracename,NeuronID id,
-								   std::string filename,AurynDouble sampling_interval):
+				   std::string filename,AurynDouble sampling_interval):
 	StateMonitor(group,id,posttracename,filename,sampling_interval)  // ALa added
 {
 }

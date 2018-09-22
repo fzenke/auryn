@@ -303,9 +303,6 @@ namespace auryn {
 		/*! \brief Get total effective load */
 		AurynDouble get_total_effective_load();
 
-		/*! \brief Get max_send_size value which determines the size of the MPI AllGather operation. */
-	        int get_max_send_buffer_size();	
-
 		/*! \brief Get total number of registered synapses */
 		AurynLong get_total_synapses();
 
@@ -371,6 +368,11 @@ namespace auryn {
 		 * Can be used to synchronize randomness across ranks StimulusGroup etc
 		 * */
 		unsigned int get_synced_seed();
+
+		/*! \brief Returns max sendbuffer size over all ranks
+		 *
+		 * */
+		int get_max_send_buffer_size();
 
 #ifdef CODE_COLLECT_SYNC_TIMING_STATS
 		AurynDouble deltaT;

@@ -64,6 +64,8 @@ double e_thr = -55e-3;
 double e_reset = -80e-3;
 double tau_ampa = 0.005;
 double tau_gaba = 0.005;
+double tau_nmda = 0.150;
+double ampa_nmda_ratio = 120;
 double tau_ad = 500e-3;
 
 double U = 0.25;
@@ -82,7 +84,7 @@ double ba_wbg = 0.0225;
 double db_wbg = 0.0225;
 double vp_wbg = 0.0225;
 	
-int runmode = 0;
+int runmode = 2;
 double simtime = 5;
 
 double poisson_rate = 100.0;
@@ -109,6 +111,8 @@ int processargs(int ac,char *av[]) {
             ("tau_f", po::value<double>(), "facilitation tau for depressing/facilitating synapse")
             ("U", po::value<double>(), "Utilization value for depressing/facilitating synapse")
             ("tau_ampa", po::value<double>(), "tau value for ampa current")
+            ("tau_nmda", po::value<double>(), "tau value for nmda current")
+            ("ampa_nmda_ratio", po::value<double>(), "ratio between g_ampa and g_nmda ")
             ("tau_gaba", po::value<double>(), "tau value for gaba current")
             ("tau_ad", po::value<double>(), "tau value for adaptation")
             ("py_win", po::value<double>(), "weight of poisson input to pyramidal cells")
@@ -170,6 +174,14 @@ int processargs(int ac,char *av[]) {
 
         if (vm.count("tau_ampa")) {
 			tau_ampa = vm["tau_ampa"].as<double>();
+        } 
+
+        if (vm.count("tau_nmda")) {
+			tau_nmda = vm["tau_nmda"].as<double>();
+        } 
+
+        if (vm.count("ampa_nmda_ratio")) {
+			ampa_nmda_ratio = vm["ampa_nmda_ratio"].as<double>();
         } 
 
         if (vm.count("tau_gaba")) {
@@ -293,27 +305,28 @@ int processargs(int ac,char *av[]) {
 
 }
 
-AdExGroup *setup_py_cells(int n) {
-	AdExGroup *py_cells = new AdExGroup(n);
+AdExGroupNB *setup_py_cells(int n) {
+	AdExGroupNB *py_cells = new AdExGroupNB(n);
 	py_cells->set_refractory_period(refractory_period);
 	py_cells->set_g_leak(g_leak);
 	py_cells->set_c_mem(c_mem);
-	py_cells->set_delta_t(deltat*g_leak); // According to set_ method in AdExGroup
+	py_cells->set_delta_t(deltat*g_leak); // According to set_ method in AdExGroupNB
 	py_cells->set_e_rest(e_rest);
 	py_cells->set_e_thr(e_thr);
 	py_cells->set_e_reset(e_reset); // Effective only when refractor_period = 0
 	py_cells->set_tau_w(tau_ad);
 	py_cells->set_a(0);
 	py_cells->set_b(py_b);
-	py_cells->set_tau_ampa(0.005);
-	py_cells->set_tau_gaba(0.005);
+	py_cells->set_tau_ampa(tau_ampa);
+	// py_cells->set_tau_nmda(tau_nmda);
+	py_cells->set_tau_gaba(tau_gaba);
 	py_cells->set_e_rev_gaba(-80e-3);
 
 	return py_cells;
 }
 
-AdExGroup *setup_ba_cells(int n) {
-	AdExGroup *ba_cells = new AdExGroup(n);
+AdExGroupNB *setup_ba_cells(int n) {
+	AdExGroupNB *ba_cells = new AdExGroupNB(n);
 	ba_cells->set_refractory_period(refractory_period);
 	ba_cells->set_g_leak(g_leak);
 	ba_cells->set_c_mem(c_mem);
@@ -324,15 +337,15 @@ AdExGroup *setup_ba_cells(int n) {
 	ba_cells->set_tau_w(tau_ad);
 	ba_cells->set_a(0);
 	ba_cells->set_b(ba_b); // Typically 0.0
-	ba_cells->set_tau_ampa(0.005);
-	ba_cells->set_tau_gaba(0.005);
+	ba_cells->set_tau_ampa(tau_ampa);
+	ba_cells->set_tau_gaba(tau_gaba);
 	ba_cells->set_e_rev_gaba(-80e-3);
 
 	return ba_cells;
 }
 
-AdExGroup *setup_db_cells(int n) {
-	AdExGroup *db_cells = new AdExGroup(n);
+AdExGroupNB *setup_db_cells(int n) {
+	AdExGroupNB *db_cells = new AdExGroupNB(n);
 	db_cells->set_refractory_period(refractory_period);
 	db_cells->set_g_leak(g_leak);
 	db_cells->set_c_mem(c_mem);
@@ -344,16 +357,17 @@ AdExGroup *setup_db_cells(int n) {
 	db_cells->set_tau_w(tau_ad);
 	db_cells->set_a(0);
 	db_cells->set_b(db_b);
-	db_cells->set_tau_ampa(0.005);
-	db_cells->set_tau_gaba(0.005);
+	db_cells->set_tau_ampa(tau_ampa);
+	//	db_cells->set_tau_nmda(tau_nmda);
+	db_cells->set_tau_gaba(tau_gaba);
 	db_cells->set_e_rev_gaba(-80e-3);
 
 
 	return db_cells;
 }
 
-AdExGroup *setup_vp_cells(int n) {
-	AdExGroup *vp_cells = new AdExGroup(n);
+AdExGroupNB *setup_vp_cells(int n) {
+	AdExGroupNB *vp_cells = new AdExGroupNB(n);
 	vp_cells->set_refractory_period(refractory_period);
 	vp_cells->set_g_leak(g_leak);
 	vp_cells->set_c_mem(c_mem);
@@ -365,266 +379,21 @@ AdExGroup *setup_vp_cells(int n) {
 	vp_cells->set_tau_w(tau_ad);
 	vp_cells->set_a(0);
 	vp_cells->set_b(vp_b);
-	vp_cells->set_tau_ampa(0.005);
-	vp_cells->set_tau_gaba(0.005);
+	vp_cells->set_tau_ampa(tau_ampa);
+	vp_cells->set_tau_gaba(tau_gaba);
 	vp_cells->set_e_rev_gaba(-80e-3);
 
 	return vp_cells;
 }
 
-int test0() {
-
-	/* Testing pairwise synaptic PSP:s between single neurons:
-	   py1-->ba1, py1->db1, ba2-->py2, db2-->vp1, vp2-->py3 */ 
-
-	logger->msg("Setting up neuron groups ...",PROGRESS,true);
-	
-	nhcu = 1; nmcu = 1;
-	npy = 0; nba = 0; ndb = 0; nvp = 0;
-
-	/* Spiking cells */
-	AdExGroup *py1_cells = setup_py_cells(1); ++npy;
-	AdExGroup *ba2_cells = setup_ba_cells(1); ++nba;
-	AdExGroup *db2_cells = setup_db_cells(1); ++ndb;
-	AdExGroup *vp2_cells = setup_vp_cells(1); ++nvp;
-
-	e_thr = -0.020;
-
-	/* PSP cells */
-	AdExGroup *py2_cells = setup_py_cells(1); ++npy;
-	AdExGroup *py3_cells = setup_py_cells(1); ++npy;
-	AdExGroup *py4_cells = setup_py_cells(1); ++npy;
-	AdExGroup *py5_cells = setup_py_cells(1); ++npy;
-	AdExGroup *ba1_cells = setup_ba_cells(1); ++nba;
-	AdExGroup *db1_cells = setup_db_cells(1); ++ndb;
-	AdExGroup *db3_cells = setup_db_cells(1); ++ndb;
-	AdExGroup *vp1_cells = setup_vp_cells(1); ++nvp;
-
-	logger->msg("Setting up current injections ...",PROGRESS,true);
-
-	CurrentInjector * curinj_py1 = new CurrentInjector(py1_cells);
-	CurrentInjector * curinj_ba2 = new CurrentInjector(ba2_cells);
-	CurrentInjector * curinj_db2 = new CurrentInjector(db2_cells);
-	CurrentInjector * curinj_vp2 = new CurrentInjector(vp2_cells);
-
-	logger->msg("Setting up all connections ...",PROGRESS,true);
-
-	FILE *wfile = fopen("weights.wij","r");
-	int nf;
-	float wpypyL,wpypyG,wpyba,wbapy,wdbpy,wpydbG,wpyvp,wvpdb,pypydensL,pypydensG,pybadens,bapydens,
-		dbpydens,pydbdensG,pyvpdens,vpdbdens;
-	nf = fscanf(wfile,"%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f ",
-				&pypydensL,&wpypyL,&pypydensG,&wpypyG,&pybadens,&wpyba,&bapydens,&wbapy,
-				&dbpydens,&wdbpy,&pydbdensG,&wpydbG,&pyvpdens,&wpyvp,&vpdbdens,&wvpdb);
-	fclose(wfile);
-
-	STPConnection *py_pyL = new STPConnection(py1_cells,py2_cells,wpypyL,1.0,GLUT);
-	// py_pyL->set_tau_d(tau_d); py_pyL->set_tau_f(tau_f); py_pyL->set_ujump(U);
-	// STPConnection *py_pyG = new STPConnection(py1_cells,py3_cells,wpypyG,1,GLUT);
-	// py_pyG->set_tau_d(tau_d); py_pyG->set_tau_f(tau_f); py_pyG->set_ujump(U);
-	// SparseConnection *py_ba = new SparseConnection(py1_cells,ba1_cells,wpyba,1,GLUT);
-	// SparseConnection *ba_py = new SparseConnection(ba2_cells,py4_cells,wbapy,1,GABA);
-	// STPConnection *py_db = new STPConnection(py1_cells,db1_cells,wpydbG,1,GLUT);
-	// py_db->set_tau_d(tau_d); py_db->set_tau_f(tau_f); py_db->set_ujump(U);
-	// SparseConnection *db_py = new SparseConnection(db2_cells,py5_cells,wdbpy,1,GABA);
-	// SparseConnection *py_vp = new SparseConnection(py1_cells,vp1_cells,wpyvp,1,GLUT);
-	// SparseConnection *vp_db = new SparseConnection(vp2_cells,db3_cells,wvpdb,1,GABA);
-
-	if (monitor!="") {
-		VoltageMonitor *vmon_py1 = new VoltageMonitor(py1_cells,0,sys->fn("py1.vmem"));
-		VoltageMonitor *vmon_py2 = new VoltageMonitor(py2_cells,0,sys->fn("py2.vmem"));
-		VoltageMonitor *vmon_py3 = new VoltageMonitor(py3_cells,0,sys->fn("py3.vmem"));
-		VoltageMonitor *vmon_py4 = new VoltageMonitor(py4_cells,0,sys->fn("py4.vmem"));
-		VoltageMonitor *vmon_py5 = new VoltageMonitor(py5_cells,0,sys->fn("py5.vmem"));
-		VoltageMonitor *vmon_ba1 = new VoltageMonitor(ba1_cells,0,sys->fn("ba1.vmem"));
-		VoltageMonitor *vmon_ba2 = new VoltageMonitor(ba2_cells,0,sys->fn("ba2.vmem"));
-		VoltageMonitor *vmon_db1 = new VoltageMonitor(db1_cells,0,sys->fn("db1.vmem"));
-		VoltageMonitor *vmon_db2 = new VoltageMonitor(db2_cells,0,sys->fn("db2.vmem"));
-		VoltageMonitor *vmon_db3 = new VoltageMonitor(db3_cells,0,sys->fn("db3.vmem"));
-		VoltageMonitor *vmon_vp1 = new VoltageMonitor(vp1_cells,0,sys->fn("vp1.vmem"));
-		VoltageMonitor *vmon_vp2 = new VoltageMonitor(vp2_cells,0,sys->fn("vp3.vmem"));
-    }
-
-	std::ofstream outfile;
-	string fname = "minicols.data";
-	outfile.open(fname.c_str(),std::ios::out);
-	if (!outfile) {
-		std::cerr << "Can't open output file " << fname.c_str() << std::endl;
-		throw AurynOpenFileException();
-	}
-	outfile << nhcu*nmcu*npy << " " << nhcu*nba << " " << nhcu*nmcu*ndb << " " << nhcu*nmcu*nvp << std::endl;
-	outfile.close();
-
-	logger->msg("Simulating ..." ,PROGRESS,true);
-
-	MPI_Barrier(MPI::COMM_WORLD);
-
-	sys->run(0.1);
-
-	curinj_py1->set_all_currents(injcur);
-	curinj_ba2->set_all_currents(injcur);
-	curinj_db2->set_all_currents(injcur);
-	curinj_vp2->set_all_currents(injcur);
-
-	sys->run(injdur);
-
-	curinj_py1->set_all_currents(0);
-	curinj_ba2->set_all_currents(0);
-	curinj_db2->set_all_currents(0);
-	curinj_vp2->set_all_currents(0);
-
-	sys->run(0.2 - injdur);
-
-	// if ( !save.empty() ) {
-	// 	sys->save_network_state(save);
-    // }
-
-	if (errcode)
-		auryn_abort(errcode);
-
-}
-
-int test1(bool usedens) {
-
-	/* Testing pairwise synaptic PSP:s between single neurons:
-	   py1-->ba1, py1->db1, ba2-->py2, db2-->vp1, vp2-->py3 */ 
+int test1() {
 
 	logger->msg("Setting up neuron groups ...",PROGRESS,true);
 
-	e_thr = -0.020;
-
-	AdExGroup *py1_cells = setup_py_cells(1);
-	AdExGroup *py2_cells = setup_py_cells(1);
-	AdExGroup *py3_cells = setup_py_cells(1);
-	AdExGroup *py4_cells = setup_py_cells(1);
-	AdExGroup *py5_cells = setup_py_cells(1);
-	
-	AdExGroup *ba1_cells = setup_ba_cells(1);
-	AdExGroup *ba2_cells = setup_ba_cells(1);
-
-	AdExGroup *db1_cells = setup_db_cells(1);
-	AdExGroup *db2_cells = setup_db_cells(1);
-	AdExGroup *db3_cells = setup_db_cells(1);
-
-	AdExGroup *vp1_cells = setup_vp_cells(1);
-	AdExGroup *vp2_cells = setup_vp_cells(1);
-
-	logger->msg("Setting up current injections ...",PROGRESS,true);
-
-	CurrentInjector * curinj_py1 = new CurrentInjector(py1_cells);
-	CurrentInjector * curinj_ba2 = new CurrentInjector(ba2_cells);
-	CurrentInjector * curinj_db2 = new CurrentInjector(db2_cells);
-	CurrentInjector * curinj_vp2 = new CurrentInjector(vp2_cells);
-
-	logger->msg("Setting up all connections ...",PROGRESS,true);
-
-	FILE *wfile = fopen("weights.wij","r");
-	int nf;
-	float wpypyL,wpypyG,wpyba,wbapy,wdbpy,wpydbG,wpyvp,wvpdb,pypydensL,pypydensG,pybadens,bapydens,
-		dbpydens,pydbdensG,pyvpdens,vpdbdens;
-	nf = fscanf(wfile,"%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f ",
-				&pypydensL,&wpypyL,&pypydensG,&wpypyG,&pybadens,&wpyba,&bapydens,&wbapy,
-				&dbpydens,&wdbpy,&pydbdensG,&wpydbG,&pyvpdens,&wpyvp,&vpdbdens,&wvpdb);
-	fclose(wfile);
-
-	if (usedens) {
-		if (pypydensL>0) {
-			STPConnection *py_pyL = new STPConnection(py1_cells,py2_cells,wpypyL,pypydensL,GLUT);
-			py_pyL->set_tau_d(tau_d); py_pyL->set_tau_f(tau_f); py_pyL->set_ujump(U);
-		}
-		if (pypydensG>0) {
-			STPConnection *py_pyG = new STPConnection(py1_cells,py3_cells,wpypyG,pypydensG,GLUT);
-			py_pyG->set_tau_d(tau_d); py_pyG->set_tau_f(tau_f); py_pyG->set_ujump(U);
-		}
-		if (pybadens>0)
-			SparseConnection *py_ba = new SparseConnection(py1_cells,ba1_cells,wpyba,pybadens,GLUT);
-		if (bapydens>0)
-			SparseConnection *ba_py = new SparseConnection(ba2_cells,py4_cells,wbapy,bapydens,GABA);
-		if (pydbdensG>0) {
-			STPConnection *py_db = new STPConnection(py1_cells,db1_cells,wpydbG,pydbdensG,GLUT);
-			py_db->set_tau_d(tau_d); py_db->set_tau_f(tau_f); py_db->set_ujump(U);
-		}
-		if (dbpydens>0)
-			SparseConnection *db_py = new SparseConnection(db2_cells,py5_cells,wdbpy,dbpydens,GABA);
-		if (pyvpdens>0)
-			SparseConnection *py_vp = new SparseConnection(py1_cells,vp1_cells,wpyvp,pyvpdens,GLUT);
-		if (vpdbdens>0)
-			SparseConnection *vp_db = new SparseConnection(vp2_cells,db3_cells,wvpdb,vpdbdens,GABA);
-	} else {
-		STPConnection *py_pyL = new STPConnection(py1_cells,py2_cells,wpypyL,1,GLUT);
-		py_pyL->set_tau_d(tau_d); py_pyL->set_tau_f(tau_f); py_pyL->set_ujump(U);
-		STPConnection *py_pyG = new STPConnection(py1_cells,py3_cells,wpypyG,1,GLUT);
-		py_pyG->set_tau_d(tau_d); py_pyG->set_tau_f(tau_f); py_pyG->set_ujump(U);
-		SparseConnection *py_ba = new SparseConnection(py1_cells,ba1_cells,wpyba,1,GLUT);
-		SparseConnection *ba_py = new SparseConnection(ba2_cells,py4_cells,wbapy,1,GABA);
-		STPConnection *py_db = new STPConnection(py1_cells,db1_cells,wpydbG,1,GLUT);
-		py_db->set_tau_d(tau_d); py_db->set_tau_f(tau_f); py_db->set_ujump(U);
-		SparseConnection *db_py = new SparseConnection(db2_cells,py5_cells,wdbpy,1,GABA);
-		SparseConnection *py_vp = new SparseConnection(py1_cells,vp1_cells,wpyvp,1,GLUT);
-		SparseConnection *vp_db = new SparseConnection(vp2_cells,db3_cells,wvpdb,1,GABA);
-	}
-	
-	if (monitor!="") {
-	    VoltageMonitor *vmon_py1 = new VoltageMonitor(py1_cells,0,sys->fn("py1.vmem"));
-		VoltageMonitor *vmon_py2 = new VoltageMonitor(py2_cells,0,sys->fn("py2.vmem"));
-		VoltageMonitor *vmon_py3 = new VoltageMonitor(py3_cells,0,sys->fn("py3.vmem"));
-		VoltageMonitor *vmon_py4 = new VoltageMonitor(py4_cells,0,sys->fn("py4.vmem"));
-		VoltageMonitor *vmon_py5 = new VoltageMonitor(py5_cells,0,sys->fn("py5.vmem"));
-		VoltageMonitor *vmon_ba1 = new VoltageMonitor(ba1_cells,0,sys->fn("ba1.vmem"));
-		VoltageMonitor *vmon_ba2 = new VoltageMonitor(ba2_cells,0,sys->fn("ba2.vmem"));
-		VoltageMonitor *vmon_db1 = new VoltageMonitor(db1_cells,0,sys->fn("db1.vmem"));
-		VoltageMonitor *vmon_db2 = new VoltageMonitor(db2_cells,0,sys->fn("db2.vmem"));
-		VoltageMonitor *vmon_db3 = new VoltageMonitor(db3_cells,0,sys->fn("db3.vmem"));
-		VoltageMonitor *vmon_vp1 = new VoltageMonitor(vp1_cells,0,sys->fn("vp1.vmem"));
-		VoltageMonitor *vmon_vp2 = new VoltageMonitor(vp2_cells,0,sys->fn("vp3.vmem"));
-    }
-
-	std::ofstream outfile;
-	string fname = "minicols.data";
-	outfile.open(fname.c_str(),std::ios::out);
-	if (!outfile) {
-		std::cerr << "Can't open output file " << fname.c_str() << std::endl;
-		throw AurynOpenFileException();
-	}
-	outfile << nhcu*nmcu*npy << " " << nhcu*nba << " " << nhcu*nmcu*ndb << " " << nhcu*nmcu*nvp << std::endl;
-	outfile.close();
-
-	logger->msg("Simulating ..." ,PROGRESS,true);
-
-	MPI_Barrier(MPI::COMM_WORLD);
-
-	double start = MPI_Wtime();
-
-	sys->run(0.1);
-	curinj_py1->set_all_currents(injcur);
-	curinj_ba2->set_all_currents(injcur);
-	curinj_db2->set_all_currents(injcur);
-	curinj_vp2->set_all_currents(injcur);
-
-	sys->run(injdur);
-	curinj_py1->set_all_currents(0);
-	curinj_ba2->set_all_currents(0);
-	curinj_db2->set_all_currents(0);
-	curinj_vp2->set_all_currents(0);
-	sys->run(0.2 - injdur);
-
-	if ( !save.empty() ) {
-		sys->save_network_state(save);
-    }
-
-	if (errcode)
-		auryn_abort(errcode);
-
-}
-
-int test3() {
-
-	logger->msg("Setting up neuron groups ...",PROGRESS,true);
-
-	AdExGroup *py_cells = setup_py_cells(nhcu*nmcu*npy);
-	AdExGroup *ba_cells = setup_ba_cells(nhcu*nba);
-	AdExGroup *db_cells = setup_db_cells(nhcu*nmcu*ndb);
-	AdExGroup *vp_cells = setup_vp_cells(nhcu*nmcu*nvp);
+	AdExGroupNB *py_cells = setup_py_cells(nhcu*nmcu*npy);
+	AdExGroupNB *ba_cells = setup_ba_cells(nhcu*nba);
+	AdExGroupNB *db_cells = setup_db_cells(nhcu*nmcu*ndb);
+	AdExGroupNB *vp_cells = setup_vp_cells(nhcu*nmcu*nvp);
 
 	PoissonGroup *poisson = new PoissonGroup(npo,poisson_rate);
 
@@ -639,13 +408,19 @@ int test3() {
 	SparseConnection *con_stim_vp_exc = new SparseConnection(poisson,vp_cells,vp_wbg,0.5,GLUT);
 	SparseConnection *con_stim_vp_inh = new SparseConnection(poisson,vp_cells,vp_wbg,0.5,GABA);
 	
-	logger->msg("Setting up local py->py connections ...",PROGRESS,true);
-	STPConnection *py_pyL = new STPConnection(py_cells,py_cells,"WpypyLx.wij",GLUT);
-	py_pyL->set_tau_d(tau_d); py_pyL->set_tau_f(tau_f); py_pyL->set_ujump(U);
+	logger->msg("Setting up local py->py (ampa) connections ...",PROGRESS,true);
+	STPConnection *py_pyLampa = new STPConnection(py_cells,py_cells,"WpypyLx.wij",GLUT);
+	py_pyLampa->set_tau_d(tau_d); py_pyLampa->set_tau_f(tau_f); py_pyLampa->set_ujump(U);
+	logger->msg("Setting up local py->py (nmda) connections ...",PROGRESS,true);
+	SparseConnection *py_pyLnmda = new SparseConnection(py_cells,py_cells,"WpypyLx.wij",NMDA);
+	py_pyLnmda->scale_all(1/ampa_nmda_ratio);
 
-	logger->msg("Setting up global py->py connections ...",PROGRESS,true);
-	STPConnection *py_pyG = new STPConnection(py_cells,py_cells,"WpypyGx.wij",GLUT);
-	py_pyG->set_tau_d(tau_d); py_pyG->set_tau_f(tau_f); py_pyG->set_ujump(U);
+	logger->msg("Setting up global py->py (ampa) connections ...",PROGRESS,true);
+	STPConnection *py_pyGampa = new STPConnection(py_cells,py_cells,"WpypyGx.wij",GLUT);
+	py_pyGampa->set_tau_d(tau_d); py_pyGampa->set_tau_f(tau_f); py_pyGampa->set_ujump(U);
+	logger->msg("Setting up global py->py (nmda) connections ...",PROGRESS,true);
+	SparseConnection *py_pyGnmda = new SparseConnection(py_cells,py_cells,"WpypyGx.wij",NMDA);
+	py_pyGnmda->scale_all(1/ampa_nmda_ratio);
 
 	logger->msg("Setting up py->ba connections ...",PROGRESS,true);
 	SparseConnection *py_ba = new SparseConnection(py_cells,ba_cells,"Wpybax.wij",GLUT);
@@ -730,10 +505,24 @@ int test3() {
 	if (errcode)
 		auryn_abort(errcode);
 
-	int nsyn_pypyL,gnsyn_pypyL,nsyn_pyba,gnsyn_pyba,nsyn_bapy,gnsyn_bapy,nsyn_pydb,gnsyn_pydb,nsyn_dbpy,gnsyn_dbpy,nsyn_pyvp,gnsyn_pyvp,nsyn_vpdb,gnsyn_vpdb;
+	int nsyn_pypyLampa,gnsyn_pypyLampa,nsyn_pypyGampa,gnsyn_pypyGampa,
+	  nsyn_pypyLnmda,gnsyn_pypyLnmda,nsyn_pypyGnmda,gnsyn_pypyGnmda,
+	  nsyn_pyba,gnsyn_pyba,nsyn_bapy,gnsyn_bapy,
+	  nsyn_pydb,gnsyn_pydb,nsyn_dbpy,gnsyn_dbpy,
+	  nsyn_pyvp,gnsyn_pyvp,nsyn_vpdb,gnsyn_vpdb;
+
 	/* Get total number of different types of synapses */
-	nsyn_pypyL = py_pyL->get_nonzero();
-	MPI_Reduce(&nsyn_pypyL,&gnsyn_pypyL,1,MPI_INT,MPI_SUM,0,*sys->get_com());
+	nsyn_pypyLampa = py_pyLampa->get_nonzero();
+	MPI_Reduce(&nsyn_pypyLampa,&gnsyn_pypyLampa,1,MPI_INT,MPI_SUM,0,*sys->get_com());
+
+	nsyn_pypyGampa = py_pyGampa->get_nonzero();
+	MPI_Reduce(&nsyn_pypyGampa,&gnsyn_pypyGampa,1,MPI_INT,MPI_SUM,0,*sys->get_com());
+
+	nsyn_pypyLnmda = py_pyLnmda->get_nonzero();
+	MPI_Reduce(&nsyn_pypyLnmda,&gnsyn_pypyLnmda,1,MPI_INT,MPI_SUM,0,*sys->get_com());
+
+	nsyn_pypyGnmda = py_pyGnmda->get_nonzero();
+	MPI_Reduce(&nsyn_pypyGnmda,&gnsyn_pypyGnmda,1,MPI_INT,MPI_SUM,0,*sys->get_com());
 
 	nsyn_pyba = py_ba->get_nonzero();
 	MPI_Reduce(&nsyn_pyba,&gnsyn_pyba,1,MPI_INT,MPI_SUM,0,*sys->get_com());
@@ -756,7 +545,13 @@ int test3() {
 	if (sys->mpi_rank()==0) {
 		std::cerr << "Execution time = " << MPI::Wtime() - start << " sec\n";
 
-		std::cerr << "N:o py->py local weights = " << gnsyn_pypyL << std::endl;
+		std::cerr << "N:o py->py local ampa weights = " << gnsyn_pypyLampa << std::endl;
+		
+		std::cerr << "N:o py->py local ampa weights = " << gnsyn_pypyGampa << std::endl;
+		
+		std::cerr << "N:o py->py local nmda weights = " << gnsyn_pypyLnmda << std::endl;
+		
+		std::cerr << "N:o py->py local nmda weights = " << gnsyn_pypyGnmda << std::endl;
 		
 		std::cerr << "N:o py->ba weights = " << gnsyn_pyba << std::endl;
 		
@@ -776,71 +571,76 @@ int test3() {
 
 }
 
-AurynWeight *getrndweight(SparseConnection *spcon,NeuronID &i,NeuronID &j) {
+bool getrndpair(SparseConnection *spcon,NeuronID &i,NeuronID &j) {
 
 	/* Find one connected pair randomly */
 
-	AurynWeight *w;
-	int prN = spcon->src->get_pre_size(),poN = spcon->dst->get_post_size();
+	int prN = spcon->src->get_pre_size(),poN = spcon->dst->get_post_size(),n = 0;
+	std::vector<neuron_pair> vpdb_pair;
 
-	while ((w = spcon->get_ptr(i = rand()%prN,j=rand()%poN))==NULL) ;
+	int k = -1;
+	do {
+	    i = rand()%prN;
+	    vpdb_pair = spcon->get_post_partners(i);
+	    if (vpdb_pair.size()==0) continue;
+	    k = vpdb_pair[rand()%vpdb_pair.size()].j;
+	} while (n++<1000 and k<0) ;
+
+	j = k;
+	//	std::cout << "i = " << i << " j = " << j << " n = " << n << " l = " << vpdb_pair.size() << std::endl;
+
+	return 0<=k;
 
 }
 
-AurynWeight *getrndsourceweight(SparseConnection *spcon,NeuronID &i,NeuronID j) {
 
-	/* Find one connected presynaptic target randomly */
+void tofile(SparseConnection *spcon,int row1,int row2,int col1,int col2) {
 
-	AurynWeight *w;
-	int prN = spcon->src->get_pre_size(),poN = spcon->dst->get_post_size();
+    FILE *fp = fopen("wfile.txt","w");
+    AurynWeight w;
 
-	while ((w = spcon->get_ptr(i = rand()%prN,j))==NULL) ;
-
-}
-
-AurynWeight *getrndtargetweight(SparseConnection *spcon,NeuronID i,NeuronID &j) {
-
-	/* Find one connected postsynaptic target randomly */
-
-	AurynWeight *w;
-	int prN = spcon->src->get_pre_size(),poN = spcon->dst->get_post_size();
-
-	while ((w = spcon->get_ptr(i,j=rand()%poN))==NULL) {
+    for (int r=row1; r<row2; r++) {
+	for (int c=col1; c<col2; c++) {
+	    w = spcon->get(r,c);
+	    fprintf(fp,"%f ",w);
+	    printf("r = %d c = %d w = %f\n",r,c,w);
 	}
+	fprintf(fp,"\n");
+    }
+    fclose(fp);
 
 }
 
-int test4() {
+int test2() {
 
-	/* Here the same networks as in test3 is probed for synaptic interactions */
+	/* Here the same networks as in test1 is probed for synaptic interactions */
 
 	logger->msg("Setting up neuron groups ...",PROGRESS,true);
 
-	AdExGroup *py_cells = setup_py_cells(nhcu*nmcu*npy);
-	AdExGroup *ba_cells = setup_ba_cells(nhcu*nba);
-	AdExGroup *db_cells = setup_db_cells(nhcu*nmcu*ndb);
-	AdExGroup *vp_cells = setup_vp_cells(nhcu*nmcu*nvp);
+	AdExGroupNB *py_cells = setup_py_cells(nhcu*nmcu*npy);
+	AdExGroupNB *ba_cells = setup_ba_cells(nhcu*nba);
+	AdExGroupNB *db_cells = setup_db_cells(nhcu*nmcu*ndb);
+	AdExGroupNB *vp_cells = setup_vp_cells(nhcu*nmcu*nvp);
 
-	PoissonGroup *poisson = new PoissonGroup(npo,poisson_rate);
+	/* NOTE: According to the manual on Loading connections from file,
+	   the file given to SparseConnection "should only contain the
+	   elements of the connection matrix that are also stored on
+	   the respective rank where the code is issued. This is not
+	   the case now ... */
 
-	SparseConnection *con_stim_py_inp = new SparseConnection(poisson,py_cells,py_win,0.5,GLUT);
+	logger->msg("Setting up local py->py (ampa) connections ...",PROGRESS,true);
+	STPConnection *py_pyLampa = new STPConnection(py_cells,py_cells,"WpypyLx.wij",GLUT);
+	py_pyLampa->set_tau_d(tau_d); py_pyLampa->set_tau_f(tau_f); py_pyLampa->set_ujump(U);
+	logger->msg("Setting up local py->py (nmda) connections ...",PROGRESS,true);
+	SparseConnection *py_pyLnmda = new SparseConnection(py_cells,py_cells,"WpypyLx.wij",NMDA);
+	py_pyLnmda->scale_all(1/ampa_nmda_ratio);
 
-	SparseConnection *con_stim_py_exc = new SparseConnection(poisson,py_cells,py_wbg,0.5,GLUT);
-	SparseConnection *con_stim_py_inh = new SparseConnection(poisson,py_cells,py_wbg,0.5,GABA);
-	SparseConnection *con_stim_ba_exc = new SparseConnection(poisson,ba_cells,ba_wbg,0.5,GLUT);
-	SparseConnection *con_stim_ba_inh = new SparseConnection(poisson,ba_cells,ba_wbg,0.5,GABA);
-	SparseConnection *con_stim_db_exc = new SparseConnection(poisson,db_cells,db_wbg,0.5,GLUT);
-	SparseConnection *con_stim_db_inh = new SparseConnection(poisson,db_cells,db_wbg,0.5,GABA);
-	SparseConnection *con_stim_vp_exc = new SparseConnection(poisson,vp_cells,vp_wbg,0.5,GLUT);
-	SparseConnection *con_stim_vp_inh = new SparseConnection(poisson,vp_cells,vp_wbg,0.5,GABA);
-	
-	logger->msg("Setting up local py->py connections ...",PROGRESS,true);
-	STPConnection *py_pyL = new STPConnection(py_cells,py_cells,"WpypyLx.wij",GLUT);
-	py_pyL->set_tau_d(tau_d); py_pyL->set_tau_f(tau_f); py_pyL->set_ujump(U);
-
-	logger->msg("Setting up global py->py connections ...",PROGRESS,true);
-	STPConnection *py_pyG = new STPConnection(py_cells,py_cells,"WpypyGx.wij",GLUT);
-	py_pyG->set_tau_d(tau_d); py_pyG->set_tau_f(tau_f); py_pyG->set_ujump(U);
+	logger->msg("Setting up global py->py (ampa) connections ...",PROGRESS,true);
+	STPConnection *py_pyGampa = new STPConnection(py_cells,py_cells,"WpypyGx.wij",GLUT);
+	py_pyGampa->set_tau_d(tau_d); py_pyGampa->set_tau_f(tau_f); py_pyGampa->set_ujump(U);
+	logger->msg("Setting up global py->py (nmda) connections ...",PROGRESS,true);
+	SparseConnection *py_pyGnmda = new SparseConnection(py_cells,py_cells,"WpypyGx.wij",NMDA);
+	py_pyGnmda->scale_all(1/ampa_nmda_ratio);
 
 	logger->msg("Setting up py->ba connections ...",PROGRESS,true);
 	SparseConnection *py_ba = new SparseConnection(py_cells,ba_cells,"Wpybax.wij",GLUT);
@@ -863,28 +663,86 @@ int test4() {
 
 	logger->msg("Setting up probes for monitoring ...",PROGRESS,true);
 
-	NeuronID pypyG_i,pypyG_j,py_db_i,py_db_j,py_db_k;
-	AurynWeight *w;
-	w = getrndweight(py_pyG,pypyG_i,pypyG_j);
-	std::cout << "pypyG: i = " << pypyG_i << " j = " << pypyG_j << " monitored\n";
-	VoltageMonitor *vmon_pypyG_i = new VoltageMonitor(py_cells,pypyG_i,sys->fn("pypyG_i.vmem"));
-	VoltageMonitor *vmon_pypyG_j = new VoltageMonitor(py_cells,pypyG_j,sys->fn("pypyG_j.vmem"));
+	NeuronID pypyG_pr,pypyG_po,pypyL_pr,pypyL_po;
+	bool w;
+	w = getrndpair(py_pyGampa,pypyG_pr,pypyG_po);
+	if (w) {
+	    std::cout << "pypyG: pr = " << pypyG_pr << " po = " << pypyG_po << " w = " << w << " monitored\n";
+	    VoltageMonitor *vmon_pypyG_pr = new VoltageMonitor(py_cells,pypyG_pr,sys->fn("pypyG_pr.vmem"));
+	    VoltageMonitor *vmon_pypyG_po = new VoltageMonitor(py_cells,pypyG_po,sys->fn("pypyG_po.vmem"));
+	}
 
-	/* Do all the pairwise (as in test0) first, then perhaps py_i-->db_j-->py_k */
+	// Should perhaps check that pypyL_pr is not measured from above 
 
-	// VoltageMonitor *vmon_pydbpy = new VoltageMonitor(db_cells,0,sys->fn("pydbpy_j.vmem"));
-	// w = getrndsourceweight(py_db,i,0);
-	// w = getrndtargetweight(db_py,0,k);
-	// std::cout << "py_db_py: i = " << i << " j = " << 0 << " k = " << j << " monitored\n";
-	// VoltageMonitor *vmon_pydb_i = new VoltageMonitor(py_cells,i,sys->fn("py_db_i.vmem"));
-	// VoltageMonitor *vmon_pydb_j = new VoltageMonitor(db_cells,0,sys->fn("py_db_j.vmem"));
-	// VoltageMonitor *vmon_dbpy_k = new VoltageMonitor(py_cells,k,sys->fn("db_py_k.vmem"));
+	w = getrndpair(py_pyLampa,pypyL_pr,pypyL_po);
+	if (w) {
+	    std::cout << "pypyL: pr = " << pypyL_pr << " po = " << pypyL_po << " w = " << w << " monitored\n";
+	    VoltageMonitor *vmon_pypyL_pr = new VoltageMonitor(py_cells,pypyL_pr,sys->fn("pypyL_pr.vmem"));
+	    VoltageMonitor *vmon_pypyL_po = new VoltageMonitor(py_cells,pypyL_po,sys->fn("pypyL_po.vmem"));
+	}
 
-	CurrentInjector * curinj_1 = new CurrentInjector(py_cells);
-	// CurrentInjector * curinj_2 = new CurrentInjector(py_cells);
-	// CurrentInjector * curinj_3 = new CurrentInjector(db_cells);
-	// CurrentInjector * curinj_4 = new CurrentInjector(ba_cells);
-	// CurrentInjector * curinj_5 = new CurrentInjector(vp_cells);
+	NeuronID pyba_pr,pyba_po,bapy_pr,bapy_po;
+
+	w = getrndpair(py_ba,pyba_pr,pyba_po);
+	if (w) {
+	    std::cout << "pyba: pr = " << pyba_pr << " po = " << pyba_po << " w = " << w << " monitored\n";
+	    VoltageMonitor *vmon_pyba_pr = new VoltageMonitor(py_cells,pyba_pr,sys->fn("pyba_pr.vmem"));
+	    VoltageMonitor *vmon_pyba_po = new VoltageMonitor(ba_cells,pyba_po,sys->fn("pyba_po.vmem"));
+	}
+	
+	w = getrndpair(ba_py,bapy_pr,bapy_po);
+	if (w) {
+	    std::cout << "bapy: pr = " << bapy_pr << " po = " << bapy_po << " w = " << w << " monitored\n";
+	    VoltageMonitor *vmon_bapy_pr = new VoltageMonitor(ba_cells,bapy_pr,sys->fn("bapy_pr.vmem"));
+	    VoltageMonitor *vmon_bapy_po = new VoltageMonitor(py_cells,bapy_po,sys->fn("bapy_po.vmem"));
+	}
+
+	NeuronID pydb_pr,pydb_po,dbpy_pr,dbpy_po;
+
+	w = getrndpair(py_db,pydb_pr,pydb_po);
+	if (w) {
+	    std::cout << "pydb: pr = " << pydb_pr << " po = " << pydb_po << " w = " << w << " monitored\n";
+	    VoltageMonitor *vmon_pydb_pr = new VoltageMonitor(py_cells,pydb_pr,sys->fn("pydb_pr.vmem"));
+	    VoltageMonitor *vmon_pydb_po = new VoltageMonitor(db_cells,pydb_po,sys->fn("pydb_po.vmem"));
+	}
+	
+	w = getrndpair(db_py,dbpy_pr,dbpy_po);
+	if (w) {
+	    std::cout << "dbpy: pr = " << dbpy_pr << " po = " << dbpy_po << " w = " << w << " monitored\n";
+	    VoltageMonitor *vmon_dbpy_pr = new VoltageMonitor(db_cells,dbpy_pr,sys->fn("dbpy_pr.vmem"));
+	    VoltageMonitor *vmon_dbpy_po = new VoltageMonitor(py_cells,dbpy_po,sys->fn("dbpy_po.vmem"));
+	}
+
+	NeuronID pyvp_pr,pyvp_po,vpdb_pr,vpdb_po;
+
+	w = getrndpair(py_vp,pyvp_pr,pyvp_po);
+
+	if (w) {
+	    std::cout << "pyvp: pr = " << pyvp_pr << " po = " << pyvp_po << " w = " << w << " monitored\n";
+	    VoltageMonitor *vmon_pyvp_pr = new VoltageMonitor(py_cells,pyvp_pr,sys->fn("pyvp_pr.vmem"));
+	    VoltageMonitor *vmon_pyvp_po = new VoltageMonitor(vp_cells,pyvp_po,sys->fn("pyvp_po.vmem"));
+	}
+
+	w = getrndpair(vp_db,vpdb_pr,vpdb_po);
+	if (w) {
+	    std::cout << "vpdb: pr = " << vpdb_pr << " po = " << vpdb_po << " w = " << w << " monitored\n";
+	    VoltageMonitor *vmon_vpdb_pr = new VoltageMonitor(vp_cells,vpdb_pr,sys->fn("vpdb_pr.vmem"));
+	    VoltageMonitor *vmon_vpdb_po = new VoltageMonitor(db_cells,vpdb_po,sys->fn("vpdb_po.vmem"));
+	}
+	
+	/* Current injections */
+
+	CurrentInjector * curinj_py1 = new CurrentInjector(py_cells);
+	CurrentInjector * curinj_py2 = new CurrentInjector(py_cells);
+
+	CurrentInjector * curinj_py3 = new CurrentInjector(py_cells);
+	CurrentInjector * curinj_ba1 = new CurrentInjector(ba_cells);
+
+	CurrentInjector * curinj_py4 = new CurrentInjector(py_cells);
+	CurrentInjector * curinj_db1 = new CurrentInjector(db_cells);
+
+	CurrentInjector * curinj_py5 = new CurrentInjector(py_cells);
+	CurrentInjector * curinj_vp1 = new CurrentInjector(vp_cells);
 
 	logger->msg("Simulating ..." ,PROGRESS,true);
 
@@ -892,15 +750,33 @@ int test4() {
 
 	sys->run(0.1);
 
-	curinj_1->set_current(pypyG_i,injcur);
-	// curinj_py2->set_current(i,injcur);
-	// curinj_py1->set_current(i,injcur);
+	curinj_py1->set_current(pypyG_pr,injcur);
+	curinj_py2->set_current(pypyL_pr,injcur);
+
+	curinj_py3->set_current(pyba_pr,injcur);
+	curinj_ba1->set_current(bapy_pr,injcur);
+
+	curinj_py4->set_current(pydb_pr,injcur);
+	curinj_db1->set_current(dbpy_pr,injcur);
+
+	curinj_py5->set_current(pyvp_pr,injcur);
+	curinj_vp1->set_current(vpdb_pr,injcur);
 
 	sys->run(injdur);
 
-	curinj_1->set_all_currents(0);
+	curinj_py1->set_all_currents(0);
+	curinj_py2->set_all_currents(0);
 
-	sys->run(0.2 - injdur);
+	curinj_py3->set_all_currents(0);
+	curinj_ba1->set_all_currents(0);
+
+	curinj_py4->set_all_currents(0);
+	curinj_db1->set_all_currents(0);
+
+	curinj_py5->set_all_currents(0);
+	curinj_vp1->set_all_currents(0);
+	
+	sys->run(simtime - 0.1 - injdur);
 
 	if ( !save.empty() ) {
 		sys->save_network_state(save);
@@ -916,21 +792,31 @@ int main(int ac,char *av[]) {
 	processargs(ac,av);
 
 	auryn_init(ac, av);
+
+	std::cout << "seed = " << seed << " --> ";
+
+	if (seed<0) {
+	    seed = time(0);
+	    srand(seed);
+	    printf("seed = %u\n",seed);
+	} else
+		srand(seed);
+	
 	sys->set_master_seed(seed);
+
 	sys->set_simulation_name("minicols");
 	oss << dir  <<  monitor << sys->mpi_rank() << ".";
 	outputfile = oss.str();
 
+	std::cout << "runmode = " << runmode << std::endl;
+
 	switch (runmode) {
-	case 0: test0(); break;
-	case 1: test1(false); break;
-	case 2: test1(true); break;
-	case 3: test3(); break;
-	case 4: test4(); break;
+	case 1: test1(); break;
+	case 2: test2(); break;
 	}	 
 
 	if (sys->mpi_rank()==0) {
-		std::cout << "N:o pyramidal cells = " << nhcu*nmcu*npy<< " (" << npy*nmcu << " per hcu)" << std::endl;
+		std::cout << "\nN:o pyramidal cells = " << nhcu*nmcu*npy<< " (" << npy*nmcu << " per hcu)" << std::endl;
 		std::cout << "N:o basket cells = " << nhcu*nba << " (" << nba << " per hcu)" << std::endl;
 
 		std::cout << "N:o double bouquet cells = " << nhcu*nmcu*ndb << " (" << ndb*nmcu << " per hcu)" << std::endl;
