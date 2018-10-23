@@ -102,6 +102,13 @@ namespace auryn {
 
 			/*! \brief Reads a single spike attribute */
 			NeuronID * read_attribute_from_buffer(NeuronID * iter, AurynFloat & attrib);
+
+			/*! \brief Synchronize spikes using Allgatherv (different sized data size per rank) */
+			void sync_allgatherv();
+
+			/*! \brief Synchronize spikes using Allgather (same size data per rank) */
+			void sync_allgather();
+
 		public:
 
 			/*! \brief The default contructor. */
