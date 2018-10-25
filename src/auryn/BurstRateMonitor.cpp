@@ -48,7 +48,7 @@ void BurstRateMonitor::init(SpikingGroup * source, std::string filename, AurynDo
 	burst_state = src->get_state_vector("_burst_state");
 
 	set_tau(default_tau);
-	thr = std::exp(-1.0);
+	thr = 1.0+std::exp(-1.0);
 
 
 	std::stringstream oss;
