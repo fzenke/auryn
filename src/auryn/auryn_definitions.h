@@ -43,10 +43,9 @@
  * plastic connections.*/
 #define CODE_ACTIVATE_PREFETCHING_INTRINSICS
 
-/*! \brief Toggle between using auryns vector operations using SIMD
- * instructions. 
+/*! \brief Toggle between explicit implementation for SIMD operations in AurynVector classes.
  *
- * Even if you do not enforce this here the compiler might still choose to use
+ * Even if you do not enforce this here, the compiler might still choose to use
  * them when mtune settings are set appropriately.
  * */
 #define CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY
@@ -109,11 +108,13 @@
 #include <exception>
 #include <limits>
 
+#ifdef CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY
 #ifndef CODE_ACTIVATE_CILK_INSTRUCTIONS
 #include <x86intrin.h> // SIMD intrinsics (pulls everything you need)
 #else // XMM registers are not supported on the phi platform
 #include <immintrin.h> // AVX only
 #endif /* CODE_ACTIVATE_CILK_INSTRUCTIONS */
+#endif /* CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY */
 
 #ifdef  AURYN_CODE_USE_MPI
 #include <boost/mpi.hpp>
