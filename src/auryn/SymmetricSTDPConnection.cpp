@@ -123,7 +123,7 @@ inline void SymmetricSTDPConnection::propagate_backward()
 			spike != spikes_end ; ++spike ) {
 		for (NeuronID * c = bkw->get_row_begin(*spike) ; c != bkw->get_row_end(*spike) ; ++c ) {
 
-			#ifdef CODE_ACTIVATE_PREFETCHING_INTRINSICS
+			#if defined(CODE_ACTIVATE_PREFETCHING_INTRINSICS) && defined(CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY)
 			_mm_prefetch((const char *)data[c-ind+2],  _MM_HINT_NTA);
 			#endif
 			

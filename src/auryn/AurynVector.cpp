@@ -27,6 +27,7 @@
 
 using namespace auryn;
 
+#ifdef CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY
 // TODO on the long run we should get rid of the unaligned instructions
 inline __m128 sse_load( float * i ) 
 {
@@ -45,6 +46,7 @@ inline void sse_store( float * i, __m128 d )
 	_mm_storeu_ps( i, d );
 #endif
 }
+#endif /* CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY */
 
 
 AurynVectorFloat::AurynVectorFloat(NeuronID n) : AurynVector<float>(n)

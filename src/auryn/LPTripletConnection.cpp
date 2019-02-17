@@ -211,7 +211,7 @@ void LPTripletConnection::propagate_backward()
 				// define shortcut
 				AurynWeight * current_element = bkw->get_data(c);
 
-				#ifdef CODE_ACTIVATE_PREFETCHING_INTRINSICS
+				#if defined(CODE_ACTIVATE_PREFETCHING_INTRINSICS) && defined(CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY)
 				// prefetches next memory cells to reduce number of last-level cache misses
 				_mm_prefetch((const char *)(current_element+2),  _MM_HINT_NTA);
 				#endif

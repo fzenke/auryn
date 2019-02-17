@@ -157,7 +157,7 @@ void STDPwdConnection::propagate_backward()
 		if (stdp_active) {
 			for (NeuronID * c = bkw->get_row_begin(*spike) ; c != bkw->get_row_end(*spike) ; ++c ) {
 
-				#ifdef CODE_ACTIVATE_PREFETCHING_INTRINSICS
+				#if defined(CODE_ACTIVATE_PREFETCHING_INTRINSICS) && defined(CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY)
 				_mm_prefetch((const char *)bkw_data[c-bkw_ind+1],  _MM_HINT_NTA);
 				#endif
 
