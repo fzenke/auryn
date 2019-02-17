@@ -98,7 +98,7 @@ namespace auryn {
 
 			/*! \brief Implements aligned memory allocation */
 			void allocate(const NeuronID n) {
-#ifdef CODE_ALIGNED_SIMD_INSTRUCTIONS
+#if defined(CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY) && defined(CODE_ALIGNED_SIMD_INSTRUCTIONS)
 				std::size_t mem_alignment = sizeof(T)*SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS;
 				std::size_t mem_size = sizeof(T)*n;
 				mem = malloc(mem_size+mem_alignment-1); // adds padding to allocated memory
@@ -120,7 +120,7 @@ namespace auryn {
 			}
 
 			void freebuf() {
-#ifdef CODE_ALIGNED_SIMD_INSTRUCTIONS
+#if defined(CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY) && defined(CODE_ALIGNED_SIMD_INSTRUCTIONS)
 				free(mem);
 				//! \todo TODO Replace above alignment code with boost code once boost 1.56 is commonly available with the dists
 				// boost::alignment::aligned_free(data);

@@ -49,11 +49,15 @@ const int align)   /* required alignment, in bytes */
 
 NeuronID calculate_vector_size(NeuronID i)
 {
+	#if defined(CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY)
 	if ( i%SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS==0 ) 
 		return i;
 	NeuronID div = i/SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS; // rounds down
 	NeuronID new_size = (div+1)*SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS; // is multiple of SIMD...
 	return new_size;
+	#else
+	return i;
+	#endif
 }
 
 
