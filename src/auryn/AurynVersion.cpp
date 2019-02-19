@@ -6,11 +6,11 @@ namespace auryn {
 
     int AurynVersion::version = 0;
     int AurynVersion::subversion = 8;
-    int AurynVersion::revision_number = 1;
-    NeuronID AurynVersion::tag_binary_spike_monitor = 287960000+100*0+10*8+1*1; //!< file signature for BinarySpikeMonitor files
-    AurynState AurynVersion::tag_binary_state_monitor = 61000+100*0+10*8+1*1; //!< file signature for BinaryStateMonitor files
-    std::string AurynVersion::revision_suffix = "dev-d6c1604";
-    std::string AurynVersion::git_describe = "v0.8.1-12-gd6c1604";
+    int AurynVersion::revision_number = 2;
+    NeuronID AurynVersion::tag_binary_spike_monitor = 287960000+100*0+10*8+1*2; //!< file signature for BinarySpikeMonitor files
+    AurynState AurynVersion::tag_binary_state_monitor = 61000+100*0+10*8+1*2; //!< file signature for BinaryStateMonitor files
+    std::string AurynVersion::revision_suffix = "dev-1610e83";
+    std::string AurynVersion::git_describe = "v0.8.1-136-g1610e83";
 
 }
 
