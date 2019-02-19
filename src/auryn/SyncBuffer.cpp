@@ -277,15 +277,15 @@ void SyncBuffer::sync()
     T1 = MPI_Wtime();     /* start time */
 #endif
 	if ( send_buf.size() <= max_send_size ) {
-		ierr = MPI_Allgather(send_buf.data(), send_buf.size(), MPI_UNSIGNED, 
-				recv_buf.data(), max_send_size, MPI_UNSIGNED, *mpicom);
+		ierr = MPI_Allgather(send_buf.data(), max_send_size, MPI_UNSIGNED, 
+							 recv_buf.data(), max_send_size, MPI_UNSIGNED, *mpicom);
 	} else { 
 		// Create an overflow package 
 		// std::cout << " overflow " << overflow_value << " " << send_buf.size() << std::endl;
-		NeuronID overflow_data [2]; 
+		NeuronID overflow_data [max_send_size]; 
 		overflow_data[0] = overflow_value;
 		overflow_data[1] = send_buf.size(); 
-		ierr = MPI_Allgather(&overflow_data, 2, MPI_UNSIGNED, 
+		ierr = MPI_Allgather(&overflow_data, max_send_size, MPI_UNSIGNED, 
 				recv_buf.data(), max_send_size, MPI_UNSIGNED, *mpicom);
 	}
 
