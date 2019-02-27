@@ -141,6 +141,7 @@
 #include "auryn/NormalStimulator.h"
 #include "auryn/PatternStimulator.h"
 #include "auryn/CurrentInjector.h"
+#include "auryn/FileCurrentInjector.h"
 
 
 #endif /*AURYN_H__*/
