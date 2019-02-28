@@ -113,7 +113,8 @@ public:
 	 *
 	 * Sets the the loop grid variable.  This variable determines whether
 	 * consecutive replays in loop mode are aligned to this temporal grid.
-	 * Per default it is set to 1.0s.
+	 * This should be larger or equal to the length of the input time series
+	 * otherwise it may be truncated.  Per default it is set to 1.0s.
 	 **/
 	void set_loop_grid(double grid);
 

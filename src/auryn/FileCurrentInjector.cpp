@@ -55,14 +55,16 @@ FileCurrentInjector::~FileCurrentInjector()
 
 AurynState FileCurrentInjector::get_current_current_value()
 {
+
+	AurynTime index = sys->get_clock();
 	if ( loop ) {
-		// TODO implement
+		index = sys->get_clock()%loop_grid;
+	} 
+
+	if ( index < current_time_series->size() ) {
+		return current_time_series->at( index );
 	} else {
-		if ( sys->get_clock() < current_time_series->size() ) {
-			return current_time_series->at( sys->get_clock() );
-		} else {
-			return 0.0;
-		}
+		return 0.0;
 	}
 }
 

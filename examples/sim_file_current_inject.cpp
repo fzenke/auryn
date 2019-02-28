@@ -54,6 +54,10 @@ int main(int ac, char* av[])
 	// define FileCurrentInjector
 	FileCurrentInjector * injector = new FileCurrentInjector( neurons, "inject_current.txt", "mem" );
 
+	// To repeat the input current enable looping by uncommenting the following lines
+	// injector->loop = true;
+	// injector->set_loop_grid(10.0); // align time series to 1s grid (should be larger or equal to the input time series)
+
 	// To only inject current in some neurons uncomment the following code 
 	// injector->mode = LIST;
 	// injector->target_neuron_ids->push_back(0);
