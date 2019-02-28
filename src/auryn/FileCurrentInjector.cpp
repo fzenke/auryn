@@ -27,23 +27,22 @@
 
 using namespace auryn;
 
-FileCurrentInjector::FileCurrentInjector(NeuronGroup * target, std::string neuron_state_name, AurynFloat initial_current ) : Device( )
+FileCurrentInjector::FileCurrentInjector(NeuronGroup * target, std::string time_series_file, std::string neuron_state_name, AurynFloat initial_current ) : CurrentInjector(target, neuron_state_name, initial_current )
 {
-	auryn::sys->register_device(this);
-	dst = target;
+	target_neuron_ids = new std::vector<NeuronID>;
+	current_time_series = new std::vector<AurynState>;
 
-	set_target_state(neuron_state_name);
-	currents = new AurynVectorFloat(dst->get_vector_size()); 
-
-	currents->set_all( initial_current );
-	alpha = auryn_timestep;
+	mode = ALL;
+	set_loop_grid(1.0);
+	load_time_series_file(time_series_file);
 }
 
 
 
 void FileCurrentInjector::free( ) 
 {
-	delete currents;
+	delete target_neuron_ids;
+	delete current_time_series;
 }
 
 
@@ -52,22 +51,77 @@ FileCurrentInjector::~FileCurrentInjector()
 	free();
 }
 
-void FileCurrentInjector::execute()
+
+AurynState FileCurrentInjector::get_current_current_value()
 {
-	if ( dst->evolve_locally() ) {
-		target_vector->saxpy(alpha, currents);
+	if ( loop ) {
+		// TODO implement
+	} else {
+		if ( current_time_series->size() < sys->get_clock() ) {
+			return current_time_series->at( sys->get_clock() );
+		} else {
+			return 0.0;
+		}
 	}
 }
 
-void FileCurrentInjector::set_current(NeuronID i, AurynFloat current) {
-	currents->set(i, current);
+void FileCurrentInjector::execute()
+{
+	if ( dst->evolve_locally() ) {
+		AurynState cur = get_current_current_value();
+		// TODO implement the update
+		CurrentInjector::execute();
+	}
 }
 
-void FileCurrentInjector::set_all_currents(AurynFloat current) {
-	currents->set_all(current);
+void FileCurrentInjector::set_loop_grid(double grid)
+{
+	if (grid<=0.0) {
+		logger->error("FileCurrentInjector:: Cannot set non-positive loop grid. Loop grid unchanged!");
+	} else {
+		loop_grid = grid/auryn_timestep;
+	}
 }
 
-void FileCurrentInjector::set_target_state(std::string state_name) {
-	target_vector = dst->get_state_vector(state_name);
-}
+void FileCurrentInjector::load_time_series_file(std::string filename)
+{
+	std::ifstream inputfile;
+	inputfile.open(filename.c_str(),std::ifstream::in);
+	if (!inputfile) {
+	  std::cerr << "Can't open input file " << filename << std::endl;
+	  throw AurynOpenFileException();
+	}
 
+	current_time_series->clear();
+
+	// read the time series file and interpolate missing time points linearly
+	AurynTime curtime = 0;
+	AurynTime ltime = 0;
+	AurynTime ntime = 0;
+	double lc = 0.0;
+	double nc = 0.0;
+	char buffer[255];
+	while ( inputfile.getline(buffer, 256) ) {
+		std::stringstream line ( buffer );
+
+		// store last data point
+		ltime = ntime; 
+		lc = nc;
+
+		// read new data point
+		double t;
+		line >> t;
+		ntime = (AurynTime) (t/auryn_timestep+0.5);
+		line >> nc;
+
+		while ( curtime < ntime || inputfile.eof() ) { 
+			double inter_current = lc + 1.0*(curtime-ltime)/(ntime-ltime)*(nc-lc);
+			// std::cout << curtime << " " << inter_current << std::endl;
+			current_time_series->push_back(inter_current);
+			curtime++;
+		} 
+	}
+	current_time_series->push_back(lc); // terminates with last value
+
+	inputfile.close();
+}

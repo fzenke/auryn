@@ -23,8 +23,8 @@
 * Front Neuroinform 8, 76. doi: 10.3389/fninf.2014.00076
 */
 
-#ifndef CURRENTINJECTOR_H_
-#define CURRENTINJECTOR_H_
+#ifndef FILECURRENTINJECTOR_H_
+#define FILECURRENTINJECTOR_H_
 
 #include "auryn_definitions.h"
 #include "AurynVector.h"
@@ -32,6 +32,7 @@
 #include "Logger.h"
 #include "Device.h"
 #include "NeuronGroup.h"
+#include "CurrentInjector.h"
 
 
 namespace auryn {
@@ -46,59 +47,65 @@ namespace auryn {
  * 
  */
 
-class FileCurrentInjector : protected Device
+enum FileCurrentInjectorMode { 
+	LIST, 
+	ALL,  
+};
+
+class FileCurrentInjector : protected CurrentInjector
 {
 private:
-
-	/*! Vector storing all the current values */
-	AurynVectorFloat * currents;
-
-	/*! Target membrane */
-	AurynVectorFloat * target_vector;
-
 	void free();
 
-	/*! Returns the lambda parameter of the pmf for Current. */
-	AurynFloat get_lambda();
-
-	/*! Scale factor which should include auryn_timestep and any respective resistance. */
-	AurynFloat alpha;
+	/*! \brief compute current current value from sys clock */
+	AurynState get_current_current_value();
 
 protected:
 
-	/*! The target NeuronGroup */
-	NeuronGroup * dst;
+	/*! \brief The array holding the target neuron ids */
+	std::vector<NeuronID> * target_neuron_ids;
+
+	/*! \brief Current time series */
+	std::vector<AurynState> * current_time_series;
+
+	/*! \brief The loop grid variable */
+	AurynTime loop_grid;
+
 
 	
 public:
 
 	/*! \brief Default Constructor 
 	 * @param[target] The target group
+	 * @param[time_series_file] The path to the file holding the time series to inject
 	 * @param[neuron_state_name] The state to manipulate
 	 * @param[initial_current] Initializes all currents with this value
 	 */
-	FileCurrentInjector(NeuronGroup * target, std::string neuron_state_name="mem", AurynFloat initial_current=0.0 );
-
-	/*! \brief Sets the state to add the "current" in every timestep to */
-	void set_target_state( std::string state_name = "mem" );
+	FileCurrentInjector(NeuronGroup * target, std::string time_series_file, std::string neuron_state_name="mem", AurynFloat initial_current=0.0 );
 
 	/*! \brief Default Destructor */
 	virtual ~FileCurrentInjector();
 
-	/*! \brief Sets current strengh for neuron i
-	 * 
-	 * This must be a valid state vector name (default = mem) 
-	 * 
-	 * \param i Index of neuron
-	 * \param current Current value to set*/
-	void set_current( NeuronID i, AurynFloat current );
+	void load_time_series_file(std::string filename);
 
-	/*! \brief Sets current strength for all neurons
-	 * 
-	 * This must be a valid state vector name (default = mem) 
-	 * 
-	 * \param current Current value to set*/
-	void set_all_currents( AurynFloat current );
+	/*! \brief Mode of operation 
+	 *
+	 * Determines whether the current should be injected to a list of neurons or all neurons. */
+	FileCurrentInjectorMode mode;
+
+	/*! \brief Loop switch
+	 *
+	 * Switches looping on/off.
+	 **/
+	bool loop;
+
+	/*! \brief Set loop grid in units of s
+	 *
+	 * Sets the the loop grid variable.  This variable determines whether
+	 * consecutive replays in loop mode are aligned to this temporal grid.
+	 * Per default it is set to 1.0s.
+	 **/
+	void set_loop_grid(double grid);
 
 	/*! Implementation of necessary propagate() function. */
 	void execute();
@@ -107,4 +114,4 @@ public:
 
 }
 
-#endif /*CURRENTINJECTOR_H_*/
+#endif /*FILECURRENTINJECTOR_H_*/
