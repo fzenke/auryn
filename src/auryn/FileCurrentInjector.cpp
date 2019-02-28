@@ -27,12 +27,13 @@
 
 using namespace auryn;
 
-FileCurrentInjector::FileCurrentInjector(NeuronGroup * target, std::string time_series_file, std::string neuron_state_name, AurynFloat initial_current ) : CurrentInjector(target, neuron_state_name, initial_current )
+FileCurrentInjector::FileCurrentInjector(NeuronGroup * target, std::string time_series_file, std::string neuron_state_name ) : CurrentInjector(target, neuron_state_name, 0.0 )
 {
 	target_neuron_ids = new std::vector<NeuronID>;
 	current_time_series = new std::vector<AurynState>;
 
 	mode = ALL;
+	loop = false;
 	set_loop_grid(1.0);
 	load_time_series_file(time_series_file);
 }
@@ -57,7 +58,7 @@ AurynState FileCurrentInjector::get_current_current_value()
 	if ( loop ) {
 		// TODO implement
 	} else {
-		if ( current_time_series->size() < sys->get_clock() ) {
+		if ( sys->get_clock() < current_time_series->size() ) {
 			return current_time_series->at( sys->get_clock() );
 		} else {
 			return 0.0;
@@ -69,7 +70,18 @@ void FileCurrentInjector::execute()
 {
 	if ( dst->evolve_locally() ) {
 		AurynState cur = get_current_current_value();
-		// TODO implement the update
+		switch ( mode ) {
+			case LIST:
+				// TODO implement the update
+				currents->set_all(0.0);
+				for ( int i = 0 ; i < target_neuron_ids->size() ; ++i ) {
+					currents->set(target_neuron_ids->at(i),cur);
+				}
+				break;
+			case ALL:
+			default:
+				currents->set_all(cur);
+		}
 		CurrentInjector::execute();
 	}
 }
@@ -83,7 +95,7 @@ void FileCurrentInjector::set_loop_grid(double grid)
 	}
 }
 
-void FileCurrentInjector::load_time_series_file(std::string filename)
+void FileCurrentInjector::load_time_series_file(std::string filename, double scale)
 {
 	std::ifstream inputfile;
 	inputfile.open(filename.c_str(),std::ifstream::in);
@@ -117,7 +129,7 @@ void FileCurrentInjector::load_time_series_file(std::string filename)
 		while ( curtime < ntime || inputfile.eof() ) { 
 			double inter_current = lc + 1.0*(curtime-ltime)/(ntime-ltime)*(nc-lc);
 			// std::cout << curtime << " " << inter_current << std::endl;
-			current_time_series->push_back(inter_current);
+			current_time_series->push_back(scale*inter_current);
 			curtime++;
 		} 
 	}

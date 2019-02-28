@@ -50,23 +50,24 @@ class CurrentInjector : protected Device
 {
 private:
 
-	/*! Vector storing all the current values */
-	AurynVectorFloat * currents;
 
-	/*! Target membrane */
+	/*! \brief Target membrane */
 	AurynVectorFloat * target_vector;
 
 	void free();
 
-	/*! Returns the lambda parameter of the pmf for Current. */
+	/*! \brief Returns the lambda parameter of the pmf for Current. */
 	AurynFloat get_lambda();
 
-	/*! Scale factor which should include auryn_timestep and any respective resistance. */
+	/*! \brief Scale factor which should include auryn_timestep and any respective resistance. */
 	AurynFloat alpha;
 
 protected:
 
-	/*! The target NeuronGroup */
+	/*! \brief Vector storing all the current values */
+	AurynVectorFloat * currents;
+
+	/*! \brief The target NeuronGroup */
 	NeuronGroup * dst;
 
 	

@@ -79,14 +79,23 @@ public:
 	 * @param[target] The target group
 	 * @param[time_series_file] The path to the file holding the time series to inject
 	 * @param[neuron_state_name] The state to manipulate
-	 * @param[initial_current] Initializes all currents with this value
 	 */
-	FileCurrentInjector(NeuronGroup * target, std::string time_series_file, std::string neuron_state_name="mem", AurynFloat initial_current=0.0 );
+	FileCurrentInjector(NeuronGroup * target, std::string time_series_file, std::string neuron_state_name="mem" );
 
 	/*! \brief Default Destructor */
 	virtual ~FileCurrentInjector();
 
-	void load_time_series_file(std::string filename);
+	/*! \brief Loads time series file
+	 *
+	 * @param[filename] The path and filename of the ASCII two-column file to load.
+	 * @param[scale] A linear scale to give the time series a scale or "unit"
+	 * This functions loads the time series to inject from a human readable
+	 * ASCII file in two column format. The first column should be time in s.
+	 * The second column should include the current value in arbitrary units
+	 * (which may depend on the neuron model and the state variable the
+	 * current is injected to. The strength of the current can be linearly
+	 * adjusted with the scale variable. */
+	void load_time_series_file(std::string filename, double scale=1.0);
 
 	/*! \brief Mode of operation 
 	 *

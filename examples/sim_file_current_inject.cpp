@@ -55,7 +55,7 @@ int main(int ac, char* av[])
 
 	// run simulation
 	logger->msg("Running ...",PROGRESS);
-	sys->run(1.0);
+	sys->run(15.0);
 
 	if (errcode)
 		auryn_abort(errcode);
