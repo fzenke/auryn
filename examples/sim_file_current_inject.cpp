@@ -48,10 +48,16 @@ int main(int ac, char* av[])
 	IFGroup * neurons = new IFGroup(3);
 
 	// define monitors
-	VoltageMonitor * vmon = new VoltageMonitor( neurons, 0, sys->fn("mem"), 1e-3 );
+	VoltageMonitor * vmon0 = new VoltageMonitor( neurons, 0, sys->fn("neuron",0,"mem"), 1e-3 );
+	VoltageMonitor * vmon1 = new VoltageMonitor( neurons, 1, sys->fn("neuron",1,"mem"), 1e-3 );
 
 	// define FileCurrentInjector
 	FileCurrentInjector * injector = new FileCurrentInjector( neurons, "inject_current.txt", "mem" );
+
+	// To only inject current in some neurons uncomment the following code 
+	// injector->mode = LIST;
+	// injector->target_neuron_ids->push_back(0);
+	// injector->target_neuron_ids->push_back(2);
 
 	// run simulation
 	logger->msg("Running ...",PROGRESS);

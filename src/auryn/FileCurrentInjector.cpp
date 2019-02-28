@@ -72,7 +72,6 @@ void FileCurrentInjector::execute()
 		AurynState cur = get_current_current_value();
 		switch ( mode ) {
 			case LIST:
-				// TODO implement the update
 				currents->set_all(0.0);
 				for ( int i = 0 ; i < target_neuron_ids->size() ; ++i ) {
 					currents->set(target_neuron_ids->at(i),cur);

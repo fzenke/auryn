@@ -62,8 +62,6 @@ private:
 
 protected:
 
-	/*! \brief The array holding the target neuron ids */
-	std::vector<NeuronID> * target_neuron_ids;
 
 	/*! \brief Current time series */
 	std::vector<AurynState> * current_time_series;
@@ -101,6 +99,9 @@ public:
 	 *
 	 * Determines whether the current should be injected to a list of neurons or all neurons. */
 	FileCurrentInjectorMode mode;
+
+	/*! \brief The array holding the target neuron ids */
+	std::vector<NeuronID> * target_neuron_ids;
 
 	/*! \brief Loop switch
 	 *
