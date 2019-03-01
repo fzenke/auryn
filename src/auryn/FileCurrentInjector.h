@@ -52,7 +52,7 @@ enum FileCurrentInjectorMode {
 	ALL,  
 };
 
-class FileCurrentInjector : protected CurrentInjector
+class FileCurrentInjector : public CurrentInjector
 {
 private:
 	void free();
@@ -86,14 +86,12 @@ public:
 	/*! \brief Loads time series file
 	 *
 	 * @param[filename] The path and filename of the ASCII two-column file to load.
-	 * @param[scale] A linear scale to give the time series a scale or "unit"
 	 * This functions loads the time series to inject from a human readable
 	 * ASCII file in two column format. The first column should be time in s.
 	 * The second column should include the current value in arbitrary units
 	 * (which may depend on the neuron model and the state variable the
-	 * current is injected to. The strength of the current can be linearly
-	 * adjusted with the scale variable. */
-	void load_time_series_file(std::string filename, double scale=1.0);
+	 * current is injected to. */
+	void load_time_series_file(std::string filename);
 
 	/*! \brief Mode of operation 
 	 *

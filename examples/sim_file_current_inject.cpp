@@ -53,6 +53,7 @@ int main(int ac, char* av[])
 
 	// define FileCurrentInjector
 	FileCurrentInjector * injector = new FileCurrentInjector( neurons, "inject_current.txt", "mem" );
+	injector->set_scale(1.2); // Scales all current values by this factor
 
 	// To repeat the input current enable looping by uncommenting the following lines
 	// injector->loop = true;

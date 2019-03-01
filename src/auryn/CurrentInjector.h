@@ -101,8 +101,20 @@ public:
 	 * \param current Current value to set*/
 	void set_all_currents( AurynFloat current );
 
+	/*! \brief Sets scale 
+	 *
+	 * \param scale The scale value to set
+	 *
+	 * This sets a scaling factor or "unit" with which all current values are
+	 * multiplied. Internally this value is multiplied by auryn time step to
+	 * make it invariant to timestep changes.
+	 * */
+	void set_scale( AurynFloat scale );
+
 	/*! Implementation of necessary propagate() function. */
 	void execute();
+
+
 
 };
 

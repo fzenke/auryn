@@ -96,7 +96,7 @@ void FileCurrentInjector::set_loop_grid(double grid)
 	}
 }
 
-void FileCurrentInjector::load_time_series_file(std::string filename, double scale)
+void FileCurrentInjector::load_time_series_file(std::string filename)
 {
 	std::ifstream inputfile;
 	inputfile.open(filename.c_str(),std::ifstream::in);
@@ -130,7 +130,7 @@ void FileCurrentInjector::load_time_series_file(std::string filename, double sca
 		while ( curtime < ntime || inputfile.eof() ) { 
 			double inter_current = lc + 1.0*(curtime-ltime)/(ntime-ltime)*(nc-lc);
 			// std::cout << curtime << " " << inter_current << std::endl;
-			current_time_series->push_back(scale*inter_current);
+			current_time_series->push_back(inter_current);
 			curtime++;
 		} 
 	}
