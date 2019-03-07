@@ -37,13 +37,28 @@
 
 namespace auryn {
 
-/*! \brief Stimulator class to add values in each timestep to arbitrary neuronal states. 
+/*! \brief Stimulator class which reads "currents" from a file and applies them to arbitrary neuronal states.
  *
  * Most commonly used to inject "currents" to arbitraty neuronal states. Maintains an internal vector with
  * numbers which are added (times auryn_timestep) in each timestep to the neuronal target vector 
  * (per default that is the membrane voltage and hence the operation corresponds to injecting a current).
  * Note that because of this current units of FileCurrentInjector are in a sense arbitrary because they depend 
- * on the neuron model.
+ * on the neuron model. The scale of inputs can be with the set_scale runction.
+ *
+ * Upon construction the FileCurrentInjector accepts a human readable file in
+ * two-column format which stores the current time series.  The first column
+ * should contain the time in s and the second column the corresponding current
+ * values. Missing current values are interpolated linearly.
+ * Here is an example for a valid time series file:
+ *
+ *     0.000000 0.000000
+ *     0.050000 0.125333
+ *     0.100000 0.248690
+ *     0.150000 0.368125
+ *     0.200000 0.481754
+ *     0.250000 0.587785
+ *     0.300000 0.684547
+ *
  * 
  */
 
