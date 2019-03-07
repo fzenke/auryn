@@ -1,9 +1,3 @@
-ADD_SUBDIRECTORY(currents)
-ADD_SUBDIRECTORY(misc)
-ADD_SUBDIRECTORY(plasticity)
-ADD_SUBDIRECTORY(poisson)
-ADD_SUBDIRECTORY(tutorials)
-
 FILE( GLOB SIM_SOURCES *.cpp )
 FOREACH( sourcepath ${SIM_SOURCES} )
 	GET_FILENAME_COMPONENT( sourcefile ${sourcepath} NAME )
