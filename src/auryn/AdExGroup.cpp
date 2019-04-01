@@ -203,7 +203,7 @@ void AdExGroup::set_b(AurynFloat _b)
 
 void AdExGroup::set_delta_t(AurynFloat d)
 {
-    deltat = d/g_leak;
+    deltat = d;
 }
 
 void AdExGroup::set_g_leak(AurynFloat g)
