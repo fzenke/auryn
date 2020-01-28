@@ -92,11 +92,13 @@ void System::init() {
 		<< std::numeric_limits<NeuronID>::max()-1 << " cells.";
 	auryn::logger->msg(oss.str(),INFO);
 
+#ifdef AURYN_CODE_USE_MPI
 	if ( sizeof(NeuronID) != sizeof(AurynFloat) ) {
 		oss.str("");
 		oss << " NeuronID and AurynFloat have different byte sizes which is not supported by SyncBuffer.";
 		auryn::logger->msg(oss.str(),ERROR);
 	}
+#endif // AURYN_CODE_USE_MPI
 
 	oss.str("");
 	oss << "Simulation timestep is set to "
