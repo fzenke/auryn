@@ -49,7 +49,7 @@ private:
 	void free();
 
 protected:
-	auryn_vector_float * g_adapt2;
+	AurynStateVector * g_adapt2;
 
 	void calculate_scale_constants();
 	void integrate_linear_nmda_synapses();

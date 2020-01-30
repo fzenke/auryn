@@ -54,9 +54,7 @@ void AIF2Group::init()
 void AIF2Group::clear()
 {
 	AIFGroup::clear();
-	for (NeuronID i = 0; i < get_rank_size(); i++) {
-	   auryn_vector_float_set (g_adapt2, i, 0.);
-	 }
+   g_adapt2->set_all(0.);
 }
 
 
