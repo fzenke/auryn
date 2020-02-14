@@ -64,7 +64,7 @@ namespace auryn {
 
 enum FileCurrentInjectorMode { 
 	LIST, 
-	ALL,  
+	ALL
 };
 
 class FileCurrentInjector : public CurrentInjector
