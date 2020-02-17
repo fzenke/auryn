@@ -29,6 +29,8 @@
 #include <fstream>
 #include <sstream>
 
+#include <math.h>
+
 #include "auryn_definitions.h"
 #include "AurynVector.h"
 #include "System.h"
