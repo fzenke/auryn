@@ -38,13 +38,12 @@
 
 namespace auryn {
 
-/*! \brief Records the membrane potential from one unit from the source neuron group to a file. 
+/*! \brief Records a number of state variables from one or more groups to a single file
  *
- * The Monitor records the membrane potential of a single cell from a NeuronGroup. Per default
- * the timestep is simulator precision and the Monitor pastes a spike of height 
- * VOLTAGEMONITOR_PASTED_SPIKE_HEIGHT by reading out the the current spikes. For 
- * performance it is adviced to use the StateMonitor which does not do any
- * spike pasting. */
+ * This Monitor allows to record a number of state variables from a single or several NeuronGroups 
+ * and to write them in a ASCII file that is organized column-wise. Note that this Monitor produces 
+ * huge amounts of data and slows down simulations considerably. It should only be used when you know
+ * what you ware doing.*/
 class MultiStateMonitor : public StateMonitor
 {
 private:
@@ -54,16 +53,25 @@ protected:
 
 	
 public:
-	/*! \brief List to hold the state variables to record from */
+	/*! \brief List to holds pointers to the state variables to record from */
 	std::vector<AurynState*> state_list;
 
 	MultiStateMonitor(std::string filename,  AurynDouble stepsize=auryn_timestep);
 	virtual ~MultiStateMonitor();
 
+	/*! \brief Add single target variable to state list */
 	void add_target(AurynState * target);
+
+	/*! \brief Adds all elements of a given state vector to the list of monitored variables. */
 	void add_neuron_range(AurynStateVector * source);
+
+	/*! \brief Adds a range of elements to the list of monitored variables. */
 	void add_neuron_range(AurynStateVector * source, NeuronID from, NeuronID to);
+
+	/*! \brief Adds all elements of the source NeuronGroup and corresponding statename to the list of monitored variables. */
 	void add_neuron_range(NeuronGroup * source, std::string statename="mem");
+
+	/*! \brief Adds a range of elements of the source NeuronGroup and corresponding statename to the list of monitored variables. */
 	void add_neuron_range(NeuronGroup * source, std::string statename, NeuronID from, NeuronID to);
 
 	void execute();
