@@ -189,7 +189,7 @@ int main(int ac,char *av[]) {
 	filename.clear();
 	filename << outputfile << "e.mems";
 	MultiStateMonitor * msmon = new MultiStateMonitor( filename.str() );
-	msmon->add_neuron_range(neurons_e); // Monitors the membrane potentials of all excitatory neurons
+	msmon->add_neuron_range(neurons_e, "mem"); // Monitors the membrane potentials of all excitatory neurons
 
 
 	// RateChecker * chk = new RateChecker( neurons_e , -0.1 , 1000. , 100e-3);
