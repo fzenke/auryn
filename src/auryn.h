@@ -131,6 +131,7 @@
 #include "auryn/PopulationRateMonitor.h"
 #include "auryn/BurstRateMonitor.h"
 #include "auryn/StateMonitor.h"
+#include "auryn/MultiStateMonitor.h"
 #include "auryn/WeightSumMonitor.h"
 #include "auryn/PatternMonitor.h"
 #include "auryn/WeightPatternMonitor.h"

@@ -108,6 +108,15 @@ public:
 	 */
 	StateMonitor(Trace * trace, NeuronID id, string filename, AurynDouble sampling_interval=auryn_timestep);
 
+	/*! \brief NIL constructor
+	 *
+	 * Constructs a StateMonitor without specifying a state. This is mostly used for MultiStateMonitor.
+	 *
+	 * \param filename The filename of the file to dump the output to
+	 * \param sampling_interval The sampling interval in seconds
+	 */
+	StateMonitor(string filename, AurynDouble sampling_interval=auryn_timestep);
+
 	/*! \brief Sets relative time at which to stop recording 
 	 *
 	 * The time is given in seconds and interpreted as relative time with 

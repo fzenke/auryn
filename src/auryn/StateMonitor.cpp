@@ -90,6 +90,17 @@ StateMonitor::StateMonitor(Trace * trace, NeuronID id, std::string filename, Aur
 	lastval = *target_variable;
 }
 
+StateMonitor::StateMonitor(std::string filename, AurynDouble sampling_interval): Monitor(filename, "state")
+{
+	init(filename, sampling_interval);
+
+	auryn::sys->register_device(this);
+	src = NULL;
+	nid = 0;
+	target_variable = NULL;
+	// lastval = *target_variable;
+}
+
 void StateMonitor::init(std::string filename, AurynDouble sampling_interval)
 {
 	outfile << std::setiosflags(std::ios::fixed) << std::setprecision(6);
