@@ -12,6 +12,6 @@ script:
 notifications:
     email:
         recipients: 
-            - friedemann.zenke@cncb.ox.ac.uk
+            - fzenke@gmail.com
         on_success: change
         on_failure: always

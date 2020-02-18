@@ -81,7 +81,7 @@ void FileInputGroup::load_spikes(std::string filename)
 		std::stringstream line ( buffer ) ;
 		double t_tmp;
 		line >> t_tmp;
-		event.time = std::round(t_tmp/auryn_timestep);
+		event.time = round(t_tmp/auryn_timestep);
 		line >> event.neuronID;
 		if ( localrank(event.neuronID) ) {
 			input_spikes.push_back(event);
