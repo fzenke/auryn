@@ -85,7 +85,7 @@ Bibtex:
 License & Copyright 
 -------------------
 
-Copyright 2014-2019 Friedemann Zenke
+Copyright 2014-2020 Friedemann Zenke
 
 Auryn is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
