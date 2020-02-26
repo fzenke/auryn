@@ -41,12 +41,12 @@ fun_benchmark "$CMD_BENCHMARK1"
 RESULT_BENCHMARK1=$FUNCTION_RESULT
 
 # Zenke plasticity benchmark, single core
-CMD_BENCHMARK2="examples/sim_background --fast --tau 10 --simtime $SIMTIME --dir $TMPDIR"
+CMD_BENCHMARK2="examples/plasticity/sim_background --fast --tau 10 --simtime $SIMTIME --dir $TMPDIR"
 fun_benchmark "$CMD_BENCHMARK2"
 RESULT_BENCHMARK2=$FUNCTION_RESULT
 
 # Zenke plasticity benchmark, two cores
-CMD_BENCHMARK3="mpirun -n 2 examples/sim_background --fast --tau 10 --simtime $SIMTIME --dir $TMPDIR"
+CMD_BENCHMARK3="mpirun -n 2 examples/plasticity/sim_background --fast --tau 10 --simtime $SIMTIME --dir $TMPDIR"
 fun_benchmark "$CMD_BENCHMARK3"
 RESULT_BENCHMARK3=$FUNCTION_RESULT
 
