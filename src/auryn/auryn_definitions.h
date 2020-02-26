@@ -107,6 +107,7 @@
 #include <list>
 #include <exception>
 #include <limits>
+#include <vector>
 
 #ifdef CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY
 #ifndef CODE_ACTIVATE_CILK_INSTRUCTIONS

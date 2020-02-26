@@ -30,6 +30,7 @@
 #include <sstream>
 
 #include <math.h>
+#include <vector>
 
 #include "auryn_definitions.h"
 #include "AurynVector.h"
