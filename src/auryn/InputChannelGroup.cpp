@@ -49,6 +49,8 @@ void InputChannelGroup::init(AurynDouble  rate, NeuronID chsize )
 		timescale = 50e-3;
 		set_stoptime(0);
 
+		scale_by_channel = false;
+
 		std::stringstream oss;
 		oss << "InputChannelGroup:: Initializing with " 
 			<< nb_channels << " of size " 
@@ -126,6 +128,7 @@ void InputChannelGroup::evolve()
 		// group rate
 		AurynDouble grouprate = amplitudes[g]*o[g];  
 		if ( grouprate <= 0 ) grouprate = 0.0;
+		if ( scale_by_channel ) grouprate *= (1.0+g)/nb_channels;
 
 		const AurynFloat epsilon = 1e-3;
 		AurynDouble r = (*rank_noise)()/(auryn_timestep*(grouprate+epsilon)); // think before tempering with this! 
