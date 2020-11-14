@@ -144,7 +144,7 @@ void CorrelatedPoissonGroup::evolve()
 	for ( unsigned int g = 0 ; g < ngroups ; ++g ) {
 		AurynDouble grouprate = delay_o[(auryn::sys->get_clock()-(g+offset)*delay)%len];
 		AurynDouble r = (*rank_noise)()/(auryn_timestep*grouprate); // think before tempering with this! 
-		// I already broke the corde here once!
+		// I already broke the code here once!
 		x[g] = (NeuronID)(r); 
 		while ( x[g] < groupsize ) {
 			push_spike ( g*groupsize + x[g] );
