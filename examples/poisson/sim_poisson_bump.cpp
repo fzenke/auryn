@@ -21,7 +21,7 @@
 
 /*!\file 
  *
- * \brief Example simulation which simulates a group of Poisson neurons
+ * \brief Example simulation which simulates a Poisson moving bump input
  */
 
 #include "auryn.h"
