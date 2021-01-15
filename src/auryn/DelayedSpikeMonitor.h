@@ -46,7 +46,7 @@ namespace auryn {
  * It records all
  * the spikes on each node (which effectively multiplies spikes).
  */
-class DelayedSpikeMonitor : Monitor
+class DelayedSpikeMonitor : public Monitor
 {
 private:
     NeuronID n_from;
