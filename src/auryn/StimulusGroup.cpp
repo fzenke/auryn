@@ -454,7 +454,6 @@ void StimulusGroup::set_pattern_activity(unsigned int i)
 	if ( background_during_stimulus ) 
 		addrate = background_rate;
 
-	AurynFloat curscale = scale*base_rate;
 	if ( randomintensities ) {
 		boost::exponential_distribution<> dist(1.);
 		boost::variate_generator<boost::mt19937&, boost::exponential_distribution<> > die(order_gen, dist);
@@ -463,7 +462,7 @@ void StimulusGroup::set_pattern_activity(unsigned int i)
 
 	for ( iter = current.begin() ; iter != current.end() ; ++iter )
 	{
-		set_activity(iter->i,curscale*iter->gamma+addrate);
+		set_activity(iter->i,base_rate*curscale*iter->gamma+addrate);
 	}
 }
 
