@@ -454,7 +454,7 @@ void StimulusGroup::set_pattern_activity(unsigned int i)
 	if ( background_during_stimulus ) 
 		addrate = background_rate;
 
-	AurynFloat curscale = scale;
+	AurynFloat curscale = scale*base_rate;
 	if ( randomintensities ) {
 		boost::exponential_distribution<> dist(1.);
 		boost::variate_generator<boost::mt19937&, boost::exponential_distribution<> > die(order_gen, dist);
