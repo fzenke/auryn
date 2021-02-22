@@ -192,7 +192,7 @@ void StimulusGroup::evolve()
 		if ( binary_patterns ) { // binary patterns
 			// detect and push spikes
 
-			boost::exponential_distribution<> dist(curscale);
+			boost::exponential_distribution<> dist(curscale*base_rate);
 			boost::variate_generator<boost::mt19937&, boost::exponential_distribution<> > die(poisson_gen, dist);
 
 			type_pattern current = stimuli[cur_stim_index];
