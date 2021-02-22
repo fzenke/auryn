@@ -61,9 +61,6 @@ private:
 	void free();
 	
 public:
-	/*! Switch variable to enable/disable recording. */
-	bool active;
-
 	/*! \brief Default constructor
 	 *
 	 * \param source Specifies the source SpikingGroup to record from 

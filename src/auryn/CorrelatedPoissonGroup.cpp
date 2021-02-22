@@ -30,15 +30,16 @@ using namespace auryn;
 boost::mt19937 CorrelatedPoissonGroup::shared_noise_gen = boost::mt19937(); 
 boost::mt19937 CorrelatedPoissonGroup::rank_noise_gen   = boost::mt19937(); 
 
-void CorrelatedPoissonGroup::init(AurynDouble  rate, NeuronID gsize, AurynDouble timedelay )
+void CorrelatedPoissonGroup::init(AurynDouble  rate, NeuronID gsize, AurynDouble timedelay, unsigned int max_groups )
 {
 	auryn::sys->register_spiking_group(this);
 	if ( evolve_locally() ) {
 		lambda = rate;
+		lambda_remainder = 1.0;
 
 		groupsize = global2rank(gsize);
-		ngroups = size/gsize;
-		remainersize = get_rank_size()-ngroups*groupsize;
+		ngroups = std::min(size/gsize,max_groups);
+		remaindersize = get_rank_size()-ngroups*groupsize;
 		delay = timedelay/auryn_timestep;
 		offset = 0;
 
@@ -73,8 +74,8 @@ void CorrelatedPoissonGroup::init(AurynDouble  rate, NeuronID gsize, AurynDouble
 		shared_noise = new boost::variate_generator<boost::mt19937&, boost::uniform_01<> > ( shared_noise_gen, boost::uniform_01<> () ); // should have the same state on all ranks
 		rank_noise = new boost::variate_generator<boost::mt19937&, boost::exponential_distribution<> > ( rank_noise_gen, boost::exponential_distribution<>(1.0) ); // should have a different state on each rank
 
-		x = new NeuronID [ngroups];
-		for ( unsigned int i = 0 ; i < ngroups ; ++i ) {
+		x = new NeuronID [ngroups+1];
+		for ( unsigned int i = 0 ; i < ngroups+1 ; ++i ) {
 			AurynDouble r = (*rank_noise)()/lambda;
 			x[i] += (NeuronID)(r/auryn_timestep); 
 		}
@@ -88,9 +89,10 @@ void CorrelatedPoissonGroup::init(AurynDouble  rate, NeuronID gsize, AurynDouble
 CorrelatedPoissonGroup::CorrelatedPoissonGroup(NeuronID n, 
 		AurynDouble  rate, 
 		NeuronID gsize, 
-		AurynDouble timedelay ) : SpikingGroup( n ) 
+		AurynDouble timedelay,
+		unsigned int max_groups) : SpikingGroup( n ) 
 {
-	init(rate, gsize,  timedelay);
+	init(rate, gsize,  timedelay, max_groups);
 }
 
 CorrelatedPoissonGroup::~CorrelatedPoissonGroup()
@@ -106,6 +108,11 @@ CorrelatedPoissonGroup::~CorrelatedPoissonGroup()
 void CorrelatedPoissonGroup::set_rate(AurynDouble  rate)
 {
 	lambda = rate;
+}
+
+void CorrelatedPoissonGroup::set_remainder_rate(AurynDouble  rate)
+{
+	lambda_remainder = rate;
 }
 
 void CorrelatedPoissonGroup::set_threshold(AurynDouble  threshold)
@@ -151,6 +158,15 @@ void CorrelatedPoissonGroup::evolve()
 			r = (*rank_noise)()/(auryn_timestep*grouprate);
 			x[g] += (NeuronID)(r); 
 		}
+	}
+
+	// remainder neurons not in any group
+	AurynDouble r = (*rank_noise)()/(auryn_timestep*lambda_remainder); 
+	x[ngroups] = (NeuronID)(r); 
+	while ( x[ngroups] < remaindersize ) {
+		push_spike ( ngroups*groupsize + x[ngroups] );
+		r = (*rank_noise)()/(auryn_timestep*lambda);
+		x[ngroups] += (NeuronID)(r); 
 	}
 }
 

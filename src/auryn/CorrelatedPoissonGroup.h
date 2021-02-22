@@ -56,15 +56,16 @@ private:
 	boost::variate_generator<boost::mt19937&, boost::uniform_01<> > * shared_noise;
 	boost::variate_generator<boost::mt19937&, boost::exponential_distribution<> > * rank_noise;
 
-	void init(AurynDouble rate, NeuronID gsize, AurynDouble timedelay );
+	void init(AurynDouble rate, NeuronID gsize, AurynDouble timedelay, unsigned int max_groups=5 );
 
 protected:
 	AurynDouble lambda;
+	AurynDouble lambda_remainder;
 
 	AurynTime tstop;
 
 	NeuronID groupsize;
-	NeuronID remainersize;
+	NeuronID remaindersize;
 	NeuronID ngroups;
 
 	AurynDouble timescale;
@@ -96,10 +97,13 @@ public:
 	CorrelatedPoissonGroup(NeuronID n, 
 			AurynDouble rate=5., 
 			NeuronID gsize=100, 
-			AurynDouble timedelay=50e-3 );
+			AurynDouble timedelay=50e-3,
+			unsigned int max_groups=5
+			);
 	virtual ~CorrelatedPoissonGroup();
 	virtual void evolve();
 	void set_rate(AurynDouble rate);
+	void set_remainder_rate(AurynDouble rate);
 	void set_amplitude(AurynDouble ampl);
 	void set_target_amplitude(AurynDouble ampl);
 	void set_tau_amplitude(AurynDouble scale);
