@@ -98,10 +98,10 @@ CorrelatedPoissonGroup::CorrelatedPoissonGroup(NeuronID n,
 CorrelatedPoissonGroup::~CorrelatedPoissonGroup()
 {
 	if ( evolve_locally() ) {
-		delete dist;
+		// delete dist;
 		delete shared_noise;
 		delete rank_noise;
-		delete delay_o;
+		delete [] delay_o;
 	}
 }
 
