@@ -34,6 +34,9 @@ NeuronID SpikingGroup::unique_id_count = 0;
 
 AurynTime * SpikingGroup::clock_ptr = NULL;
 
+SpikingGroup::SpikingGroup( ) 
+{
+}
 
 SpikingGroup::SpikingGroup( NeuronID n, NodeDistributionMode mode ) 
 {
