@@ -28,9 +28,13 @@
 using namespace auryn;
 
 
-ConcatGroup::ConcatGroup( ) : SpikingGroup()
+ConcatGroup::ConcatGroup( ) : SpikingGroup( 0 )
 {
+	sys->register_spiking_group(this);
 	evolve_locally_bool = true;
+	active = true;
+	// FIXME make sure this runs under all conditions
+	// mode = ROUNDROBIN;
 }
 
 ConcatGroup::~ConcatGroup()
@@ -39,40 +43,41 @@ ConcatGroup::~ConcatGroup()
 	}
 }
 
-void ConcatGroup::update_parameters()
-{
-	NeuronID new_size = 0;
-	for (unsigned int i = 0 ; i < parents.size() ; ++i) {
-		new_size += parents.at(i)->get_size();
-	}
-	size = new_size;
-}
-
 void ConcatGroup::add_parent_group(SpikingGroup * group)
 {
 	parents.push_back(group);
+	size += group->get_size();
+	rank_size += group->get_post_size();
 }
 
-
-void ConcatGroup::copy_spikes_and_attribs(SpikingGroup * group, NeuronID group_offset, AttributeContainer * attrib_container)
+void ConcatGroup::copy_spikes(SpikeContainer * src, NeuronID group_offset)
 {
+	// std::cout << "copy_spikes" << std::endl;
+	for (SpikeContainer::const_iterator spike = src->begin() ;
+			spike != src->end() ; 
+			++spike ) {
+		spikes->push_back(*spike+group_offset);
+	}
+}
+
+void ConcatGroup::copy_attributes(AttributeContainer * src)
+{
+	for (AttributeContainer::const_iterator attrib = src->begin() ;
+			attrib != src->end() ; 
+			++attrib ) {
+		attribs->push_back(*attrib);
+	}
 }
 
 void ConcatGroup::evolve()
 {
-	SpikeContainer tmp_spikes;
-	AttributeContainer tmp_attribs;
-	SpikeContainer tmp_spikes_imm;
-	AttributeContainer tmp_attribs_imm;
-
+	NeuronID offset = 0;
 	for (unsigned int i = 0 ; i < parents.size() ; ++i) {
 		SpikingGroup * g = parents.at(i);
-		// std::copy(g->get_spikes()->begin(), g->get_spikes()->end(), std::back_inserter(tmp_spikes));
-		std::copy(g->get_attributes()->begin(), g->get_attributes()->end(), std::back_inserter(tmp_attribs));
+		copy_spikes(g->get_spikes_immediate(), offset); 
+		copy_attributes(g->get_attributes_immediate()); 
+		offset += g->get_size();
 	}
-
-	spikes = new SpikeContainer(tmp_spikes);
-	attribs = new AttributeContainer(tmp_attribs);
 }
 
 

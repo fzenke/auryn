@@ -38,16 +38,13 @@
 
 namespace auryn {
 
-/*! \brief A SpikingGroup that creates poissonian spikes with a given rate.
+/*! \brief ConcatGroup is a meta SpikingGroup which concatenates neurons from several parent groups.
  *
- * This is the standard Poisson spike generator of Auryn. It implements a 
- * group of given size of Poisson neurons all firing at the same rate. 
- * The implementation is very efficient if the rate is constant throughout.
+ * This is an EXPERIMENTAL group which has not undergone extensive testing yet.
  *
- * The random number generator will be seeded identically every time. Use 
- * the seed function to seed it randomly if needed. Note that all ConcatGroups
- * in a simulation share the same random number generator. Therefore it 
- * sufficed to seed one of them.
+ * When initialized the group does not have any own neurons.
+ * Add parent groups using the add_parent_group function.
+ * The group will emit spikes from all the neurons in the parent groups in a concatenated way.
  */
 class ConcatGroup : public SpikingGroup
 {
@@ -59,16 +56,19 @@ private:
 	void update_parameters();
 
 protected:
+	/*! \brief Copy spikes from container to local delay */
+	void copy_spikes(SpikeContainer * src, NeuronID group_offset);
+
+	/*! \brief Copy spike attributes from group container to local delay */
+	void copy_attributes(AttributeContainer * group);
 	
 public:
 	/*! Standard constructor. 
 	 */
 	ConcatGroup( );
+
 	/*! Default destructor */
 	virtual ~ConcatGroup();
-
-	/*! Add parent group */
-	copy_spikes_and_attribs(SpikingGroup * group, NeuronID group_offset, AttributeContainer * attrib_container);
 
 	/*! Add parent group */
 	void  add_parent_group(SpikingGroup * group);

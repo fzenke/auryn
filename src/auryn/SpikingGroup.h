@@ -212,9 +212,6 @@ public:
 	/*! \brief Randomizes the content of a state vector with Gaussian random numbers. Seeding is MPI save. */
 	void randomize_state_vector_gauss(std::string state_vector_name, AurynState mean, AurynState sigma, int seed=12239);
 
-	/*! \brief Bare constructor */
-	SpikingGroup( );
-
 	/*! \brief Default constructor */
 	SpikingGroup( NeuronID size, NodeDistributionMode mode=AUTO );
 
