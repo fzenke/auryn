@@ -80,7 +80,6 @@ void FileModulatedPoissonGroup::evolve()
 	}
 
 	if ( inputfile.eof() && loop ) { // go back to the beginning of the file if in loop mode
-		std::cout << " file reset " << std::endl;
 		ftime_offset = ftime;
 		inputfile.clear();
 		inputfile.seekg(0, std::ios::beg);
