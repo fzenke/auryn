@@ -78,6 +78,7 @@
 
 // Spiking and input group definitions
 #include "auryn/SpikingGroup.h"
+#include "auryn/ConcatGroup.h"
 #include "auryn/NeuronGroup.h"
 #include "auryn/PoissonGroup.h"
 #include "auryn/PoissonSpikeInjector.h"

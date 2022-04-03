@@ -31,7 +31,6 @@ int SpikingGroup::last_locked_rank = 0;
 
 NeuronID SpikingGroup::unique_id_count = 0;
 
-
 AurynTime * SpikingGroup::clock_ptr = NULL;
 
 
