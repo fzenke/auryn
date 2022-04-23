@@ -28,7 +28,7 @@
 using namespace auryn;
 
 
-ConcatGroup::ConcatGroup( ) : SpikingGroup( 0 )
+ConcatGroup::ConcatGroup( ) : SpikingGroup( 0, ROUNDROBIN )
 {
 	sys->register_spiking_group(this);
 	evolve_locally_bool = true;
