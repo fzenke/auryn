@@ -144,6 +144,7 @@
 #include "auryn/PatternStimulator.h"
 #include "auryn/CurrentInjector.h"
 #include "auryn/FileCurrentInjector.h"
+#include "auryn/VoltageClamp.h"
 
 
 #endif /*AURYN_H__*/
