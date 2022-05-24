@@ -3,12 +3,16 @@ import numpy as np
 import pylab as pl
 import struct
 
-def spike_counts(spikes):
+def spike_counts(spikes, size=None):
     '''
     Compute spike count for each neuron
     '''
 
-    nspikes = np.zeros(1)
+    if size is None:
+        nspikes = np.zeros(1)
+    else:
+        nspikes = np.zeros(size)
+
     for spike in spikes:
         t,i = spike
         if i>=len(nspikes):
@@ -17,7 +21,7 @@ def spike_counts(spikes):
     return nspikes
 
 
-def rates(spikes):
+def rates(spikes, nb_units=None, duration=None):
     '''
     Compute firing rates for each neuron
     '''
@@ -28,11 +32,14 @@ def rates(spikes):
         print("Invalid input format. Expected a list of spikes.")
         raise AttributeError
 
-    t_min = ar[:,0].min()
-    t_max = ar[:,0].max()
-    t_diff = t_max-t_min
+    if duration is not None:
+        t_diff = duration
+    else:
+        t_min = ar[:,0].min()
+        t_max = ar[:,0].max()
+        t_diff = t_max-t_min
 
-    nspikes = spike_counts(spikes)
+    nspikes = spike_counts(spikes, nb_units)
     return 1.0*nspikes/t_diff
 
 
