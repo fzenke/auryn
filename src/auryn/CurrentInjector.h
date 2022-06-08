@@ -51,8 +51,6 @@ class CurrentInjector : protected Device
 private:
 
 
-	/*! \brief Target membrane */
-	AurynVectorFloat * target_vector;
 
 	void free();
 
@@ -63,6 +61,9 @@ private:
 	AurynFloat alpha;
 
 protected:
+
+	/*! \brief Target membrane */
+	AurynVectorFloat * target_vector;
 
 	/*! \brief Vector storing all the current values */
 	AurynVectorFloat * currents;
