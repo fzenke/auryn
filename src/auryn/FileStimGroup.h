@@ -105,6 +105,10 @@ public:
 	virtual ~FileStimGroup();
 	virtual void evolve();
 
+
+	/*! \brief Sets the stimulation mode. Can be any of StimulusGroupModeType (MANUAL,RANDOM,SEQUENTIAL,SEQUENTIAL_REV). */
+	void set_stimulation_mode(StimulusGroupModeType mode);
+
 	/*!\brief Aligned loop blocks to a temporal grid of this size 
 	 *
 	 * The grid is applied after the delay. It's mostly there to facilitate the

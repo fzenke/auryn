@@ -38,6 +38,13 @@ void FileStimGroup::init()
 	reset_time = 0;
 
 	seed(42);
+
+
+	set_stimulation_mode(RANDOM); // TODO make adjustable
+}
+
+void FileStimGroup::set_stimulation_mode( StimulusGroupModeType mode ) {
+	stimulus_order = mode ;
 }
 
 FileStimGroup::FileStimGroup( NeuronID n ) : SpikingGroup(n, RANKLOCK ) 
@@ -45,6 +52,7 @@ FileStimGroup::FileStimGroup( NeuronID n ) : SpikingGroup(n, RANKLOCK )
 	playinloop = false;
 	time_delay = 0;
 	time_offset = 0;
+	current_pattern_index = 0;
 	init();
 }
 
@@ -86,39 +94,49 @@ void FileStimGroup::load_spikes(std::string filename)
 			std::cerr << "Can't open input file " << filename << std::endl;
 			std::exit(1);
 		}
-	}
 
-	// make new pattern buffer
-	current_pattern = new std::vector< SpikeEvent_type >;
+		// make new pattern buffer
+		current_pattern = new std::vector< SpikeEvent_type >;
 
-	char buffer[255];
-	while ( spkfile.getline(buffer, 256) ) {
-		if ( buffer[0] == '#' ) continue; // skip comments
-		if ( buffer == "" and current_pattern->size()>0 ) { // empty line triggers new pattern
+		char buffer[255];
+		std::string line_;
+		while ( spkfile.getline(buffer, 256) ) {
+			line_.clear(); // TODO make this less hacky
+			line_ = buffer;
+			if ( line_[0] == '#' ) continue; // skip comments
+			if ( line_ == "" and current_pattern->size()>0 ) { // empty line triggers new pattern
+				sort_spikes(current_pattern);
+				input_patterns.push_back(current_pattern);
+				current_pattern = new std::vector< SpikeEvent_type >;
+				continue;
+			}
+
+			// assume we have a line with an event
+			SpikeEvent_type event;
+			std::stringstream line ( buffer ) ;
+			double t_tmp;
+			line >> t_tmp;
+			event.time = round(t_tmp/auryn_timestep);
+			line >> event.neuronID;
+			if ( localrank(event.neuronID) ) current_pattern->push_back(event);
+		}
+		spkfile.close();
+
+		// store last pattern if any
+		if ( current_pattern->size()>0 ) { 
+			sort_spikes(current_pattern);
 			input_patterns.push_back(current_pattern);
-			current_pattern = new std::vector< SpikeEvent_type >;
-			continue;
 		}
 
-		// assume we have a line with an event
-		SpikeEvent_type event;
-		std::stringstream line ( buffer ) ;
-		double t_tmp;
-		line >> t_tmp;
-		event.time = round(t_tmp/auryn_timestep);
-		line >> event.neuronID;
-		if ( localrank(event.neuronID) ) current_pattern->push_back(event);
+
+		std::stringstream oss;
+		oss << get_log_name() << ":: Finished loading " << input_patterns.size() 
+			<< " input patterns";
+		logger->info(oss.str());
+
+		current_pattern = input_patterns.at(0);
+		spike_iter = current_pattern->end(); 
 	}
-	spkfile.close();
-
-	sort_spikes(current_pattern);
-
-	std::stringstream oss;
-	oss << get_log_name() << ":: Finished loading " << input_patterns.size() 
-		<< " spike events";
-	logger->info(oss.str());
-
-	current_pattern = input_patterns.at(0);
 }
 
 void FileStimGroup::sort_spikes( std::vector< SpikeEvent_type > * pattern )
@@ -138,12 +156,12 @@ AurynTime FileStimGroup::get_next_grid_point( AurynTime time )
 	if ( result%loop_grid_size ) { // align to temporal grid
 		result = (result/loop_grid_size+1)*loop_grid_size;
 	}
-	return result;
+	return result+1;
 }
 
 void FileStimGroup::evolve()
 {
-	if ( active && input_patterns.size() && current_pattern->size() ) {
+	if ( active && input_patterns.size() ) {
 		// when reset_time is reached reset the spike_iterator to The beginning and update time offset
 		if ( sys->get_clock() == reset_time ) {
 			spike_iter = current_pattern->begin(); 
@@ -158,14 +176,11 @@ void FileStimGroup::evolve()
 		}
 
 		if ( spike_iter==current_pattern->end() && reset_time < sys->get_clock() && playinloop ) { // at last spike on file set new reset time
-			reset_time = get_next_grid_point(sys->get_clock());
 
-			// TODO implement next active pattern selection
-			
 			// chooses stimulus according to schema specified in stimulusmode
-			double draw, cummulative;
 			switch ( stimulus_order ) {
 				case RANDOM:
+					double draw;
 					draw = order_die();
 					current_pattern_index = draw*input_patterns.size();
 				break;
@@ -182,7 +197,17 @@ void FileStimGroup::evolve()
 				default:
 				break;
 			}
+
+
+			// std::cout << "new pattern " << current_pattern_index << std::endl;
 			current_pattern = input_patterns.at(current_pattern_index);
+			reset_time = get_next_grid_point(sys->get_clock());
+
+			std::stringstream oss;
+			oss << get_log_name() << ":: Selected next pattern " << current_pattern_index << " at " << sys->get_time() 
+				<< "s. Current grid point " << sys->get_clock()
+				<< ", next grid point " << reset_time;
+			logger->debug(oss.str());
 		}
 	}
 }
