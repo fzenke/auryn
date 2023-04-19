@@ -83,6 +83,7 @@
 #include "auryn/PoissonGroup.h"
 #include "auryn/PoissonSpikeInjector.h"
 #include "auryn/FileInputGroup.h"
+#include "auryn/FileStimGroup.h"
 #include "auryn/FileModulatedPoissonGroup.h"
 #include "auryn/ParrotGroup.h"
 #include "auryn/StimulusGroup.h"
