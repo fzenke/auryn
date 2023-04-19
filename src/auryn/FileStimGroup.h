@@ -73,8 +73,6 @@ private:
 
 
 protected:
-	/*! Stimulus order */
-	StimulusGroupModeType stimulus_order ;
 
 	/*! \brief Seeds the random number generator for all stimulus groups of the simulation. */
 	void seed( int rndseed );
@@ -88,6 +86,9 @@ public:
 
 	/*! \brief Switch that activates the loop mode of FileStimGroup when set to true */
 	bool playinloop;
+
+	/*! \brief Stimulus order */
+	StimulusGroupModeType stimulus_order ;
 
 	/*! \brief Time delay after each replay of the input pattern in loop mode (default 0s) */
 	AurynTime time_delay;
@@ -118,10 +119,16 @@ public:
 	 * */
 	void set_loop_grid(AurynDouble grid_size);
 
-	/*!\brief Load spikes from file
+	/*!\brief Load spike patterns from file
 	 *
 	 * */
 	void load_spikes(std::string filename);
+
+
+	/*!\brief Load spikes from file without erasing existing buffers.
+	 *
+	 * */
+	void add_spikes(std::string filename);
 
 	/*!\brief Adds a spike to the buffer manually and then temporally sorts the buffer
 	 *

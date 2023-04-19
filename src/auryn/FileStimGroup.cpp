@@ -70,6 +70,7 @@ FileStimGroup::FileStimGroup(NeuronID n, std::string filename,
 
 FileStimGroup::~FileStimGroup()
 {
+	clear_input_patterns();
 }
 
 bool time_compare (SpikeEvent_type a,SpikeEvent_type b) { return (a.time<b.time); }
@@ -85,8 +86,13 @@ void FileStimGroup::clear_input_patterns()
 
 void FileStimGroup::load_spikes(std::string filename)
 {
-	std::ifstream spkfile;
 	clear_input_patterns();
+	add_spikes(filename);
+}
+
+void FileStimGroup::add_spikes(std::string filename)
+{
+	std::ifstream spkfile;
 
 	if ( evolve_locally() ) {
 		spkfile.open(filename.c_str(),std::ifstream::in);
@@ -95,9 +101,7 @@ void FileStimGroup::load_spikes(std::string filename)
 			std::exit(1);
 		}
 
-		// make new pattern buffer
 		current_pattern = new std::vector< SpikeEvent_type >;
-
 		char buffer[255];
 		std::string line_;
 		while ( spkfile.getline(buffer, 256) ) {
