@@ -82,6 +82,7 @@ void FileStimGroup::clear_input_patterns()
 		delete input_patterns.at(i);
 	}
 	input_patterns.clear();
+	current_pattern_index = 0;
 }
 
 void FileStimGroup::load_spikes(std::string filename)
