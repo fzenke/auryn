@@ -419,11 +419,22 @@ void SyncBuffer::sync_allgather()
 
 	// if ( send_buf.size() <= rank_recv_count[mpicom->rank()] ) {
 	if ( send_buf.size() <= max_send_size ) {
+<<<<<<< HEAD
+=======
 		send_buf[0] = send_buf.size();
+>>>>>>> develop
 		ierr = MPI_Allgather(send_buf.data(), max_send_size, MPI_UNSIGNED, 
 							 recv_buf.data(), max_send_size, MPI_UNSIGNED, *mpicom);
 	} else { 
 		// Create an overflow package 
+<<<<<<< HEAD
+		// std::cout << " overflow " << overflow_value << " " << send_buf.size() << std::endl;
+		NeuronID overflow_data [max_send_size]; 
+		overflow_data[0] = overflow_value;
+		overflow_data[1] = send_buf.size(); 
+		ierr = MPI_Allgather(&overflow_data, max_send_size, MPI_UNSIGNED, 
+				recv_buf.data(), max_send_size, MPI_UNSIGNED, *mpicom);
+=======
 		NeuronID * overflow_data;
 		overflow_data = new NeuronID[max_send_size]; 
 		overflow_data[0] = overflow_value;
@@ -431,6 +442,7 @@ void SyncBuffer::sync_allgather()
 		ierr = MPI_Allgather(overflow_data, max_send_size, MPI_UNSIGNED, 
 							 recv_buf.data(), max_send_size, MPI_UNSIGNED, *mpicom);
 		delete [] overflow_data;
+>>>>>>> develop
 	}
 
 	// error handling

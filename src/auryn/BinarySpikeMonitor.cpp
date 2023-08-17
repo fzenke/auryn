@@ -1,5 +1,5 @@
 /*
-* Copyright 2014-2020 Friedemann Zenke
+* Copyright 2014-2023 Friedemann Zenke
 * Contributed by Ankur Sinha
 *
 * This file is part of Auryn, a simulation package for plastic
