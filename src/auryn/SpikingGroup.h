@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2018 Friedemann Zenke
+* Copyright 2014-2023 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -84,8 +84,6 @@ private:
 	/*! Stores the current value of the gid count */
 	static NeuronID unique_id_count;
 
-	/*! Standard initialization of the object. */
-	void init( NeuronID size, NodeDistributionMode mode );
 
 	void lock_range( double rank_fraction );
 	/*! If not distributed the first rank to lock it to. */
@@ -95,12 +93,15 @@ private:
 	/*! Keeps track on where rank-locking is */
 	static int last_locked_rank;
 
-	bool evolve_locally_bool;
+	/*! Standard initialization of the object. */
+	void init( NeuronID size, NodeDistributionMode mode );
 
 	/*! Stores axonal delay value - by default MINDELAY */
 	int axonaldelay;
 
 protected:
+	bool evolve_locally_bool;
+
 	/*! \brief Pretraces */
 	std::vector<Trace *> pretraces;
 
@@ -136,6 +137,7 @@ protected:
 
 	/*! \brief Implementatinon of serialize function for reading. */
 	virtual void virtual_serialize(boost::archive::binary_iarchive & ar, const unsigned int version );
+
 
 	/*! \brief Frees potentially allocated memory */
 	void free();

@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2018 Friedemann Zenke
+* Copyright 2014-2023 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -61,9 +61,6 @@ private:
 	void free();
 	
 public:
-	/*! Switch variable to enable/disable recording. */
-	bool active;
-
 	/*! \brief Default constructor
 	 *
 	 * \param source Specifies the source SpikingGroup to record from 

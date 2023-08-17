@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2018 Friedemann Zenke
+* Copyright 2014-2023 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -192,7 +192,7 @@ void StimulusGroup::evolve()
 		if ( binary_patterns ) { // binary patterns
 			// detect and push spikes
 
-			boost::exponential_distribution<> dist(curscale);
+			boost::exponential_distribution<> dist(curscale*base_rate);
 			boost::variate_generator<boost::mt19937&, boost::exponential_distribution<> > die(poisson_gen, dist);
 
 			type_pattern current = stimuli[cur_stim_index];
@@ -454,7 +454,6 @@ void StimulusGroup::set_pattern_activity(unsigned int i)
 	if ( background_during_stimulus ) 
 		addrate = background_rate;
 
-	AurynFloat curscale = scale;
 	if ( randomintensities ) {
 		boost::exponential_distribution<> dist(1.);
 		boost::variate_generator<boost::mt19937&, boost::exponential_distribution<> > die(order_gen, dist);
@@ -463,7 +462,7 @@ void StimulusGroup::set_pattern_activity(unsigned int i)
 
 	for ( iter = current.begin() ; iter != current.end() ; ++iter )
 	{
-		set_activity(iter->i,curscale*iter->gamma+addrate);
+		set_activity(iter->i,base_rate*curscale*iter->gamma+addrate);
 	}
 }
 

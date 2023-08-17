@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2018 Friedemann Zenke
+* Copyright 2014-2023 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -793,10 +793,10 @@ namespace auryn {
 	 * some performance critical member functions defined in the template 
 	 * with SIMD intrinsics for higher performance.
 	 */
-	class AurynVectorFloat : public AurynVector<float,NeuronID> 
+	class AurynVectorFloat : public AurynVector<AurynFloat,NeuronID> 
 	{
 		private:
-			typedef AurynVector<float,NeuronID> super;
+			typedef AurynVector<AurynFloat,NeuronID> super;
 
 		public:
 			/*! \brief Default constructor */
@@ -809,19 +809,19 @@ namespace auryn {
 
 
 			virtual void resize(NeuronID new_size);
-			void scale(const float a);
-			void saxpy(const float a, AurynVectorFloat * x);
-			void clip(const float min, const float max);
-			void add(const float c);
+			void scale(const AurynFloat a);
+			void saxpy(const AurynFloat a, AurynVectorFloat * x);
+			void clip(const AurynFloat min, const AurynFloat max);
+			void add(const AurynFloat c);
 			void add(AurynVectorFloat * v);
 			void sum(AurynVectorFloat * a, AurynVectorFloat * b);
-			void sum(AurynVectorFloat * a, const float b);
-			void mul(const float a) { scale(a); };
+			void sum(AurynVectorFloat * a, const AurynFloat b);
+			void mul(const AurynFloat a) { scale(a); };
 			void mul(AurynVectorFloat * v);
 			void diff(AurynVectorFloat * a, AurynVectorFloat * b);
-			void diff(AurynVectorFloat * a, const float b);
-			void diff(const float a, AurynVectorFloat * b );
-			void follow(AurynVectorFloat * v, const float rate);
+			void diff(AurynVectorFloat * a, const AurynFloat b);
+			void diff(const AurynFloat a, AurynVectorFloat * b );
+			void follow(AurynVectorFloat * v, const AurynFloat rate);
 
 			// TODO add pow function with intrinsics _mm_pow_ps
 

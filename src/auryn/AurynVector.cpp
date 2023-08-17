@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2018 Friedemann Zenke
+* Copyright 2014-2023 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -49,7 +49,7 @@ inline void sse_store( float * i, __m128 d )
 #endif /* CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY */
 
 
-AurynVectorFloat::AurynVectorFloat(NeuronID n) : AurynVector<float>(n)
+AurynVectorFloat::AurynVectorFloat(NeuronID n) : AurynVector<AurynFloat>(n)
 {
 #ifdef CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY
 	// check that size is a multiple of SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS
@@ -71,14 +71,14 @@ void AurynVectorFloat::resize(NeuronID new_size)
 	super::resize(new_size);
 }
 
-void AurynVectorFloat::scale(float a) 
+void AurynVectorFloat::scale(AurynFloat a) 
 {
 #ifdef CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY
 	#ifdef CODE_ACTIVATE_CILK_INSTRUCTIONS
 	data[0:size:1] = a * data[0:size:1];
 	#else
 	const __m128 scalar = _mm_set1_ps(a);
-	for ( float * i = data ; i != data+size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )
+	for ( AurynFloat * i = data ; i != data+size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )
 	{
 		__m128 chunk = sse_load( i );
 		__m128 result = _mm_mul_ps(chunk, scalar);
@@ -93,16 +93,16 @@ void AurynVectorFloat::scale(float a)
 }
 
 
-void AurynVectorFloat::saxpy(float a, AurynVectorFloat * x)
+void AurynVectorFloat::saxpy(AurynFloat a, AurynVectorFloat * x)
 {
 	check_size(x);
 #ifdef CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY
 	#ifdef CODE_ACTIVATE_CILK_INSTRUCTIONS
 	data[0:size:1] = a * x->data[0:x->size:1] + data[0:size:1];
 	#else
-	float * xp = x->data;
+	AurynFloat * xp = x->data;
 	const __m128 alpha = _mm_set1_ps(a);
-	for ( float * i = data ; i < data+size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )
+	for ( AurynFloat * i = data ; i < data+size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )
 	{
 		__m128 chunk = sse_load( xp ); xp += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS;
 		__m128 result     = _mm_mul_ps( alpha, chunk );
@@ -120,7 +120,7 @@ void AurynVectorFloat::saxpy(float a, AurynVectorFloat * x)
 }
 
 
-void AurynVectorFloat::clip(float min, float max) 
+void AurynVectorFloat::clip(AurynFloat min, AurynFloat max) 
 {
 #ifdef CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY
 	#ifdef CODE_ACTIVATE_CILK_INSTRUCTIONS
@@ -134,7 +134,7 @@ void AurynVectorFloat::clip(float min, float max)
 	#else
 	const __m128 lo = _mm_set1_ps(min);
 	const __m128 hi = _mm_set1_ps(max);
-	for ( float * i = data ; i != data+size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )
+	for ( AurynFloat * i = data ; i != data+size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )
 	{
 		__m128 chunk = sse_load( i );
 		__m128 result = _mm_min_ps(chunk, hi);
@@ -160,8 +160,8 @@ void AurynVectorFloat::mul(AurynVectorFloat * v)
 	#ifdef CODE_ACTIVATE_CILK_INSTRUCTIONS
 	data[0:size:1] = data[0:size:1] * v->data[0:v->size:1];
 	#else
-	float * bd = v->data;
-	for ( float * i = data ; i != data+size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )
+	AurynFloat * bd = v->data;
+	for ( AurynFloat * i = data ; i != data+size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )
 	{
 		__m128 chunk_a = sse_load( i );
 		__m128 chunk_b = sse_load( bd ); bd+=SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS;
@@ -177,14 +177,14 @@ void AurynVectorFloat::mul(AurynVectorFloat * v)
 }
 
 
-void AurynVectorFloat::add(float a) 
+void AurynVectorFloat::add(AurynFloat a) 
 {
 #ifdef CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY
 	#ifdef CODE_ACTIVATE_CILK_INSTRUCTIONS
 	data[0:size:1] = a + data[0:size:1];
 	#else
 	const __m128 scalar = _mm_set1_ps(a);
-	for ( float * i = data ; i != data+size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )
+	for ( AurynFloat * i = data ; i != data+size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )
 	{
 		// _mm_prefetch((i + SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS),  _MM_HINT_NTA);  
 		__m128 chunk = sse_load( i );
@@ -207,8 +207,8 @@ void AurynVectorFloat::add(AurynVectorFloat * v)
 	#ifdef CODE_ACTIVATE_CILK_INSTRUCTIONS
 	data[0:size:1] = data[0:size:1] + v->data[0:v->size:1];
 	#else
-	float * bd = v->data;
-	for ( float * i = data ; i != data+size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )
+	AurynFloat * bd = v->data;
+	for ( AurynFloat * i = data ; i != data+size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )
 	{
 		__m128 chunk_a = sse_load( i );
 		__m128 chunk_b = sse_load( bd ); bd+=SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS;
@@ -228,9 +228,9 @@ void AurynVectorFloat::sum(AurynVectorFloat * a, AurynVectorFloat * b)
 	check_size(a);
 	check_size(b);
 #ifdef CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY
-	float * ea = a->data;
-	float * eb = b->data;
-	for ( float * i = data ; i != data+size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )
+	AurynFloat * ea = a->data;
+	AurynFloat * eb = b->data;
+	for ( AurynFloat * i = data ; i != data+size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )
 	{
 		__m128 chunk_a = sse_load( ea ); ea+=SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS;
 		__m128 chunk_b = sse_load( eb ); eb+=SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS;
@@ -242,13 +242,13 @@ void AurynVectorFloat::sum(AurynVectorFloat * a, AurynVectorFloat * b)
 #endif
 }
 
-void AurynVectorFloat::sum(AurynVectorFloat * a, const float b) 
+void AurynVectorFloat::sum(AurynVectorFloat * a, const AurynFloat b) 
 {
 	check_size(a);
 #ifdef CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY
-	float * ea = a->data;
+	AurynFloat * ea = a->data;
 	const __m128 scalar = _mm_set1_ps(b);
-	for ( float * i = data ; i != data+size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )
+	for ( AurynFloat * i = data ; i != data+size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )
 	{
 		__m128 chunk_a = sse_load( ea ); ea+=SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS;
 		__m128 result = _mm_add_ps(chunk_a, scalar);
@@ -264,9 +264,9 @@ void AurynVectorFloat::diff(AurynVectorFloat * a, AurynVectorFloat * b)
 	check_size(a);
 	check_size(b);
 #ifdef CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY
-	float * ea = a->data;
-	float * eb = b->data;
-	for ( float * i = data ; i != data+size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )
+	AurynFloat * ea = a->data;
+	AurynFloat * eb = b->data;
+	for ( AurynFloat * i = data ; i != data+size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )
 	{
 		const __m128 chunk_a = sse_load( ea ); ea+=SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS;
 		const __m128 chunk_b = sse_load( eb ); eb+=SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS;
@@ -278,20 +278,20 @@ void AurynVectorFloat::diff(AurynVectorFloat * a, AurynVectorFloat * b)
 #endif
 }
 
-void AurynVectorFloat::diff(AurynVectorFloat * a, const float b) 
+void AurynVectorFloat::diff(AurynVectorFloat * a, const AurynFloat b) 
 {
 	check_size(a);
 	sum(a,-b);
 }
 
-void AurynVectorFloat::diff(const float a, AurynVectorFloat * b ) 
+void AurynVectorFloat::diff(const AurynFloat a, AurynVectorFloat * b ) 
 {
 	check_size(b);
 	sum(b,-a);
 	neg();
 }
 
-void AurynVectorFloat::follow(AurynVectorFloat * v, const float rate)
+void AurynVectorFloat::follow(AurynVectorFloat * v, const AurynFloat rate)
 {
 #ifdef CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY
 	for ( NeuronID i = 0 ; i < size ; i += SIMD_NUM_OF_PARALLEL_FLOAT_OPERATIONS )

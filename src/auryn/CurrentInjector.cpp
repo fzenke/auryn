@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2018 Friedemann Zenke
+* Copyright 2014-2023 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -36,7 +36,7 @@ CurrentInjector::CurrentInjector(NeuronGroup * target, std::string neuron_state_
 	currents = new AurynVectorFloat(dst->get_vector_size()); 
 
 	currents->set_all( initial_current );
-	alpha = auryn_timestep;
+	set_scale(1.0);
 }
 
 
@@ -71,3 +71,7 @@ void CurrentInjector::set_target_state(std::string state_name) {
 	target_vector = dst->get_state_vector(state_name);
 }
 
+
+void CurrentInjector::set_scale(AurynState scale) {
+	alpha = scale*auryn_timestep;
+}

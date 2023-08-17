@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2018 Friedemann Zenke
+* Copyright 2014-2023 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -81,11 +81,10 @@ void FileInputGroup::load_spikes(std::string filename)
 		std::stringstream line ( buffer ) ;
 		double t_tmp;
 		line >> t_tmp;
-		event.time = t_tmp/auryn_timestep;
+		event.time = round(t_tmp/auryn_timestep);
 		line >> event.neuronID;
 		if ( localrank(event.neuronID) ) {
 			input_spikes.push_back(event);
-			// std::cout << event.time << std::endl;
 		}
 	}
 	spkfile.close();

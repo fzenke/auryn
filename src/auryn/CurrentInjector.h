@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2018 Friedemann Zenke
+* Copyright 2014-2023 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -50,23 +50,25 @@ class CurrentInjector : protected Device
 {
 private:
 
-	/*! Vector storing all the current values */
-	AurynVectorFloat * currents;
 
-	/*! Target membrane */
-	AurynVectorFloat * target_vector;
 
 	void free();
 
-	/*! Returns the lambda parameter of the pmf for Current. */
+	/*! \brief Returns the lambda parameter of the pmf for Current. */
 	AurynFloat get_lambda();
 
-	/*! Scale factor which should include auryn_timestep and any respective resistance. */
+	/*! \brief Scale factor which should include auryn_timestep and any respective resistance. */
 	AurynFloat alpha;
 
 protected:
 
-	/*! The target NeuronGroup */
+	/*! \brief Target membrane */
+	AurynVectorFloat * target_vector;
+
+	/*! \brief Vector storing all the current values */
+	AurynVectorFloat * currents;
+
+	/*! \brief The target NeuronGroup */
 	NeuronGroup * dst;
 
 	
@@ -100,8 +102,20 @@ public:
 	 * \param current Current value to set*/
 	void set_all_currents( AurynFloat current );
 
+	/*! \brief Sets scale 
+	 *
+	 * \param scale The scale value to set
+	 *
+	 * This sets a scaling factor or "unit" with which all current values are
+	 * multiplied. Internally this value is multiplied by auryn time step to
+	 * make it invariant to timestep changes.
+	 * */
+	void set_scale( AurynFloat scale );
+
 	/*! Implementation of necessary propagate() function. */
 	void execute();
+
+
 
 };
 

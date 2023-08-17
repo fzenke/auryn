@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2018 Friedemann Zenke
+* Copyright 2014-2023 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -38,12 +38,14 @@ void FileModulatedPoissonGroup::init ( std::string filename )
 	}
 
 	ftime = 0;
+	ftime_offset = 0;
 }
 
 FileModulatedPoissonGroup::FileModulatedPoissonGroup(NeuronID n, 
-		std::string filename ) : PoissonGroup( n , 0.0 ) 
+		std::string filename, bool loop_mode ) : PoissonGroup( n , 0.0 ) 
 {
 	init(filename);
+	loop = loop_mode;
 }
 
 FileModulatedPoissonGroup::~FileModulatedPoissonGroup()
@@ -65,16 +67,22 @@ void FileModulatedPoissonGroup::evolve()
 		rate_n = get_rate();
 
 		line >> t;
-		ftime = (AurynTime) (t/auryn_timestep+0.5);
+		ftime = (AurynTime) (t/auryn_timestep+0.5) + ftime_offset;
 		line >> r;
 
-		if ( ftime < auryn::sys->get_clock() || inputfile.eof() ) { // if the recently read point is already in the past -> reinit interpolation
+		if ( ftime < auryn::sys->get_clock() || ( inputfile.eof() && not loop ) ) { // if the recently read point is already in the past -> reinit interpolation
 			rate_m = 0.0;
 			rate_n = r;
 			set_rate(r);
 		} else { // compute linear interpolation
 			rate_m = (r-rate_n)/(ftime-ltime);
 		}
+	}
+
+	if ( inputfile.eof() && loop ) { // go back to the beginning of the file if in loop mode
+		ftime_offset = ftime;
+		inputfile.clear();
+		inputfile.seekg(0, std::ios::beg);
 	}
 
 	AurynDouble rate = rate_m*(auryn::sys->get_clock()-ltime)+rate_n;

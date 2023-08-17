@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2018 Friedemann Zenke
+* Copyright 2014-2023 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -92,11 +92,13 @@ void System::init() {
 		<< std::numeric_limits<NeuronID>::max()-1 << " cells.";
 	auryn::logger->msg(oss.str(),INFO);
 
+#ifdef AURYN_CODE_USE_MPI
 	if ( sizeof(NeuronID) != sizeof(AurynFloat) ) {
 		oss.str("");
 		oss << " NeuronID and AurynFloat have different byte sizes which is not supported by SyncBuffer.";
 		auryn::logger->msg(oss.str(),ERROR);
 	}
+#endif // AURYN_CODE_USE_MPI
 
 	oss.str("");
 	oss << "Simulation timestep is set to "
@@ -199,8 +201,19 @@ void System::free()
 
 
 #ifdef AURYN_CODE_USE_MPI
-	if ( syncbuffer != NULL )
+	if ( syncbuffer != NULL ) {
+		if ( get_clock() > 0 && mpi_rank()==0 ) {
+			const double relative_overflow_rate = 1.0*syncbuffer->get_overflow_count()/get_clock()*MINDELAY;
+			std::stringstream oss;
+			oss << "System:: Freeing SyncBuffer (overflow count="
+				<< syncbuffer->get_overflow_count() << ", "
+				<< std::scientific << std::setprecision(5) 
+				<< "rel. overflow rate=" << relative_overflow_rate << ")";
+			logger->info(oss.str()); 
+		}
+		logger->debug("System:: Freeing SyncBuffer");
 		delete syncbuffer;
+	}
 #endif // AURYN_CODE_USE_MPI
 
     delete seed_dist;
@@ -321,15 +334,15 @@ void System::evolve()
 
 void System::evolve_connections()
 {
-	for ( std::vector<SpikingGroup *>::const_iterator iter = spiking_groups.begin() ; 
-		  iter != spiking_groups.end() ; 
-		  ++iter ) 
-		(*iter)->evolve_traces(); // evolve only if existing on rank
-
 	for ( std::vector<Connection *>::const_iterator iter = connections.begin() ; 
 			iter != connections.end() ; 
 			++iter )
 		(*iter)->evolve(); 
+
+	for ( std::vector<SpikingGroup *>::const_iterator iter = spiking_groups.begin() ; 
+		  iter != spiking_groups.end() ; 
+		  ++iter ) 
+		(*iter)->evolve_traces(); // evolve only if existing on rank
 }
 
 void System::propagate()
@@ -469,7 +482,7 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 
 	    if ( (mpi_rank()==0) && (not quiet) && ( (get_clock()%progressbar_update_interval==0) || get_clock()==(stoptime-1) ) ) {
 			double fraction = 1.0*(get_clock()-starttime+1)*auryn_timestep/total_time;
-			progressbar(fraction,get_clock()); // TODO find neat solution for the rate
+			progressbar(fraction, get_clock()); // TODO find neat solution for the rate
 		}
 
 		if ( get_clock()%LOGGER_MARK_INTERVAL==0 && get_clock()>0 ) // set a mark 
@@ -504,18 +517,25 @@ bool System::run(AurynTime starttime, AurynTime stoptime, AurynFloat total_time,
 		// Auryn duty cycle
 		evolve(); // Evolve state of NeuronGroups
 		propagate(); // Propagate spikes through connections and implement plasticity
-		execute_devices(); // Calls Monitors for recording or other devices to interfere with sim
 
-		if ( checking ) { // run checkers to break run if needed
+		// Updates the internal state of connection instances 
+		// (eg update synaptic traces etc)
+		// traditionally this is run after propagate for a simpler
+		// implementation of triplet models, however, might consider
+		// changing this in the future
+		evolve_connections(); 
+
+		// Call all Devices and Monitors 
+		execute_devices(); 
+
+		// run checkers and break run if needed
+		if ( checking ) { 
 			if (!execute_checkers()) {
 				return false;
 			}
 		}
 
-		// Updates the internal state of connection instances 
-		// (eg update synaptic traces etc)
-		evolve_connections(); 
-		
+		// increment kernel clock
 		step();	
 
 #ifdef AURYN_CODE_USE_MPI

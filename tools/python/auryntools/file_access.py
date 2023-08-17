@@ -8,7 +8,7 @@ from scipy.sparse import *
 from scipy.io import mmread, mmwrite
 
 
-current_version = (0,8,1)
+current_version = (0,8,2)
 
 class AurynBinaryFile:
     '''

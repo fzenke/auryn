@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2018 Friedemann Zenke
+* Copyright 2014-2023 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -28,7 +28,7 @@
 #define SYNCBUFFER_H_
 
 
-#define SYNCBUFFER_SIZE_MARGIN_MULTIPLIER 3 //!< Safety margin for receive buffer size -- a value of 3 should make overflows rare in AI state
+#define SYNCBUFFER_SIZE_MARGIN_MULTIPLIER 5 //!< Safety margin for receive buffer size -- a value of 3 should make overflows rare in AI state
 #define SYNCBUFFER_SIZE_HIST_LEN 512 //!< Accumulate history over this number of timesteps before updating the sendbuffer size in the absence of overflows
 
 /*! \brief Datatype used for delta computation should be a "long" for large nets with sparse activity otherwise NeuronID 
@@ -61,18 +61,20 @@ namespace auryn {
 			std::vector<NeuronID> recv_buf;
 
 			NeuronID overflow_value;
+			unsigned int overflow_counter;
 
 			SYNCBUFFER_DELTA_DATATYPE max_delta_size;
 			SYNCBUFFER_DELTA_DATATYPE undefined_delta_size;
 
+			unsigned int sync_counter;
 
-			// NeuronID size_history[SYNCBUFFER_SIZE_HIST_LEN];
-			NeuronID maxSendSum;
-			NeuronID maxSendSum2;
-			NeuronID syncCount;
+			int * rank_send_sum;
+			int * rank_send_sum2;
+			int * rank_recv_count;
+			int * rank_displs;
 
 			/*! \brief The send buffer size that all ranks agree upon */
-			NeuronID max_send_size;
+			int max_send_size;
 
 			mpi::communicator * mpicom;
 
@@ -83,18 +85,30 @@ namespace auryn {
 			SYNCBUFFER_DELTA_DATATYPE * last_spike_pos;
 
 			/*! \brief vector with offset values to allow to pop more than one delay */
-			NeuronID * pop_offsets;
+			unsigned int * pop_offsets;
 
 			void reset_send_buffer();
+			void resize_buffers(unsigned int send_size);
 
 			void init();
 			void free();
+
+			void update_send_recv_counts();
+			int compute_buffer_margin(int n, int sum, int sum2);
+			int compute_buffer_size_with_margin(int n, int sum, int sum2);
 
 			/*! \brief Reads the next spike delta */
 			NeuronID * read_delta_spike_from_buffer(NeuronID * iter, SYNCBUFFER_DELTA_DATATYPE & delta);
 
 			/*! \brief Reads a single spike attribute */
 			NeuronID * read_attribute_from_buffer(NeuronID * iter, AurynFloat & attrib);
+
+			/*! \brief Synchronize spikes using Allgatherv (different sized data size per rank) */
+			void sync_allgatherv();
+
+			/*! \brief Synchronize spikes using Allgather (same size data per rank) */
+			void sync_allgather();
+
 		public:
 
 			/*! \brief The default contructor. */
@@ -117,6 +131,12 @@ namespace auryn {
 
 			/*! \brief Return max_send_size value which determines the size of the MPI AllGather operation. */
 			int get_max_send_buffer_size();	
+
+			/*! \brief Return sync count since object instantiation. */
+			unsigned int get_sync_count();	
+
+			/*! \brief Return overflow count since object instantiation. */
+			unsigned int get_overflow_count();	
 
 #ifdef CODE_COLLECT_SYNC_TIMING_STATS
 			AurynDouble deltaT;

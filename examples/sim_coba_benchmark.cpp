@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2018 Friedemann Zenke
+* Copyright 2014-2020 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -138,6 +138,8 @@ int main(int ac,char *av[]) {
 	oss << dir  << "/coba." << sys->mpi_rank() << ".";
 	string outputfile = oss.str();
 	if ( fast ) sys->quiet = true;
+
+	logger->set_logfile_loglevel(INFO);
 
 
 	logger->msg("Setting up neuron groups ...",PROGRESS,true);

@@ -1,5 +1,5 @@
 /*
-* Copyright 2014-2018 Friedemann Zenke
+* Copyright 2014-2023 Friedemann Zenke
 * Contributed by Ankur Sinha
 *
 * This file is part of Auryn, a simulation package for plastic
@@ -62,6 +62,7 @@ void BinarySpikeMonitor::init(SpikingGroup * source, std::string filename, Neuro
 	src = source;
 	offset = 0;
 
+	// write file header
 	// per convention the first entry contains
 	// the number of timesteps per second
 	// the neuronID field contains a tag 
@@ -70,6 +71,7 @@ void BinarySpikeMonitor::init(SpikingGroup * source, std::string filename, Neuro
 	spikeData.time = (AurynTime)(1.0/auryn_timestep);
 	spikeData.neuronID = sys->build.tag_binary_spike_monitor;
 	outfile.write((char*)&spikeData, sizeof(SpikeEvent_type));
+	flush(); // make sure this is written right away for online processing
 }
 
 void BinarySpikeMonitor::free()

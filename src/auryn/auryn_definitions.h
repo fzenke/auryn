@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2018 Friedemann Zenke
+* Copyright 2014-2023 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -107,6 +107,7 @@
 #include <list>
 #include <exception>
 #include <limits>
+#include <vector>
 
 #ifdef CODE_USE_SIMD_INSTRUCTIONS_EXPLICITLY
 #ifndef CODE_ACTIVATE_CILK_INSTRUCTIONS

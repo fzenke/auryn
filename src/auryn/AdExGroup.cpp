@@ -1,5 +1,5 @@
 /*
-* Copyright 2014-2018 Ankur Sinha and Friedemann Zenke
+* Copyright 2014-2023 Ankur Sinha and Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -203,7 +203,7 @@ void AdExGroup::set_b(AurynFloat _b)
 
 void AdExGroup::set_delta_t(AurynFloat d)
 {
-    deltat = d/g_leak;
+    deltat = d;
 }
 
 void AdExGroup::set_g_leak(AurynFloat g)

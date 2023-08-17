@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2018 Friedemann Zenke
+* Copyright 2014-2023 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -88,6 +88,17 @@ StateMonitor::StateMonitor(Trace * trace, NeuronID id, std::string filename, Aur
 	nid = id;
 	target_variable = trace->get_state_ptr()->data+nid;
 	lastval = *target_variable;
+}
+
+StateMonitor::StateMonitor(std::string filename, AurynDouble sampling_interval): Monitor(filename, "state")
+{
+	init(filename, sampling_interval);
+
+	auryn::sys->register_device(this);
+	src = NULL;
+	nid = 0;
+	target_variable = NULL;
+	// lastval = *target_variable;
 }
 
 void StateMonitor::init(std::string filename, AurynDouble sampling_interval)

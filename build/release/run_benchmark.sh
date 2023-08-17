@@ -13,6 +13,8 @@ DATE=`date +"%Y-%m-%d"`
 # REVISION=`git log --pretty=oneline -1 | cut -d " " -f 1`
 REVISION=`git describe`
 TMPDIR=`mktemp -d`
+echo "temp dir= $TMPDIR"
+trap "{ rm -rf $TMPDIR; }" EXIT
 
 # Function declaration
 function fun_benchmark() 
@@ -39,12 +41,12 @@ fun_benchmark "$CMD_BENCHMARK1"
 RESULT_BENCHMARK1=$FUNCTION_RESULT
 
 # Zenke plasticity benchmark, single core
-CMD_BENCHMARK2="examples/sim_background --fast --tau 10 --simtime $SIMTIME --dir $TMPDIR"
+CMD_BENCHMARK2="examples/plasticity/sim_background --fast --tau 10 --simtime $SIMTIME --dir $TMPDIR"
 fun_benchmark "$CMD_BENCHMARK2"
 RESULT_BENCHMARK2=$FUNCTION_RESULT
 
 # Zenke plasticity benchmark, two cores
-CMD_BENCHMARK3="mpirun -n 2 examples/sim_background --fast --tau 10 --simtime $SIMTIME --dir $TMPDIR"
+CMD_BENCHMARK3="mpirun -n 2 examples/plasticity/sim_background --fast --tau 10 --simtime $SIMTIME --dir $TMPDIR"
 fun_benchmark "$CMD_BENCHMARK3"
 RESULT_BENCHMARK3=$FUNCTION_RESULT
 
@@ -52,5 +54,3 @@ RESULT_BENCHMARK3=$FUNCTION_RESULT
 # Writ result to file
 echo "$HOSTNAME $REVISION $RESULT_BENCHMARK1 $RESULT_BENCHMARK2 $RESULT_BENCHMARK3 $DATE" >> benchmark_results.dat
 
-# Clean up
-rm -r $TMPDIR

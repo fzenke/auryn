@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2018 Friedemann Zenke
+* Copyright 2014-2023 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -30,7 +30,6 @@ using namespace auryn;
 int SpikingGroup::last_locked_rank = 0;
 
 NeuronID SpikingGroup::unique_id_count = 0;
-
 
 AurynTime * SpikingGroup::clock_ptr = NULL;
 

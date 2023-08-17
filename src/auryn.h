@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2018 Friedemann Zenke
+* Copyright 2014-2023 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -59,6 +59,7 @@
 // Connection definitions
 #include "auryn/Connection.h"
 #include "auryn/SparseConnection.h"
+#include "auryn/DelayConnection.h"
 #include "auryn/RateModulatedConnection.h"
 #include "auryn/STDPConnection.h"
 #include "auryn/PairInteractionConnection.h"
@@ -77,10 +78,12 @@
 
 // Spiking and input group definitions
 #include "auryn/SpikingGroup.h"
+#include "auryn/ConcatGroup.h"
 #include "auryn/NeuronGroup.h"
 #include "auryn/PoissonGroup.h"
 #include "auryn/PoissonSpikeInjector.h"
 #include "auryn/FileInputGroup.h"
+#include "auryn/FileStimGroup.h"
 #include "auryn/FileModulatedPoissonGroup.h"
 #include "auryn/ParrotGroup.h"
 #include "auryn/StimulusGroup.h"
@@ -130,6 +133,7 @@
 #include "auryn/PopulationRateMonitor.h"
 #include "auryn/BurstRateMonitor.h"
 #include "auryn/StateMonitor.h"
+#include "auryn/MultiStateMonitor.h"
 #include "auryn/WeightSumMonitor.h"
 #include "auryn/PatternMonitor.h"
 #include "auryn/WeightPatternMonitor.h"
@@ -140,6 +144,8 @@
 #include "auryn/NormalStimulator.h"
 #include "auryn/PatternStimulator.h"
 #include "auryn/CurrentInjector.h"
+#include "auryn/FileCurrentInjector.h"
+#include "auryn/VoltageClamp.h"
 
 
 #endif /*AURYN_H__*/

@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2018 Friedemann Zenke
+* Copyright 2014-2023 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -46,7 +46,7 @@ namespace auryn {
  * It records all
  * the spikes on each node (which effectively multiplies spikes).
  */
-class DelayedSpikeMonitor : Monitor
+class DelayedSpikeMonitor : public Monitor
 {
 private:
     NeuronID n_from;

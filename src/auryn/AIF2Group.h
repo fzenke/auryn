@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2018 Friedemann Zenke
+* Copyright 2014-2023 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -49,7 +49,7 @@ private:
 	void free();
 
 protected:
-	auryn_vector_float * g_adapt2;
+	AurynStateVector * g_adapt2;
 
 	void calculate_scale_constants();
 	void integrate_linear_nmda_synapses();

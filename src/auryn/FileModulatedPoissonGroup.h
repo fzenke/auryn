@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2018 Friedemann Zenke
+* Copyright 2014-2023 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -47,6 +47,7 @@ class FileModulatedPoissonGroup : public PoissonGroup
 {
 private:
 	AurynTime ftime;
+	AurynTime ftime_offset;
 	AurynTime ltime;
 	AurynDouble rate_m;
 	AurynDouble rate_n;
@@ -58,9 +59,14 @@ private:
 	std::ifstream inputfile;
 
 	void init ( string filename );
+
+protected:
 	
 public:
-	FileModulatedPoissonGroup(NeuronID n, string filename );
+	/*! Switch that decides whether to start at the beginning of the file when reaching eof */
+	bool loop;
+
+	FileModulatedPoissonGroup(NeuronID n, string filename, bool loop_mode = true );
 	virtual ~FileModulatedPoissonGroup();
 	virtual void evolve();
 };

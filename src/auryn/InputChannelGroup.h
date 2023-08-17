@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2018 Friedemann Zenke
+* Copyright 2014-2023 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -66,6 +66,7 @@ protected:
 	NeuronID channelsize;
 	NeuronID nb_channels;
 
+
 	AurynDouble timescale;
 	int offset;
 	AurynTime delay;
@@ -81,6 +82,9 @@ public:
 	AurynDouble * amplitudes; 
 	/*! \brief Array for OU process means */
 	AurynDouble * means;
+
+	/*! \brief Scale amplitude by channel number when set to True */
+	bool scale_by_channel;
 
 	/*! Default constructor.
 	 *

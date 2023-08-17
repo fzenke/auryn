@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2018 Friedemann Zenke
+* Copyright 2014-2023 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -55,12 +55,13 @@ void DelayedSpikeMonitor::init(SpikingGroup * source, std::string filename, Neur
 	auryn::sys->register_device(this);
 
 	// sys = system;
+	active = true;
 	n_from = from;
 	n_to = to;
 	src = source;
 	offset = 0;
 	outfile.setf(std::ios::fixed);
-	outfile.precision(5); 
+	outfile.precision(log(auryn_timestep)/log(10)+1 );
 }
 
 void DelayedSpikeMonitor::free()
@@ -74,6 +75,8 @@ void DelayedSpikeMonitor::set_offset(NeuronID of)
 
 void DelayedSpikeMonitor::execute()
 {
+	if ( !active ) return;
+
 	for (it = src->get_spikes()->begin() ; it != src->get_spikes()->end() ; ++it ) {
 		if (*it >= n_from ) {
 			if ( *it < n_to ) 

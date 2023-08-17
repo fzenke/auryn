@@ -1,5 +1,5 @@
 /* 
-* Copyright 2014-2018 Friedemann Zenke
+* Copyright 2014-2023 Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
@@ -107,6 +107,15 @@ public:
 	 * \param sampling_interval The sampling interval in seconds
 	 */
 	StateMonitor(Trace * trace, NeuronID id, string filename, AurynDouble sampling_interval=auryn_timestep);
+
+	/*! \brief NIL constructor
+	 *
+	 * Constructs a StateMonitor without specifying a state. This is mostly used for MultiStateMonitor.
+	 *
+	 * \param filename The filename of the file to dump the output to
+	 * \param sampling_interval The sampling interval in seconds
+	 */
+	StateMonitor(string filename, AurynDouble sampling_interval=auryn_timestep);
 
 	/*! \brief Sets relative time at which to stop recording 
 	 *
