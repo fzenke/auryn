@@ -244,6 +244,6 @@ void FileStimGroup::add_spike(double spiketime, NeuronID neuron_id)
 		event.time = spiketime/auryn_timestep;
 		event.neuronID = neuron_id;
 		current_pattern->push_back(event);
-		// sort_spikes(); // FIXME
+		sort_spikes(); 
 }
 
