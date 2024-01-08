@@ -30,7 +30,7 @@ namespace auryn {
 
 #ifdef AURYN_CODE_USE_MPI
 	mpi::communicator * mpicommunicator;
-	mpi::environment * mpienv;
+	mpi::environment * mpienvironment;
 #endif // AURYN_CODE_USE_MPI
 
 	Logger * logger;
@@ -41,7 +41,7 @@ namespace auryn {
 	{
 #ifdef AURYN_CODE_USE_MPI
 		// init MPI environment
-		mpienv = new mpi::environment(ac, av); 
+		mpienvironment = new mpi::environment(ac, av); 
 		mpicommunicator = new mpi::communicator(); 
 		const unsigned int local_rank = mpicommunicator->rank();
 #else
@@ -73,7 +73,7 @@ namespace auryn {
 	void auryn_kernel_init(string dir, string simulation_name)
 	{
 #ifdef AURYN_CODE_USE_MPI
-		auryn::sys = new System(mpicommunicator); 
+		auryn::sys = new System(mpienvironment, mpicommunicator); 
 #else
 		auryn::sys = new System(); 
 #endif // AURYN_CODE_USE_MPI
@@ -100,7 +100,7 @@ namespace auryn {
 		delete logger;
 #ifdef AURYN_CODE_USE_MPI
 		delete mpicommunicator;
-		delete mpienv;
+		delete mpienvironment;
 #endif // AURYN_CODE_USE_MPI
 	}
 
@@ -114,7 +114,7 @@ namespace auryn {
 		delete sys;
 		delete logger;
 #ifdef AURYN_CODE_USE_MPI
-		mpienv->abort(errcode);
+		mpienvironment->abort(errcode);
 #endif // AURYN_CODE_USE_MPI
 		// In the MPI case the above line should have killed this process already ...
 		std::exit(errcode); 
