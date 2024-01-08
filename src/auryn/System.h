@@ -73,6 +73,7 @@ namespace auryn {
 	private:
 		AurynTime clock;
 #ifdef AURYN_CODE_USE_MPI
+		mpi::environment * mpienv;
 		mpi::communicator * mpicom;
 		SyncBuffer * syncbuffer;
 #endif // AURYN_CODE_USE_MPI
@@ -165,7 +166,7 @@ namespace auryn {
 
 #ifdef AURYN_CODE_USE_MPI
 		/*! \brief Default constructor for MPI enabled. */
-		System(mpi::communicator * communicator);
+		System(mpi::environment * environment, mpi::communicator * communicator);
 #else
 		/*! \brief Default constructor for MPI disabled. */
 		System();

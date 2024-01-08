@@ -70,7 +70,7 @@ void System::init() {
 #ifdef AURYN_CODE_USE_MPI
 	syncbuffer = NULL;
 	if ( mpicom ) {
-		syncbuffer = new SyncBuffer(mpicom);
+		syncbuffer = new SyncBuffer(mpienv, mpicom);
 		mpi_size_ = mpicom->size();
 		mpi_rank_ = mpicom->rank();
 	} 
@@ -138,9 +138,10 @@ void System::init() {
 
 
 #ifdef AURYN_CODE_USE_MPI
-System::System(mpi::communicator * communicator)
+System::System(mpi::environment * environment, mpi::communicator * communicator)
 {
 
+	mpienv = environment;
 	mpicom = communicator;
 	init();
 
