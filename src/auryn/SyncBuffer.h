@@ -77,6 +77,7 @@ namespace auryn {
 			int max_send_size;
 
 			mpi::communicator * mpicom;
+			mpi::environment * mpienv;
 
 
 			SYNCBUFFER_DELTA_DATATYPE carry_offset;
@@ -112,7 +113,7 @@ namespace auryn {
 		public:
 
 			/*! \brief The default contructor. */
-			SyncBuffer( mpi::communicator * com );
+			SyncBuffer( mpi::environment * env, mpi::communicator * com );
 
 			/*! \brief The default destructor. */
 			virtual ~SyncBuffer( );

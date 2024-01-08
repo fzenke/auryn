@@ -29,8 +29,9 @@
 #ifdef AURYN_CODE_USE_MPI
 using namespace auryn;
 
-SyncBuffer::SyncBuffer( mpi::communicator * com )
+SyncBuffer::SyncBuffer( mpi::environment * env, mpi::communicator * com )
 {
+	mpienv = env;
 	mpicom = com;
 	init();
 }
@@ -349,7 +350,8 @@ void SyncBuffer::sync_allgatherv()
 			default: std::cerr << "ierr = " << ierr ; break;
 		}
 		std::cerr << std::endl;
-		MPI::COMM_WORLD.Abort(-1);
+		// MPI::COMM_WORLD.Abort(-1);
+		mpienv->abort(-1);
 	}
 
 #ifdef CODE_COLLECT_SYNC_TIMING_STATS
@@ -444,7 +446,8 @@ void SyncBuffer::sync_allgather()
 			default: std::cerr << "ierr = " << ierr ; break;
 		}
 		std::cerr << std::endl;
-		MPI::COMM_WORLD.Abort(-1);
+		// MPI::COMM_WORLD.Abort(-1);
+		mpienv->abort(-1);
 	}
 
 #ifdef CODE_COLLECT_SYNC_TIMING_STATS
