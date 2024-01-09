@@ -1,9 +1,9 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8.11)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8.11...3.13)
 PROJECT(Auryn)
 
 # The version number.
-SET(Auryn_VERSION_MAJOR 1)
-SET(Auryn_VERSION_MINOR 8)
+SET(Auryn_VERSION_MAJOR 8)
+SET(Auryn_VERSION_MINOR 3)
 
 # Important GCC Compiler flags for Auryn's performance
 SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=native -ffast-math -pipe")
