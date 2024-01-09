@@ -8,7 +8,6 @@ plasticity. It comes with the GPLv3 (please see COPYING).
 
 * For examples and documentation visit https://www.fzenke.net/auryn/
 * Please reporte issues here https://github.com/fzenke/auryn/issues
-* For questions and support https://www.fzenke.net/auryn/forum/
 
 Quick start
 -----------
