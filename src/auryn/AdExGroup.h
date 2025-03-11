@@ -1,5 +1,5 @@
 /*
-* Copyright 2014-2023 Ankur Sinha and Friedemann Zenke
+* Copyright 2014-2025 Ankur Sinha and Friedemann Zenke
 *
 * This file is part of Auryn, a simulation package for plastic
 * spiking neural networks.
