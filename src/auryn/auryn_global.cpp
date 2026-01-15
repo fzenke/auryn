@@ -51,7 +51,11 @@ namespace auryn {
 		// Init logger environment
 		try 
 		{ 
+#if BOOST_VERSION <= 108400
 			string log_prefix_ = boost::filesystem::basename(av[0]);
+#else
+			string log_prefix_ = boost::filesystem::path(av[0]).stem().string();
+#endif
 			log_prefix_.erase(std::remove(log_prefix_.begin(),log_prefix_.end(),' '),log_prefix_.end()); // remove spaces
 			std::transform(log_prefix_.begin(), log_prefix_.end(), log_prefix_.begin(), ::tolower); // convert to lower case
 
