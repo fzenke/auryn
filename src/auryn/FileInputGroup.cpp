@@ -60,8 +60,6 @@ FileInputGroup::~FileInputGroup()
 {
 }
 
-bool time_compare (SpikeEvent_type a,SpikeEvent_type b) { return (a.time<b.time); }
-
 void FileInputGroup::load_spikes(std::string filename)
 {
 	std::ifstream spkfile;

@@ -73,9 +73,6 @@ FileStimGroup::~FileStimGroup()
 	clear_input_patterns();
 }
 
-bool time_compare (SpikeEvent_type a,SpikeEvent_type b) { return (a.time<b.time); }
-
-
 void FileStimGroup::clear_input_patterns() 
 {
 	for ( unsigned int i = 0 ; i<input_patterns.size() ; ++i ) {

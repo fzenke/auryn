@@ -60,6 +60,8 @@ NeuronID calculate_vector_size(NeuronID i)
 	#endif
 }
 
+bool time_compare (SpikeEvent_type a,SpikeEvent_type b) { return (a.time<b.time); }
+
 
 void auryn_vector_float_mul( auryn_vector_float * a, auryn_vector_float * b)
 {
