@@ -198,6 +198,9 @@ namespace auryn {
 		NeuronID neuronID;
 	};
 
+	/*! \brief Compare spike events over their timestamp */
+	bool time_compare (SpikeEvent_type a,SpikeEvent_type b);
+
 	/*! \brief Auryn spike event for binary monitors */
 	struct StateValue_type
 	{
